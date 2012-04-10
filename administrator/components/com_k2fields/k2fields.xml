@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>k2fields</name>
+	<author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+	<copyright>Copyright (C) 2010 - $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <authorEmail>$Email$</authorEmail>
+	<authorUrl>$Url$</authorUrl>
+	<version>$Ver$</version>
+	<description>
+                <![CDATA[
+                <p>k2fields is a collection of extensions extending K2 to become an even more powerful tool with the following highlights:</p>
+                <ul>
+                        <li>additional field types</li>
+                        <li>search capability with own search module</li>
+                        <li>flexible content presentation with own module</li>
+                        <li>integrating with other comment extensions for review (rate and comment)</li>
+                        <li>and lots more ... </li>
+                </ul>
+                <p>Refer to <a target="_blank" href="http://jproven.com/k2fields" alt="main k2fields site">k2fields site</a> for additional info</p>
+                ]]>
+        </description>
+        <install><sql><file driver="mysqli" charset="utf8">setup/install.mysqli.sql</file></sql></install>
+        <uninstall><sql><file driver="mysqli" charset="utf8">setup/uninstall.mysqli.sql</file></sql></uninstall> 	
+        <files folder="components/com_k2fields">
+                <folder>controllers</folder>
+                <folder>helpers</folder>
+                <folder>models</folder>
+                <folder>templates</folder>                
+                <folder>views</folder>                
+		<filename>index.html</filename>
+		<filename>k2fields.php</filename>
+	</files>
+	<administration>
+                <menu>k2fields</menu>                
+                <files folder="administrator/components/com_k2fields">
+                        <folder>controllers</folder>
+                        <folder>elements</folder>
+                        <folder>models</folder>
+                        <folder>setup</folder>
+                        <folder>tables</folder>
+                        <folder>templates</folder>
+                        <filename>index.html</filename>
+                        <filename>k2fields.php</filename>
+                </files>
+		<languages folder="administrator/language">
+			<language tag="en-GB">en-GB/en-GB.com_k2fields.ini</language>
+		</languages>
+	</administration>
+        <media destination="k2fields" folder="media">
+                <folder>css</folder>
+                <folder>js</folder>
+                <folder>icons</folder>
+                <folder>lib</folder>
+                <folder>mootools</folder>
+                <filename>index.html</filename>
+        </media>
+        <additional>
+                <plugin name="k2fields" folder="plugins/k2/k2fields" group="k2" enable="1">main k2 plugin</plugin>
+                <plugin name="k2fields" folder="plugins/system/k2fields" group="system" enable="1">system plugin required for proper functioning</plugin>
+                <module name="k2fields" folder="modules/mod_k2fields">search module</module>
+                <module name="k2fields_usertools" folder="modules/mod_k2fields_usertools">user tools - currently mainly submission button</module>
+                <module name="k2fields_contents" folder="modules/mod_k2fields_contents">content presentation</module>
+                <plugin name="widgetkit_k2" folder="plugins/system/widgetkit_k2" group="system" enable="0">slideshow with widgetkit</plugin>
+                <plugin name="rate" folder="plugins/jcomments/rate" group="jcomments" enable="0">rating in jcomments</plugin>
+                <!-- <plugin name="k2fields" folder="plugins/user/k2fields" group="user" enable="0">k2fields auto K2 user group assigning plugin</plugin>
+                <plugin name="slicomments" folder="plugins/k2/slicomments" group="k2" enable="0">sliComments K2 integration</plugin>
+                <plugin name="rate" folder="plugins/slicomments/rate" group="slicomments" enable="0">rating in sliComments</plugin> -->
+        </additional>
+        <scriptfile>script.k2fields.php</scriptfile>
+</extension>

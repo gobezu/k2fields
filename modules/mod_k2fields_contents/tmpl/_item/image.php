@@ -1,0 +1,1 @@
+<?php echo $enableImageLink? '<a href="'.$row->link.'" title="'.$row->title.'">'.$row->mainImage.'</a>':$row->mainImage; ?> 

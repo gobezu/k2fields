@@ -1,0 +1,21 @@
+.camera_thumb_text { 
+        z-index:100;
+        padding:4px;
+        background: #000;
+        color:#fff;
+        text-indent:0px;
+        white-space: nowrap;
+}
+
+.camera_thumb_text_bg {
+        white-space: normal !important;
+        text-align: center;
+}
+
+.camera_thumbs_cont ul li {
+        display:inline-block;
+        position:relative;
+}
+
+.pix_thumb_text { display:none; position:absolute; bottom:0px; text-align:center; background:#333; color:#fff; width:90%; padding:5px; }
+.camera_thumbs_cont ul li:hover .pix_thumb_text { display:block; }

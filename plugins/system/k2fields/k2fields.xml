@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+        <name>System - k2fields</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) 2012 $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>Extending K2 with additional field types, and search and layout capability. NOTE: proper function requires that the order is set after the k2 system plugin.</description>
+        <files>
+                <filename plugin="k2fields">k2fields.php</filename>
+                <file>index.html</file>
+        </files>
+        <config>
+                <fields name="params" addfieldpath="/administrator/components/com_k2fields/elements/">
+                        <fieldset name="basic">
+                                <field name="upgradeMootools" type="radio" default="1" label="Upgrade Mootools to 1.4+">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                </field>                                  
+                        </fieldset>
+                </fields>
+        </config>
+        <params>
+                <param name="upgradeMootools" type="radio" default="1" label="Upgrade Mootools to 1.4+">
+                        <option value="1">YES</option>
+                        <option value="0">NO</option>
+                </param>                
+        </params>
+</extension>

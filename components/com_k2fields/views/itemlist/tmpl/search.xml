@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+  <layout title="k2fields based search form">
+    <message>Define k2fields based search</message>
+  </layout>
+  <state>
+    <name>k2fields search</name>
+    <description>Define k2fields based search</description>
+    <url addpath="/administrator/components/com_k2fields/elements">
+        <param id="searches" name="searches" type="k2fsearchmodule" default="" label="Configure your search" />
+      <param name="task" type="hidden" default="search"/>
+      <param name="layout" type="hidden" default=""/>
+    </url>
+    <params>
+    </params>
+  </state>
+</metadata>

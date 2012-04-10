@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="k2" method="upgrade">    
+        <name>K2 - k2fields</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>Extending K2 with additional field types, and search and layout capability.</description>
+        <files>
+                <filename plugin="k2fields">k2fields.php</filename>
+        </files>
+        <languages folder="language">
+                <language tag="en-GB">en-GB.plg_k2_k2fields.ini</language>
+        </languages>
+        <config>
+                <fields name="params" addfieldpath="/administrator/components/com_k2fields/elements/">
+                        <fieldset name="PLG_K2FIELDS_VARIOUS_DEFAULT_VALUES">
+                                <field name="listmax" type="text" default="10" label="Max allowed elements of multi-valued fields (lists)" description="Max allowed elements of multi-valued fields (lists)" />
+                                <field name="itemlistlimit" type="text" default="10" label="Item list limit in search" />
+                                <field name="jpmodeitemlistlimit" type="text" default="10" label="Item list limit in jpmode in search" />
+                                <field name="alphafieldmaxlength" type="text" default="500" label="Max allowed characters in text fields" description="Max allowed characters in text fields" />
+                                <field name="emptysectionname" type="text" default="Additional info" label="Default section name" />
+                                <field name="inheritfromcategory" type="k2fcategories" default="" label="Inherit from this category" />
+                                <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Exclude to inherit for the following categories" />
+                                <field name="dontinheritparams" type="k2fparams" default="" label="Exclude to inherit the following parameters" />
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_LAYOUT">
+                                <field name="specificLayout" type="radio" default="yes" label="Item/category specific layout" description="By applying the following naming convention for your templates and place them in the selected theme folder you will be able to achieve either item or category specific templating. Items - for item specific template: item_view{_itemid}.php. For category specific template: item_category_view_{categoryid}.php. Itemlists - for category specific template: category_view{_categoryid}.php.">
+                                        <option value="yes">JYES</option>
+                                        <option value="no">JNO</option>
+                                </field>
+                                <field name="specificCSS" type="radio" default="yes" label="Item/category specific CSS" description="In your template folder locate applicable CSS file by prefixing the file with either c for category specifc or i for item specific followed by id for the either category or item.">
+                                        <option value="yes">JYES</option>
+                                        <option value="no">JNO</option>
+                                </field>
+<!--                                <field name="fieldsInsertion" type="list" default="auto" label="Insertion method" description="Insertion method. If you choose template and no template is found then we resort to auto insert.">
+                                        <option value="auto">Auto insert</option>
+                                        <option value="inserted">Inserted</option>
+                                        <option value="template">Template</option>
+                                </field>-->
+                                <field name="extrafieldsposition" type="list" default="AfterDisplay" label="Field insertion position">
+                                        <option value="BeforeDisplay">BeforeDisplay</option>
+                                        <option value="AfterDisplay">AfterDisplay</option>
+                                        <option value="AfterDisplayTitle">AfterDisplayTitle</option>
+                                        <option value="BeforeDisplayContent">BeforeDisplayContent</option>
+                                        <option value="AfterDisplayContent">AfterDisplayContent</option>
+                                </field>
+                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list)" description="On each row: category%%position" />
+                                
+                                <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
+                                <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
+                                
+<!--                                <field name="uicounts" type="spacer" label="Layout item counts" />
+                                <field name="numLeadingItems" type="textarea" cols="40" rows="4" default="" label="Leading count (one row per layout as)" description="Number of items to display as leading. One per row as layout::count"/>
+                                <field name="numPrimaryItems" type="textarea" cols="40" rows="4" default="" label="Primary count" description="Number of items to display as primary. One per row as layout::count"/>
+                                <field name="numSecondaryItems" type="textarea" cols="40" rows="4" default="" label="Secondary count" description="Number of items to display as secondary. One per row as layout::count"/>
+                                <field name="numLinks" type="textarea" cols="40" rows="4" default="" label="Link count" description="Number of items to display as link. One per row as layout::count"/>-->
+                                
+                                <field name="uisection" type="spacer" label="Field section compartment UI" />
+                                <!--TODO: support for additional fancy options <option value="jkefeltab">jkefel powered tabs</option>
+                                        <option value="jkefelaccordion">jkefel powered sliders</option> -->                                
+                                <field name="defaultui" type="list" default="tab" label="Default for item view">
+                                        <option value="plain">Plain</option>
+                                        <option value="headers">Sections with header</option>
+                                        <option value="list">List</option>
+                                        <option value="tab">Joomla! native tabs</option>
+                                        <option value="accordion">Joomla! native sliders</option>
+                                </field>
+                                <field name="catsui" type="textarea" cols="40" rows="10" default="all%%tab" label="Category specific for item view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="defaultuiitemlist" type="list" default="plain" label="Default for itemlist view">
+                                        <option value="plain">Plain</option>
+                                        <option value="headers">Sections with header</option>
+                                        <option value="list">List</option>
+                                        <option value="tab">Joomla! native tabs</option>
+                                        <option value="accordion">Joomla! native sliders</option>
+                                </field>        
+                                <field name="catsuiitemlist" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for itemlist view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="defaultuimodule" type="list" default="plain" label="Default for module view">
+                                        <option value="plain">Plain</option>
+                                        <option value="headers">Sections with header</option>
+                                        <option value="list">List</option>
+                                        <option value="tab">Joomla! native tabs</option>
+                                        <option value="accordion">Joomla! native sliders</option>
+                                </field>        
+                                <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for module view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <!-- 
+                                <field name="defaultListLayout" type="list" default="generic" label="Default list layout" description="Select default list layout. Serves both as search and category listing layout, within the selected K2 theme.">
+                                        <option value="">List (default)</option>
+                                        <option value="map">Map</option>
+                                        <option value="masonry">Masonry</option>
+                                </field>                                
+                                <field name="titlesection" type="textarea" cols="40" rows="10" default="" label="Title sections (category::section name)" /> 
+                                <field name="introtextsection" type="textarea" cols="40" rows="10" default="" label="Intro text sections (category::section name)" />
+                                <field name="fulltextsection" type="textarea" cols="40" rows="10" default="" label="Full text sections (category::section name)" />
+                                <field name="k2tabsrename" type="textarea" cols="40" rows="10" default="" label="K2 Native tab renames" description="category%%Section1%%Section2%%...%%SectionN"/>
+                                <field name="titlerename" type="textarea" cols="40" rows="10" default="" label="Title field renames" description="category%%Section1%%Section2%%...%%SectionN"/>
+                                -->
+                                <field name="k2tabsrename" type="textarea" cols="40" rows="10" default="" label="K2 Native tab renames" description="category%%Section1%%Section2%%...%%SectionN"/>
+                                <field 
+                                        name="accesstabsineditform" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Tabs in edit form (only defined will be available)." 
+                                        description="catid%%excluded child catids%%tabs [content|image|gallery|video|extrafields|attachment|plugin] separated by %%"
+                                />                                
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_DATETIME">
+                                <field name="datepickertheme" type="folderlist" default="datepicker_dashboard" directory="media/k2fields/lib/datepicker" label="Date picker theme" />
+                                <field name="datetimeFormat" type="list" default="Y-m-d H:i:s" label="Date/time format" description="Provide date/time format">
+                                        <option value="Y:m:d H:i:s">2008:08:07 18:11:31</option>
+                                        <option value="Y-m-d H:i:s">2008-08-07 18:11:31</option>
+                                        <option value="Y.m.d H:i:s">2008.08.07 18:11:31</option>
+                                        <option value="d/m/Y H:i:s">07/08/2008 18:11:31</option>
+                                        <option value="d/M/Y H:i:s">07/Aug/2008 18:11:31</option>
+                                        <option value="d/j/Y H:i:s">07/August/2008 18:11:31</option>
+                                        <option value="F j, Y, g:i a">March 10, 2001, 5:16 pm</option>
+                                        <option value="h-i-s, j-m-y, it is w Day">05-16-18, 10-03-01, 1631 1618 6 Satpm01</option>
+                                        <option value="D M j G:i:s T Y">Sat Mar 10 17:16:18 MST 2001</option>
+                                        <option value="D, M j Y G:i:s T">Fri, 24 Dec 2010 06:56:39 PST</option>
+                                        <option value="D M j Y, G:i:s">Sat Mar 10 2001, 17:16:18</option>
+                                        <option value="D, d M Y H:i:s \G\M\T">Mon, 19 Nov 2007 23:47:33 GMT</option>
+                                        <option value="Y-m-d\TH:i:s\Z">2003-12-13T18:30:02Z</option>
+                                </field>
+                                <field name="dateFormat" type="list" default="Y-m-d" label="Date format" description="Provide date format">
+                                        <option value="Y:m:d">2008:08:07</option>
+                                        <option value="Y-m-d">2008-08-07</option>
+                                        <option value="Y.m.d">2008.08.07</option>
+                                        <option value="d/m/Y">07/08/2008</option>
+                                        <option value="d/M/Y">07/Aug/2008</option>
+                                        <option value="d/F/Y">07/August/2008</option>
+                                        <option value="Ymd">20010310</option>
+                                        <option value="m.d.y">03.10.01</option>
+                                        <option value="j, n, Y">10, 3, 2001</option>
+                                </field>
+                                <field name="timeFormat" type="list" default="H:i:s" label="Time format" description="Provide dtime format">
+                                        <option value="H:i:s">18:11:31</option>
+                                        <option value="H:i">18:11</option>
+                                        <option value="H.i.s">18.11.31</option>
+                                        <option value="H.i">18.11</option>
+                                </field>
+                                <field name="weekstartson" type="list" default="1" label="Week starts on">
+                                        <option value="0">Sunday</option>
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                </field>                            
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_MEDIA">
+                                <field name="mediaroot" type="text" size="50" default="images/k2" label="Media root folder" description="Location where uploaded media files are stored. For Browse server mode please note that all media files in this folder which user have access to will be made available. Media files to which user have access to is defined as all media files found in K2 items which user is author of." />
+                                <field name="mediafolder" type="radio" default="item" label="Media folder (within the root folder)" description="Media files are uploaded to folders specific to each item or user, depending on your setting here.">
+                                        <option value="user">User specific folder</option>
+                                        <option value="item">Item specific folder</option>
+                                </field>
+                                <field name="mediaoverwrite" type="radio" default="1" label="Overwrite on upload if file exsists" description="If overwrite is not allowed then we always append timestamp to file name to avoid potential file name collision.">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="picresize" type="radio" default="1" label="Resize picture" description="If picture is in its width and/or height larger than what is allowed and if resizing is allowed then we will resize it, if not upload is rejected">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="piccreatethumb" type="list" default="create" label="Thumbnail mode" description="While most plugins create there own thumbnails some require to be provided with thumbnails which are indicated by thumb postfix in the plugin list.">
+                                        <option value="none">No thumbs</option>
+                                        <option value="create">Create (pictures only)</option>
+                                        <option value="upload">Upload</option>
+                                        <option value="createupload">Upload or create (upload with priority)</option>
+                                </field>
+                                <field name="thumbfolder" type="text" size="50" default="_thumb" label="Thumbnail folder (subfolder to media folder)" description="Notice: if you combine the use of plugins that creates there own thumbnails with this feature turned on make sure that the folder name doesn&apos;t collide, or make sure that thumb creation is turned off in the [Thumbnail mode] option (this might make it difficult to switch to plugins that doesn&apos;t render thumbnails later on)." />
+                                <field name="picwidththumb" type="text" size="5" default="150" label="Maximum thumbnail width (px)" description="Maximum picture width (px)" />
+                                <field name="picheightthumb" type="text" size="5" default="150" label="Maximum thumbnail height (px)" description="Maximum picture height (px)" />
+                                <field name="picqualitythumb" type="text" size="5" default="80" label="Thumbnail quality (%)" description="Maximum picture height (px)" />
+                                <field name="medialimit" type="text" size="3" default="10" label="Maximum number of media items per K2 item (0 unlimited)" description="" />
+                                <field name="medialimitspecific" type="textarea" rows="5" cols="40" default="" label="Category specific maximum number of media items per K2 item" description="Provide categoryid%%limit one per row for each category. For non category specific limit set the above parameter." />
+                                <field name="picsize" type="text" size="5" default="40" label="Maximum upload size picture (KB)" description="Applies also to thumbnails" />
+                                <field name="videosize" type="text" size="5" default="400" label="Maximum upload size video (KB)" description="" />
+                                <field name="audiosize" type="text" size="5" default="200" label="Maximum upload size audio (KB)" description="" />
+                                <field name="archivesize" type="text" size="5" default="4000" label="Maximum upload size archive (KB)" description="" />
+                                <field name="picwidth" type="text" size="5" default="500" label="Maximum picture width (px)" description="Applies also to thumbnails" />
+                                <field name="picheight" type="text" size="5" default="500" label="Maximum picture height (px)" description="Applies also to thumbnails" />
+                                <field name="picquality" type="text" size="3" default="80" label="Picture quality (%)" description="Picture quality when resizing (%)." />
+                                <field name="picplg" type="list" default="jw_simpleImageGallery" label="Picture engine (item view)" description="Make sure that all of your plugins parameter are set as you need them either through your fields definitions or in the plugins setting directly.">
+                                        <option value="widgetkit_k2">Widgetkit</option>
+                                        <option value="jw_sigpro">Simple Image Gallery Pro (by JoomlaWorks)</option>
+                                        <option value="jw_simpleImageGallery">Simple Image Gallery (by JoomlaWorks)</option>
+                                        <option value="sige">SIGE</option>
+                                        <option value="sigplus">Image gallery - sigplus</option>
+                                        <option value="verysimpleimagegallery">Very Simple Image Gallery</option>
+                                        <option value="cssgallery">CSS Gallery</option>
+                                        <option value="cdwebgallery">Core Design Web Gallery plugin</option>
+                                        <option value="ppgallery">pPgallery</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="img">Image (HTML-tag)</option>
+                                </field>
+                                <field name="itemlistpicplg" type="list" default="jwsig" label="Picture engine (itemlist view)" description="Make sure that all of your plugins parameter are set as you need them either through your fields definitions or in the plugins setting directly. Most common choice for list based view galleries is to choose those with single mode available.">
+                                        <option value="widgetkit">Widgetkit</option>
+                                        <option value="jw_sigpro">Simple Image Gallery Pro (by JoomlaWorks)</option>
+                                        <option value="jw_simpleImageGallery">Simple Image Gallery (by JoomlaWorks)</option>
+                                        <option value="sige">SIGE</option>
+                                        <option value="sigplus">Image gallery - sigplus</option>
+                                        <option value="verysimpleimagegallery">Very Simple Image Gallery</option>
+                                        <option value="cssgallery">CSS Gallery</option>
+                                        <option value="cdwebgallery">Core Design Web Gallery plugin</option>
+                                        <option value="ppgallery">pPgallery</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="img">Image (HTML-tag)</option>
+                                </field>
+                                <field name="providerplg" type="list" default="jw_allvideos" label="Provider (Remotely hosted content) engine (item view)" description="">
+                                        <option value="jw_allvideos">AllVideos</option>
+                                </field>
+                                <field name="itemlistproviderplg" type="list" default="jw_allvideos" label="Provider (Remotely hosted content) (itemlist view)" description="">
+                                        <option value="jw_allvideos">AllVideos</option>
+                                </field>
+                                <field name="videoplg" type="list" default="jw_allvideos" label="Video engine (item view), support for additional plugins TBI" description="Video engine">
+                                        <option value="jw_allvideos">AllVideos</option>
+                                        <!-- <option value="avreloaded">AllVideos Reloaded</option>
+                                        <option value="denvideo">denVideo</option>
+                                        <option value="bo_videojs">bo:VideoJS</option>
+                                        <option value="jplayer">JPlayer</option>
+                                        <option value="shadowbox">Shadowbox Media Viewer - thumb</option>
+                                        <option value="jcemediabox">JCE MediaBox - thumb</option>
+                                        <option value="modalizer">NoNumber-Modalizer - thumb</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="rokbox">Rokbox - thumb</option>
+                                        <option value="yoo_effects">YOO Effects - thumb</option>-->
+                                </field>
+                                <field name="itemlistvideoplg" type="list" default="jw_allvideos" label="Video engine (itemlist view), support for additional plugins TBI" description="Video engine">
+                                        <option value="jw_allvideos">AllVideos</option>
+                                        <!--<option value="avreloaded">AllVideos Reloaded</option>
+                                        <option value="denvideo">denVideo</option>
+                                        <option value="bo_videojs">bo:VideoJS</option>
+                                        <option value="jplayer">JPlayer</option>
+                                        <option value="shadowbox">Shadowbox Media Viewer - thumb</option>
+                                        <option value="jcemediabox">JCE MediaBox - thumb</option>
+                                        <option value="modalizer">NoNumber-Modalizer - thumb</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="rokbox">Rokbox - thumb</option>
+                                        <option value="yoo_effects">YOO Effects - thumb</option>-->
+                                </field>
+                                <!-- <field name="audioplg" type="list" default="mp3skinned" label="Audio engine (item view)" description="Audio engine">
+                                        <option value="mp3skinned">mp3 Skinned</option>
+                                        <option value="josdewplayer">JosDewPlayer</option>
+                                        <option value="shadowbox">Shadowbox Media Viewer - thumb</option>
+                                        <option value="jcemediabox">JCE MediaBox - thumb</option>
+                                        <option value="modalizer">NoNumber-Modalizer - thumb</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="rokbox">Rokbox - thumb</option>
+                                        <option value="yoo_effects">YOO Effects - thumb</option>
+                                </field>
+                                <field name="itemlistaudioplg" type="list" default="mp3skinned" label="Audio engine (itemlist view)" description="Audio engine">
+                                        <option value="mp3skinned">mp3 Skinned</option>
+                                        <option value="josdewplayer">JosDewPlayer</option>
+                                        <option value="shadowbox">Shadowbox Media Viewer - thumb</option>
+                                        <option value="jcemediabox">JCE MediaBox - thumb</option>
+                                        <option value="modalizer">NoNumber-Modalizer - thumb</option>
+                                        <option value="jcemediabox">JCE Mediabox - thumb</option>
+                                        <option value="rokbox">Rokbox - thumb</option>
+                                        <option value="yoo_effects">YOO Effects - thumb</option>
+                                </field> -->
+                                <field name="mediasources" type="multilist" multiple="multiple" default="upload" label="Media sources" description="Sources from where to pull media files.">
+                                        <option value="upload">File upload</option>
+                                        <!-- <option value="remote">Remote url</option> -->
+                                        <option value="provider">Video providers with media ID</option>
+                                        <option value="embed">Embed code (HTML snippets)</option>
+                                        <!-- <option value="browse">Browse server (on server existing media)</option> -->
+                                </field>
+                                <!-- <field name="remotedlallowed" type="usergroup" default="" label="Allow download of remotely sourced media for this group (administrator and above if not selected)" description="Allow download of remotely sourced media for this group (administrator and above if not selected)" /> -->
+                                <field name="mediatypes" type="multilist" multiple="multiple" default="pic" label="Media types" description="Sources from where to pull media files.">
+                                        <option value="pic">Picture</option>
+                                        <option value="video">Video</option>
+                                        <!-- <option value="audio">Audio</option> -->
+                                </field>
+                                <field name="archiveallowed" type="accesslevel" default="" label="Allow archive for this group (administrator and above if not selected)" description="Allow archive for this group" />
+                                <field name="mediafileexts" type="multilist" multiple="multiple" default="" label="Allow media file extensions" description="Allow media file extensions">
+                                        <option value="jpg">jpg</option>
+                                        <option value="jpeg">jpeg</option>
+                                        <option value="gif">gif</option>
+                                        <option value="png">png</option>                        
+                                        <option value="flv">flv</option>
+                                        <option value="swf">swf</option>
+                                        <option value="3gp">3gp</option>
+                                        <option value="wmv">wmv</option>
+                                        <option value="avi">avi</option>
+                                        <option value="mpg">mpg</option>
+                                        <option value="mpeg">mpeg</option>
+                                        <option value="mov">mov</option>
+                                        <option value="mp4">mp4</option>
+                                        <option value="rm">rm</option>
+                                        <option value="divx">divx</option>
+                                        <!-- <option value="mp3">mp3</option>
+                                        <option value="wma">wma</option>
+                                        <option value="ram">ram</option>-->
+                                </field>
+                                <field name="checkmime" type="radio" default="1" label="Check mime-type" description="Check mime-type">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="filenameascaptiontranslation" type="textarea" cols="40" rows="10" label="String replacements while using file name as caption" description="On each row couple of translation with == as separator. {space} is placeholder for actual space. {delete} is placeholder for actual deletion of string. Ex. _-=={space}" />
+                                <field name="renamefiles" type="radio" default="0" label="Rename files" description="All characters except a-z, 0-9, hyphen(-) and underscore(_) will be removed mainly because some media plugins such as Simple image gallery does not work well with non-alphanumber characters. Such characters are replaced with underscores.">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="mode" type="radio" default="none" label="Display mode" description="Note: only limited number of plugins are able to provide such mode.">
+                                        <option value="none">Normal</option>
+                                        <option value="single">Single</option>
+                                </field>                                
+                                <field name="listmode" type="radio" default="none" label="Display mode in itemlist" description="Some media plugins are not able to deal with space and other non-alphanumeric characters.">
+                                        <option value="none">Normal</option>
+                                        <option value="single">Single</option>
+                                </field>                                
+                                <field name="singlemode" type="radio" default="random" label="Single display mode" description="Applies only if display mode above is single">
+                                        <option value="random">Random</option>
+                                        <option value="first">First</option>
+                                </field>                                
+                        </fieldset>
+                        <!--
+                        <fieldset name="PLG_K2FIELDS_MAP">
+                                <field name="mapprovider" type="list" default="google" label="Provider" description="Select map provider">
+                                        <option value="yahoo">yahoo</option>
+                                        <option value="yandex">yandex</option>
+                                        <option value="googlev2">google v2</option>
+                                        <option value="google">google</option>
+                                        <option value="microsoft">microsoft</option>
+                                        <option value="mapquest">mapquest</option>
+                                        <option value="cloudmade">cloudmade</option>
+                                        <option value="openlayers">openlayers</option>
+                                </field>
+                                <field name="mapcontainerid" type="text" default="" label="Container ID" description="Provide map container ID" />
+                                <field name="mapapikey" type="text" default="" label="API Key" description="Provide map api key, if applicable" />
+                                <field name="mapcenter" type="text" default="" label="Center coordinate: lat,lon" description="Provide map default center coordinate" />
+                                <field name="mapzoom" type="list" default="10" label="Zoom" description="Select zoom level">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                </field>
+                                <field name="geocodingmethod" type="list" default="coord" label="Method" description="Select map method">
+                                        <option value="coord">coordinates</option>
+                                        <option value="geo">geocoding</option>
+                                </field>
+                                <field name="locationprovider" type="list" default="maxmind" label="Current location provider" description="Select current location provider. Please note each API providers usage license and terms and conditions">
+                                        <option value="maxmind">Maxmind</option>
+                                        <option value="simplegeo">Simplegeo(provide JSONP-token below)</option>
+                                        <option value="function">Custom function(provide below)</option>
+                                </field>
+                                <field name="locationproviderfunction" type="textarea" default="currentLocation()" cols="40" rows="4" label="Current location provider(function)" description="Provide current location provider(function)" />
+                                <field name="simplegeojsonptoken" type="text" default="" label="SimpleGeo JSONP token" description="Provide SimpleGeo JSONP token" />
+                                <field name="mapclusteringtreshold" type="text" default="300" label="Clustering treshold # of POI" description="Provide clustering treshold # of POI" />
+                                <field name="mapclusteringtresholdzoom" type="list" default="10" label="Clustering treshold zoom level" description="Provide clustering treshold zoom level to be used in conjunction with # of POI treshold">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                </field>
+                                <field name="itemmaptype" type="list" default="static" label="Map type in item view">
+                                        <option value="static">Static</option>
+                                        <option value="normal">Normal</option>
+                                </field>
+                                <field name="staticmapzoom" type="list" default="15" label="Zoom level in static view">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                </field>
+                                <field name="staticmapmaptype" type="list" default="roadmap" label="Map type in static view">
+                                        <option value="roadmap">Roadmap</option>
+                                        <option value="satellite">Satellite</option>
+                                        <option value="hybrid">Hybrid</option>
+                                        <option value="terrain">Terrain</option>
+                                </field>
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_RELATED_LISTS_WITHIN_ITEMS">
+                                <field name="defaultrelatedas" type="list" default="url" label="Generate by default as">
+                                        <option value="list">List (search result)</option>
+                                        <option value="url">URL (search URL)</option>
+                                </field>                
+                                <field name="relateditemlistmodule" type="sql" default="" label="Module to be used when listing related items" description="Compatible is all modules which accept parameter called items where we provide list of K2 item ids. Currently known compatible ones are: 1. our own K2 Categories 2. K2 Content" 
+                                        query="select CONCAT(m.module, ' - ', m.title) AS relateditemlistmodule, m.id AS value FROM #__modules AS m WHERE published = 1 AND m.module IN ('mod_k2_categories', 'mod_k2_content') ORDER BY m.module"
+                                />
+                                <field name="defaultrelatedposition" type="list" default="last" label="Default position">
+                                        <option value="last">Last</option>
+                                        <option value="first">First</option>
+                                        <option value="afterintro">After intro</option>
+                                        <option value="beforefull">Before full</option>
+                                </field>
+                                <field name="removekeywordrelated" type="radio" default="0" label="Remove keywords once processed as search value">
+                                        <option value="1">JYES</option>
+                                        <option value="0">JNO</option>
+                                </field>
+                                <field name="autorelatedlistgenerate" type="textarea" rows="15" cols="40" default="" 
+                                        label="Auto generating related lists/search links for all items in a category and subcategories" 
+                                        description="applies to categoryid (including subcategories)%%generate as(url,list)%%based on[tag|keyword|fieldids,fieldposition]%%fixed values separated with || between field values and with | multiple values%%search within categoryid%%based on[tag|keyword|fieldids,fieldposition]%%position[start|end|afterintro|beforetext]%%[exclude specific sub-categories to apply to|all]%%TBI[exclude specific sub-categories to search within|all]"
+                                />  
+                        </fieldset>
+                        <fieldset name="PLG_K2FIELDS_ACCESS">
+                                <field 
+                                        name="accesssubmitquota" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Add quota" 
+                                        description="(g(k2 user group id)|u(k2 user id))%%# of allowed currently published items%%redirect to(url|itemid|user)%%message%%form" 
+                                />
+                                <field name="accessdefaulthref" type="menuitem" default="" label="Default menu item to forward to when quota reached" />
+                                <field 
+                                        name="accesstabsineditform" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Tabs in edit form (only defined will be available)." 
+                                        description="catid%%excluded child catids%%tabs [content|image|gallery|video|extrafields|attachment|plugin] separated by %%"
+                                />                                
+                        </fieldset>
+                        <fieldset name="PLG_K2FIELDS_EXPIRE">
+                                <field 
+                                        name="expirynoticeoffset" 
+                                        type="list" 
+                                        default="1D" 
+                                        label="Expiry notifcation offset"
+                                        descriptio="Time before expiry of item notice should be sent"
+                                >
+                                        <option value="1D">1 day</option>
+                                        <option value="2D">2 days</option>
+                                        <option value="3D">3 days</option>
+                                        <option value="7D">1 week</option>
+                                        <option value="14D">2 weeks</option>
+                                </field>
+                                <field 
+                                        name="expirenotifyadditional" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Expiry notification to be sent to" 
+                                />
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_USER_PROFILE_REGISTRATION">
+                                <field 
+                                        name="userprofilefields" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="User profile fields to be added"
+                                        description="fieldname,fieldtype,defaultvalue,label,options[opt1value=opt1text|opt2value=opt2text|...]|query"
+                                />
+                                <field 
+                                        name="modalizelinks" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Modalize the following selectors"
+                                        description="sef url%%url%%width%%height%%message%%handler"
+                                />
+                                <field name="userprofileallowgroup" type="list" default="never" label="Allow selection of user group">
+                                        <option value="register">Only when registering</option>
+                                        <option value="always">Both when registering and editing</option>
+                                        <option value="never">Never</option>
+                                </field>
+                                <field name="userprofileremovek2fields" type="list" default="never" label="Remove K2 user profile fields">
+                                        <option value="never">JNO</option>
+                                        <option value="always">JYES</option>
+                                        <option value="registration">In registration</option>
+                                </field>
+                                <field name="userprofileremoveusername" type="list" default="never" label="Remove username">
+                                        <option value="never">Don't remove</option>
+                                        <option value="email">Set to email</option>
+                                        <option value="random">Generate random</option>
+                                </field>
+                        </fieldset>
+                        -->
+                        <fieldset name="PLG_K2FIELDS_SOCIAL">
+                                <field name="socialincludeecats" type="k2fmulticategories" default="" label="Include only on categories" />
+                                <field name="socialexcludecats" type="k2fmulticategories" default="" label="Exclude on categories" />
+                                
+                                <field name="socialincludeitem" type="k2fitem" default="" label="Include only on items" description="" />
+                                <field name="socialincludeitems" type="k2fitems" default="" label="Click on button to remove item"/>
+                                
+                                <field name="socialexcludeitem" type="k2fitem" default="" label="Exclude on items" description="" />
+                                <field name="socialexcludeitems" type="k2fitems" default="" label="Click on button to remove item"/>
+                                
+                                <field name="socialitemposition" type="list" default="none" label="Insertion position for item view">
+                                        <option value="none">None</option>
+                                        <option value="BeforeDisplay">BeforeDisplay</option>
+                                        <option value="AfterDisplay">AfterDisplay</option>
+                                        <option value="AfterDisplayTitle">AfterDisplayTitle</option>
+                                        <option value="BeforeDisplayContent">BeforeDisplayContent</option>
+                                        <option value="AfterDisplayContent">AfterDisplayContent</option>
+                                </field>
+                                <field name="sociallistposition" type="list" default="none" label="Insertion position for non-item view">
+                                        <option value="none">None</option>
+                                        <option value="BeforeDisplay">BeforeDisplay</option>
+                                        <option value="AfterDisplay">AfterDisplay</option>
+                                        <option value="AfterDisplayTitle">AfterDisplayTitle</option>
+                                        <option value="BeforeDisplayContent">BeforeDisplayContent</option>
+                                        <option value="AfterDisplayContent">AfterDisplayContent</option>
+                                </field>
+                                <field name="socialfixedurl" type="text" default="" size="45" label="Fixed URL to submit" description="" />
+                                <field name="socialdisplay" type="text" default="" size="45" label="Buttons to display" description="Comma separated and ordered list of facebook,twitter,linkedin,googleplus,pinterest,readability,flattr" />
+                                
+                                <field type="spacer" name="socialfacebookspacer" label="&lt;style type=&quot;text/css&quot;&gt;li span.spacer label {width:100%;} #jform_params_socialfacebookspacer-lbl { color:#fff; background:#3864a3; }&lt;/style&gt;facebook" />
+                                <field name="socialfacebooksend" type="radio" default="0" label="Show send button" description="The Send Button allows users to easily send content to their friends. People will have the option to send your URL in a message to their Facebook friends, to the group wall of one of their Facebook groups, and as an email to any email address. While the Like Button allows users to share content with all of their friends, the Send Button allows them to send a private message to just a few friends.">
+                                        <option value="0">JNo</option>
+                                        <option value="1">JYes</option>
+                                </field>
+                                <field name="socialfacebooklayout" type="list" default="standard" label="Layout style" description="Standard - displays social text to the right of the button and friends profile photos below. Button count - displays the total number of likes to the right of the button. Box count - displays the total number of likes above the button.">
+                                        <option value="standard">Standard</option>
+                                        <option value="box_count">Box count</option>
+                                        <option value="button_count">Button count</option>
+                                </field>
+                                <field name="socialfacebookshow_faces" type="radio" default="0" label="Show faces (standard layout only)" description="Display profile photos below the button.">
+                                        <option value="0">JNo</option>
+                                        <option value="1">JYes</option>
+                                </field>
+                                <field name="socialfacebookwidth" type="text" default="450" label="Width" description="" />
+                                <field name="socialfacebookaction" type="radio" default="like" label="Verb to display on button" description="">
+                                        <option value="like">Like</option>
+                                        <option value="recommend">Recommend</option>
+                                </field>
+                                <field name="socialfacebookfont" type="list" default="standard" label="Layout style">
+                                        <option value="arial">Arial</option>
+                                        <option value="lucida grande">Lucida grande</option>
+                                        <option value="segoe ui">Segoe ui</option>
+                                        <option value="tahoma">Tahoma</option>
+                                        <option value="trebuchet ms">Trebuchet ms</option>
+                                        <option value="verdana">Verdana</option>
+                                </field>
+                                <field name="socialfacebookcolorscheme" type="radio" default="light" label="Color scheme" description="">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                </field>
+                                
+                                <field type="spacer" name="socialtwitterspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_socialtwitterspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;twitter" />
+                                <field name="socialtwittertext" type="text" default="" label="Twitter text" description="" />
+                                <field name="socialtwittercount" type="radio" default="" label="Show counter" description="">
+                                        <option value="">Counter</option>
+                                        <option value="none">None</option>
+                                </field>
+                                <field name="socialtwittervia" type="text" default="" label="Via twitter ID " description="" />
+                                <field name="socialtwitterrelated" type="text" default="" label="Related twitter ID" description="" />
+                                <field name="socialtwitterhash" type="text" default="" label="Related twitter hash (without trailing #)" description="" />
+                                <field name="socialtwitterbutton" type="radio" default="" label="Button size" description="">
+                                        <option value="">Normal</option>
+                                        <option value="large">Large</option>
+                                </field>
+                                
+                                <field type="spacer" name="sociallinkedinspacer" label="Linked&lt;span style=&quot;margin-left:5px;padding:5px;font-weight:bold;background:#6db3d7;color:#fff;&quot;&gt;in&lt;/span&gt;" />
+                                <field name="sociallinkedincounter" type="radio" default="right" label="Counter position" description="">
+                                        <option value="right">Right</option>
+                                        <option value="top">Top</option>
+                                        <option value="none">None</option>
+                                </field>
+                                
+                                <field type="spacer" name="socialpinterestspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_socialpinterestspacer-lbl { color:#fff; background:#c61f29; }&lt;/style&gt;Pinterest (TBI)" />
+                                <field name="socialpinterestcounter" type="radio" default="horizontal" label="Counter position" description="">
+                                        <option value="horizontal">Right</option>
+                                        <option value="vertical">Top</option>
+                                        <option value="none">None</option>
+                                </field>
+                                <field name="socialpinterestdescription" type="radio" default="text" label="Description" description="">
+                                        <option value="text">Text(below)</option>
+                                        <option value="item">Item</option>
+                                        <option value="image">Image</option>
+                                </field>
+                                <field name="socialpinterestdescriptiontext" type="text" default="" label="Description text(if text is chosen above)" description="" />
+                                
+                                <field type="spacer" name="socialgooglespacer" label="&lt;span style=&quot;padding:5px 5px 5px 0px;width:100%;display:inline-block;background:#0058a2;color:#ffffff;text-align:right;&quot;&gt;&lt;span style=&quot;padding:5px 10px;background:#e22c3b;color:#e22c3b;&quot;&gt;-&lt;/span&gt;&lt;span style=&quot;padding:5px 10px;background:#148ee3;color:#148ee3;&quot;&gt;-&lt;/span&gt;&lt;span style=&quot;padding:5px 10px;background:#36c51e;color:#36c51e;&quot;&gt;-&lt;/span&gt;&lt;span style=&quot;padding:5px 10px;background:#ffc928;color:#ffc928;margin-right:5px;&quot;&gt;-&lt;/span&gt;Google+&lt;/span&gt;" />
+                                <field name="socialgoogleplusannotation" type="radio" default="inline" label="Annotation position" description="">
+                                        <option value="inline">Inline</option>
+                                        <option value="bubble">Bubble</option>
+                                        <option value="none">None</option>
+                                </field>
+                                <field name="socialgoogleplussize" type="radio" default="medium" label="Button size" description="">
+                                        <option value="small">Small(15px)</option>
+                                        <option value="medium">Medium(20px)</option>
+                                        <option value="standard">Standard(24px)</option>
+                                        <option value="tall">Tall(60px)</option>
+                                </field>
+                                
+                                <field type="spacer" name="socialreadabilityspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_socialreadabilityspacer-lbl { color:#fff; background:#9c0001; }&lt;/style&gt;Readability" />
+                                <field name="socialreadabilityread" type="radio" default="0" label="Read Now/Later" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="socialreadabilityprint" type="radio" default="0" label="Print" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="socialreadabilityemail" type="radio" default="0" label="Email" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="socialreadabilitykindle" type="radio" default="0" label="Send to Kindle" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="socialreadabilitycolortext" type="text" default="#5c5c5c" label="Text color" description="" />
+                                <field name="socialreadabilitycolorbg" type="text" default="#f3f3f3" label="Background color" description="" />
+                                <field name="socialreadabilityorientation" type="radio" default="0" label="Orientation" description="">
+                                        <option value="0">Horizontal</option>
+                                        <option value="1">Vertical</option>
+                                </field>
+                                
+                                <field type="spacer" name="socialflattrspacer" label="&lt;span style=&quot;padding:5px 5px 5px 0px;width:100%;display:inline-block;background:#FBFAF3;color:#444;text-align:right;&quot;&gt;&lt;span style=&quot;padding:5px 26px;background:#faab35;color:#faab35;&quot;&gt;-&lt;/span&gt;&lt;span style=&quot;padding:5px 26px;background:#86b145;color:#86b145;margin-right:5px;&quot;&gt;-&lt;/span&gt;Flattr&lt;/span&gt;" />
+                                <field name="socialflattruid" type="text" size="50" default="" label="A Flattr username" description="This is a required parameter for autosubmit but not for things that are already on flattr.com." />
+                                <field name="socialflattrtitle" type="text" size="50" default="" label="Title (replacing current item title)" description="Will be used to describe your thing on Fattr. The title should be between 5-100 characters. All HTML is stripped. This is a required parameter for autosubmit but not for things that are already on flattr.com." />
+                                <field name="socialflattrdescription" type="textarea" cols="35" rows="5" default="" label="Description (replacing current item meta tag)" description="Will be used to describe your thing. The description should be between 5-1000 characters. All HTML is stripped except the &lt;br\&gt; character which will be converted into newlines (\n). This is a required parameter for autosubmit but not for things that are already on flattr.com." />
+                                <field name="socialflattrcategory" type="list" default="text" label="Category" description="This parameter is used to sort things on Flattr and has no impact on the functionality of your button.">
+                                        <option value="text">Text</option>
+                                        <option value="images">Images</option>
+                                        <option value="video">Video</option>
+                                        <option value="audio">Audio</option>
+                                        <option value="software">Software</option>
+                                        <option value="people">People</option>
+                                        <option value="rest">Other</option>
+                                </field>
+                                <field name="socialflattrbutton" type="radio" default="" label="Button type" description="">
+                                        <option value="">Normal</option>
+                                        <option value="compact">Compact</option>
+                                </field>
+                                <field name="socialflattrhidden" type="radio" default="" label="Hidden" description="Not all content is suitable for public listing. If you for one reason or another don't want your content to be listed on Flattr set this parameter to hidden.">
+                                        <option value="">Listed</option>
+                                        <option value="1">Hidden</option>
+                                </field>
+                        </fieldset>
+                        
+                        <fieldset name="PLG_K2FIELDS_MISC">
+                                <field name="paginationmode" type="radio" default="k2" label="Paginatio mode">
+                                        <option value="ajax">Ajax based button</option>
+                                        <option value="k2">K2 page links</option>
+                                </field>  
+                                <field name="showvalue" type="multilist" multiple="multiple" label="Hierarchy list values - show in item view" description="">
+                                        <option value="fullpath">Full path</option>
+                                        <option value="path">Path</option>
+                                        <option value="value">Value only</option>
+                                        <option value="id">ID</option>
+                                        <option value="depth">Depth</option>
+                                </field>
+                                <field name="appendtitleglue" type="text" size="5" default=" / " label="Glue string between field values appended to titles" />
+                                <field name="preloadjsmodules" type="radio" default="1" label="Preload js modules">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>  
+                                <field name="actionaftersave" type="list" default="closeandload" label="After saving succesfuly in front end editing">
+                                        <option value="closeandload">Close and load saved item</option>
+                                        <option value="closeandreload">Close and reload</option>
+                                        <option value="close">Close only</option>
+                                        <option value="nothing">Return to edit page</option>
+                                </field>
+                                <field name="maximumresultlistsize" type="list" default="50" label="Maximum result list size">
+                                        <option value="50">50 items</option>
+                                        <option value="20">20 items</option>
+                                        <option value="100">100 items</option>
+                                </field>
+                                <field name="formattingspacer" type="spacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_uisection-lbl, #jform_params_uicounts-lbl { color:#fff; background:#000; width:100%; text-align:center; } select[multiple], select[size][multiple] {width:57% !important;}&lt;/style&gt;" />
+                                <field name="accessdefaulthref" type="menuitem" />
+                                <field 
+                                        name="expirerecords" 
+                                        type="textarea" 
+                                        default="" 
+                                        cols="40" 
+                                        rows="15" 
+                                        label="Category based expiration records (currently only unpublishing action implemented and no notifications are dispatched)" 
+                                        description="catid%%excluded child catids%%value%%unit(d=day|m=month|y=year|a=absolute and value need to be provided in the eligible format)%%action(t=trash|u=unpublish)%%notification=[all|admin|user|add]"
+                                />                                
+                        </fieldset>
+                </fields>
+        </config>
+</extension>

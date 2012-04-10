@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<name>K2_CATEGORY_EDIT_FORM</name>
+	<fields name="params">
+		<fieldset name="k2item-item-view-options-listings" addfieldpath="/administrator/components/com_k2/elements">
+			<field name="catItemK2itemTitle" type="radio" default="1" label="K2_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemTitleLinked" type="radio" default="1" label="K2_LINK_ON_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemFeaturedNotice" type="radio" default="0" label="K2_FEATURED_NOTICE_NEXT_TO_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemAuthor" type="radio" default="1" label="K2_AUTHOR" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemDateCreated" type="radio" default="1" label="K2_ITEM_CREATED_DATE_AND_TIME" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemRating" type="radio" default="0" label="K2_RATING_VOTING" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemImage" type="radio" default="1" label="K2_IMAGE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemIntroText" type="radio" default="1" label="K2_INTROTEXT" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemIntroTextWordLimit" type="text" default="" size="4" label="K2_INTROTEXT_WORD_LIMIT" description="K2_IF_THIS_OPTION_IS_ENABLED_ALL_HTML_TAGS_IN_THE_INTROTEXT_WILL_BE_CLEANED_UP_TO_MAKE_SURE_THE_SITE_MARKUP_WILL_NOT_BREAK"/>
+			<field name="catItemK2itemExtraFields" type="radio" default="0" label="K2_EXTRA_FIELDS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemHits" type="radio" default="0" label="K2_HITS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemCategory" type="radio" default="1" label="K2_CATEGORY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemTags" type="radio" default="1" label="K2_TAGS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemAttachments" type="radio" default="0" label="K2_ATTACHMENTS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemAttachmentsCounter" type="radio" default="0" label="K2_ATTACHMENTS_COUNTER" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemVideo" type="radio" default="0" label="K2_MEDIA" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemVideoWidth" type="text" default="" size="4" label="K2_VIDEO_WIDTH" description=""/>
+			<field name="catItemK2itemVideoHeight" type="text" default="" size="4" label="K2_VIDEO_HEIGHT" description=""/>
+			<field name="catItemK2itemAudioWidth" type="text" default="" size="4" label="K2_AUDIO_WIDTH" description=""/>
+			<field name="catItemK2itemAudioHeight" type="text" default="" size="4" label="K2_AUDIO_HEIGHT" description=""/>
+			<field name="catItemK2itemVideoAutoPlay" type="radio" default="0" label="K2_MEDIA_AUTOPLAY" description="">
+				<option value="0">K2_NO</option>
+				<option value="1">K2_YES</option>
+			</field>
+			<field name="catItemK2itemImageGallery" type="radio" default="0" label="K2_IMAGE_GALLERY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemDateModified" type="radio" default="0" label="K2_ITEM_MODIFIED_DATE_AND_TIME" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemReadMore" type="radio" default="1" label="K2_READ_MORE_LINK" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="catItemK2itemCommentsAnchor" type="radio" default="1" label="K2_ANCHOR_LINK_WITH_COMMENTS_COUNTER_TO_ITEMS_COMMENT_FORM" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="" type="header" default="K2_ADVANCED" label="" description=""/>
+			<field name="catItemK2itemK2Plugins" type="radio" default="1" label="K2_ENABLE_K2_PLUGINS" description="">
+				<option value="0">K2_NO</option>
+				<option value="1">K2_YES</option>
+			</field>
+		</fieldset>
+		<fieldset name="k2item-item-view-options" addfieldpath="/administrator/components/com_k2/elements">
+			<field name="itemK2itemDateCreated" type="radio" default="1" label="K2_ITEM_CREATED_DATE_AND_TIME" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemTitle" type="radio" default="1" label="K2_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemFeaturedNotice" type="radio" default="1" label="K2_FEATURED_NOTICE_NEXT_TO_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthor" type="radio" default="1" label="K2_AUTHOR" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemFontResizer" type="radio" default="1" label="K2_FONT_RESIZER" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemPrintButton" type="radio" default="1" label="K2_PRINT_BUTTON" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemEmailButton" type="radio" default="1" label="K2_EMAIL_BUTTON" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemSocialButton" type="radio" default="1" label="K2_SOCIAL_BUTTON_LIKE_SHARETHIS_ADDTHIS_ETC" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemVideoAnchor" type="radio" default="1" label="K2_ANCHOR_LINK_TO_VIDEO" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemImageGalleryAnchor" type="radio" default="1" label="K2_ANCHOR_LINK_TO_IMAGE_GALLERY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemCommentsAnchor" type="radio" default="1" label="K2_ANCHOR_LINK_WITH_COMMENTS_COUNTER_TO_COMMENT_FORM" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRating" type="radio" default="1" label="K2_RATING_VOTING" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemImage" type="radio" default="1" label="K2_IMAGE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemImgSize" type="list" default="Large" label="K2_IMAGE_SIZE" description="">
+				<option value="XSmall">K2_XSMALL</option>
+				<option value="Small">K2_SMALL</option>
+				<option value="Medium">K2_MEDIUM</option>
+				<option value="Large">K2_LARGE</option>
+				<option value="XLarge">K2_XLARGE</option>
+			</field>
+			<field name="itemK2itemImageMainCaption" type="radio" default="1" label="K2_IMAGE_CAPTION" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemImageMainCredits" type="radio" default="1" label="K2_IMAGE_CREDITS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemIntroText" type="radio" default="1" label="K2_INTROTEXT" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemFullText" type="radio" default="1" label="K2_FULLTEXT" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemExtraFields" type="radio" default="1" label="K2_EXTRA_FIELDS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemDateModified" type="radio" default="1" label="K2_ITEM_MODIFIED_DATE_AND_TIME" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemHits" type="radio" default="1" label="K2_HITS_PAGE_VIEWS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemCategory" type="radio" default="1" label="K2_CATEGORY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemTags" type="radio" default="1" label="K2_TAGS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAttachments" type="radio" default="1" label="K2_ATTACHMENTS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAttachmentsCounter" type="radio" default="1" label="K2_ATTACHMENTS_COUNTER" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemVideo" type="radio" default="1" label="K2_MEDIA" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemVideoWidth" type="text" default="" size="4" label="K2_VIDEO_WIDTH" description=""/>
+			<field name="itemK2itemVideoHeight" type="text" default="" size="4" label="K2_VIDEO_HEIGHT" description=""/>
+			<field name="itemK2itemAudioWidth" type="text" default="" size="4" label="K2_AUDIO_WIDTH" description=""/>
+			<field name="itemK2itemAudioHeight" type="text" default="" size="4" label="K2_AUDIO_HEIGHT" description=""/>
+			<field name="itemK2itemVideoAutoPlay" type="radio" default="0" label="K2_MEDIA_AUTOPLAY" description="">
+				<option value="0">K2_NO</option>
+				<option value="1">K2_YES</option>
+			</field>
+			<field name="itemK2itemVideoCaption" type="radio" default="1" label="K2_MEDIA_CAPTION" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemVideoCredits" type="radio" default="1" label="K2_MEDIA_CREDITS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemImageGallery" type="radio" default="1" label="K2_IMAGE_GALLERY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemNavigation" type="radio" default="1" label="K2_ITEM_NAVIGATION" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemComments" type="radio" default="1" label="K2_COMMENTS" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="" type="header" default="K2_SOCIAL_SHARING" label="" description=""/>
+			<field name="itemK2itemTwitterButton" type="radio" default="1" label="K2_TWITTER_SHARE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemFacebookButton" type="radio" default="1" label="K2_FACEBOOK_SHARE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemGooglePlusOneButton" type="radio" default="1" label="K2_GOOGLEPLUSONE_SHARE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="" type="header" default="K2_AUTHOR_OPTIONS" label="" description=""/>
+			<field name="itemK2itemAuthorBlock" type="radio" default="1" label="K2_DISPLAY_EXTENDED_AUTHOR_INFO" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorImage" type="radio" default="1" label="K2_AUTHOR_IMAGE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorDescription" type="radio" default="1" label="K2_AUTHOR_DESCRIPTION" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorURL" type="radio" default="1" label="K2_AUTHOR_URL" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorEmail" type="radio" default="0" label="K2_AUTHOR_EMAIL" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorLatest" type="radio" default="1" label="K2_LATEST_ITEMS_FROM_AUTHOR" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemAuthorLatestLimit" type="text" default="5" size="4" label="K2_LIMIT_FOR_LATEST_ITEMS_FROM_AUTHOR" description=""/>
+			<field name="" type="header" default="K2_RELATED_ITEMS" label="" description=""/>
+			<field name="itemK2itemRelated" type="radio" default="1" label="K2_RELATED_ITEMS_BY_TAG" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedLimit" type="text" default="5" size="4" label="K2_RELATED_ITEMS_LIMIT" description=""/>
+			<field name="itemK2itemRelatedTitle" type="radio" default="1" label="K2_RELATED_ITEMS_TITLE" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedCategory" type="radio" default="0" label="K2_RELATED_ITEMS_CATEGORY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedImageSize" type="list" default="0" label="K2_RELATED_ITEMS_IMAGE" description="">
+				<option value="0">K2_NONE_SELECTED</option>
+				<option value="XSmall">K2_XSMALL</option>
+				<option value="Small">K2_SMALL</option>
+				<option value="Medium">K2_MEDIUM</option>
+				<option value="Large">K2_LARGE</option>
+				<option value="XLarge">K2_XLARGE</option>
+			</field>
+			<field name="itemK2itemRelatedIntrotext" type="radio" default="0" label="K2_RELATED_ITEMS_INTROTEXT" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedFulltext" type="radio" default="0" label="K2_RELATED_ITEMS_FULLTEXT" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedAuthor" type="radio" default="0" label="K2_RELATED_ITEMS_AUTHOR" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedMedia" type="radio" default="0" label="K2_RELATED_ITEMS_MEDIA" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="itemK2itemRelatedImageGallery" type="radio" default="0" label="K2_RELATED_ITEMS_IMAGE_GALLERY" description="">
+				<option value="0">K2_HIDE</option>
+				<option value="1">K2_SHOW</option>
+			</field>
+			<field name="" type="header" default="K2_ADVANCED" label="" description=""/>
+			<field name="itemK2itemK2Plugins" type="radio" default="1" label="K2_ENABLE_K2_PLUGINS" description="">
+				<option value="0">K2_NO</option>
+				<option value="1">K2_YES</option>
+			</field>
+		</fieldset>                
+        </fields>
+</form>

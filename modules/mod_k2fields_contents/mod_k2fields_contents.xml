@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="module" method="upgrade" client="site">    
+        <name>k2fields contents</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <description>K2/k2fields contents presentation based on various powerful slideshows with ability to partition along category and authors. Will include other options in near future.</description>
+        <files>
+                <filename module="mod_k2fields_contents">mod_k2fields_contents.php</filename>
+                <filename>helper.php</filename>
+                <filename>index.html</filename>
+                <folder>tmpl</folder>
+        </files>
+        <media destination="mod_k2fields_contents" folder="media">
+                <folder>awkwardshowcase</folder>
+                <folder>camera</folder>
+                <folder>lof</folder>
+                <folder>widgetkit</folder>
+                <filename>index.html</filename>
+        </media>        
+        <languages>
+                <language tag="en-GB">language/en-GB.mod_k2fields_contents.ini</language>
+        </languages>
+        <config>
+                <fields name="params">
+                        <fieldset name="basic">
+                                <field name="template" type="folderlist" default="awkwardshowcase" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_" />
+                                <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext=".php" />
+                                <field name="part_by" type="list" default="category" label="PARTITION_BY">
+                                        <option value="none">None</option>
+                                        <option value="category">Category</option>
+                                        <option value="author">Author</option>
+                                </field>
+                        </fieldset>
+                        <fieldset name="awkwardshowcaseoptions">
+                                <field name="awkwardshowcase_theme" type="list" default="normal" label="THEME">
+                                        <option value="normal">Normal</option>
+                                        <option value="vertical_thumbnails">Vertical thumnbails</option>
+                                        <option value="horizontal_thumbnails">Horizontal thumbnails</option>
+                                        <option value="dynamic_height">Dynamic height</option>
+                                        <option value="hundred_percent">Hundred percent</option>
+                                        <option value="viewline">Viewline</option>
+                                </field>
+                                <field name="awkwardshowcase_content_width" type="text" default="650" label="WIDTH" />
+                                <field name="awkwardshowcase_content_height" type="text" default="400" label="HEIGHT" />
+                                <field name="awkwardshowcase_fit_to_parent" type="radio" default="0" label="FIT_TO_PARENT">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_auto" type="radio" default="0" label="AUTO">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_interval" type="text" default="3000" label="INTERVAL" />
+                                <field name="awkwardshowcase_continuous" type="radio" default="0" label="CONTINUOUS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_loading" type="radio" default="1" label="LOADING">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_tooltip_width" type="text" default="200" label="TOOLTIP_WIDTH" />
+                                <field name="awkwardshowcase_tooltip_icon_width" type="text" default="32" label="TOOLTIP_ICON_WIDTH" />
+                                <field name="awkwardshowcase_tooltip_icon_height" type="text" default="32" label="TOOLTIP_ICON_HEIGHT" />
+                                <field name="awkwardshowcase_offsetx" type="text" default="18" label="OFFSETX" />
+                                <field name="awkwardshowcase_offsety" type="text" default="0" label="OFFSETY" />
+                                <field name="awkwardshowcase_arrows" type="radio" default="1" label="ARROWS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_arrows_position" type="radio" default="outside" label="ARROWS_POSITION">
+                                        <option value="outside">outside</option>
+                                        <option value="inside">inside</option>
+                                </field>
+                                <field name="awkwardshowcase_buttons" type="radio" default="1" label="BUTTONS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_btn_numbers" type="radio" default="0" label="BUTTON_NUMBERS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_keybord_keys" type="radio" default="1" label="KEYBORD_KEYS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_mousetrace" type="radio" default="0" label="MOUSETRACE">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_pauseonover" type="radio" default="1" label="PAUSEONOVER">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_stoponclick" type="radio" default="0" label="STOPONCLICK">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_transition" type="list" default="hslide" label="TRANSITION">
+                                        <option value="hslide">hslide</option>
+                                        <option value="vslide">vslide</option>
+                                        <option value="fade">fade</option>
+                                </field>
+                                <field name="awkwardshowcase_transition_delay" type="text" default="0" label="TRANSITION_DELAY" />
+                                <field name="awkwardshowcase_transition_speed" type="text" default="500" label="TRANSITION_SPEED" />
+                                <field name="awkwardshowcase_show_caption" type="list" default="onload" label="SHOW_CAPTION">
+                                        <option value="0">none</option>
+                                        <option value="onload">onload</option>
+                                        <option value="onhover">onhover</option>
+                                        <option value="show">show</option>
+                                </field>
+                                <field name="awkwardshowcase_thumbnails" type="radio" default="0" label="THUMBNAILS">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="awkwardshowcase_thumbnails_position" type="list" default="outside-last" label="THUMBNAILS_POSITION">
+                                        <option value="outside-last">outside-last</option>
+                                        <option value="outside-first">outside-first</option>
+                                        <option value="inside-last">inside-last</option>
+                                        <option value="inside-first">inside-first</option>
+                                </field>
+                                <field name="awkwardshowcase_thumbnails_direction" type="radio" default="vertical" label="THUMBNAILS_DIRECTION">
+                                        <option value="vertical">vertical</option>
+                                        <option value="horizontal">horizontal</option>
+                                </field>                                
+                                <field name="awkwardshowcase_thumbnails_slidex" type="radio" default="1" label="THUMBNAILS_SLIDEX">
+                                        <option value="0">auto</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                </field>                            
+                                <field name="awkwardshowcase_dynamic_height" type="radio" default="0" label="DYNAMIC_HEIGHT">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>                                
+                                <field name="awkwardshowcase_speed_change" type="radio" default="1" label="SPEED_CHANGE">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>                                
+                                <field name="awkwardshowcase_viewline" type="radio" default="0" label="VIEWLINE">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>                                
+                                <field name="awkwardshowcase_viewline_no" type="radio" default="2" label="VIEWLINE">
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                </field>                                
+                        </fieldset>
+                        <fieldset name="widgetkitoptions">
+                                <field name="widgetkit_type" type="folderlist" default="slideshow" hide_none="true" label="Widget type" directory="plugins/system/widgetkit_k2/widgets" filter="" exclude="" stripext="" />
+                                <field name="widgetkit_theme" type="dependentfolderlist" default="default" hide_none="true" label="THEME" directory="media/widgetkit/widgets/%replace%/styles" dependson="widgetkit_type" reg="" filter="" exclude="" stripext="" />
+                                <field name="widgetkit_keepsynch" label="Keep synchronized module setting and widget" type="radio" default="0">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="widgetkit_autoplay" label="Autoplay" type="radio" default="1">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="widgetkit_interval" label="Autoplay Interval (ms)" type="text" default="5000" />
+                                <field name="widgetkit_width" label="Width" type="text" default="auto" />
+                                <field name="widgetkit_height" label="Height" type="text" default="auto" />
+                        </fieldset>
+                        <fieldset name="slideshowoptions">
+                        </fieldset>
+                        <fieldset name="cameraoptions">
+                                <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
+                                        <option value="camera_amber_skin">amber</option>
+                                        <option value="camera_ash_skin">ash</option>
+                                        <option value="camera_azure_skin">azure</option>
+                                        <option value="camera_beige_skin">beige</option>
+                                        <option value="camera_black_skin">black</option>
+                                        <option value="camera_blue_skin">blue</option>
+                                        <option value="camera_brown_skin">brown</option>
+                                        <option value="camera_burgundy_skin">burgundy</option>
+                                        <option value="camera_charcoal_skin">charcoal</option>
+                                        <option value="camera_chocolate_skin">chocolate</option>
+                                        <option value="camera_coffee_skin">coffee</option>
+                                        <option value="camera_cyan_skin">cyan</option>
+                                        <option value="camera_fuchsia_skin">fuchsia</option>
+                                        <option value="camera_gold_skin">gold</option>
+                                        <option value="camera_green_skin">green</option>
+                                        <option value="camera_grey_skin">grey</option>
+                                        <option value="camera_indigo_skin">indigo</option>
+                                        <option value="camera_khaki_skin">khaki</option>
+                                        <option value="camera_lime_skin">lime</option>
+                                        <option value="camera_magenta_skin">magenta</option>
+                                        <option value="camera_maroon_skin">maroon</option>
+                                        <option value="camera_orange_skin">orange</option>
+                                        <option value="camera_olive_skin">olive</option>
+                                        <option value="camera_pink_skin">pink</option>
+                                        <option value="camera_pistachio_skin">pistachio</option>
+                                        <option value="camera_pink_skin">pink</option>
+                                        <option value="camera_red_skin">red</option>
+                                        <option value="camera_tangerine_skin">tangerine</option>
+                                        <option value="camera_turquoise_skin">turquoise</option>
+                                        <option value="camera_violet_skin">violet</option>
+                                        <option value="camera_white_skin">white</option>
+                                        <option value="camera_yellow_skin">yellow</option>
+                                </field>
+                                <field name="camera_alignment" type="list" default="center" label="alignment" description="">
+                                        <option value="topLeft">topLeft</option>
+                                        <option value="topCenter">topCenter</option>
+                                        <option value="topRight">topRight</option>
+                                        <option value="centerLeft">centerLeft</option>
+                                        <option value="center">center</option>
+                                        <option value="centerRight">centerRight</option>
+                                        <option value="bottomLeft">bottomLeft</option>
+                                        <option value="bottomCenter">bottomCenter</option>
+                                        <option value="bottomRight">bottomRight</option>
+                                </field>
+                                <field name="camera_caption_effect" type="list" default="fadeIn" label="effect of the caption" description="">
+                                        <option value="moveFromLeft">moveFromLeft</option>
+                                        <option value="moveFomRight">moveFomRight</option>
+                                        <option value="moveFromTop">moveFromTop</option>
+                                        <option value="moveFromBottom">moveFromBottom</option>
+                                        <option value="fadeIn">fadeIn</option>
+                                        <option value="fadeFromLeft">fadeFromLeft</option>
+                                        <option value="fadeFromRight">fadeFromRight</option>
+                                        <option value="fadeFromTop">fadeFromTop</option>
+                                        <option value="fadeFromBottom">fadeFromBottom</option>
+                                </field>                                
+                                <field name="camera_autoAdvance" type="radio" default="1" label="autoAdvance" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="camera_fx" type="multilist" size="5" default="random" label="FX">
+                                        <option value="random">random</option>
+                                        <option value="simpleFade">simpleFade</option>
+                                        <option value="curtainTopLeft">curtainTopLeft</option>
+                                        <option value="curtainTopRight">curtainTopRight</option>
+                                        <option value="curtainBottomLeft">curtainBottomLeft</option>
+                                        <option value="curtainBottomRight">curtainBottomRight</option>
+                                        <option value="curtainSliceLeft">curtainSliceLeft</option>
+                                        <option value="curtainSliceRight">curtainSliceRight</option>
+                                        <option value="blindCurtainTopLeft">blindCurtainTopLeft</option>
+                                        <option value="blindCurtainTopRight">blindCurtainTopRight</option>
+                                        <option value="blindCurtainBottomLeft">blindCurtainBottomLeft</option>
+                                        <option value="blindCurtainBottomRight">blindCurtainBottomRight</option>
+                                        <option value="blindCurtainSliceBottom">blindCurtainSliceBottom</option>
+                                        <option value="blindCurtainSliceTop">blindCurtainSliceTop</option>
+                                        <option value="stampede">stampede</option>
+                                        <option value="mosaic">mosaic</option>
+                                        <option value="mosaicReverse">mosaicReverse</option>
+                                        <option value="mosaicRandom">mosaicRandom</option>
+                                        <option value="mosaicSpiral">mosaicSpiral</option>
+                                        <option value="mosaicSpiralReverse">mosaicSpiralReverse</option>
+                                        <option value="topLeftBottomRight">topLeftBottomRight</option>
+                                        <option value="bottomRightTopLeft">bottomRightTopLeft</option>
+                                        <option value="bottomLeftTopRight">bottomLeftTopRight</option>
+                                        <option value="bottomLeftTopRight">bottomLeftTopRight</option>
+                                </field>
+                                <field name="camera_time" type="text" size="7" default="7000" label="time" description="milliseconds between the end of the sliding effect and the start of the nex one" />
+                                <field name="camera_transPeriod" type="text" size="7" default="1500" label="transPeriod" description="length of the sliding effect in milliseconds" />
+                                <field name="camera_easing" type="list" default="easeInOutExpo" label="easing">
+                                        <option value="linear">linear</option>
+                                        <option value="swing">swing</option>
+                                        <option value="easeInQuad">easeInQuad</option>
+                                        <option value="easeOutQuad">easeOutQuad</option>
+                                        <option value="easeInOutQuad">easeInOutQuad</option>
+                                        <option value="easeInCubic">easeInCubic</option>
+                                        <option value="easeOutCubic">easeOutCubic</option>
+                                        <option value="easeInOutCubic">easeInOutCubic</option>
+                                        <option value="easeInQuart">easeInQuart</option>
+                                        <option value="easeOutQuart">easeOutQuart</option>
+                                        <option value="easeInOutQuart">easeInOutQuart</option>
+                                        <option value="easeInQuint">easeInQuint</option>
+                                        <option value="easeOutQuint">easeOutQuint</option>
+                                        <option value="easeInOutQuint">easeInOutQuint</option>
+                                        <option value="easeInSine">easeInSine</option>
+                                        <option value="easeOutSine">easeOutSine</option>
+                                        <option value="easeInOutSine">easeInOutSine</option>
+                                        <option value="easeInExpo">easeInExpo</option>
+                                        <option value="easeOutExpo">easeOutExpo</option>
+                                        <option value="easeInOutExpo">easeInOutExpo</option>
+                                        <option value="easeInCirc">easeInCirc</option>
+                                        <option value="easeOutCirc">easeOutCirc</option>
+                                        <option value="easeInOutCirc">easeInOutCirc</option>
+                                        <option value="easeInElastic">easeInElastic</option>
+                                        <option value="easeOutElastic">easeOutElastic</option>
+                                        <option value="easeInOutElastic">easeInOutElastic</option>
+                                        <option value="easeInBack">easeInBack</option>
+                                        <option value="easeOutBack">easeOutBack</option>
+                                        <option value="easeInOutBack">easeInOutBack</option>
+                                        <option value="easeInBounce">easeInBounce</option>
+                                        <option value="easeOutBounce">easeOutBounce</option>
+                                        <option value="easeInOutBounce">easeInOutBounce</option>
+                                </field>
+                                <field name="camera_navigationHover" type="radio" default="1" label="navigationHover" description="when to show the navigation button (prev, next and play/stop buttons)">
+                                        <option value="0">Always</option>
+                                        <option value="1">On hover</option>
+                                </field>
+                                <field name="camera_pagination" type="radio" default="1" label="pagination" description="">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="camera_show_caption" type="radio" default="1" label="SHOW_CAPTION">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="camera_thumbnails" type="radio" default="1" label="thumbnails">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="camera_loader" type="radio" default="bar" label="loader">
+                                        <option value="bar">bar</option>
+                                        <option value="pie">pie</option>
+                                        <option value="none">none</option>
+                                </field>
+                                <field name="camera_linked" type="radio" default="1" label="link">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="camera_linktarget" type="list" default="_self" label="link target">
+                                        <option value="_blank">blank</option>
+                                        <option value="_new">new</option>
+                                        <option value="_parent">parent</option>
+                                        <option value="_self">self</option>
+                                </field>
+                                <field name="camera_portrait" type="radio" default="0" label="portrait" description="Select true if you don't want that your images are cropped">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="camera_slideOn" type="radio" default="random" label="slideOn" description="decide if the transition effect will be applied to the current (prev) or the next slide">
+                                        <option value="next">next</option>
+                                        <option value="prev">prev</option>
+                                        <option value="random">random</option>
+                                </field>
+                        </fieldset>
+                        <fieldset name="lofoptions" addfieldpath="/modules/mod_k2fields_contents/tmpl/lof/libs/elements">
+                                <field name="loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
+                                <field name="module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
+                                <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
+                                <field name="enable_css3" type="radio" default="1" label="ENABLE CSS3" description="ENABLE CSS3 DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field type="spacer" name="lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
+                                <field name="enable_image_link" type="radio" default="1" label="ENABLE_IMAGE_LINK" description="ENABLE_IMAGE_LINK_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>	
+                                <field name="main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
+                                <field name="main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>
+                                <field name="desciption_opacity" type="text" default="1" label="DESCRIPTION_OPACITY" description="DESCRIPTION_OPACITY_DESC" />	
+                                <field name="description_max_chars" type="text" default="100" label="DESCIPTION MAX CHARS" description="DESCIPTION MAX CHARS DESC" />
+                                <field type="spacer" name="lofoverridinglinkspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofoverridinglinkspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Overriding link" />
+                                <field name="override_links" type="itaddrow" default="" label="OVERRIDING_LINK_BOX" description="OVERRIDING_LINK_BOX_DESC" />
+                                <field name="custom_slider_class" type="itaddrow" default="" label="CUSTOM_SLIDER_CLASS" description="CUSTOM_SLIDER_CLASS_DESC" />
+                                <field type="spacer" name="lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
+                                <field name="navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
+                                <field name="navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
+                                <field name="max_items_display" type="text" default="4" label="MAX ITEMS DISPLAY" description="MAX ITEMS DISPLAY DESC"></field>	
+                                <field name="display_button" type="radio" default="1" label="DISPLAY BUTTON" description="DISPLAY BUTTON DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="navigator_pos" type="list" default="right" label="NAVIGATOR POSITION" description="NAVIGATOR POSITION DESC">
+                                        <option value="0">DISABLE</option>	
+                                        <option value="left">LEFT</option>
+                                        <option value="right">RIGHT</option>
+                                </field>
+                                <field name="enable_thumbnail" type="radio" default="1" label="ENABLE_THUMBNAIL" description="ENABLE_THUMBNAIL_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="thumbnail_width" type="text" default="60" label="THUMBNAIL WIDTH" description="THUMBNAIL WIDTH DESC" />
+                                <field name="thumbnail_height" type="text" default="45" label="THUMBNAIL HEIGHT" description="THUMBNAIL HEIGHT DESC" />
+		
+                                <field name="enable_navtitle" type="radio" default="1" label="ENABLE_TITLE" description="ENABLE_TITLE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="enable_navdate" type="radio" default="1" label="ENABLE_DATE" description="ENABLE_DATE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="enable_navcate" type="radio" default="0" label="ENABLE_NAVCATE" description="ENABLE_NAVCATE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field type="spacer" name="lofeffectsettingspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofeffectsettingspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Effect settings" />
+                                <field name="layout_style" type="list" default="vrdown" label="PLAY STYLE" description="PLAY STYLE DESC">
+                                        <option value="hrleft">HORIZONTAL RIGHT TO LEFT</option>
+                                        <option value="hrright">HORIZONTAL LEFT TO RIGHT</option>
+                                        <option value="vrup">VERTICAL DOWN TO UP</option>
+                                        <option value="vrdown">VERTICAL UP TO DOWN</option>
+                                        <option value="opacity">OPACITY</option>
+                                </field>
+                                <field name="interval" type="text" default="5000" label="INTERVAL" description="INTERVAL DESC" />
+                                <field name="duration" type="text" default="500" label="ANIMATION DURATION" description="ANIMATION DURATION DESC" />
+                                <field name="effect" type="list" default="Fx.Transitions.Quad.easeInOut" label="ANIMATION TRANSITION" description="ANIMATION TRANSITION DESC">
+                                        <option value="Fx.Transitions.linear">linear</option>
+                                        <option value="Fx.Transitions.quartOut">QuartOut</option>
+                                        <option value="Fx.Transitions.Quad.easeIn">Quad.easeIn</option>
+                                        <option value="Fx.Transitions.Quad.easeOut">Quad.easeOut</option>
+                                        <option value="Fx.Transitions.Quad.easeInOut">Quad.easeInOut</option>
+                                        <option value="Fx.Transitions.Cubic.easeIn">Cubic.easeIn</option>
+                                        <option value="Fx.Transitions.Cubic.easeOut">Cubic.easeOut</option>
+                                        <option value="Fx.Transitions.Cubic.easeInOut">Cubic.easeInOut</option>
+                                        <option value="Fx.Transitions.Quart.easeIn">Quart.easeIn</option>
+                                        <option value="Fx.Transitions.Quart.easeOut">Quart.easeOut</option>
+                                        <option value="Fx.Transitions.Quart.easeInOut">Quart.easeInOut</option>
+                                        <option value="Fx.Transitions.Quint.easeIn">Quint.easeIn</option>
+                                        <option value="Fx.Transitions.Quint.easeOut">Quint.easeOut</option>
+                                        <option value="Fx.Transitions.Quint.easeInOut">Quint.easeInOut</option>
+                                        <option value="Fx.Transitions.Pow.easeIn">Pow.easeIn</option>
+                                        <option value="Fx.Transitions.Pow.easeOut">Pow.easeOut</option>
+                                        <option value="Fx.Transitions.Pow.easeInOut">Pow.easeInOut</option>
+                                        <option value="Fx.Transitions.Expo.easeIn">Expo.easeIn</option>
+                                        <option value="Fx.Transitions.Expo.easeOut">Expo.easeOut</option>
+                                        <option value="Fx.Transitions.Expo.easeInOut">Expo.easeInOut</option>
+                                        <option value="Fx.Transitions.Circ.easeIn">Circ.easeIn</option>
+                                        <option value="Fx.Transitions.Circ.easeOut">Circ.easeOut</option>
+                                        <option value="Fx.Transitions.Circ.easeInOut">Circ.easeInOut</option>
+                                        <option value="Fx.Transitions.Sine.easeIn">Sine.easeIn</option>
+                                        <option value="Fx.Transitions.Sine.easeOut">Sine.easeOut</option>
+                                        <option value="Fx.Transitions.Sine.easeInOut">Sine.easeInOut</option>
+                                        <option value="Fx.Transitions.Back.easeIn">Back.easeIn</option>
+                                        <option value="Fx.Transitions.Back.easeOut">Back.easeOut</option>
+                                        <option value="Fx.Transitions.Back.easeInOut">Back.easeInOut</option>
+                                        <option value="Fx.Transitions.Bounce.easeIn">Bounce.easeIn</option>
+                                        <option value="Fx.Transitions.Bounce.easeOut">Bounce.easeOut</option>
+                                        <option value="Fx.Transitions.Bounce.easeInOut">Bounce.easeInOut</option>
+                                        <option value="Fx.Transitions.Elastic.easeIn">Elastic.easeIn</option>
+                                        <option value="Fx.Transitions.Elastic.easeOut">Elastic.easeOut</option>
+                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>				  
+                                </field> 
+                                <field name="auto_start" type="radio" default="1" label="AUTO START" description="AUTO START DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>    
+                                <field name="auto_renderthumb" type="radio" default="1" label="RENDER THUMBNAIL" description="RENDER THUMBNAIL DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="auto_strip_tags" type="radio" default="1" label="STRIP TAGS" description="STRIP TAGS DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="open_target" type="list" default="parent" label="CLICK LINK OPEN IN" description="CLICK LINK OPEN IN DESC">
+                                        <option value="blank">New window</option>
+                                        <option value="parent">Parent window</option>
+                                </field>                                
+                        </fieldset>
+	
+                        <fieldset name="itemsoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field 
+                                        name="catid" type="k2fcategories" default="" 
+                                        label="Top most category or Stickyness criteria" />
+                                <field 
+                                        name="excludecatids" type="k2fmulticategories" default="" 
+                                        label="Exclude the following categories (including subcategories of selected categories)" />
+                                <field name="item" type="k2fitem" default="" label="Specific items" description="Higher presedence over category selection" />
+                                <field name="items" type="k2fitems" default="" label="Drag and drop to re-order items"/>
+                                <field name="sticktofields" type="msql" default="" label="Select one or more fields to stick to (Applies only if sticky criteria is set to item/field)"
+                               query="SELECT f.id, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as sticktofields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 ORDER BY c.`id`, f.`ordering`"
+                />
+                                <field name="getChildren" type="list" default="2" label="Fetch items from children categories" description="Immediate children selects immediate children of chosen top most category">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                        <option value="2">Immediate children only</option>
+                                </field>
+                                <field name="timerange" type="list" default="" label="Time range" description="All counts relative to today. Need to select field to set range on.">
+                                        <option value="">All time</option>
+                                        <option value="today">Today</option>
+                                        <option value="tomorrow">Tomorrow</option>
+                                        <option value="thisevening">This evening</option>
+                                        <option value="thisweekend">This weekend</option>
+                                        <option value="thisweek">This week</option>
+                                        <option value="nextweek">Next week</option>
+                                        <option value="1%days">1 day</option>
+                                        <option value="3%days">3 days</option>
+                                        <option value="7%days">1 week</option>
+                                        <option value="15%days">2 weeks</option>
+                                        <option value="30%days">1 month</option>
+                                        <option value="180%days">6 months</option>                        
+                                </field>
+                                <field name="timerangefield" type="sql" default="" label="Select a date/datetime field that will be used for the time range filtering"
+                               query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as timerangefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=date%' ORDER BY c.`id`, f.`ordering`) AS s"
+                />
+                                <field name="order" type="list" default="id" label="Category ordering" description="Ordering options">
+                                        <option value="name">Category name</option>
+                                        <option value="id">Created order</option>
+                                </field>
+                                <field name="itemCount" type="text" size="4" default="5" label="Item count (per category, higher priority)" description="" />
+                                <field name="itemCountTotal" type="text" size="4" default="" label="Item count (total)" description="" />
+                                <field name="itemsOrdering" type="list" default="" label="Item ordering" description="">
+                                        <option value="">Default</option>
+                                        <option value="date">Oldest first</option>
+                                        <option value="rdate">Most recent first</option>
+                                        <option value="alpha">Title Alphabetical</option>
+                                        <option value="ralpha">Title Reverse-Alphabetical</option>
+                                        <option value="order">Ordering</option>
+                                        <option value="rorder">Ordering Reverse</option>
+                                        <option value="hits">Most popular</option>
+                                        <option value="best">Highest rated</option>
+                                        <option value="comments">Most commented (not supported yet)</option>
+                                        <option value="modified">Latest modified</option>
+                                        <option value="rand">Random ordering</option>
+                                </field>
+                                <field name="FeaturedItems" type="list" default="1" label="Featured items" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                        <option value="2">Show only Featured Items</option>
+                                </field>
+                                <field name="popularityRange" type="list" default="" label="Time range (if ordering is set to 'most popular' or 'most commented')" description="">
+                                        <option value="">All time</option>
+                                        <option value="1">1 day</option>
+                                        <option value="3">3 days</option>
+                                        <option value="7">1 week</option>
+                                        <option value="15">2 weeks</option>
+                                        <option value="30">1 month</option>
+                                        <option value="180">6 months</option>
+                                </field>
+                                <field name="videosOnly" type="radio" default="0" label="Fetch only items with videos" description="">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                
+                                <field name="@item-display-settings" type="spacer" default="Item display settings" />
+                                <field name="itemTitle" type="radio" default="1" label="Title" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemTitleTag" type="list" default="h3" label="Item title tag" description="">
+                                        <option value="">None</option>
+                                        <option value="h4">H4</option>
+                                        <option value="h3">H3</option>
+                                        <option value="h2">H2</option>
+                                        <option value="h1">H1</option>
+                                </field>
+                                <field name="itemAuthor" type="radio" default="1" label="User (author)" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAuthorAvatar" type="radio" default="1" label="User avatar" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAuthorAvatarWidthSelect" type="list" default="custom" label="User avatar width" description="">
+                                        <option value="inherit">Inherit from component parameters</option>
+                                        <option value="custom">Use custom width</option>
+                                </field>
+                                <field name="itemAuthorAvatarWidth" type="text" default="50" size="4" label="Custom width for user avatar (in px)" description="" />
+                                <field name="userDescription" type="radio" default="1" label="User description" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemIntroText" type="radio" default="1" label="Introtext" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="Introtext word limit" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
+                                <field name="itemImage" type="radio" default="1" label="Image" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemImgSize" type="list" default="Small" label="Image size" description="">
+                                        <option value="XSmall">XSmall</option>
+                                        <option value="Small">Small</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                        <option value="XLarge">XLarge</option>
+                                </field>
+                                <field name="imagefield" type="msql" default="" label="Select an image field that will replace K2 image" description="Please select appropriate one for each field group/category"
+                                query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as imagefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=media%' ORDER BY c.`id`, f.`ordering`) AS s"
+                                />
+                                <field name="itemVideo" type="radio" default="1" label="Video" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemVideoCaption" type="radio" default="1" label="Video caption" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemVideoCredits" type="radio" default="1" label="Video credits" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAttachments" type="radio" default="1" label="Attachments" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemTags" type="radio" default="1" label="Tags" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCategory" type="radio" default="1" label="Category" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="catImage" type="radio" default="1" label="Category image in label (TBI)" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="catReadMore" type="radio" default="1" label="Category read more... link" description="If more items than what's provided by Item count then this link will appear">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemDateCreated" type="radio" default="1" label="Created date and time" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemHits" type="radio" default="1" label="Hits" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemReadMore" type="radio" default="1" label="Read more... link" description="This option is not applicable for an item in which the 'fulltext' block is empty.">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemExtraFields" type="radio" default="0" label="Extra fields" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCommentsCounter" type="radio" default="1" label="Comments counter and anchor link" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemPreText" type="textarea" default="" label="Description text at the top for each of the tabs and a generic one (optional)" description="" cols="40" rows="20" />
+                                <field name="itemPreTextTag" type="list" default="h3" label="Description text tag" description="">
+                                        <option value="">None</option>
+                                        <option value="h4">H4</option>
+                                        <option value="h3">H3</option>
+                                        <option value="h2">H2</option>
+                                        <option value="h1">H1</option>
+                                </field>
+                                <field name="itemExtraFieldsCriterias" type="textarea" default="" label="Selection criterias applied to each of the tabs" description="" cols="40" rows="20" />
+                                <field name="itemCustomLink" type="radio" default="0" label="Custom link at the bottom" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCustomLinkURL" type="text" default="http://" label="Custom link URL" description="" />
+                                <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />                
+                        </fieldset>
+                        <fieldset name="advanced">
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />                                
+                        </fieldset>
+                </fields>
+        </config>
+</extension>

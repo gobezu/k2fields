@@ -1,0 +1,11 @@
+.it-box{position:absolute;top:40%; left:45%; z-index:1000; background:url(bg_trans.png);-moz-border-radius: 2em 1em; border-radius: 2em 1em;border: 5px solid #c4c8cc;-moz-box-shadow: 5px 5px 7px #888;}
+.it-box .it-message{padding:50px 100px;	color:#FAFAFA;font-weight:bold;}
+
+/*
+ * Form 
+ */
+ .it-addrow-block .row { padding:3px 0px;display:block;clear:both; cursor:hand; cursor:pointer }
+ .it-addrow-block input[type=text] {float:left; width:70%}
+ .it-addrow-block .row .remove { display:block; float:left; background:url(remove.png) no-repeat;width:20px; height:16px;margin-left:12px}
+ .it-addrow-block  .add{ background:url(add.png) no-repeat;width:26px; height:26px; display:block; text-indent:-999cm; cursor:hand; cursor:pointer}
+ .it-header{ border:#FAFAFA solid 1px; background:#FAFAFA ;padding:5px 0 5px 50px}

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="2.5" type="module" method="upgrade" client="site"> 
+        <name>k2fields search</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>k2fields based K2 search module</description>
+        <files>
+                <filename module="mod_k2fields">mod_k2fields.php</filename>
+                <filename>helper.php</filename>
+                <folder>tmpl</folder>
+        </files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field name="showftsearch" type="radio" default="1" label="Show free text search">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="dontshowftsearchin" type="k2fmulticategories" default="" label="Don't show free text search for the following categories" />
+                                <field name="exclfldft" type="radio" default="0" label="Exclude field values from free text search">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="ftautocomplete" type="radio" default="1" label="Autocomplete free text search input">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="ftautocompletewidth" type="radio" default="autofit" label="Autocompleter width">
+                                        <option value="custom">Custom (provide value below)</option>
+                                        <option value="autofit">Fit to search field</option>
+                                </field>
+                                <field name="ftautocompletecustomwidth" type="text" default="300" label="Autocompleter custom width" />
+                                <field name="acmaxchars" type="text" default="60" label="Maximum number of characters in autocompletion result" />
+                                <field name="acmaxitems" type="text" default="10" label="Maximum number of autocompletion result items" />
+                                <field name="acminchars" type="text" default="3" label="Minimum number of characters in user provided search word before autocompleting" />
+
+                                <field name="categoryselector" type="radio" default="1" label="Show category selector">
+                                        <option value="2">Menu based</option>
+                                        <option value="1">K2 category structure</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="categoryselectortext" type="text" default="" label="Selector first element" description="" />
+                                <field name="includedefaultmenuitem" type="radio" default="1" label="Include default menu item (applicable if menu based category selector)">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="defaultcategory" type="k2fcategories" default="" label="Select a default search category" description="Select a category which you want to be selected as active when no category is actively choosen by user." />
+                                <field name="excludecategories" type="k2fmulticategories" default="" label="Exclude categories" />
+                                <field name="whennocategory" type="radio" default="selectcategorymessage" label="Show when no category is selected">
+                                        <option value="defaultfields">Default fields</option>
+                                        <option value="selectcategorymessage">Text message</option>
+                                </field>
+                                <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields." 
+                                        query="SELECT s.id as value, SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1) as defaultfields FROM (SELECT id, SUBSTR(name, LENGTH('k2f---')+1) as pname FROM #__k2_extra_fields WHERE published = 1) AS s"
+                                />
+                                <field name="useitemid" type="radio" default="current" label="Itemid to tie results to">
+                                        <option value="menu">Selected menu item (choose below)</option>
+                                        <option value="current">Current menu item</option>
+                                </field>
+                                <field name="menuitemid" type="menuitem" default="" label="Itemid as per above choice" />
+                                <field name="showorderby" type="radio" default="1" label="Allow user to order by">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>                
+                                <field name="showsearchcount" type="radio" default="1" label="Show search count (TBI)">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="whentogglerempty" type="radio" default="inactive" label="When no category is chosen advanced search fields container is">
+                                        <option value="inactive">Collapsed</option>
+                                        <option value="active">Visible</option>
+                                </field>
+                                <field name="defaultmode" type="radio" default="active" label="Default mode" description="Initial advanced search container state">
+                                        <option value="inactive">Collapsed</option>
+                                        <option value="active">Visible</option>
+                                </field>
+                                <field name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+                                
+                        </fieldset>
+			<fieldset name="advanced">
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+                        </fieldset>
+		</fields>
+	</config>
+</extension>

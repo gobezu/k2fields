@@ -1,0 +1,11 @@
+.showcase-button-wrapper { background:#000; }
+.showcase-content { text-align:inherit; }
+.arrows-inside .showcase-arrow-previous { left:0px; z-index:100; }
+.arrows-inside .showcase-arrow-next { right:0px; z-index:100; }
+.showcase-thumbnail { height:40px; }
+
+.showcase-thumbnail-button-forward .showcase-thumbnail-horizontal,
+.showcase-thumbnail-button-backward .showcase-thumbnail-horizontal { margin-top:20px; margin-bottom:20px; }
+
+.showcase-content { padding:10px; }
+ 

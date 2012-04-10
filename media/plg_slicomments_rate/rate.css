@@ -1,0 +1,25 @@
+.rating_star_user, 
+.rating_star_editor , 
+.rating_star_user div, 
+.rating_star_editor div 
+{ background: url(./rating_stars.png) 0 0 repeat-x; height: 16px; font-size: 1px; }
+.rating_star_user, .rating_star_editor { width: 80px; margin-top: 3px; text-align: left; cursor: help; }
+.rating_star_user div { background-position: 0 -16px; }
+.rating_star_editor div { background-position: 0 -32px; }
+
+ul.rating_table { list-style:none; margin:0px; padding:0px; }
+ul.rating_table li { clear:both; }
+ul.rating_table li span { display:block; padding:2px; }
+ul.rating_table span.rating_label { width:450px; float:left; }
+ul.rating_table span.rating_starc { width:85px; float:right; }
+ul.rating_table span.rating_value { width:55px; float:right; white-space:nowrap; }
+
+#comments_list li:first-child .metadata,
+#comments_list li:first-child .comments-actions { display:none; }
+
+.ratingInfoItem { background-color:#eee; padding:5px; }
+.ratingDetails { }
+
+.ratelbl { padding-right:20px; }
+
+.thecomment {background:#f7f7f7;margin:10px;padding:10px;}

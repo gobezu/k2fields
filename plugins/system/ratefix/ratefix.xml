@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<name>System - ratefix</name>
+	<author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+	<copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <authorEmail>$Email$</authorEmail>
+	<authorUrl>$Url$</authorUrl>
+	<version>$Ver$</version>
+	<description>System plugin fixing the various inconcistencies in commenting extensions to accommodate rating.</description>
+	<files>
+		<filename plugin="ratefix">ratefix.php</filename>
+		<filename>index.html</filename>
+	</files>
+        <config>
+                <fields name="params">
+                        <fieldset name="basic">
+                                <field name="com_content_ratingcriterias" type="textarea" default="" cols="40" rows="15" label="Rating criteria groups" description="criteria group%%criteria name%%weight%%scales%%required%%ui - on each line). scales = descrete series of values such as 1,2,3,4,5(default value). weight must add up to 100 within a criteria group. ui = select,stars (tbi)." />
+                                <field name="com_content_ratingcategories" type="textarea" default="" cols="40" rows="15" label="Rating categories" description="Connect K2 item categories with rating criteria groups (category%%criteria group%%excluded k2 sub categories comma separated" />
+                                <field name="com_content_separator" type="text" size="10" default="::" label="Value separator"  />
+                        </fieldset>
+                </fields>
+        </config>
+</extension>

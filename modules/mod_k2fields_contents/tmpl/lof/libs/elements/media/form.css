@@ -1,0 +1,103 @@
+.adminform .content{
+	
+}
+
+.adminform .pane-sliders .panel h3{
+	color:#025A8D!important;
+	padding:12px;
+	background:#FFF!important;
+}
+
+.adminform  .paramlist_key{
+	background:#FFF	!important;
+	border:none!important;
+}
+.lof-group{
+	background:#F3F3F3!important;	
+	color:#025A8D!important;
+	border-right:#CCC solid 5px;
+	border-left:#CCC solid 5px;
+	padding:5px 10px!important;
+}
+.icon-image .paramlist_key{
+	background:url(icon-image.png) no-repeat center center !important	
+	;
+	background-color:#FFF!important;
+}
+.icon-k2 .paramlist_key{
+	background:url(k2_logo.gif) no-repeat center center !important	
+	;
+	background-color:#FFF!important;
+}
+.icon-banner .paramlist_key{
+	background:url(shop-ad.jpg) no-repeat center center !important	
+	;
+	background-color:#FFF!important;
+}
+.icon-content .paramlist_key{
+	background:url(joomla.png) no-repeat center center !important	;
+	background-color:#FFF!important;
+}
+
+.icon-virtuemart .paramlist_key{
+	background:url(virtuemart.png) no-repeat center center  !important ;
+	background-color:#FFF!important;
+	
+}
+.paramlist_value{
+	background:#FFF	!important;
+}
+.lof-group-tr td{
+	color:#4D4D4D!important;	
+}
+
+.group-primary-box td{
+	background:#F4F4F4!important;	
+}
+
+.it-box{position:absolute;top:40%; left:45%; z-index:1000; background:url(bg_trans.png);-moz-border-radius: 2em 1em; border-radius: 2em 1em;border: 5px solid #c4c8cc;-moz-box-shadow: 5px 5px 7px #888;}
+.it-box .it-message{padding:50px 100px;	color:#FAFAFA;font-weight:bold;}
+
+/*
+ * Form 
+ */
+ .it-addrow-block .row { padding:3px 0px;display:block;clear:both; cursor:hand; cursor:pointer }
+ .it-addrow-block input[type=text] {float:left; width:70%}
+ .it-addrow-block .row .remove { display:block; float:left; background:url(remove.png) no-repeat;width:20px; height:16px;margin-left:12px}
+ .it-addrow-block  .add{ background:url(add.png) no-repeat;width:26px; height:26px; display:block; text-indent:-999cm; cursor:hand; cursor:pointer}
+ .it-header{ border:#FAFAFA solid 1px; background:#FAFAFA ;padding:5px 0 5px 50px}
+.spantext {
+display:block;
+float:left;
+padding:2px 15px 2px 5px;
+background:#888;
+color:#f2f2f2;
+font-weight:bold;
+font-size:10px;
+}
+
+.lof-headding{ background:#F8F8F8; border:#CCC dotted 2px; padding:5px; font-weight:bold; color:#036 }
+
+
+.area2 {
+	position: relative;
+	height: 15px;
+	width: 180px;
+	background: #CCCCCC;
+	float:left;
+}
+ .widthpreview{
+	 	font-weight:bold;
+		color:#FFF; margin-right:4px;
+		 position:relative;
+		padding:1px 3px;
+		background:#666;
+		color:30px; float:left
+ }
+.knob2 {
+	position: absolute;
+	height: 15px;
+	width:10px;
+	background:#666;
+	cursor: pointer;
+}

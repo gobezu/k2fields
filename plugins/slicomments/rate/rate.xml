@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.7" type="plugin" group="slicomments">
+	<name>sliComments - rate</name>
+	<author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+	<copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <authorEmail>$Email$</authorEmail>
+	<authorUrl>$Url$</authorUrl>
+	<version>$Ver$</version>
+	<description>rating in sliComments (currently tested and working on K2 only but integration with additional extensions is under development)</description>
+	<files>
+		<filename plugin="rate">rate.php</filename>
+                <folder>sql</folder>
+		<filename>rate.class.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<media destination="plg_slicomments_rate" folder="media">
+		<folder>MooStarRating</folder>
+                <filename>index.html</filename>
+                <filename>rate.css</filename>
+                <filename>rate.js</filename>
+                <filename>rating_stars.png</filename>
+	</media>          
+        <install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+        <!-- TODO: At uninstall we need to reset the native content tables containing aggregated rating for the item??? -->
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>        
+        <config>
+                <fields name="params">
+                        <fieldset name="com_content_basic">
+                                <field name="com_content_ratingcriterias" type="textarea" default="" cols="40" rows="15" label="Rating criteria groups" description="criteria group%%criteria name%%weight%%scales%%required%%ui - on each line). scales = descrete series of values such as 1,2,3,4,5(default value). weight must add up to 100 within a criteria group. ui = select,stars (tbi)." />
+                                <field name="com_content_ratingcategories" type="textarea" default="" cols="40" rows="15" label="Rating categories" description="Connect K2 item categories with rating criteria groups (category%%criteria group%%excluded k2 sub categories comma separated" />
+                                <field name="com_content_separator" type="text" size="10" default="::" label="Value separator"  />
+                        </fieldset>
+                        <fieldset name="com_k2_basic">
+                                <field name="com_k2_ratingcriterias" type="textarea" default="" cols="40" rows="15" label="Rating criteria groups" description="criteria group%%criteria name%%weight%%scales%%required%%ui - on each line). scales = descrete series of values such as 1,2,3,4,5(default value). weight must add up to 100 within a criteria group. ui = select,stars (tbi)." />
+                                <field name="com_k2_ratingcategories" type="textarea" default="" cols="40" rows="15" label="Rating categories" description="Connect K2 item categories with rating criteria groups (category%%criteria group%%excluded k2 sub categories comma separated" />
+                                <field name="com_k2_separator" type="text" size="10" default="::" label="Value separator"  />
+                        </fieldset>
+                </fields>
+        </config>
+</extension>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.5" type="plugin" group="user" method="upgrade">
+        <name>User - k2fields</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) 2010 $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>Auto assigns K2 user group based on setting in the k2fields plugin in the K2 folder. For proper functionality please order this plugin after K2s user plugin.</description>
+        <files>
+                <filename plugin="k2fields">k2fields.php</filename>
+        </files>
+        <params>
+        </params>
+</install>

@@ -1,0 +1,152 @@
+.formular-inline {
+  z-index:1000;
+}
+
+.formular-prefix {
+  display:block;
+}
+
+.formular-inline td {
+  background-repeat:no-repeat;
+  background-position:center center;
+}
+
+.formular-inline .c {
+  color:white;
+  background:url(themes/red/c.png) repeat;
+  font-size:0.8em;
+  white-space:nowrap;
+}
+
+.formular-inline .x {
+  width:16px;
+}
+
+.formular-inline .y {
+  width:16px;
+}
+
+.formular-inline td {
+  background-repeat:no-repeat;
+  background-position:center center;
+}
+
+.formular-inline .tl {
+  background-image:url(themes/red/tl.png);
+}
+
+.formular-inline .tr {
+  width:16px;
+  height:16px;
+  background-image:url(themes/red/tr.png);
+}
+
+.formular-inline .l {
+  background:url(themes/red/l.png) repeat-y;
+}
+
+.formular-inline .t {
+  background:url(themes/red/t.png) repeat-x;
+}
+
+.formular-inline .r {
+  background:url(themes/red/r.png) repeat-y;
+}
+
+.formular-inline .bl {
+  width:16px;
+  height:25px;
+  background-image:url(themes/red/bl.png);
+}
+
+.formular-inline .br {
+  width:16px;
+  height:25px;
+  background-image:url(themes/red/br.png);
+}
+
+.formular-inline .b {
+  background:url(themes/red/b.png) no-repeat left center;
+}
+
+.formular-inline .close {
+  background:url(themes/red/close.png) no-repeat right center;
+  cursor:pointer;
+  width:10px;
+  height:10px;
+  float:right;
+}
+
+.formular-inline .txt {
+  padding-right:20px;
+  font-size:1.2em;
+}
+
+/* theme specific */
+.formular-red .c { background:url(themes/red/c.png) repeat; }
+.formular-red .tl { background-image:url(themes/red/tl.png); }
+.formular-red .tr { background-image:url(themes/red/tr.png); }
+.formular-red .br { background-image:url(themes/red/br.png); }
+.formular-red .bl { background-image:url(themes/red/bl.png); }
+.formular-red .l { background-image:url(themes/red/l.png); }
+.formular-red .t { background-image:url(themes/red/t.png); }
+.formular-red .r { background-image:url(themes/red/r.png); }
+.formular-red .b { background:url(themes/red/b.png) no-repeat left center; }
+.formular-red .close { background:url(themes/red/close.png) no-repeat right center; }
+
+.formular-blue .c { background:url(themes/blue/c.png) repeat; }
+.formular-blue .tl { background-image:url(themes/blue/tl.png); }
+.formular-blue .tr { background-image:url(themes/blue/tr.png); }
+.formular-blue .br { background-image:url(themes/blue/br.png); }
+.formular-blue .bl { background-image:url(themes/blue/bl.png); }
+.formular-blue .l { background-image:url(themes/blue/l.png); }
+.formular-blue .t { background-image:url(themes/blue/t.png); }
+.formular-blue .r { background-image:url(themes/blue/r.png); }
+.formular-blue .b { background:url(themes/blue/b.png) no-repeat left center; }
+.formular-blue .close { background:url(themes/blue/close.png) no-repeat right center; }
+
+.formular-black .c { background:url(themes/black/c.png) repeat; }
+.formular-black .tl { background-image:url(themes/black/tl.png); }
+.formular-black .tr { background-image:url(themes/black/tr.png); }
+.formular-black .br { background-image:url(themes/black/br.png); }
+.formular-black .bl { background-image:url(themes/black/bl.png); }
+.formular-black .l { background-image:url(themes/black/l.png); }
+.formular-black .t { background-image:url(themes/black/t.png); }
+.formular-black .r { background-image:url(themes/black/r.png); }
+.formular-black .b { background:url(themes/black/b.png) no-repeat left center; }
+.formular-black .close { background:url(themes/black/close.png) no-repeat right center; }
+
+.formular-green .c { background:url(themes/green/c.png) repeat; }
+.formular-green .tl { background-image:url(themes/green/tl.png); }
+.formular-green .tr { background-image:url(themes/green/tr.png); }
+.formular-green .br { background-image:url(themes/green/br.png); }
+.formular-green .bl { background-image:url(themes/green/bl.png); }
+.formular-green .l { background-image:url(themes/green/l.png); }
+.formular-green .t { background-image:url(themes/green/t.png); }
+.formular-green .r { background-image:url(themes/green/r.png); }
+.formular-green .b { background:url(themes/green/b.png) no-repeat left center; }
+.formular-green .close { background:url(themes/green/close.png) no-repeat right center; }
+
+.formular-white .txt { color:black; }
+.formular-white .c { background:url(themes/white/c.png) repeat; }
+.formular-white .tl { background-image:url(themes/white/tl.png); }
+.formular-white .tr { background-image:url(themes/white/tr.png); }
+.formular-white .br { background-image:url(themes/white/br.png); }
+.formular-white .bl { background-image:url(themes/white/bl.png); }
+.formular-white .l { background-image:url(themes/white/l.png); }
+.formular-white .t { background-image:url(themes/white/t.png); }
+.formular-white .r { background-image:url(themes/white/r.png); }
+.formular-white .b { background:url(themes/white/b.png) no-repeat left center; }
+.formular-white .close { background:url(themes/white/close.png) no-repeat right center; }
+
+.formular-grey .txt { color:white; }
+.formular-grey .c { background:url(themes/grey/c.png) repeat; }
+.formular-grey .tl { background-image:url(themes/grey/tl.png); }
+.formular-grey .tr { background-image:url(themes/grey/tr.png); }
+.formular-grey .br { background-image:url(themes/grey/br.png); }
+.formular-grey .bl { background-image:url(themes/grey/bl.png); }
+.formular-grey .l { background-image:url(themes/grey/l.png); }
+.formular-grey .t { background-image:url(themes/grey/t.png); }
+.formular-grey .r { background-image:url(themes/grey/r.png); }
+.formular-grey .b { background:url(themes/grey/b.png) no-repeat left center; }
+.formular-grey .close { background:url(themes/grey/close.png) no-repeat right center; }

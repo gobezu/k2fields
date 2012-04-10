@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="k2" method="upgrade">
+	<name>K2 - sliComments</name>
+        
+	<author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+	<copyright>Copyright (C) 2010 $Owner$. All rights reserved. $Copyrightsee$</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <authorEmail>$Email$</authorEmail>
+	<authorUrl>$Url$</authorUrl>
+	<version>$Ver$</version>
+        
+        <description>sliComments K2 integration</description>
+	<files>
+		<filename plugin="slicomments">slicomments.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="comments_count"
+					type="radio"
+					default="0"
+					label="PLG_CONTENT_SLICOMMENTS_COMMENTS_COUNT_LABEL"
+					description="PLG_CONTENT_SLICOMMENTS_COMMENTS_COUNT_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
