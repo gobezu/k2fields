@@ -754,7 +754,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         $js = JFolder::files(JPATH_SITE.'/media/k2fields/js/', '^k2fields\.v.+\.js$');
                         
                         if (!empty($js)) {
-                                JprovenUtility::load($js[count($js) - 1].'?d=0', 'js');
+                                JprovenUtility::load($js[count($js) - 1], 'js');
                                 $compressedLoaded = true;
                         } else {
                                 JprovenUtility::load('jpform.js', 'js');
