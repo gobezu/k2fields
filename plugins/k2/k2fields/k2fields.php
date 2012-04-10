@@ -724,7 +724,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         // advance which in case of backend new content creation is not 
                         // known. Need to be loaded clientside synchronously by each type
                         
-                        if (K2FieldsModelFields::isContainsType($item->catid, 'map', $tab == 'search' || $tab == 'menu' ? 'search' : null) && $tab != 'search') {
+                        if (K2FieldsModelFields::isContainsType('map', $item->catid, $tab == 'search' || $tab == 'menu' ? 'search' : null) && $tab != 'search') {
                                 $document->addScript('http://maps.google.com/maps/api/js?sensor=false');
                         }
                         
@@ -855,10 +855,6 @@ fjs.parentNode.insertBefore(js, fjs);
                 return $files;
         }
         
-        static function isContainsType($assertedType, $catId, $mode) {
-               return K2FieldsModelFields::isContainsType($assertedType, $catId, $mode);
-        }
-
         static function getK2Fields($value = null, $mode = 'group', $modeFilter = null) {
                 if (is_object($value)) {
                         $value = $value->catid;
