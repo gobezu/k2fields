@@ -18,8 +18,8 @@ k2fields is a set of extensions primarily providing you:
 
 Requirements
 ------------
-* PHP5.2+
-* Disable the finder plugin of K2
+* Joomla! 2.5+
+* K2 finder plugin disabled
 
 Usage
 -----
