@@ -27,3 +27,5 @@ Usage
 * Download and install latest version of k2fields from [here](https://github.com/gobezu/k2fields/downloads)
 * Make sure that the k2fields plugins both k2 and system types are active
 * Create your fields and adjust the k2fields plugin settings
+* If you want to use the rating / review feature read [here](https://github.com/gobezu/k2fields/wiki/Rating-Review)
+* If you want to use the list field type read [here](https://github.com/gobezu/k2fields/wiki/List-field)
