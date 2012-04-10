@@ -3,7 +3,7 @@ k2fields
 k2fields is a set of extensions primarily providing you:
 
 * additional set of field types defined through a comprehensive field editor. Currently available field types are:
-    - list: database table mapped nested set based hierarchical values (refer)
+    - list: database table mapped nested set based hierarchical values (refer to wiki page)
     - media: using as source upload files (including archive uploads) or from media providers such as youtube, and displaying using any of the many compatible media plugins you have installed
     - date/time: date, datetime, duration with ability to expire K2 items on the basis of field values and repetition of dates with designated interval until reached given date/time or for a number of repetitions
     - email: with abilility to connect to forms (currently tested with fabrik)
@@ -13,7 +13,7 @@ k2fields is a set of extensions primarily providing you:
 * advanced search capability
 * content module with numerous item selection and styling varieties
 * various predefined item/itemlist layouts
-* rating / review based on jcomments with ability to define varying review criterias for various K2 categories
+* rating / review based on jcomments with ability to define varying review criterias for various K2 categories (refer to wiki page)
 * and much more...
 
 Requirements
