@@ -14,10 +14,12 @@ k2fields is a set of extensions primarily providing you:
 * various predefined item/itemlist layouts
 * rating / review based on jcomments with ability to define varying review criterias for various K2 categories
 * and much more...
+
 Requirements
 ------------
 * PHP5.2+
 * Disable the finder plugin of K2
+
 Usage
 -----
 * Download and install
