@@ -18,10 +18,14 @@ k2fields is a set of extensions primarily providing you:
 
 Requirements
 ------------
-* PHP5.2+
-* Disable the finder plugin of K2
+* Joomla! 2.5+
+* K2 finder plugin disabled
 
 Usage
 -----
-* Download and install
+* Download and install latest version of K2
+* Download and install latest version of k2fields from [here](https://github.com/gobezu/k2fields/downloads)
+* Make sure that the k2fields plugins both k2 and system types are active
 * Create your fields and adjust the k2fields plugin settings
+* If you want to use the rating / review feature read [here](https://github.com/gobezu/k2fields/wiki/Rating-Review)
+* If you want to use the list field type read [here](https://github.com/gobezu/k2fields/wiki/List-field)
