@@ -2,15 +2,14 @@ k2fields
 ========
 k2fields is a set of extensions primarily providing you:
 
-* additional set of field types defined through a field editor
+* additional set of field types defined through a comprehensive field editor. Currently available field types are:
     - list: database table mapped nested set based hierarchical values (refer)
-    - media:
+    - media: using as source upload files (including archive uploads) or from media providers such as youtube, and displaying using any of the many compatible media plugins you have installed
     - date/time: date, datetime, duration with ability to expire K2 items on the basis of field values and repetition of dates with designated interval until reached given date/time or for a number of repetitions
     - email: with abilility to connect to forms (currently tested with fabrik)
-    - basic: range (numeric range), days, 
-    - k2item: embedding another K2 item
+    - basic: range (numeric range), days, verifybox, yesno, numeric, alpha, alphanumeric, text
+    - k2item: embedding other K2 items within a K2 item
     - complex: composition of other defined fields
-  
 * advanced search capability
 * content module with numerous item selection and styling varieties
 * various predefined item/itemlist layouts
