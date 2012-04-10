@@ -715,13 +715,6 @@ var k2fieldseditor = new Class({
                                 'optName':'maxLength',
                                 'valid':'integer'
                         },
-                        '107':{
-                                'name':'Interval of values',
-                                'optName':'interval',
-                                'valid':'text',
-                                'tip':'Provide lower limit,upper limit'
-                        },
-
                         '151':{
                                 'name':'Available in views',
                                 'optName':'view',
