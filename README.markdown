@@ -23,5 +23,7 @@ Requirements
 
 Usage
 -----
-* Download and install
+* Download and install latest version of K2
+* Download and install latest version of k2fields from [here](https://github.com/gobezu/k2fields/downloads)
+* Make sure that the k2fields plugins both k2 and system types are active
 * Create your fields and adjust the k2fields plugin settings
