@@ -751,7 +751,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         
                         if ($tab == 'menu') JprovenUtility::load('jpmenuitemhandler.js', 'js');
                         
-                        $js = JFolder::files(JPATH_SITE.'/media/k2fields/js/', '^k2fields\.rev[0-9]+\.js$');
+                        $js = JFolder::files(JPATH_SITE.'/media/k2fields/js/', '^k2fields\.v.+\.js$');
                         
                         if (!empty($js)) {
                                 JprovenUtility::load($js[count($js) - 1].'?d=0', 'js');
