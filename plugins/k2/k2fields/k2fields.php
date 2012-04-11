@@ -116,7 +116,7 @@ class plgk2k2fields extends K2Plugin {
                         default:
                                 $category = JTable::getInstance('K2Category', 'Table');
                                 $category->load($item->catid);
-                                $link = K2HelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $category->id.':'.urlencode($category->alias));
+                                $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $category->id.':'.urlencode($category->alias));
                                 $js = "window.parent.document.location.href='".JRoute::_($link)."';";
                                 break;
                 }

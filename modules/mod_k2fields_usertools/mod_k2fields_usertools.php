@@ -62,7 +62,7 @@ $return = base64_encode($uri->toString(array('path', 'query', 'fragment')));
                 </li>
                 <?php endif; ?>
                 <li id="k2futitems">
-                        <a href="<?php echo JRoute::_(K2HelperRoute::getUserRoute($user->id)); ?>"><?php echo JText::_('Your items'); ?></a>
+                        <a href="<?php echo JRoute::_(K2FieldsHelperRoute::getUserRoute($user->id)); ?>"><?php echo JText::_('Your items'); ?></a>
                 </li>
                 <li id="k2futprofile">
                         <a title="<?php echo JText::_('COM_USERS_PROFILE_DEFAULT_LABEL') ?>" href="<?php echo JRoute::_('index.php?option=com_users&view=profile&layout=edit'); ?>"><?php echo JText::_('COM_USERS_PROFILE_DEFAULT_LABEL') ?></a>

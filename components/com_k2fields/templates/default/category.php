@@ -7,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
 $cid = JRequest::getInt('cid');
 $advice = $tries = '';
 if ($cid) {
-        $link = K2HelperRoute::createCategoryLink($cid);
+        $link = K2FieldsHelperRoute::createCategoryLink($cid);
         $advice = JText::_('Search again with other parameter or please try one of the following related pages:');
         /**
          * TODO: This will not suffice for broader categories containing specializations 

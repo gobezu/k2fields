@@ -70,10 +70,10 @@ class K2ModelItem extends JModel
 		$category->load($item->catid);
 
 		$item->category = $category;
-		$item->category->link = urldecode(JRoute::_(K2HelperRoute::getCategoryRoute($category->id.':'.urlencode($category->alias))));
+		$item->category->link = urldecode(JRoute::_(K2FieldsHelperRoute::getCategoryRoute($category->id.':'.urlencode($category->alias))));
 
 		//Read more link
-		$link = K2HelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
+		$link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
 		$item->link = urldecode(JRoute::_($link));
 
 		//Print link
@@ -107,7 +107,7 @@ class K2ModelItem extends JModel
 			$tags = K2ModelItem::getItemTags($item->id);
 			for ($i = 0; $i < sizeof($tags); $i++)
 			{
-				$tags[$i]->link = JRoute::_(K2HelperRoute::getTagRoute($tags[$i]->name));
+				$tags[$i]->link = JRoute::_(K2FieldsHelperRoute::getTagRoute($tags[$i]->name));
 			}
 			$item->tags = $tags;
 		}
@@ -235,7 +235,7 @@ class K2ModelItem extends JModel
 			{
 				$author = &JFactory::getUser($item->created_by);
 				$item->author = $author;
-				$item->author->link = JRoute::_(K2HelperRoute::getUserRoute($item->created_by));
+				$item->author->link = JRoute::_(K2FieldsHelperRoute::getUserRoute($item->created_by));
 				$item->author->profile = K2ModelItem::getUserProfile($item->created_by);
 				$item->author->avatar = K2HelperUtilities::getAvatar($author->id, $author->email, $params->get('userImageWidth'));
 			}
@@ -276,7 +276,7 @@ class K2ModelItem extends JModel
 		$item->category = $category;
 
 		//Read more link
-		$item->link = urldecode(JRoute::_(K2HelperRoute::getItemRoute($item->id.':'.$item->alias, $item->catid.':'.urlencode($item->category->alias))));
+		$item->link = urldecode(JRoute::_(K2FieldsHelperRoute::getItemRoute($item->id.':'.$item->alias, $item->catid.':'.urlencode($item->category->alias))));
 
 		//Filtering
 		if ($params->get('introTextCleanup'))
@@ -398,7 +398,7 @@ class K2ModelItem extends JModel
 		{
 			$author = &JFactory::getUser($item->created_by);
 			$item->author = $author;
-			$item->author->link = JRoute::_(K2HelperRoute::getUserRoute($item->created_by));
+			$item->author->link = JRoute::_(K2FieldsHelperRoute::getUserRoute($item->created_by));
 			$item->author->profile = K2ModelItem::getUserProfile($item->created_by);
 		}
 

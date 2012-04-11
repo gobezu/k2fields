@@ -1,12 +1,5 @@
 <?php
-/**
-* YOOcarousel Joomla! Module
-*
-* @version   1.5.3
-* @author    yootheme.com
-* @copyright Copyright (C) 2007 YOOtheme Ltd. & Co. KG. All rights reserved.
-* @license	 GNU/GPL
-*/
+//$Copyright$
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
@@ -484,15 +477,9 @@ class K2FieldsModuleHelper {
         
         public static function prepareList($items, $params, $cparams, $format) {
 		if (count($items)) {
-//                        require_once JPATH_SITE.'/components/com_k2/models/item.php';
-//                        require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
-//                        require_once JPATH_SITE.'/components/com_k2/helpers/utilities.php';
-                        
-//                        JModel::addIncludePath(JPATH_SITE.'/components/com_k2/models');
                         $model = JModel::getInstance('item', 'K2Model');
                         
                         require_once JPATH_SITE.'/components/com_k2/helpers/permissions.php';
-                        //JLoader::register('K2HelperPermissions', JPATH_SITE.'helpers/permissions.php');
                         
                         $limitstart = $params->get('limitstart');
                         
@@ -556,20 +543,20 @@ class K2FieldsModuleHelper {
                                         }
                                         
                                         //Read more link
-                                        $item->link = urldecode(JRoute::_(K2HelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->categoryalias))));
+                                        $item->link = urldecode(JRoute::_(K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->categoryalias))));
 
                                         //Tags
                                         if ($params->get('itemTags')) {
                                                 $tags = $model->getItemTags($item->id);
                                                 for ($i = 0; $i < sizeof($tags); $i++) {
-                                                        $tags[$i]->link = JRoute::_(K2HelperRoute::getTagRoute($tags[$i]->name));
+                                                        $tags[$i]->link = JRoute::_(K2FieldsHelperRoute::getTagRoute($tags[$i]->name));
                                                 }
                                                 $item->tags = $tags;
                                         }
 
                                         //Category link
                                         if ($params->get('itemCategory'))
-                                        $item->categoryLink = urldecode(JRoute::_(K2HelperRoute::getCategoryRoute($item->catid.':'.urlencode($item->categoryalias))));
+                                        $item->categoryLink = urldecode(JRoute::_(K2FieldsHelperRoute::getCategoryRoute($item->catid.':'.urlencode($item->categoryalias))));
 
                                         //Extra fields
                                         if ($params->get('itemExtraFields')) {
@@ -707,7 +694,7 @@ class K2FieldsModuleHelper {
                                                                 $item->authorAvatar = K2HelperUtilities::getAvatar($author->id, $author->email, $cparams->get('userImageWidth'));
                                                         }
                                                         //Author Link
-                                                        $item->authorLink = JRoute::_(K2HelperRoute::getUserRoute($item->created_by));
+                                                        $item->authorLink = JRoute::_(K2FieldsHelperRoute::getUserRoute($item->created_by));
                                                 }
                                         }
                                         

@@ -424,9 +424,7 @@ class K2FieldsModelFields extends JModel {
                                 }
                                 
                                 if ($notify !== false) {
-                                        //require_once JPATH_SITE.'/components/com_k2/helpers/route.php';
-
-                                        $link = K2HelperRoute::getItemRoute($item->id.':'.urlencode($item->alias),$item->catid.':'.urlencode($item->catalias));
+                                        $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias),$item->catid.':'.urlencode($item->catalias));
                                         $link = urldecode(JRoute::_($link));
                                         $recipients = ($notify == 'all' || $notify == 'owner') ? '' : $item->created_by;
                                         $recipients = (array) $recipients;
@@ -1303,12 +1301,7 @@ class K2FieldsModelFields extends JModel {
                                 $access = self::value($field, 'access');
                                 
                                 if ($access && isset($access['edit'])) {
-                                        if (K2_JVERSION == '16') {
-                                                $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
-                                        } else {
-                                                $aid = $user->get('aid', 0);
-                                                $allowed = $access['edit'] > $aid;
-                                        }
+                                        $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
                                         
                                         if (!$allowed) continue;
                                                                                 
@@ -1516,12 +1509,10 @@ class K2FieldsModelFields extends JModel {
                         $labelUI .= '</ul></div>';
                         
                         if (!empty($ui)) {
-                                //require_once JPATH_SITE.'/components/com_k2/helpers/route.php';
-                                
                                 $needle = array('item' => $itemId, 'itemlist' => $catId);
                                 $itemId = '';
                                 
-                                if ($menuItem = K2HelperRoute::_findItem($needle)) {
+                                if ($menuItem = K2FieldsHelperRoute::_findItem($needle)) {
                                         $itemId = $menuItem->id;
                                 } else {
                                         $modules = JModuleHelper::_load();
@@ -2858,10 +2849,8 @@ class K2FieldsModelFields extends JModel {
                 $view = JRequest::getCmd('view');
                 
                 if ($view == 'itemlist') {
-                        // require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
-                        
                         if ($item->params->get('catItemTitleLinked')) {
-                                $title = K2HelperRoute::createItemLink($item, $title, $mode);
+                                $title = K2FieldsHelperRoute::createItemLink($item, $title, $mode);
                         } else {
                                 $title = $item->title;
                         }

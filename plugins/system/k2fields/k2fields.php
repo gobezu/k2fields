@@ -4,9 +4,6 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-/**
- * @@todo: synch with original extrafields table (in particular on delete)
- */
 JLoader::register('JprovenUtility', JPATH_SITE.'/components/com_k2fields/helpers/utility.php');
 
 if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
@@ -27,8 +24,7 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         }
         
         //require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
-        JLoader::register('K2HelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
-        JLoader::load('K2HelperRoute');
+        JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
         JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2fields/helpers/utilities.php');
         JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
         
@@ -116,7 +112,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 if ($cntQuota != -1 && $cntQuota < $cnt) {
                         $msg = self::_v($quota, $colMessage, 'PLG_K2FIELDS_QUOTA_EXCEEDED');
-                        $userPage = K2HelperRoute::getUserRoute($user->id);
+                        $userPage = K2FieldsHelperRoute::getUserRoute($user->id);
                         $msg = JText::sprintf($msg, $cntQuota, $userPage, $cnt);
                         
                         $href = self::_v($quota, $colHRef, K2FieldsModelFields::setting('accessdefaulthref'));

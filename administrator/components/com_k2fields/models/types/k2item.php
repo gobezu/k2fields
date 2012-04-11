@@ -128,7 +128,7 @@ class K2fieldsK2Item {
                             's'.$fieldId.'_0' => $item->id
                         );
                         
-                        $ui = K2HelperRoute::createCategoryLink(
+                        $ui = K2FieldsHelperRoute::createCategoryLink(
                                 $cats, 
                                 $query,
                                 '',
@@ -207,7 +207,7 @@ class K2fieldsK2Item {
                                                 $ui = $_item->title;
                                         } else {
                                                 $as = str_replace('link', '', $as);
-                                                $ui = K2HelperRoute::createItemLink($_item, '', $as);
+                                                $ui = K2FieldsHelperRoute::createItemLink($_item, '', $as);
                                         }
 
                                         $result[] = $cond.$ui;
