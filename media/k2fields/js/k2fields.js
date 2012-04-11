@@ -64,11 +64,7 @@ var k2fields = new Class({
                         
                         if (!c) return;
 
-                        if (this.options.isK2JQuery) {
-                                $K2('#catid').unbind('change');
-                        } else {
-                                c.removeEvents('change');
-                        }
+                        $K2('#catid').unbind('change');
                         
                         c.addEvent('change', function(e) {
                                 this.processingStart();
@@ -368,7 +364,7 @@ var k2fields = new Class({
 
                                         btn = new Element('li', {'id':'tab'+id.capitalize()});
                                         new Element('a', {
-                                                'href':'#'+(this.options.isK2JQuery ? cId : ''), 
+                                                'href':'#'+cId, 
                                                 'html':sec
                                         }).inject(btn);
                                         btn.inject(nav);
@@ -383,11 +379,7 @@ var k2fields = new Class({
                                 if (t) els.push(t);
                         }
                         
-                        if (this.options.isK2JQuery) {
-                                $K2('#k2fieldsTabs').tabs();
-                        } else { 
-                                kmrSimpleTabs.init();
-                        }
+                        $K2('#k2fieldsTabs').tabs('option', 'select', 1);
                 } else {
                         els = els.getElements('[name^='+this.options.pre+']');
                 }
