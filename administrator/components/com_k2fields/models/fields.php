@@ -1276,57 +1276,13 @@ class K2FieldsModelFields extends JModel {
                 
                 $this->_db->setQuery($query);
                 $fields = $this->_db->loadObjectList('id');
+                
                 if ($onlyDefinitions) return $fields;
+                
                 $fields = $this->mapFieldsOptions($fields, $modeFilter == 'search');
-                
-//                $_results[$mode][$value] = $fields;
-                
                 $fields = $this->__getFields($fields, $mode, $value, $modeFilter, $objectify, $preserveOrder);
                 
                 return $fields;
-                
-//                if (isset($modeFilter)) {
-//                        if (is_string($modeFilter) && $modeFilter == 'view') {
-//                                $modeFilter = array('view' => JRequest::getCmd('view', ''));
-//                        }
-//                        
-//                        $accessMode = 'read';
-//                } else {
-//                        $accessMode = $modeFilter;
-//                }
-//                
-//                foreach ($fields as &$field) {
-//                        if (!empty($modeFilter) && !empty($field)) {
-//                                $field['filters'] = $this->filterFieldOptions($field, $modeFilter);
-//                        }
-//                        
-//                        if (isset($field['access'])) {
-//                                if (isset($field['access'][$accessMode]) && $field['access'][$accessMode] > $aid) {
-//                                        unset($fields[$id]);
-//                                        continue;
-//                                }
-//                        }                        
-//                }
-//                
-//                if ($mode == 'id' && is_numeric($value)) {
-//                        $keys = array_keys($fields);
-//                        $fields = $fields[$keys[0]];
-//                }
-//                
-//                if ($objectify)
-//                        foreach ($fields as &$field) $field = JprovenUtility::toObject($field);
-//                
-//                if ($preserveOrder && is_array($fields) && $mode == 'id') {
-//                        $result = array();
-//                        foreach ($value as $val) {
-//                                if ($fields[$val]) {
-//                                        $result[$val] = $fields[$val];
-//                                }
-//                        }
-//                        return $result;
-//                }
-//                
-//                return $fields;
         }
         
         function reinstateReadOnlyFields() {
