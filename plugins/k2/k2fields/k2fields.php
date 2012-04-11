@@ -713,10 +713,6 @@ fjs.parentNode.insertBefore(js, fjs);
 //                return $tab == 'search' || $tab == 'menu' ? 's' : 'K2ExtraField_';
         }
         
-        public static function isK2JQuery() {
-                return version_compare(K2VERSION, '2.5', 'ge');
-        }
-        
         public static function loadResources($tab = null, $item = null) {
                 static $jsDone = false, $jsK2fDone = false, $includeDone = false, $itemDone = false, $compressedLoaded = false;
                 
@@ -829,8 +825,7 @@ fjs.parentNode.insertBefore(js, fjs);
                                     timeFormat: "'.K2FieldsModelFields::setting('timeFormat').'",
                                     weekstartson: "'.K2FieldsModelFields::setting('weekstartson').'",
                                     autoFields: '.json_encode(K2FieldsModelFields::$autoFieldTypes).',
-                                    maxFieldLength: '.K2FieldsModelFields::setting('alphafieldmaxlength').',
-                                    isK2JQuery: '.(self::isK2JQuery() && $tab != 'menu' ? 'true' : 'false').
+                                    maxFieldLength: '.K2FieldsModelFields::setting('alphafieldmaxlength').
                                     ($tab == 'search' ? ',initState:"'.K2FieldsModelSearchterms::getSearchUrl().'"' : '').
                                         '
                                     });
