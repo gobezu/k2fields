@@ -14,13 +14,13 @@ k2fields is a set of extensions primarily providing you:
 * content module with numerous item selection and styling varieties
 * various predefined item/itemlist layouts
 * rating / review based on jcomments with ability to define varying review criterias for various K2 categories (refer to wiki page)
+* microdata support based on [schema.org](http://schema.org) definitions
 * and much more...
 
 Requirements
 ------------
 * Joomla! version 2.5.4+
 * K2 version 2.5.6+
-* K2 finder plugin disabled
 
 Usage
 -----
@@ -31,3 +31,8 @@ Support
 * Discussion forum [https://groups.google.com/forum/#!forum/k2fields](https://groups.google.com/forum/#!forum/k2fields)
 * Specific issue to report - please do make entry in the issue tracker [https://github.com/gobezu/k2fields/issues](https://github.com/gobezu/k2fields/issues)
 * Specific support request - submit it [http://jproven.com/k2fields/contact](http://jproven.com/k2fields/contact)
+
+Notes (To be expanded...)
+-----
+* k2fields works in some parts thanks to overrides. In those cases where certain extensions hinder such override to take place by directly requiring or including then k2fields might fail to perform but please don't hesitate to raise such issues...
+* Plain K2 fields doesn't work well when k2fields is activated so you would need to choose either or...
