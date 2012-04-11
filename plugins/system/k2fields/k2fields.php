@@ -26,6 +26,12 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
                 $opt = isset($req['option']) ? $req['option'] : '';
         }
         
+        //require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
+        JLoader::register('K2HelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
+        JLoader::load('K2HelperRoute');
+        JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2fields/helpers/utilities.php');
+        JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
+        
         if ($app->isSite() && !in_array($task, array('edit', 'add', 'save'))) {
                 JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
                 JModel::getInstance('item', 'K2Model');
@@ -35,18 +41,8 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables');
-
-        // overriding k2 native classes route and utilities
-        //JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
-        // JLoader::register('K2HelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
-        require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
-        //require_once JPATH_SITE.'/components/com_k2fields/helpers/utilities.php';
-        JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2fields/helpers/utilities.php');
-        JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
-        //require_once JPATH_SITE . '/components/com_k2fields/helpers/utility.php';
-        //require_once JPATH_SITE.'/components/com_k2fields/helpers/helper.php';
-
-        JModel::getInstance('fields', 'K2FieldsModel');
+        
+        // JModel::getInstance('fields', 'K2FieldsModel');
 }
 
 class plgSystemk2fields extends JPlugin {
@@ -323,20 +319,7 @@ class plgSystemk2fields extends JPlugin {
         }
         
         function onAfterRender() {
-                if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
-                
-                
         }
-//        
-//        private static function isUpgradeMootools() {
-//                if (K2_JVERSION == '16') return false;
-//                
-//                $option = JRequest::getCmd('option');
-//                
-//                if (JFactory::getApplication()->isAdmin() && $option == 'com_sh404sef') return false;
-//                
-//                return true;
-//        }
         
         private static function upgradeMootools($debug = null) {
                 if (!(bool) self::param('upgradeMootools')) return;
@@ -378,15 +361,7 @@ class plgSystemk2fields extends JPlugin {
          * in each possible template override folder
          */
         private static function addResources() {
-                $app = JFactory::getApplication();
-                
-                // @@TODO: this loads resources regardless if search module is present or not
-//                if ($app->isSite()) {
-//                        plgk2k2fields::loadResources('search');
-//                }
-                
-                if (plgk2k2fields::param('specificCSS', 'no') == 'yes') 
-                        JprovenUtility::loadK2SpecificResources();
+                if (plgk2k2fields::param('specificCSS', 'no') == 'yes')  JprovenUtility::loadK2SpecificResources();
         }
         
         /**
@@ -543,21 +518,6 @@ class plgSystemk2fields extends JPlugin {
                 
                 $option = JRequest::getCmd('option');
                 $view = JRequest::getCmd('view');
-                
-//                if (JFactory::getApplication()->isAdmin() && $option == 'com_k2' && $view == 'settings') {
-//                        $document = JFactory::getDocument();
-//                        $document->addScriptDeclaration('
-//                        window.addEvent("domready", function() {
-//                                $$("button")[0].set("onclick", null).addEvent("click", function(){
-//                                        submitbutton("save");
-//                                        window.top.setTimeout("window.parent.SqueezeBox.close();", 700);
-//                                });
-//                                $$("button")[1].set("onclick", null).addEvent("click", function(){
-//                                        window.parent.SqueezeBox.close();
-//                                });
-//                        });
-//                        ');
-//                }
                 
                 self::extendUserForm();
                 self::addResources();
