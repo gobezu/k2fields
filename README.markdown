@@ -23,7 +23,7 @@ Requirements
 
 Usage
 -----
-Refer [here](https://github.com/gobezu/k2fields/wiki)
+Refer to the wiki [https://github.com/gobezu/k2fields/wiki](https://github.com/gobezu/k2fields/wiki)
 
 Support
 -------
