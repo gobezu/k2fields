@@ -1114,7 +1114,7 @@ group by vvv.itemid
                 return version_compare(JVERSION, '1.6.0', 'ge');
         }    
         
-        public static function checkPluginActive($plugin, $folder, $warn = '') {
+        public static function checkPluginActive($plugin, $folder, $warn = '', $enable = false) {
                 jimport('joomla.plugin.helper');
                 
                 if (JPluginHelper::importPlugin($folder, $plugin)) return true;
@@ -1131,6 +1131,13 @@ group by vvv.itemid
                         $warn = JText::sprintf($warn, $a);
                         
                         self::throwError(JLog::WARNING, $warn);
+                }
+                
+                if ($enable) {
+                        $db = JFactory::getDbo();
+                        $db->setQuery('UPDATE #__extensions SET enabled = 1 WHERE type = '.$db->quote('plugin').' AND element = '.$db->quote($plugin).' AND folder = '.$db->quote($folder));
+                        $db->query();
+                        return JPluginHelper::importPlugin($folder, $plugin);
                 }
                 
                 return false;
