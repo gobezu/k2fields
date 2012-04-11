@@ -4,6 +4,11 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+if (!JprovenUtility::checkPluginActive('k2fields', 'system', '', true)) {
+        JError::raiseError('500', 'Unable to activate/locate k2fields system plugin which is required for proper functioning of k2fields. Please correct that and try again.');
+        return;
+}
+
 JLoader::register('K2Plugin', JPATH_ADMINISTRATOR.'/components/com_k2/lib/k2plugin.php');
 
 class plgk2k2fields extends K2Plugin {
@@ -17,8 +22,6 @@ class plgk2k2fields extends K2Plugin {
 
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
-//                $view = JRequest::getCmd('view');
-                //if ($view == 'item') JprovenUtility::normalizeK2Parameters($category, $params);
                 $item->nonk2rating = 
                         JPluginHelper::importPlugin('jcomments', 'rate') || JPluginHelper::importPlugin('slicomments', 'rate');
                 
