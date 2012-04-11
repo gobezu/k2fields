@@ -27,4 +27,6 @@ Refer [here](https://github.com/gobezu/k2fields/wiki)
 
 Support
 -------
-Will try to provide user forum soon in the mean time please use my contact form [here](http://jproven.com/k2fields/contact).
+* Discussion forum [https://groups.google.com/forum/#!forum/k2fields](https://groups.google.com/forum/#!forum/k2fields)
+* If you have found specific bug or have improvement suggestions please do make entry in the issue tracker [https://github.com/gobezu/k2fields/issues](https://github.com/gobezu/k2fields/issues)
+* If you have specific support request submit it [http://jproven.com/k2fields/contact](http://jproven.com/k2fields/contact)
