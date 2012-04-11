@@ -14,7 +14,7 @@ k2fields is a set of extensions primarily providing you:
 * content module with numerous item selection and styling varieties
 * various predefined item/itemlist layouts
 * rating / review based on jcomments with ability to define varying review criterias for various K2 categories (refer to wiki page)
-* microdata support based on schema.org definitions
+* microdata support based on [schema.org](http://schema.org) definitions
 * and much more...
 
 Requirements
