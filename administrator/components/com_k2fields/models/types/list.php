@@ -478,18 +478,19 @@ class K2FieldsList {
                                 }                                
                         } else {
                                 $value = trim($import[2]);
+                                $key = self::_key($value);
                                 $parent = trim($import[1]);
                                 $image = count($import) == 5 ? trim($import[3]) : '';
                                 
                                 if (!isset($ordered[$list])) $ordered[$list] = array();
                                 
-                                $ordered[$list][$value] = array($parent, $image, 0);
+                                $ordered[$list][$key] = array($parent, $image, 0, $value);
                         }
                 }
                 
                 foreach ($ordered as $list => &$values) {
-                        foreach ($values as $value => &$record) {
-                                $this->_import($values, $list, $value);
+                        foreach ($values as $key => &$record) {
+                                $this->_import($values, $list, $key);
                         }
                 }
                 
@@ -505,10 +506,14 @@ class K2FieldsList {
                                 $this->precalc($field);
                         }
                 }
-        }    
+        }  
         
-        protected function _import(&$listValues, $list, $value) {
-                list($parent, $image, $inserted) = $listValues[$value];
+        protected static function _key($val) {
+                return preg_replace('#[^0-9a-z\s]#i', '', $val);
+        }
+        
+        protected function _import(&$listValues, $list, $key) {
+                list($parent, $image, $inserted, $value) = $listValues[$key];
                 
                 if ($inserted === 0) {
                         if (strpos($parent, 'infile:') === 0) {
@@ -516,13 +521,14 @@ class K2FieldsList {
                                 
                                 if ($parentInfile == '') return;
                                 
-                                // Check if it is already inserted and get the node
-                                $parent = $this->findNode($list, $parentInfile);
+                                // Check if it is already imported and get the node
+                                $parentInfileKey = self::_key($parentInfile);
+                                $parent = $this->findNode($list, $parentInfileKey);
                                 
                                 if (!$parent) {
-                                        // If not already inserted do insert
-                                        $this->_import($listValues, $list, $parentInfile);
-                                        $parent = $listValues[$parentInfile][2];
+                                        // If not already imported do import
+                                        $this->_import($listValues, $list, $parentInfileKey);
+                                        $parent = $listValues[$parentInfileKey][2];
                                 }
                         } else if (strpos($parent, 'value:') === 0) {
                                 $parent = str_replace('value:', '', $parent);
@@ -534,7 +540,7 @@ class K2FieldsList {
                         }
                         
                         $this->add($list, $value, $image, $parent, 1, false);
-                        $listValues[$value][2] = $this->findNode($list, $value);
+                        $listValues[$key][2] = $this->findNode($list, $value);
                 }
         }
         
