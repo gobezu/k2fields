@@ -24,3 +24,7 @@ Requirements
 Usage
 -----
 Refer [here](https://github.com/gobezu/k2fields/wiki)
+
+Support
+-------
+Will try to provide user forum soon in the mean time please use my contact form [here](http://jproven.com/k2fields/contact).
