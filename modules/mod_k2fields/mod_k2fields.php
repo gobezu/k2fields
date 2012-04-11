@@ -4,6 +4,16 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+if (!class_exists('JprovenUtility')) {
+        if (!JFile::exists(JPATH_SITE.'/components/com_k2fields/helpers/utility.php')) {
+                return;
+        } else {
+                JLoader::register('JprovenUtility', JPATH_SITE.'/components/com_k2fields/helpers/utility.php');
+        }
+}
+
+if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
+
 $defaultCategory = $params->get('defaultcategory', 0);
 $useItemid = $params->get('useitemid', 'current') == 'current' ? 
         JRequest::getInt('Itemid') : 
