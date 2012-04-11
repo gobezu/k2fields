@@ -3065,15 +3065,17 @@ class K2FieldsModelFields extends JModel {
                 
                 switch ($extraField->valid) {
                         case 'k2item':
-                                $values = self::explodeValues($active, $extraField);
-                                $vals = (array) JprovenUtility::getColumn($values, 1);
-                                $query = 'SELECT id, title FROM #__k2_items WHERE id IN ('.implode(',', $vals).')';
-                                $this->_db->setQuery($query);
-                                $vals = $this->_db->loadObjectList('id');
-                                foreach ($values as &$value) {
-                                        $value[2] = $vals[$value[1]]->title;
+                                if ($active) {
+                                        $values = self::explodeValues($active, $extraField);
+                                        $vals = (array) JprovenUtility::getColumn($values, 1);
+                                        $query = 'SELECT id, title FROM #__k2_items WHERE id IN ('.implode(',', $vals).')';
+                                        $this->_db->setQuery($query);
+                                        $vals = $this->_db->loadObjectList('id');
+                                        foreach ($values as &$value) {
+                                                $value[2] = $vals[$value[1]]->title;
+                                        }
+                                        $active = self::implodeValues($values, $extraField);
                                 }
-                                $active = self::implodeValues($values, $extraField);
                                 break;
                         default:
                                 if (!isset($item)) {
