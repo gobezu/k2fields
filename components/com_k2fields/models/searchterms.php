@@ -1210,10 +1210,10 @@ class K2FieldsModelSearchterms extends JModel {
                         }
                         
                         if (!empty($link)) {
+                                $pathway->setPathway($pathwayArr);
                                 $name = '('.JText::_('Back to search results').')';
                                 $pathway->addItem($name, $link);
                                 $pathway->addItem($last->name, $last->link);
-                                $pathwayArr = $pathway->getPathway();
                         }
                 } else if ($k2fieldsSearch) {
                         // TODO: Add details about search fields based on self::$_searchTerms
