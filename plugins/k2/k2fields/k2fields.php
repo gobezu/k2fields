@@ -742,8 +742,8 @@ fjs.parentNode.insertBefore(js, fjs);
                         
                         // Loading order here is important as there is dependency
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
-                                JprovenUtility::loc(true, true, 'lib/Formular/Formular.js', true);
-                                JprovenUtility::loc(true, true, 'lib/Formular/Formular.css', true, 'css');
+                                JprovenUtility::loc(true, true, 'lib/Formular/formular.js', true);
+                                JprovenUtility::loc(true, true, 'lib/Formular/formular.css', true, 'css');
                         }
                         
                         JprovenUtility::loc(true, true, 'lib/autocompleter.js', true);
