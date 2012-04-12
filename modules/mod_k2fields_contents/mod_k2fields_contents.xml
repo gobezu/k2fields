@@ -156,7 +156,7 @@
                         </fieldset>
                         <fieldset name="widgetkitoptions">
                                 <field name="widgetkit_type" type="folderlist" default="slideshow" hide_none="true" label="Widget type" directory="plugins/system/widgetkit_k2/widgets" filter="" exclude="" stripext="" />
-                                <field name="widgetkit_theme" type="dependentfolderlist" default="default" hide_none="true" label="THEME" directory="media/widgetkit/widgets/%replace%/styles" dependson="widgetkit_type" reg="" filter="" exclude="" stripext="" />
+                                <field name="widgetkit_theme" type="dependentfolderlist" missing="Widgetkit not installed" default="default" hide_none="true" label="THEME" directory="media/widgetkit/widgets/%replace%/styles" dependson="widgetkit_type" reg="" filter="" exclude="" stripext="" />
                                 <field name="widgetkit_keepsynch" label="Keep synchronized module setting and widget" type="radio" default="0">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>

@@ -39,6 +39,13 @@ class JFormFieldDependentFolderList extends JFormFieldFolderList {
                 
                 $this->element['directory'] = $path;
                 
+                jimport('joomla.filesystem.folder');
+                if (!JFolder::exists(JPATH_SITE.'/'.$path)) {
+                        $missing = (string) $this->element['missing'];
+                        if (!$missing) $missing = 'INCORRECT_FOLDER';
+                        return array(JHtml::_('select.option', '', JText::_($missing)));
+                }
+                
                 return parent::getOptions();
         }
         
