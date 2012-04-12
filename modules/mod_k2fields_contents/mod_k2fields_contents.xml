@@ -462,7 +462,7 @@
                                 <field name="item" type="k2fitem" default="" label="Specific items" description="Higher presedence over category selection" />
                                 <field name="items" type="k2fitems" default="" label="Drag and drop to re-order items"/>
                                 <field name="sticktofields" type="msql" default="" label="Select one or more fields to stick to (Applies only if sticky criteria is set to item/field)"
-                               query="SELECT f.id, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as sticktofields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 ORDER BY c.`id`, f.`ordering`"
+                               query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as sticktofields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 ORDER BY c.`id`, f.`ordering`"
                 />
                                 <field name="getChildren" type="list" default="2" label="Fetch items from children categories" description="Immediate children selects immediate children of chosen top most category">
                                         <option value="0">No</option>

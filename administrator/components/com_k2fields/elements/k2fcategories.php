@@ -6,13 +6,13 @@ defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_ADMINISTRATOR . '/components/com_k2/elements/categories.php';
 
-if(K2_JVERSION=='16'){
-	class JFormFieldK2FCategories extends JFormFieldCategories {
-		function getInput(){
-			return JElementK2FCategories::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
-		}
-	}
+class JFormFieldK2FCategories extends JFormFieldCategories {
+        function getInput(){
+                return JElementK2FCategories::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
+        }
 }
+
+jimport('joomla.html.parameter.element');
 
 class JElementK2FCategories extends JElementCategories {
         var $_name = 'k2fcategories';

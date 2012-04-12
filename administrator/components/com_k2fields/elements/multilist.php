@@ -11,15 +11,14 @@ defined('JPATH_BASE') or die();
  * Renders a multiple item select element
  *
  */
-
-if(K2_JVERSION=='16'){
-	class JFormFieldMultiList extends JFormField {
-		function getInput(){
-			return JElementMultiList::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
-		}
-	}
+class JFormFieldMultiList extends JFormField {
+        function getInput(){
+                return JElementMultiList::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
+        }
 }
  
+jimport('joomla.html.parameter.element');
+
 class JElementMultiList extends JElement
 {
         /**
@@ -32,16 +31,11 @@ class JElementMultiList extends JElement
  
         function fetchElement($name, $value, &$node, $control_name)
         {
-                $attrMtd = K2_JVERSION=='16' ? 'getAttribute' : 'attributes';
-                
-                // Base name of the HTML control.
-                $fieldName = ((K2_JVERSION=='16') ? $name : $control_name.'['.$name.']'.'[]');
- 
                 // Construct an array of the HTML OPTION statements.
                 $options = array ();
                 foreach ($node->children() as $option)
                 {
-                        $val = call_user_func(array($option, $attrMtd), 'value');
+                        $val = (string) $option->attributes()->value;
                         //$val   = $option->attributes('value');
                         $text  = $option->data();
                         $options[] = JHTML::_('select.option', $val, JText::_($text));
@@ -49,17 +43,16 @@ class JElementMultiList extends JElement
  
                 // Construct the various argument calls that are supported.
                 $attribs       = ' ';
-//                if ($v = $node->attributes( 'size' )) {
-                $v = call_user_func(array($node, $attrMtd), 'size');
+                $v = (string) $node->attributes()->size;
                 if ($v) $attribs       .= 'size="'.$v.'"';
-                $v = call_user_func(array($node, $attrMtd), 'class');
+                $v = (string) $node->attributes()->class;
                 if ($v) $attribs       .= 'class="'.$v.'"';
                 else $attribs       .= 'class="inputbox"';
                 
-                $m = call_user_func(array($node, $attrMtd), 'multiple');
+                $m = (string) $node->attributes()->multiple;
                 if ($m) $attribs .= ' multiple="multiple"';
  
                 // Render the HTML SELECT list.
-                return JHTML::_('select.genericlist', $options, $fieldName, $attribs, 'value', 'text', $value, $control_name.$name );
+                return JHTML::_('select.genericlist', $options, $name, $attribs, 'value', 'text', $value, $control_name.$name );
         }
 }

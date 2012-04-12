@@ -4,15 +4,14 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-if(K2_JVERSION=='16'){
-	jimport('joomla.form.formfield');
-	class JFormFieldK2FParams extends JFormField {
-		var	$type = 'k2fparams';
+jimport('joomla.form.formfield');
 
-		function getInput(){
-			return JElementK2FParams::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
-		}
-	}
+class JFormFieldK2FParams extends JFormField {
+        var	$type = 'k2fparams';
+
+        function getInput(){
+                return JElementK2FParams::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
+        }
 }
 
 jimport('joomla.html.parameter.element');

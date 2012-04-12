@@ -6,12 +6,10 @@ defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_ADMINISTRATOR . '/components/com_k2/elements/item.php';
 
-if(K2_JVERSION=='16'){
-	class JFormFieldK2FItem extends JFormField {
-		function getInput(){
-			return JElementK2FItem::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
-		}
-	}
+class JFormFieldK2FItem extends JFormField {
+        function getInput(){
+                return JElementK2FItem::fetchElement($this->name, $this->value, $this->element, $this->options['control']);
+        }
 }
 
 class JElementK2FItem extends JElementItem {
