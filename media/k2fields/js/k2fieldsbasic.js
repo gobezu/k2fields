@@ -531,6 +531,48 @@ var k2fields_type_basic = {
                 this.setOpt(proxyField, 'values', values);
                 this.setOpt(proxyField, 'sorted', true);
         },
+        _depsOn:{},
+        
+        addDependsOn: function(field, dependsOnField, dependsOnValue) {
+                var m;
+                
+                if (typeof field == 'string' && (m = field.match(/^id\:(\d+)$/))) {
+                        if (!this.isFieldAvailable(this.options.pre+m[1])) return;
+                        
+                        field = this.options.pre+m[1];
+                } else {
+                        var depeeFields = dependsOnField.getParent('[valueholder=true]').getElements('[customvalueholder=true]'), found = false;
+                        
+                        for (var i = 0, n = depeeFields.length; i < n && !found; i++) {
+                                if (this.getOpt(depeeFields[i], 'position') == field) {
+                                        field = depeeFields[i];
+                                        found = true;
+                                }
+                        }
+                        if (!found) field = depeeFields[field];
+                        if (field) field = field.get('id');
+                }          
+                
+                if (!field) return;
+                //dependsOnField = this.getProxyFieldId(dependsOnField);
+                dependsOnField = dependsOnField.get('id');
+                
+                if (!this._depsOn[field]) this._depsOn[field] = {};
+                if (!this._depsOn[field][dependsOnField]) this._depsOn[field][dependsOnField] = [];
+                if (!this._depsOn[field][dependsOnField].contains(dependsOnValue)) this._depsOn[field][dependsOnField].push(dependsOnValue);
+                
+//                var depson = this.getOpt(field, 'depson');
+//                
+//                if (!depson) depson = {};
+//                
+//                dependsOnField = this.getProxyFieldId(dependsOnField);
+//                
+//                if (!depson[dependsOnField]) depson[dependsOnField] = [];
+//                
+//                if (!depson[dependsOnField].contains(dependsOnValue)) depson[dependsOnField].push(dependsOnValue);
+//                
+//                this.setOpt(field, 'depson', depson);
+        },
         
         initiateFieldDependency: function(field, forSybs) {
                 field.addEvent('change', function() {
@@ -552,6 +594,8 @@ var k2fields_type_basic = {
                                                 var tt = this.options.pre+t.replace('id:', '');
                                                 if (!this.isFieldAvailable(tt)) continue;
                                         }
+                                        
+                                        this.addDependsOn(t, field, k);
                                         
                                         if (!depees.contains(t)) depees.push(t);
                                 }

@@ -382,7 +382,6 @@ var k2fields = new Class({
                                 if (t) els.push(t);
                         }
                         $K2('#k2fieldsTabs').tabs();
-                        // 'option', 'select', 1
                 } else {
                         els = els.getElements('[name^='+this.options.pre+']');
                 }
@@ -1216,6 +1215,7 @@ var k2fields = new Class({
                                 
                                 return;
                         }
+                        field = this.options.pre+m[1];
                 } else {
                         container = this.getContainer(field);
                 }
@@ -1225,6 +1225,27 @@ var k2fields = new Class({
                 displayer = mode ? 
                         (mode == 'block' ? displayer : mode) : 
                         (container.getStyle('display') == 'none' ? displayer : 'none');
+
+                if (displayer != 'none') {
+                        if (typeof field != 'string') field = this.getProxyFieldId(field);
+                        var depson = this._depsOn[field], el, val, dontTog = false, i, af;
+                        for (el in depson) {
+                                val = this.getValue(el);
+                                
+                                if (typeOf(val) == 'array') {
+                                        af = false;
+                                        val.each(function(e) {if(depson[el].contains(e)){af=true;}}.bind(this));
+                                        if (!af) {
+                                                dontTog = true;
+                                                break;
+                                        }
+                                } else if (!depson[el].contains(val)) {
+                                        dontTog = true;
+                                        break;
+                                }
+                        }
+                        if (dontTog) return;
+                }
                 
                 container.setStyle('display', displayer);
         },
