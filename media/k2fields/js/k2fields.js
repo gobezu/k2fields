@@ -340,14 +340,16 @@ var k2fields = new Class({
                         return;
                 }
                 
-                if (!this.isMode('search') && !this.isMode('editfields')) {
+                if (!this.isMode('search')) {
                         var _els = els, t, tabs, cont, nav, btn, cId, sec, gen;
                         els = [];
                         
-                        tabs = document.id('tabExtraFields').getSiblings();
-                        
-                        if (tabs.length > 0) {
-                                document.id('tabExtraFields').setStyle('display', tabs[0].getStyle('display'));
+                        if (!this.isMode('editfields')) {
+                                tabs = document.id('tabExtraFields').getSiblings();
+
+                                if (tabs.length > 0) {
+                                        document.id('tabExtraFields').setStyle('display', tabs[0].getStyle('display'));
+                                }
                         }
                         
                         tabs = new Element('div', {'class':'simpleTabs','id':'k2fieldsTabs'});
@@ -379,7 +381,8 @@ var k2fields = new Class({
                                 if (t) els.push(t);
                         }
                         
-                        $K2('#k2fieldsTabs').tabs('option', 'select', 1);
+                        $K2('#k2fieldsTabs').tabs();
+                        // 'option', 'select', 1
                 } else {
                         els = els.getElements('[name^='+this.options.pre+']');
                 }
