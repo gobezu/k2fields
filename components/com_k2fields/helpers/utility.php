@@ -837,7 +837,7 @@ group by vvv.itemid
                 $template = JFactory::getApplication()->getTemplate();
                 
                 $dirs = array(
-                    JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/templates/'.$theme,
+                    JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/'.$theme.'/',
                     JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/'
                 );
                 
