@@ -563,6 +563,9 @@ var JPForm = new Class({
                 if (!src || src.length == 0 || typeOf(src) == 'array') return src;
                 
                 src = src.match(/^url\:\(([^\)]+)\)/);
+                
+                if (!src) return [{'value':'', 'text':'Invalid value reference'}];
+                
                 src = src[1];
                 
                 src = src.replace(/\&amp\;/g, '&');
