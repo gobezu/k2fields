@@ -341,7 +341,7 @@ var k2fields = new Class({
                 }
                 
                 if (!this.isMode('search')) {
-                        var _els = els, t, tabs, cont, nav, btn, cId, sec, gen;
+                        var _els = els, t, tabs, cont, nav, btn, cId, sec, cnt = 0;
                         els = [];
                         
                         if (!this.isMode('editfields')) {
@@ -373,14 +373,14 @@ var k2fields = new Class({
 
                                         cont = new Element('div', {'class':'simpleTabsContent','id':cId});
                                         cont.inject(tabs);
-                                        _els[i].inject(cont);                                
+                                        _els[i].inject(cont);
+                                        cnt++;
                                 }
                                 
                                 t = _els[i].getElements('[name^='+this.options.pre+']');
 
                                 if (t) els.push(t);
                         }
-                        
                         $K2('#k2fieldsTabs').tabs();
                         // 'option', 'select', 1
                 } else {
@@ -495,8 +495,7 @@ var k2fields = new Class({
                         
                         if (tab && tab.getElements('tr').length <= 0) {
                                 var ind = tab.getParent().getElements('.simpleTabsContent').indexOf(tab);
-                                tab.getParent().getElements('.simpleTabsNavigation li')[ind].dispose();
-                                tab.dispose();
+                                $K2('#k2fieldsTabs').tabs('remove', ind);
                         }
                         
                         return;
