@@ -18,7 +18,7 @@ var k2fieldseditor = new Class({
                 window.addEvent('domready', function() {
                         new Element('div', {'id':'extraFieldsContainer'}).inject($$('form')[0], 'top');
                         this.createSpecification();
-                        this.createUI();
+                        this.createUIWithSections();
                         $('type').set('value', 'textfield');
                         document.id('type').fireEvent('change', [document.id('type')]);
                 }.bind(this));
@@ -165,6 +165,52 @@ var k2fieldseditor = new Class({
                 
                 $('name').set('value', skipped['name']+sec+' / TYPE:'+def['valid']+' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST'));
                 $(this.options.defFldId).set('value', 'k2f---' + subfields + _def + '---' + skipped['name']);
+        },
+        
+        createUIWithSections: function() {
+                if ($('extraFields')) $('extraFields').dispose();
+                
+                // var ui = new Element('ul', {'id':'extraFields', 'class':'admintable extraFields'}).inject($('extraFieldsContainer')), uip;
+                
+                var uis = {};
+                new Element('div', {'class':'clr'}).inject($('extraFieldsContainer'));
+                
+                var specification = Object.clone(this.specification), _id;
+                
+                var vals = this.parseValues(), val, optName, css, sectionName, ui, sectionID, uip;
+                
+                new Hash(specification).each(function(ps, id) {
+                        optName = this.optName(ps);
+                        sectionName = this.sectionName(ps);
+                        sectionID = this.sectionId(ps, 'section_');
+                        ui = uis[sectionID];
+                        if (!ui) {
+                                uis[sectionID] = new Element('ul', {'id':sectionID, 'class':'admintable extraFields', 'section':sectionName}).inject($('extraFieldsContainer'));
+                                ui = uis[sectionID];
+                        }
+                        css = 'prop'+id + ' ' +this.propCSS(id, optName);
+                        uip = new Element('li', {'class':css}).inject(ui);
+                        uip = new Element('span').inject(uip);
+                        new Element('label', {'class':'key', 'html':ps.name}).inject(uip);
+                        new Element('span').inject(uip);
+                        _id = k2fs.options.pre + id;
+                        val = vals[optName];
+                        new Element('input', {'type':'text', 'id':_id, 'name':_id, 'value':val}).inject(uip.getElement('span'));
+                        if (ps.valid == 'complex' && ps.subfields) {
+                                for (var i = 0; i < ps.subfields.length; i++) 
+                                        specification[id].subfields[i]['subfieldof'] = id;
+                        }
+                }.bind(this));
+                
+                k2fs.options.fieldsOptions = specification;
+                k2fs.options.isNew = this.isNew;
+                k2fs.utility = new JPUtility({base:k2fs.options.base,k2fbase:k2fs.options.k2fbase});
+                k2fs.wireForm($$('form')[0]);
+                k2fs.createFields();
+                
+                $('type').getParent('tr').setStyle('display', 'none');
+                $('name').getParent('tr').setStyle('display', 'none');
+                $('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
         },
         
         createUI: function() {
@@ -352,6 +398,16 @@ var k2fieldseditor = new Class({
                 return css;
         },
         
+        sectionName:function(ps) {
+                return ps['section'] ? ps['section'] : 'Additional';
+        },
+        
+        sectionId:function(ps, pre) {
+                var s = (pre||'')+this.sectionName(ps);
+                s = s.replace(/[^0-9a-z]/ig, '');
+                return s;
+        },
+        
         optName:function(ps) {
                 return ps['optName'] ? ps['optName'] : ps['name'].toLowerCase().replace(/[^a-z0-9]/g, '');
         },
@@ -365,7 +421,8 @@ var k2fieldseditor = new Class({
                                 'optName':'name',
                                 'valid':'text',
                                 'required':true,
-                                'skip':true
+                                'skip':true,
+                                'section':'Basic'
                         },
                         '2':{
                                 'name':'Type',
@@ -411,7 +468,8 @@ var k2fieldseditor = new Class({
                                 },
                                 'required':true,
                                 'savevalues':'validtypes',
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Basic'
                         },
                         '3':{
                                 'name':'UI',
@@ -429,7 +487,8 @@ var k2fieldseditor = new Class({
                                         'radio':['id:7', 'id:14', 'id:15'],
                                         'checkbox':['id:7', 'id:14', 'id:15', 'id:28']
                                 },
-                                'savevalues':'uis'
+                                'savevalues':'uis',
+                                'section':'Basic'
                         },
                         '4':{
                                 'name':'Repeatable',
@@ -444,20 +503,23 @@ var k2fieldseditor = new Class({
                                         'normal':['id:5'],
                                         'conditional':['id:5','id:6','id:26']
                                 },
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Basic'
                         },
                         '5':{
                                 'name':'Maximum repetitions',
                                 'optName':'listmax',
                                 'valid':'integer',
                                 'min':1,
-                                'max':300
+                                'max':300,
+                                'section':'Basic'
                         },
                         '6':{
                                 'name':'Conditions',
                                 'optName':'conditions',
                                 'valid':'text',
-                                'list':'normal'
+                                'list':'normal',
+                                'section':'Basic'
                         },
                         '7':{
                                 'name':'Values',
@@ -474,7 +536,9 @@ var k2fieldseditor = new Class({
                                 'name':'Default',
                                 'optName':'default',
                                 'valid':'text',
-                                'ph':'Provide suitable default value'
+                                'ph':'Provide suitable default value',
+                                'size':'60',
+                                'section':'Basic'
                         },
                         '11':{
                                 'name':'Autocompletion<br />(user provided string is searched in)',
@@ -484,7 +548,8 @@ var k2fieldseditor = new Class({
                                         {'value':'m','text':'Anywhere In string'},
                                         {'value':'s','text':'Start of string'},
                                         {'value':'e','text':'End of string'},
-                                ]
+                                ],
+                                'section':'Type specific'
                         },
                         '12':{
                                 'name':'Multiple select',
@@ -512,12 +577,31 @@ var k2fieldseditor = new Class({
                                 'tip':'Reuse values of earlier created fields by referring to given name'
                         },
                         '16':{
+                                'name':'Section',
+                                'optName':'section',
+                                'valid':'text',
+                                'section':'Layout'
+                        },
+                        '19':{
+                                'name':'Section (list)',
+                                'optName':'listsection',
+                                'valid':'text',
+                                'section':'Layout'
+                        },
+                        '20': {
+                                'name':'Size',
+                                'optName':'size',
+                                'valid':'integer',
+                                'section':'Validation'
+                        },
+                        '17':{
                                 'name':'Folded',
                                 'optName':'folded',
                                 'valid':'verifybox',
-                                'tip':'In case of using tabular layout'
+                                'tip':'In case of using tabular layout',
+                                'section':'Layout'
                         },
-                        '17':{
+                        '18':{
                                 'name':'Tabular column placement',
                                 'optName':'col',
                                 'valid':'range',
@@ -525,55 +609,47 @@ var k2fieldseditor = new Class({
                                 'shift':1,
                                 'low':0,
                                 'high':7,
-                                'tip':'In case of using tabular layout'
-                        },
-                        '18':{
-                                'name':'Section',
-                                'optName':'section',
-                                'valid':'text'
-                        },
-                        '19':{
-                                'name':'Section (list)',
-                                'optName':'listsection',
-                                'valid':'text'
-                        },
-                        '20': {
-                                'name':'Size',
-                                'optName':'size',
-                                'valid':'integer'
+                                'tip':'In case of using tabular layout',
+                                'section':'Layout'
                         },
                         '21':{
                                 'name':'Format',
                                 'optName':'format',
                                 'valid':'text',
                                 'ui':'text',
-                                'tip':'Placeholders %value%, %txt% and %img% are available.'
+                                'tip':'Placeholders %value%, %txt% and %img% are available.',
+                                'section':'Layout'
                         },
                         '22':{
                                 'name':'Schema property',
                                 'optName':'schemaprop',
                                 'valid':'text',
-                                'tip':'Based on selected schema type in your title field'
+                                'tip':'Based on selected schema type in your title field',
+                                'section':'SEO'
                         },
                         '23':{
                                 'name':'Placeholder text',
                                 'optName':'ph',
-                                'valid':'textarea'
+                                'valid':'textarea',
+                                'section':'Tooltips...'
                         },
                         '24':{
                                 'name':'Tooltip text',
                                 'optName':'tip',
-                                'valid':'textarea'
+                                'valid':'textarea',
+                                'section':'Tooltips...'
                         },
                         '25':{
                                 'name':'Tooltip text (edit)',
                                 'optName':'edittip',
-                                'valid':'textarea'
+                                'valid':'textarea',
+                                'section':'Tooltips...'
                         },
                         '26':{
                                 'name':'Placeholder text for condition',
                                 'optName':'conditionlabel',
-                                'valid':'textarea'
+                                'valid':'textarea',
+                                'section':'Tooltips...'
                         },
                         '27':{
                                 'name':'Dependencies',
@@ -581,9 +657,11 @@ var k2fieldseditor = new Class({
                                 'valid':'complex',
                                 'list':'normal',
                                 'subfields':[
-                                        {'name':'Value','valid':'text','tip':'For the value provided here the following field will be shown'},
+                                        {'name':'Value','valid':'text'},
                                         {'name':'Field','valid':'text','ui':'select','values':this.options.options['fields']}
-                                ]
+                                ],
+                                'tip':'Fields that depend on (toggled based on) the values of this field. For each value provided the corresponding selected field will be shown. Note that upon toggle assigned values of dependent fields are reset.',
+                                'section':'Additional'
                         },
                         '28':{
                                 'name':'Order of values',
@@ -598,20 +676,23 @@ var k2fieldseditor = new Class({
                         '29':{
                                 'name':'Content tooltip text',
                                 'optName':'contenttip',
-                                'valid':'textarea'
+                                'valid':'textarea',
+                                'section':'Tooltips...'
                         },
                         '30':{
                                 'name':'Default sort direction',
                                 'optName':'sortby',
                                 'valid':'text',
                                 'ui':'radio',
-                                'values':[{'value':'asc'}, {'value':'desc'}]
+                                'values':[{'value':'asc'}, {'value':'desc'}],
+                                'section':'Search'
                         },
                         '31':{
                                 'name':'Append to title',
                                 'optName':'appendtotitle',
                                 'valid':'verifybox',
-                                'tip':'Value of this field will be appended to title with the glue character defined in k2fields plugin setting between the title and the value.'
+                                'tip':'Value of this field will be appended to title with the glue character defined in k2fields plugin setting between the title and the value.',
+                                'section':'SEO'
                         },
                         '51':{
                                 'name':'Search',
@@ -619,7 +700,8 @@ var k2fieldseditor = new Class({
                                 'valid':'verifybox',
                                 'deps':{
                                         '1':['id:52','id:53','id:54','id:55', 'id:56', 'id:57', 'id:58', 'id:59', 'id:60']
-                                }
+                                },
+                                'section':'Search'
                         },
                         '52':{
                                 'name':'Search operator',
@@ -637,90 +719,106 @@ var k2fieldseditor = new Class({
                                         {'value':'interval','text':'Interval'},
                                         {'value':'nearby','text':'Nearby (TBI:map)'}
                                 ],
-                                'sorter':true
+                                'sorter':true,
+                                'section':'Search'
                         },
                         '53':{
                                 'name':'Search default',
                                 'optName':'searchdefault',
-                                'valid':'text'
+                                'valid':'text',
+                                'section':'Search'
                         },
                         '54':{
                                 'name':'Tolerance',
                                 'optName':'tolerance',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Search'
                         },
                         '55':{
                                 'name':'Evening starts at the hour',
                                 'optName':'eveningstartsat',
                                 'valid':'integer',
-                                'max':24
+                                'max':24,
+                                'section':'Search'
                         },
                         '56':{
                                 'name':'Tooltip text (search)',
                                 'optName':'searchtip',
                                 'valid':'text',
-                                'ui':'textarea'
+                                'ui':'textarea',
+                                'section':'Search'
                         },
                         '57':{
                                 'name':'Search UI',
                                 'optName':'searchui',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':'values:uis'
+                                'values':'values:uis',
+                                'section':'Search'
                         },
                         '58':{
                                 'name':'Future only (applicable to date/time searches)',
                                 'optName':'futureonly',
-                                'valid':'verifybox'
+                                'valid':'verifybox',
+                                'section':'Search'
                         },
                         '59':{
                                 'name':'Now tolerance (lower)',
                                 'optName':'nowtolerancelower',
                                 'valid':'integer',
-                                'tip':'In seconds decreased from current time'
+                                'tip':'In seconds decreased from current time',
+                                'section':'Search'
                         },
                         '60':{
                                 'name':'Now tolerance (upper)',
                                 'optName':'nowtoleranceupper',
                                 'valid':'integer',
-                                'tip':'In seconds added to current time'
+                                'tip':'In seconds added to current time',
+                                'section':'Search'
                         },
                         '101':{
                                 'name':'Required',
                                 'optName':'required',
-                                'valid':'verifybox'
+                                'valid':'verifybox',
+                                'section':'Validation'
                         },
                         '102':{
                                 'name':'Regular expression',
                                 'optName':'regexp',
-                                'valid':'text'
+                                'valid':'text',
+                                'section':'Validation'
                         },
                         '103':{
                                 'name':'Minimum value',
                                 'optName':'min',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Validation'
                         },
                         '104':{
                                 'name':'Maximum value',
                                 'optName':'max',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Validation'
                         },
                         '105':{
                                 'name':'Minimum length',
                                 'optName':'minLength',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Validation'
                         },
                         '106':{
                                 'name':'Maximum length',
                                 'optName':'maxLength',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Validation'
                         },
                         '151':{
                                 'name':'Available in views',
                                 'optName':'view',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'values':[{'value':'itemlist'}, {'value':'module'}]
+                                'values':[{'value':'itemlist'}, {'value':'module'}],
+                                'section':'Layout'
                                 // TODO: consistency in value separators
                         },
                         // TODO: fetch these groups from php or provided to editor when initiated
@@ -731,7 +829,8 @@ var k2fieldseditor = new Class({
                                 'subfields':[
                                         {'name':'Read', 'valid':'select', 'values':this.options.options['aclviewgroups']},
                                         {'name':'Edit', 'valid':'select', 'values':this.options.options['aclviewgroups']}
-                                ]
+                                ],
+                                'section':'Basic'
                         },
                         '201':{
                                 'name':'Custom properties',
@@ -751,7 +850,8 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'ui':'select',
                                 'values':this.options.options['lists'],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1002':{
                                 'name':'Levels',
@@ -762,13 +862,15 @@ var k2fieldseditor = new Class({
                                 'subfields':[
                                         {'name':'Indicator', 'optName':'indicator', 'valid':'text', 'ui':'select', 'values':this.options.options['listslevels']},
                                         {'name':'Name', 'optName':'level', 'valid':'text'}
-                                ]
+                                ],
+                                'section':'Type specific'
                         },
                         '1003':{
                                 'name':'List format',
                                 'optName':'listformat',
                                 'valid':'text',
-                                'tip':'View formats in item and itemlist modes. If nothing is provided it will be displayed with all parent elements. Available values are leaf, parent, root.'
+                                'tip':'View formats in item and itemlist modes. If nothing is provided it will be displayed with all parent elements. Available values are leaf, parent, root.',
+                                'section':'Type specific'
                         },
                         // Type::Complex
                         '1051':{
@@ -778,7 +880,8 @@ var k2fieldseditor = new Class({
                                 list:'normal',
                                 ui:'select',
                                 values:this.options.options['fields'],
-                                sorted:true
+                                sorted:true,
+                                'section':'Type specific'
                         },
                         // Type::k2item
                         '1101':{
@@ -786,7 +889,8 @@ var k2fieldseditor = new Class({
                                 'optName':'categories',
                                 'valid':'select',
                                 'values':this.options.options['categories'],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1102':{
                                 // TODO: requires custom mapping
@@ -805,7 +909,8 @@ var k2fieldseditor = new Class({
                                         },
                                         {'name':'Hierarchy', 'optName':'hierarchy', 'ui':'checkbox', 'values':[{'value':'*','text':'Yes'}]}
                                 ], 
-                                'tip':'Comma separated values for each field'
+                                'tip':'Comma separated values for each field',
+                                'section':'Type specific'
                         },
                         '1103':{
                                 'name':'Show k2items as',
@@ -820,7 +925,8 @@ var k2fieldseditor = new Class({
                                         {'value':'title', 'text':'title - item title only'},
                                         {'value':'link', 'text':'link - link to item'}
                                 ],
-                                sorted:true
+                                sorted:true,
+                                'section':'Type specific'
                         },
                         '1104':{
                                 'name':'Include fields',
@@ -828,7 +934,8 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'ui':'select',
                                 'values':this.options.options['fields'],
-                                'list':'normal'
+                                'list':'normal',
+                                'section':'Type specific'
                                 // TODO: make sure that the separator is correct in currently existing fields
                         },
                         '1105':{
@@ -838,7 +945,8 @@ var k2fieldseditor = new Class({
                                 'ui':'select',
                                 'values':this.options.options['fields'],
                                 'list':'normal',
-                                'tip':'In tabular itemlist view fields to be folded among the above included ones'
+                                'tip':'In tabular itemlist view fields to be folded among the above included ones',
+                                'section':'Type specific'
                                 // TODO: make sure that the separator is correct in currently existing fields
                         },
                         '1106':{
@@ -847,13 +955,15 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'ui':'select',
                                 'values':this.options.options['fields'],
-                                'tip':'field of host field defined in guest item to connect back to the hosting k2item'
+                                'tip':'field of host field defined in guest item to connect back to the hosting k2item',
+                                'section':'Type specific'
                         },
                         '1107':{
                                 'name':'Reverse field name',
                                 'optName':'reverse_name',
                                 'valid':'text',
-                                'tip':'defined in host field as a label of host field when embedded back in guest item'
+                                'tip':'defined in host field as a label of host field when embedded back in guest item',
+                                'section':'Type specific'
                         },
                         // Type::Media
                         '1151':{
@@ -870,7 +980,8 @@ var k2fieldseditor = new Class({
                                         'video':['id:1157', 'id:1158']
                                         
                                 },
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1152':{
                                 'name':'Media source',
@@ -883,7 +994,8 @@ var k2fieldseditor = new Class({
                                         {'value':'embed', 'text':'Embed (TBI)'},
                                         {'value':'remote', 'text':'Remote file (TBI)'}
                                 ],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1153':{
                                 'name':'Mode',
@@ -896,7 +1008,8 @@ var k2fieldseditor = new Class({
                                 ],
                                 'deps':{
                                         'single':['id:1154']
-                                }
+                                },
+                                'section':'Type specific'
                         },
                         '1154':{
                                 'name':'Single mode',
@@ -906,7 +1019,8 @@ var k2fieldseditor = new Class({
                                 'values':[
                                         {'value':'random', 'text':'Random'},
                                         {'value':'first', 'text':'First'}
-                                ]
+                                ],
+                                'section':'Type specific'
                         },
                         '1155':{
                                 'name':'Picture plugin',
@@ -914,14 +1028,16 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'select',
                                 'values':this.options.options['mediaplugins']['pic'],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1156':{
                                 'name':'Picture plugin (itemlist)',
                                 'optName':'itemlistpicplg',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['mediaplugins']['pic']
+                                'values':this.options.options['mediaplugins']['pic'],
+                                'section':'Type specific'
                         },
                         '1157':{
                                 'name':'Provider plugin',
@@ -929,14 +1045,16 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'select',
                                 'values':this.options.options['mediaplugins']['provider'],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1158':{
                                 'name':'Provider plugin (itemlist)',
                                 'optName':'itemlistproviderplg',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['mediaplugins']['provider']
+                                'values':this.options.options['mediaplugins']['provider'],
+                                'section':'Type specific'
                         },
                         // Type::Date
                         '1201':{
@@ -950,41 +1068,47 @@ var k2fieldseditor = new Class({
                                         {'value':'datepicker_minimal', 'text':'Minimal'},
                                         {'value':'datepicker_vista', 'text':'Vista'}
                                 ],
-                                'sorted':true
+                                'sorted':true,
+                                'section':'Type specific'
                         },
                         '1202':{
                                 'name':'Time format (including duration)',
                                 'optName':'timeFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['time']
+                                'values':this.options.options['timeformats']['time'],
+                                'section':'Type specific'
                         },
                         '1203':{
                                 'name':'Date format',
                                 'optName':'dateFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['date']
+                                'values':this.options.options['timeformats']['date'],
+                                'section':'Type specific'
                         },
                         '1204':{
                                 'name':'Datetime format',
                                 'optName':'datetimeFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['datetime']
+                                'values':this.options.options['timeformats']['datetime'],
+                                'section':'Type specific'
                         },
                         // TODO: testa hur detta beroende håller än idag
                         '1205':{
                                 'name':'Start time',
                                 'optName':'starttime',
                                 'valid':'integer',
-                                'tip':'Field id of start field'
+                                'tip':'Field id of start field',
+                                'section':'Type specific'
                         },
                         '1206':{
                                 'name':'End time',
                                 'optName':'endtime',
                                 'valid':'integer',
-                                'tip':'Field id of end field'
+                                'tip':'Field id of end field',
+                                'section':'Type specific'
                         },
                         '1207':{
                                 'name':'Repeat end date mode',
@@ -995,48 +1119,56 @@ var k2fieldseditor = new Class({
                                         {'value':'enddate', 'text':'End date'},
                                         {'value':'number', 'text':'Number of days'}                                
                                 ],
-                                'tip':'end of repetition mode - limited by enddate or number of allowed repetitions'
+                                'tip':'end of repetition mode - limited by enddate or number of allowed repetitions',
+                                'section':'Type specific'
                         },
                         '1208':{
                                 'name':'Expire',
                                 'optName':'expire',
                                 'valid':'verifybox',
-                                'tip':'When the last repetition datetime is passed item is marked as unpublished.'
+                                'tip':'When the last repetition datetime is passed item is marked as unpublished.',
+                                'section':'Type specific'
                         },
                         '1211':{
                                 'name':'Combine',
                                 'optName':'combine',
-                                'valid':'verifybox'
+                                'valid':'verifybox',
+                                'section':'Type specific'
                         },
                         '1209':{
                                 'name':'Repeat format',
                                 'optName':'repeatformat',
                                 'valid':'text',
-                                'tip':'Format with which date/time will be shown, overriding the global k2fields plugin setting.'
+                                'tip':'Format with which date/time will be shown, overriding the global k2fields plugin setting.',
+                                'section':'Type specific'
                         },
                         '1210':{
                                 'name':'Repetition limit',
                                 'optName':'repeatlistmax',
                                 'valid':'integer',
-                                'tip':'number of instances to be shown directly, and eventually remaining repetitions will be folded in an accordion'
+                                'tip':'number of instances to be shown directly, and eventually remaining repetitions will be folded in an accordion',
+                                'section':'Type specific'
                         },
                         '1212':{
                                 'name':'Show only future',
                                 'optName':'repeatexpire',
                                 'valid':'verifybox',
-                                'tip':'Limits shown repetitions to only those in the future.'
+                                'tip':'Limits shown repetitions to only those in the future.',
+                                'section':'Type specific'
                         },
                         '1213':{
                                 'name':'Repeat list mode',
                                 'optName':'repeatlist',
                                 'valid':'checkbox',
-                                'values':[ {'value':'word'}, {'value':'list'}]
+                                'values':[ {'value':'word'}, {'value':'list'}],
+                                'section':'Type specific'
                         },
                         '1214':{
                                 'name':'Repeat combine',
                                 'optName':'repeatcombine',
                                 'valid':'verifybox',
-                                'tip':'if we have a several repeating instances, in the case where we have a list valued field, and we would want to combine them all to create one single list of event date/times then we would need to provide this option as true'
+                                'tip':'if we have a several repeating instances, in the case where we have a list valued field, and we would want to combine them all to create one single list of event date/times then we would need to provide this option as true',
+                                'section':'Type specific'
                         },
                         '1251':{
                                 'name':'Email as',
@@ -1052,7 +1184,8 @@ var k2fieldseditor = new Class({
                                 'tip':'connected to a form defined through one of the supported extensions, simple mailto anchor, image rendered from the email address and linked to an email anchor or just the email value in raw. If using the form option form creator will be provided the following settings by calling K2FieldsModelFields::getEmailRecord(): item = sending item, field = sending field, itemid = sending items menu item id, title = sending items title. By controlling access one can create a field that is globally directed to certain default address only and thus by create a report kind feature.',
                                 'deps':{
                                         'form':['id:1252']
-                                }
+                                },
+                                'section':'Type specific'
                         },
                         '1252':{
                                 'name':'Form',
@@ -1060,55 +1193,64 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'ui':'select',
                                 'values':this.options.options['menuitems'],
-                                'tip':'menu item for the form to connect'
+                                'tip':'menu item for the form to connect',
+                                'section':'Type specific'
                         },
                         '1253':{
                                 'name':'Modal width(px)',
                                 'optName':'width',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Type specific'
                         },
                         '1254':{
                                 'name':'Modal height(px)',
                                 'optName':'height',
-                                'valid':'integer'
+                                'valid':'integer',
+                                'section':'Type specific'
                         },
                         '1255':{
                                 'name':'Form button positioned absolute',
                                 'optName':'absolute',
-                                'valid':'verifybox'
+                                'valid':'verifybox',
+                                'section':'Type specific'
                         },
                         '1256':{
                                 'name':'Form title',
                                 'optName':'formtitle',
                                 'valid':'text',
                                 'ui':'textarea',
-                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively'
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
                         },
                         '1257':{
                                 'name':'Form footer',
                                 'optName':'formfooter',
                                 'valid':'text',
                                 'ui':'textarea',
-                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively'
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
                         },
                         '1258':{
                                 'name':'Link title',
                                 'optName':'title',
                                 'valid':'text',
                                 'ui':'textarea',
-                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively'
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
                         },
                         '1301':{
                                 'name':'Label',
                                 'optName':'label',
                                 'valid':'text',
-                                'tip':'Replacing the common label'
+                                'tip':'Replacing the common label',
+                                'section':'Type specific'
                         },
                         '1302':{
                                 'name':'Schema type',
                                 'optName':'schematype',
                                 'valid':'text',
-                                'tip':'refer to http://schema.org/docs/full.html'
+                                'tip':'refer to http://schema.org/docs/full.html',
+                                'section':'Type specific'
                         }
                 };
         }
