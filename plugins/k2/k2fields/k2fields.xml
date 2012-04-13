@@ -106,8 +106,8 @@
                                         default="" 
                                         cols="40" 
                                         rows="15" 
-                                        label="Tabs in edit form (only defined will be available)." 
-                                        description="catid%%excluded child catids%%tabs%%client tabs=[content|image|gallery|video|extrafields|attachment|plugin], client=[site|admin|all|] if client is left empty we will consider it to be all"
+                                        label="Reconfigure tabs in edit form" 
+                                        description="Here you can choose which K2 tabs to be included and the name each tab should have. For each category provide the following settings with %% between the settings and a new line for each category to reconfigure the set of tabs for:&lt;br/&gt;&lt;br/&gt;* category ID to which the setting should apply, or alternatively [all] to apply to all categories. If you provide category ID please note that it will be applied to all child categories as well&lt;br/&gt;* comma separated list of child categories that should be excluded from this setting or leave it empty if non&lt;br/&gt;* comma separated list of tabs to be included with the format: tab=newtabname. Available tab options are: content, image, gallery, video, extrafields, attachment, plugin&lt;br/&gt;* client this setting should be applied to. Applicable values are site, admin, all or simply leave it empty and it will be applied to all&lt;br/&gt;&lt;br/&gt;Example:all%%%%extrafields=Data%%all&lt;br/&gt;For all categories and in both admin and site clients only the extra fields tab is shown and the tab will be named Data"
                                 />                                
                         </fieldset>
                         
