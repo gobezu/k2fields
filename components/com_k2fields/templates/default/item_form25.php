@@ -19,24 +19,6 @@ $app = JFactory::getApplication();
 
 JprovenUtility::load('k2fieldsform.css', 'css');
   
-/*
- * 
- * $referer = JprovenUtility::getReferer();
-$uri = JURI::getInstance();
-$ruri = JURI::getInstance($referer);
-
-if ($uri->_query == $ruri->_query) {
-?>
-<script type="text/javascript">
-        alert('<?php echo $msg = JText::_('K2_ITEM_SAVED'); ?>');
-        window.parent.document.getElementById('sbox-window').close();
-        window.location.reload();
-</script> 
-<?php
-return;
-}
- */
-
 // honoring preselected catid
 $catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
 $catTitle = '';
@@ -59,8 +41,8 @@ if ($catId) {
 $canPublish = $app->isSite() ? K2HelperPermissions::canPublishItem($catId) : true;
 
 require_once JPATH_SITE.'/components/com_k2fields/helpers/helper.php';
-$tabs = K2FieldsHelper::getTabs($catId);
 
+$tabs = K2FieldsHelper::getTabs($catId);
 $availableTabs = K2FieldsHelper::$availableTabs;
 
 $parameterNames = array(
@@ -74,10 +56,11 @@ $parameterNames = array(
 );
 
 $tabsCnt = '';
+
 if (!empty($tabs)) {
-        $excludes = array_shift($tabs);
+        $excludes = $tabs['excludes'];
+        $tabs = $tabs['tabs'];
         $tabsCnt = ' class="tabscnt'.count($tabs).'"';
-        $excludes = explode(',', $excludes);
         
         if (!in_array($catId, $excludes) && !empty($tabs)) {
                 $names = array();

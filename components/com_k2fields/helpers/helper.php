@@ -61,7 +61,27 @@ class K2FieldsHelper {
         public static function getTabs($catId) {
                 $tabs = K2FieldsModelFields::categorySetting($catId, 'accesstabsineditform');
                 
-                if (!empty($tabs)) $tabs = $tabs[key($tabs)][0];
+                if (!empty($tabs)) {
+                        $tabs = $tabs[key($tabs)][0];
+                        $excludes = array_shift($tabs);
+                        $excludes = empty($excludes) ? array() : explode(',', $excludes);
+                        $client = array_pop($tabs);
+                        
+                        if (!in_array($client, array('site', 'admin', 'all', ''))) {
+                                $tabs[] = $client;
+                                $client = 'all';
+                        } else if (empty($client)) {
+                                $client = 'all';
+                        }
+                        
+                        $cclient = JFactory::getApplication()->isSite() ? 'site' : 'admin';
+                        
+                        if ($cclient == $client || $client == 'all') {
+                                $tabs = array('excludes'=>$excludes, 'tabs'=>$tabs);
+                        } else {
+                                $tabs = null;
+                        }
+                }
                 
                 return $tabs;
         }

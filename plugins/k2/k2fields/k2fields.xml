@@ -107,7 +107,7 @@
                                         cols="40" 
                                         rows="15" 
                                         label="Tabs in edit form (only defined will be available)." 
-                                        description="catid%%excluded child catids%%tabs [content|image|gallery|video|extrafields|attachment|plugin] separated by %%"
+                                        description="catid%%excluded child catids%%tabs%%client tabs=[content|image|gallery|video|extrafields|attachment|plugin], client=[site|admin|all|] if client is left empty we will consider it to be all"
                                 />                                
                         </fieldset>
                         
