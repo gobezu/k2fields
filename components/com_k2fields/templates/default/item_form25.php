@@ -1,7 +1,8 @@
 <?php
 // $Copyright$
 /* based on the following original copyright and where editing have made to accommodate:
- * 1. 
+ * 1. removal of certain tabs
+ * 2. k2item provision
  */ 
 /**
  * @version		$Id: itemform.php 1377 2011-12-02 10:43:01Z lefteris.kavadas $
@@ -55,8 +56,7 @@ if ($catId) {
         $catTitle = JprovenUtility::nize($catTitle, 1);
 }
 
-$canPublish = K2HelperPermissions::canPublishItem($catId);
-$showcategoryselector = $canPublish; 
+$canPublish = $app->isSite() ? K2HelperPermissions::canPublishItem($catId) : true;
 
 require_once JPATH_SITE.'/components/com_k2fields/helpers/helper.php';
 $tabs = K2FieldsHelper::getTabs($catId);
@@ -108,9 +108,15 @@ foreach ($availableTabs as $tab) {
         $this->params->set($tab.'tabname', $parameterNames[$tab][1]);
 }
 
-$db = &JFactory::getDBO();
-$nullDate = $db->getNullDate();
 JHTML::_('behavior.tooltip');
+
+// k2item form
+$k2itemForm = null;
+jimport('joomla.form.form');
+$k2itemForm = JForm::getInstance('k2itemForm', JPATH_ADMINISTRATOR.'/components/com_k2fields/models/item.xml');
+$values = array('params'=>json_decode($this->row->params));
+$k2itemForm->bind($values);
+
 $document = & JFactory::getDocument();
 $document->addScriptDeclaration("
 	Joomla.submitbutton = function(pressbutton){
@@ -929,8 +935,7 @@ if ($task == 'edit') {
 								<?php if($this->mainframe->isAdmin()): ?>
 								<h3><a href="#"><?php echo JText::_('K2_ITEM_VIEW_OPTIONS_IN_CATEGORY_LISTINGS'); ?></a></h3>
 								<div>
-									<?php if(version_compare( JVERSION, '1.6.0', 'ge' )): ?>
-									<fieldset class="panelform">
+                                                                        <fieldset class="panelform">
 										<ul class="adminformlist">
 											<?php foreach($this->form->getFieldset('item-view-options-listings') as $field): ?>
 											<li>
@@ -948,13 +953,9 @@ if ($task == 'edit') {
 											<?php endforeach; ?>
 										</ul>
 									</fieldset>
-									<?php else: ?>
-									<?php echo $this->form->render('params', 'item-view-options-listings'); ?>
-									<?php endif; ?>
 								</div>
 								<h3><a href="#"><?php echo JText::_('K2_ITEM_VIEW_OPTIONS'); ?></a></h3>
 								<div>
-									<?php if(version_compare( JVERSION, '1.6.0', 'ge' )): ?>
 									<fieldset class="panelform">
 										<ul class="adminformlist">
 											<?php foreach($this->form->getFieldset('item-view-options') as $field): ?>
@@ -973,10 +974,49 @@ if ($task == 'edit') {
 											<?php endforeach; ?>
 										</ul>
 									</fieldset>
-									<?php else: ?>
-									<?php echo $this->form->render('params', 'item-view-options'); ?>
-									<?php endif; ?>
 								</div>
+                                                                <h3><a href="#"><?php echo JText::_('K2item view options in category listings').'(k2item)'; ?></a></h3>
+								<div>
+									<fieldset class="panelform">
+										<ul class="adminformlist">
+											<?php foreach($k2itemForm->getFieldset('k2item-item-view-options-listings') as $field): ?>
+											<li>
+												<?php if($field->type=='header'): ?>
+												<div class="paramValueHeader"><?php echo $field->input; ?></div>
+												<?php elseif($field->type=='Spacer'): ?>
+												<div class="paramValueSpacer">&nbsp;</div>
+												<div class="clr"></div>
+												<?php else: ?>
+												<div class="paramLabel"><?php echo $field->label; ?></div>
+												<div class="paramValue"><?php echo $field->input; ?></div>
+												<div class="clr"></div>
+												<?php endif; ?>
+											</li>
+											<?php endforeach; ?>
+										</ul>
+									</fieldset>
+								</div>
+                                                                <h3><a href="#"><?php echo JText::_('K2item view options in Item view').'(k2item)'; ?></a></h3>
+								<div>
+									<fieldset class="panelform">
+										<ul class="adminformlist">
+											<?php foreach($k2itemForm->getFieldset('k2item-item-view-options') as $field): ?>
+											<li>
+												<?php if($field->type=='header'): ?>
+												<div class="paramValueHeader"><?php echo $field->input; ?></div>
+												<?php elseif($field->type=='Spacer'): ?>
+												<div class="paramValueSpacer">&nbsp;</div>
+												<div class="clr"></div>
+												<?php else: ?>
+												<div class="paramLabel"><?php echo $field->label; ?></div>
+												<div class="paramValue"><?php echo $field->input; ?></div>
+												<div class="clr"></div>
+												<?php endif; ?>
+											</li>
+											<?php endforeach; ?>
+										</ul>
+									</fieldset>
+								</div>                                                              
 								<?php endif; ?>
                                                                 <?php if($this->aceAclFlag): ?>
 								<h3><a href="#"><?php echo JText::_('AceACL') . ' ' . JText::_('COM_ACEACL_COMMON_PERMISSIONS'); ?></a></h3>

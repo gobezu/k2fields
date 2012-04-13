@@ -849,6 +849,7 @@ group by vvv.itemid
                 $task = JRequest::getCmd('task');
                 $isForm = self::isK2EditMode();
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
+                if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
                 $file = false;
                 
                 foreach ($dirs as $dir) {
