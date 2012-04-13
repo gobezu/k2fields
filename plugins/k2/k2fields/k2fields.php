@@ -452,12 +452,12 @@ fjs.parentNode.insertBefore(js, fjs);
 
                         $plg = '';
                         $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields');
-
+                        
                         if ($file) {
                                 $plg = JFile::read($file);
                                 $plg = trim($plg);
                         }
-
+                        
                         if (empty($plg)) $plg = '{k2f}';
                 }
                 

@@ -2044,22 +2044,28 @@ class K2FieldsModelFields extends JModel {
                 foreach ($fields as $f => &$field) {
                         if (self::isType($field, 'complex')) {
                                 $filters = self::value($field, 'filters');
+                                $subfields = self::value($field, 'subfields');
 
                                 foreach ($filters as $i => $filter) {
                                         if ($filterView == 'item') {
                                                 if (isset($filter['view']) && !isset($filter['view'][$filterView])) {
-                                                        unset($field->subfields[$i]);
-                                                        unset($field->filters[$i]);                                                        
+                                                        unset($subfields[$i]);
+                                                        unset($filters[$i]);                                                        
                                                 }
                                         } else {
                                                 if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
-                                                        unset($field->subfields[$i]);
-                                                        unset($field->filters[$i]);
+                                                        unset($subfields[$i]);
+                                                        unset($filters[$i]);
                                                 }
                                         }                                        
                                 }
-
-                                if (empty($field->subfields)) unset($fields[$f]);
+                                
+                                if (empty($subfields)) {
+                                        unset($fields[$f]);
+                                } else {
+                                        self::setValue($field, 'subfields', $subfields);
+                                        self::setValue($field, 'filters', $filters);
+                                }
                         } else {
                                 $filter = self::value($field, 'filters');
 

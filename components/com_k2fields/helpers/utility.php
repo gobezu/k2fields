@@ -1666,7 +1666,6 @@ group by vvv.itemid
                 jimport('joomla.application.component.model');
                 JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
                 $model = JModel::getInstance('fields', 'K2FieldsModel');
-                $fieldsRendered = array();
                 
                 foreach ($rules as $item => $itemRules) {
                         $renderedItemRules = call_user_func_array(
