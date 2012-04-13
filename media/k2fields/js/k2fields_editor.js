@@ -624,7 +624,7 @@ var k2fieldseditor = new Class({
                                 'name':'Schema property',
                                 'optName':'schemaprop',
                                 'valid':'text',
-                                'tip':'Based on selected schema type in your title field',
+                                'tip':'Based on selected schema type in your title field. If this is a field of type title please leave this empty as the property of it is given.',
                                 'section':'SEO'
                         },
                         '23':{

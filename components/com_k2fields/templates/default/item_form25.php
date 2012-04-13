@@ -36,7 +36,7 @@ return;
 }
  */
 
-// Added by jproven.com, 2011-07-14, honoring preselected catid
+// honoring preselected catid
 $catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
 $catTitle = '';
 
