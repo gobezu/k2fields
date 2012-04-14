@@ -768,8 +768,8 @@ group by vvv.itemid
                 if ($params) $params = $result;
         }
         
-        public static function setLayout($theme = '', $file = null, $view = null, $type = null) {
-                if (empty($file)) $file = self::createTemplateFileName($theme, $type);
+        public static function setLayout($theme = '', $file = null, $view = null, $type = null, $addId = -1) {
+                if (empty($file)) $file = self::createTemplateFileName($theme, $type, $addId);
                 
                 if ($file) {
                         $controller = self::getK2Controller();
@@ -831,7 +831,55 @@ group by vvv.itemid
                 return $app->isAdmin() && ($view == 'item' || $view == 'category') || $task == 'edit' || $task == 'add';
         }
         
-        public static function createTemplateFileName($theme = 'default', $type = '') {
+        private static function _createTemplateFileName($prefix, $dir, $ids = array(), $postfix = '', $ext = 'php') {
+                jimport('joomla.filesystem.path');
+                jimport('joomla.filesystem.file');
+                
+                $file = false;
+                $ids = (array) $ids;
+                
+                foreach ($ids as $id) {
+                        $file = JPath::clean(
+                                $dir . 
+                                $prefix . 
+                                ($id != -1 ? '_' . $id : '') . 
+                                (!empty($postfix) ? '_' . $postfix : '') . 
+                                '.'.$ext, 
+                                '/'
+                        );
+                        
+                        if (JFile::exists($file)) break;
+
+                        if (!empty($postfix)) {
+                                $file = JPath::clean(
+                                        $dir . 
+                                        $prefix . 
+                                        ($id != -1 ? '_' . $id : '') . 
+                                        '.'.$ext, 
+                                        '/'
+                                );
+                                
+                                if (JFile::exists($file)) break;
+                        }
+                        
+                        $file = false;
+                }
+
+                if ($file == false) {
+                        $file = JPath::clean(
+                                $dir . 
+                                $prefix . 
+                                '.'.$ext, 
+                                '/'
+                        );
+
+                        if (!JFile::exists($file)) $file = false;
+                }
+                
+                return $file;
+        }
+                
+        public static function createTemplateFileName($theme = 'default', $type = '', $addId = -1) {
                 if (empty($theme)) $theme = JRequest::getWord('theme', 'default');
                 
                 $template = JFactory::getApplication()->getTemplate();
@@ -851,49 +899,75 @@ group by vvv.itemid
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
                 if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
                 $file = false;
+                $ext = $type == 'field' ? 'fld' : 'php';
                 
                 foreach ($dirs as $dir) {
                         if ($file !== false) break;
                         
                         if ($view == 'item') {
-                                $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $id);
-
-                                if ($file === false) 
-                                        $file = JprovenUtility::_createTemplateFileName('item_category'.$post, $dir, $id);
-
-                                if ($file === false && $id != -1) 
-                                        $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, -1);
+                                if ($id != -1) {
+                                        $ids = array('i'.$id);
+                                        if ($addId != -1) $ids[] = 'c'.$addId;
+                                } else if ($addId != -1) {
+                                        $ids = array('c'.$addId);
+                                }
+                                
+                                $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $ids, '', $ext);
                         } else if ($view == 'itemlist' && $task == 'category') {
+                                $ids = array();
+                                
+                                if ($addId != -1) $ids[] = 'i'.$addId;
+                                
                                 $option = JRequest::getCmd('option');
 
                                 if ($option == 'com_k2fields' && $id == -1) 
                                         $id = JRequest::getInt('cid', -1);
-
-                                $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $id, $listLayout);
-
-                                if ($file === false && $id != -1) 
-                                        $file = JprovenUtility::_createTemplateFileName($listLayout, $dir, -1, $listLayout);
+                                
+                                if ($id != -1) $ids[] = 'c'.$id;
+                                
+                                $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $ids, $listLayout, $ext);
                         } else {
-                                $file = JprovenUtility::_createTemplateFileName($view.$post, $dir, -1);
+                                $file = JprovenUtility::_createTemplateFileName($view.$post, $dir, -1, '', $ext);
                         }
 
                         if ($file === false && $theme != 'default')
-                                $file = self::createTemplateFileName ('default', $type);
-
-                        if ($file === false) {
-                                $dir = str_replace($theme, '', $dir);
-
-                                if ($view == 'item') 
-                                        $file = JprovenUtility::_createTemplateFileName('generic_item'.$post, $dir, $id);
-                                else if ($view == 'itemlist' || $view == 'category') 
-                                        $file = JprovenUtility::_createTemplateFileName('generic_category', $dir, $id, $listLayout);
-
-                                if ($file === false) 
-                                        $file = JprovenUtility::_createTemplateFileName('generic'.$post, $dir, -1, $listLayout);
-                        }
+                                $file = self::createTemplateFileName('default', $type);
+//
+//                        if ($file === false) {
+//                                $dir = str_replace($theme, '', $dir);
+//
+//                                if ($view == 'item') 
+//                                        $file = JprovenUtility::_createTemplateFileName('generic_item'.$post, $dir, $id, '', $ext);
+//                                else if ($view == 'itemlist' || $view == 'category') 
+//                                        $file = JprovenUtility::_createTemplateFileName('generic_category', $dir, $id, $listLayout, $ext);
+//
+//                                if ($file === false) 
+//                                        $file = JprovenUtility::_createTemplateFileName('generic'.$post, $dir, -1, $listLayout, $ext);
+//                        }
                 }
                 
                 return $file;
+        }
+        
+        public static function findSubTemplate($templateFile, $item) {
+                $dir = dirname($templateFile).'/';
+                $fileName = basename($templateFile);
+                $tmplFile = preg_replace('#\.php$#i', '', $fileName);
+                $layout = $tmplFile;
+                $bases = array($tmplFile);
+                $tmplFile = preg_replace('#\_c\d+$#', '', $tmplFile);
+                if ($tmplFile != $layout) $bases[] = $tmplFile;
+                $posts = array('item_i'.$item->id.'.php', 'item_c'.$item->catid, 'item');
+                $file = '';
+                jimport('joomla.filesystem.file');
+                foreach ($bases as $base) {
+                        foreach ($posts as $post) {
+                                if (JFile::exists($dir.'/'.$base.'_'.$post.'.php')) {
+                                        return array($base != $layout ? $base : '', $post, $layout);
+                                }
+                        }
+                }
+                return '';
         }
         
         public static function loadK2SpecificResources($cid = null, $id = null) {
@@ -1257,48 +1331,6 @@ group by vvv.itemid
                 
                 return $module;
         }        
-        
-        
-        private static function _createTemplateFileName($prefix, $dir, $id = -1, $postfix = '') {
-                jimport('joomla.filesystem.path');
-                jimport('joomla.filesystem.file');
-                
-                $file = JPath::clean(
-                        $dir . 
-                        $prefix . 
-                        ($id != -1 ? '_' . $id : '') . 
-                        (!empty($postfix) ? '_' . $postfix : '') . 
-                        '.php', 
-                        '/'
-                );
-                
-                if (!JFile::exists($file)) $file = false;
-                
-                if (!$file && !empty($postfix)) {
-                        $file = JPath::clean(
-                                $dir . 
-                                $prefix . 
-                                ($id != -1 ? '_' . $id : '') . 
-                                '.php', 
-                                '/'
-                        );
-                        
-                        if (!JFile::exists($file)) $file = false;
-                }
-                
-                if (!$file && $id != -1) {
-                        $file = JPath::clean(
-                                $dir . 
-                                $prefix . 
-                                '.php', 
-                                '/'
-                        );
-                        
-                        if (!JFile::exists($file)) $file = false;
-                }
-                
-                return $file;
-        }
         
         public static function sendMail($subject, $msg, $recipients = array(), $addAdmins = false) {
                 if (is_numeric($recipients)) {

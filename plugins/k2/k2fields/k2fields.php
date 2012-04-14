@@ -451,7 +451,9 @@ fjs.parentNode.insertBefore(js, fjs);
                         jimport('joomla.filesystem.file');
 
                         $plg = '';
-                        $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields');
+                        $view = JFactory::getApplication()->input->get('view');
+                        $addId = $view == 'item' ? $item->catid : $item->id;
+                        $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields', $addId);
                         
                         if ($file) {
                                 $plg = JFile::read($file);
@@ -477,11 +479,12 @@ fjs.parentNode.insertBefore(js, fjs);
         
         // TODO: what happens when we have items from various categories, as in search results?
         private static function setLayout(&$item = null, $cparams = null) {
+                $view = JFactory::getApplication()->input->get('view');
+                
                 if ($item) {
                         if ($item->params->get('parsedInModule')) return;
                         
                         $tabular = (array) self::param('tabularlayout');
-                        $view = JFactory::getApplication()->input->get('view');
                         $item->isItemlistTabular = $view == 'itemlist' && !empty($tabular) && in_array($item->catid, $tabular);
                 }
                 
@@ -526,7 +529,8 @@ fjs.parentNode.insertBefore(js, fjs);
                         }
                         
                         $theme = $params->get('theme');
-                        $layout = JprovenUtility::setLayout($theme);
+                        $addId = $view == 'item' ? $item->catid : -1;
+                        $layout = JprovenUtility::setLayout($theme, null, null, null, $addId);
                 }
                 
                 $isLayoutSet = true;

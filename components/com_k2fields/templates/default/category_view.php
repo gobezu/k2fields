@@ -151,7 +151,9 @@ $isComponentOnly = $tmpl == 'component';
 		<?php if(isset($this->leading) && count($this->leading)): ?>
 		<!-- Leading items -->
 		<div id="itemListLeading">
-			<?php foreach($this->leading as $key=>$item): 
+			<?php 
+                        $tmplFile = preg_replace('\.php$', '', __FILE__);
+                        foreach($this->leading as $key=>$item): 
 			// Define a CSS class for the last container on each row
                         $lastContainer= $key+1 == count($this->leading) && !$isComponentOnly ? ' itemContainerLast' : '';
                         $firstContainer = ($key == 0 && !$isComponentOnly) ? ' itemContainerFirst' : '';
@@ -159,9 +161,11 @@ $isComponentOnly = $tmpl == 'component';
 			
 			<div class="itemContainer<?php echo $firstContainer.$lastContainer; ?>"<?php echo (count($this->leading)==1) ? '' : ' style="width:'.number_format(100/$this->params->get('num_leading_columns'), 1).'%;"'; ?>>
 				<?php
-					// Load category_item.php by default
 					$this->item=$item;
-					echo $this->loadTemplate('item');
+                                        $tmplFile = JprovenUtility::findSubTemplate(__FILE__, $item);
+                                        if (!empty($tmplFile[0])) $this->setLayout($tmplFile[0]);
+                                        echo $this->loadTemplate($tmplFile[1]);
+                                        if (!empty($tmplFile[0])) $this->setLayout($tmplFile[2]);
 				?>
 			</div>
 			<?php if(($key+1)%($this->params->get('num_leading_columns'))==0): ?>
