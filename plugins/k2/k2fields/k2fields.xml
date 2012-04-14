@@ -29,7 +29,7 @@
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_LAYOUT">
-                                <field name="specificLayout" type="radio" default="yes" label="Item/category specific layout" description="By applying the following naming convention for your templates and place them in the selected theme folder you will be able to achieve either item or category specific templating. Items - for item specific template: item_view{_itemid}.php. For category specific template: item_category_view_{categoryid}.php. Itemlists - for category specific template: category_view{_categoryid}.php.">
+                                <field name="specificLayout" type="radio" default="yes" label="Item/category specific layout" description="please refer to k2fields wiki for instruction on this powerful feature.">
                                         <option value="yes">JYES</option>
                                         <option value="no">JNO</option>
                                 </field>
@@ -49,7 +49,7 @@
                                         <option value="BeforeDisplayContent">BeforeDisplayContent</option>
                                         <option value="AfterDisplayContent">AfterDisplayContent</option>
                                 </field>
-                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list)" description="On each row: category%%position" />
+                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
                                 <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
@@ -96,10 +96,8 @@
                                 <field name="titlesection" type="textarea" cols="40" rows="10" default="" label="Title sections (category::section name)" /> 
                                 <field name="introtextsection" type="textarea" cols="40" rows="10" default="" label="Intro text sections (category::section name)" />
                                 <field name="fulltextsection" type="textarea" cols="40" rows="10" default="" label="Full text sections (category::section name)" />
-                                <field name="k2tabsrename" type="textarea" cols="40" rows="10" default="" label="K2 Native tab renames" description="category%%Section1%%Section2%%...%%SectionN"/>
                                 <field name="titlerename" type="textarea" cols="40" rows="10" default="" label="Title field renames" description="category%%Section1%%Section2%%...%%SectionN"/>
                                 -->
-                                <field name="k2tabsrename" type="textarea" cols="40" rows="10" default="" label="K2 Native tab renames" description="category%%Section1%%Section2%%...%%SectionN"/>
                                 <field 
                                         name="accesstabsineditform" 
                                         type="textarea" 
@@ -667,7 +665,7 @@
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_MISC">
-                                <field name="paginationmode" type="radio" default="k2" label="Paginatio mode">
+                                <field name="paginationmode" type="radio" default="k2" label="Pagination mode">
                                         <option value="ajax">Ajax based button</option>
                                         <option value="k2">K2 page links</option>
                                 </field>  
