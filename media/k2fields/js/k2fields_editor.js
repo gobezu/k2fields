@@ -432,6 +432,7 @@ var k2fieldseditor = new Class({
                                         {'value':'k2item','text':'k2item'},
                                         {'value':'list','text':'list'},
                                         {'value':'media','text':'media'}, // might need additional settings
+                                        {'value':'map','text':'map'},
                                         {'value':'datetime','text':'datetime'},
                                         {'value':'date','text':'date'},
                                         {'value':'title','text':'title'},
@@ -464,7 +465,8 @@ var k2fieldseditor = new Class({
                                         'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1255', 'id:1256', 'id:1257', 'id:1258'],
                                         'title':['id:1301', 'id:1302'],
                                         'rate':['id:1301'],
-                                        'complex':['id:1051']
+                                        'complex':['id:1051'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355']
                                 },
                                 'required':true,
                                 'savevalues':'validtypes',
@@ -1251,6 +1253,56 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'tip':'refer to http://schema.org/docs/full.html',
                                 'section':'Type specific'
+                        },
+                        '1351':{
+                                'name':'Method',
+                                'optName':'method',
+                                'valid':'text',
+                                'ui':'radio',
+                                'values':[
+                                        {'value':'coord', 'text':'coord'},
+                                        {'value':'geo', 'text':'geo'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '1352':{
+                                'name':'Show map editor',
+                                'optName':'showmapeditor',
+                                'valid':'verifybox',
+                                'section':'Type specific'
+                        },
+                        '1353':{
+                                'name':'Maxzoom',
+                                'optName':'maxzoom',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true,
+                                'section':'Type specific'
+                        },
+                        '1354':{
+                                'name':'Location provider',
+                                'optName':'locationprovider',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':[
+                                        {'value':'maxmind', 'text':'maxmind'},
+                                        {'value':'simplegeo', 'text':'simplegeo (not available any longer)'},
+                                        {'value':'function', 'text':'function'}
+                                ],
+                                'deps':{
+                                        'function':['id:1355']
+                                },
+                                'section':'Type specific'
+                        },
+                        '1355':{
+                                'name':'Location provider function name',
+                                'optName':'locationproviderfunction',
+                                'valid':'text',
+                                'ui':'text',
+                                'section':'Type specific',
+                                'tip':'You can provide a simple function name or a call of an existing objects method'
                         }
                 };
         }
