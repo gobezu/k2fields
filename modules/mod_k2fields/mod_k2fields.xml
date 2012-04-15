@@ -11,6 +11,7 @@
         <description>k2fields based K2 search module</description>
         <files>
                 <filename module="mod_k2fields">mod_k2fields.php</filename>
+                <filename>index.html</filename>
                 <filename>helper.php</filename>
                 <folder>tmpl</folder>
         </files>
