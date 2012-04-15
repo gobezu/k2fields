@@ -272,7 +272,7 @@ group by vvv.itemid
                 if ($overrideSelector && $user->authorise('core.admin', 'com_k2')) $categoryselector = 1;
                 
                 if ($categoryselector == 2) {
-                        $menu = JSite::getMenu();
+                        $menu = JApplication::getMenu('site');
                         $default = $menu->getDefault();
                         $menuItems = $menu->getItems('menutype', $default->menutype);
                         $menuItems = JprovenUtility::indexBy($menuItems, 'id');
