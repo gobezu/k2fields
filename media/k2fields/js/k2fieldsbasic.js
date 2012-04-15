@@ -344,17 +344,17 @@ var k2fields_type_basic = {
                 var ui = this.getOpt(proxyField, 'ui'), valid;
                 
                 if (!ui) {
-                        if (this.chkOpt(proxyField, 'single', ['true', true])) {
-                                if (values.length > this.options.selectTreshold) {
-                                        valid = 'select';
-                                } else {
-                                        valid = 'radio';
-                                }
-                        } else {
+                        if (this.chkOpt(proxyField, 'single', ['false', false])) {
                                 if (values.length > this.options.selectTreshold) {
                                         valid = 'multiselect';
                                 } else {
                                         valid = 'checkbox';
+                                }
+                        } else {
+                                if (values.length > this.options.selectTreshold) {
+                                        valid = 'select';
+                                } else {
+                                        valid = 'radio';
                                 }
                         }
                 } else if (ui) {
