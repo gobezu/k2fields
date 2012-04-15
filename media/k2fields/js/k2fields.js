@@ -63,8 +63,8 @@ var k2fields = new Class({
                         var c = this.categoryEl();
                         
                         if (!c) return;
-
-                        $K2('#catid').unbind('change');
+                        
+                        if (!this.isIMode('menu')) $K2('#catid').unbind('change');
                         
                         c.addEvent('change', function(e) {
                                 this.processingStart();
@@ -165,7 +165,7 @@ var k2fields = new Class({
                                 }
                         }
                 } else {
-                        url += '&module='+this.form().getElement('[name=module]').get('value');
+                        url += '&module='+this.options.module;
                         
                         if (!initState && this.options['initState']) {
                                 var init = ('?'+this.options['initState']).fromQueryString();
