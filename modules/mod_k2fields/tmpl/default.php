@@ -39,7 +39,6 @@ defined('_JEXEC') or die('Restricted access');
         
         </ul>
 <?php if (!$app->isAdmin()) : ?>  
-        <input type="hidden" id="searchcounterlabel" value="<?= JText::_('Currently there are %d things to discover in Addis') ?>" />
         <input type="hidden" name="option" value="com_k2fields" />
         <input type="hidden" name="module" value="<?= $module->id ?>" />
         <input type="hidden" name="view" value="itemlist" />

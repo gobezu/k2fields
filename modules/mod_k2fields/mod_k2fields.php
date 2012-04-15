@@ -78,13 +78,13 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         $option = JRequest::getCmd('option');
 
         $path = JModuleHelper::getLayoutPath('mod_k2fields', 'default');
-        
-//        jimport('joomla.filesystem.file');
-//        if (!$path || !JFile::exists($path)) $path = JPATH_SITE.'/modules/mod_k2fields/tmpl/default.php';
+        $path = str_replace(JPATH_BASE, JPATH_SITE, $path);
         
         require $path;
         
-        if (JPluginHelper::importPlugin('k2', 'k2fields')) plgk2k2fields::loadResources('search');
+        if (JPluginHelper::importPlugin('k2', 'k2fields')) {
+                plgk2k2fields::loadResources(!isset($tab) ? 'search' : $tab, null, array('module'=>$module->id));
+        }
         
         $document = JFactory::getDocument();
         
