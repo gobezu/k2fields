@@ -717,7 +717,7 @@ fjs.parentNode.insertBefore(js, fjs);
 //                return $tab == 'search' || $tab == 'menu' ? 's' : 'K2ExtraField_';
         }
         
-        public static function loadResources($tab = null, $item = null) {
+        public static function loadResources($tab = null, $item = null, $addParams = null) {
                 static $jsDone = false, $jsK2fDone = false, $includeDone = false, $itemDone = false, $compressedLoaded = false;
                 
                 $document = JFactory::getDocument();
@@ -810,30 +810,32 @@ fjs.parentNode.insertBefore(js, fjs);
                         
                         JModel::getInstance('searchterms', 'k2fieldsmodel');
                         
-                        $document->addScriptDeclaration('
-                                var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields({
-                                    listItemSeparator: "' . K2FieldsModelFields::LIST_ITEM_SEPARATOR . '",
-                                    listConditionSeparator: "' . K2FieldsModelFields::LIST_CONDITION_SEPARATOR . '",
-                                    valueSeparator: "' . K2FieldsModelFields::VALUE_SEPARATOR . '",
-                                    multiValueSeparator: "' . K2FieldsModelFields::MULTI_VALUE_SEPARATOR . '",
-                                    userAddedValuePrefix: "' . K2FieldsModelFields::USERADDED . '",
-                                    base: "'.JURI::root(). '",
-                                    k2fbase: "'.  JprovenUtility::loc(). '",
-                                    mode: "'.self::getMode($tab).'",
-                                    pre: "'.self::getFieldPrefix($tab).'",
-                                    extendables: '.JprovenUtility::jsonEncode(self::getExtendables(), true).',
-                                    selfName: "'.K2FieldsModelFields::JS_VAR_NAME.'",
-                                    maxListItem: '.K2FieldsModelFields::setting('listmax').',
-                                    datetimeFormat: "'.K2FieldsModelFields::setting('datetimeFormat').'",
-                                    dateFormat: "'.K2FieldsModelFields::setting('dateFormat').'",
-                                    timeFormat: "'.K2FieldsModelFields::setting('timeFormat').'",
-                                    weekstartson: "'.K2FieldsModelFields::setting('weekstartson').'",
-                                    autoFields: '.json_encode(K2FieldsModelFields::$autoFieldTypes).',
-                                    maxFieldLength: '.K2FieldsModelFields::setting('alphafieldmaxlength').
-                                    ($tab == 'search' ? ',initState:"'.K2FieldsModelSearchterms::getSearchUrl().'"' : '').
-                                        '
-                                    });
-                            ');
+                        $params = array(
+                                'listItemSeparator' => K2FieldsModelFields::LIST_ITEM_SEPARATOR,
+                                'listConditionSeparator' => K2FieldsModelFields::LIST_CONDITION_SEPARATOR,
+                                'valueSeparator' => K2FieldsModelFields::VALUE_SEPARATOR,
+                                'multiValueSeparator' => K2FieldsModelFields::MULTI_VALUE_SEPARATOR,
+                                'userAddedValuePrefix' => K2FieldsModelFields::USERADDED,
+                                'base' => JURI::root(),
+                                'k2fbase' => JprovenUtility::loc(),
+                                'mode' => self::getMode($tab),
+                                'pre' => self::getFieldPrefix($tab),
+                                'extendables' => self::getExtendables(),
+                                'selfName' => K2FieldsModelFields::JS_VAR_NAME,
+                                'maxListItem' => K2FieldsModelFields::setting('listmax'),
+                                'datetimeFormat' => K2FieldsModelFields::setting('datetimeFormat'),
+                                'dateFormat' => K2FieldsModelFields::setting('dateFormat'),
+                                'timeFormat' => K2FieldsModelFields::setting('timeFormat'),
+                                'weekstartson' => K2FieldsModelFields::setting('weekstartson'),
+                                'autoFields' => K2FieldsModelFields::$autoFieldTypes,
+                                'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength')
+                        );
+                        
+                        if (isset($addParams)) $params = array_merge($params, $addParams);
+                        
+                        $params = json_encode($params);
+                        
+                        $document->addScriptDeclaration('var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields('.$params.');');
                         
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Form.AutoGrow.js', true);
