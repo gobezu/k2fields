@@ -99,9 +99,12 @@ from (
                 $query = 'SELECT element, folder, enabled FROM #__extensions WHERE element IN (' . implode(',', $_plgs) . ') AND folder IN ("content", "system")';
                 $db->setQuery($query);
                 $folders = $db->loadObjectList('element');
+                $natives = array('img');
                 
                 foreach ($res as $mt => &$plgs) {
                         foreach ($plgs as &$plg) {
+                                if (in_array($plg['value'], $natives)) continue;
+                                
                                 if (!isset($folders[$plg['value']])) {
                                         $plg['text'] = '('.JText::_('NOT INSTALLED').') '.$plg['text'];
                                 } else {
