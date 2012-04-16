@@ -152,7 +152,7 @@ $isComponentOnly = $tmpl == 'component';
 		<!-- Leading items -->
 		<div id="itemListLeading">
 			<?php 
-                        $tmplFile = preg_replace('\.php$', '', __FILE__);
+                        $tmplFile = preg_replace('#\.php$#', '', __FILE__);
                         foreach($this->leading as $key=>$item): 
 			// Define a CSS class for the last container on each row
                         $lastContainer= $key+1 == count($this->leading) && !$isComponentOnly ? ' itemContainerLast' : '';
