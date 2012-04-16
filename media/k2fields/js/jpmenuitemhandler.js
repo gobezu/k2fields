@@ -7,64 +7,46 @@ var JPMenuItemHandler = new Class({
         initialize:function(k2f) {
                 this.k2f = k2f;
                 this.k2f.options.async = false;
-                var links = $$('input[name=link]');
-                this.initialValue = links[0].get('value');
-                links.each(function(link) { link.set('value', 'index.php?option=com_k2fields&view=itemlist'); })
-        },
-        init:function() {
+                var link = document.id('jform_link');
+                this.initialValue = link.get('value');
                 this.k2f.formSubmitButton().dispose();
-                
-                if (this.param('task', this.initialValue) == 'search') {
-                        var cid = this.param('cid', this.initialValue);
-                        if (!cid) return;
-                        var cel = this.k2f.categoryEl();
-                        for (var i = 0, n = cel.options.length; i < n; i++) {
-                                if (cel.options[i]['value'] == cid) {
-                                        cel.options[i].selected = true;
-                                        break;
-                                }
-                        }                        
-                        //this.k2f.setValue(cel, cid);                    
+                var srs = this.srs(), cid = srs['cid'];
+                if (cid && cid != -1) {
+                        srs.erase('cid');
+                        srs = srs.toQueryString();
+                        var c = this.k2f.categoryEl();
+                        document.id(c.options[cid]).set('init-state', srs);
+                        c.addEvent('processingEnd', function() {
+                                document.id(c.options[cid]).set('init-state', '');
+                        });
                 }
         },
-        params:function(from) {
-                return (from || $$('input[name=link]')[0].get('value')).fromQueryString();
+        init:function() {
+                var c = this.k2f.categoryEl().get('value'), a = this.srs('cid');
+                if (c != a) this.k2f.setValue('cid', a);
         },
-        param:function(name, from) {
-                var p = this.params(from);
-                return p[name];
-        },
-        loadValues:function() {
-                if (this.initiated) return;
-                var ps = this.initialValue.fromQueryString();
-                ps.each(function(v,k){
-                        if (v && !['option', 'view', 'task', 'cid'].contains(k)) {
-                                var el = $$('[name='+k+']')[0];
-                                this.k2f.setValue(el, v);
-                        }
-                }.bind(this));
-                this.build();
-                this.initiated = true;
+        srs:function(optName) {
+                var srs = document.id('jform_request_srs').get('value');
+                if (!srs) return {};
+                srs = JSON.decode(srs);
+                if (optName) return srs[optName];
+                return new Hash(srs);
         },
         build:function() {
-                while (document.id('urlparamstask').getNext())
-                        document.id('urlparamstask').getNext().dispose();
-                
-                var
-                        pt = document.id('urlparamstask').getParent(), 
+                var 
+                        srs = {}, val, 
                         els = this.k2f.containerEl().getElements('[name^='+this.k2f.options.pre+']'),
-                        cat = this.k2f.categoryEl(),
-                        ps = this.params();
+                        cat = this.k2f.categoryEl()
+                        ;
                 
                 els.push(cat);
                 
                 els.each(function(el) {
-                        new Element('input', {
-                                'type':'hidden',
-                                'value':this.k2f.getValue(el),
-                                'name':'urlparams['+el.get('name')+']',
-                                'id':'urlparams'+el.get('name')
-                        }).inject(pt);
+                        val = this.k2f.getValue(el);
+                        if (val == this.k2f.options.listConditionSeparator) val = '';
+                        if (val) srs[el.get('name')] = val;
                 }.bind(this));
+                
+                document.id('jform_request_srs').set('value', JSON.stringify(srs));
         }
 });

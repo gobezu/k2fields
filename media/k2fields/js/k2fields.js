@@ -84,7 +84,6 @@ var k2fields = new Class({
                         
                         if (this.isIMode('menu')) {
                                 this.menuItemHandler = new JPMenuItemHandler(this);
-                                this.menuItemHandler.init();
                         }
                         
                         this.containerEl().addEvent('processingStart', function(el) {
@@ -97,19 +96,17 @@ var k2fields = new Class({
                                 fx.start(1);
                         });
                         
-                        // this.containerEl().setStyle('visibility', 'visible');
-                        
                         this.processingStart();
                         this.wireForm();
                         this.extendK2fields('basic', true);
                         this.extendK2fields('datetime', true);
                         if (this.isMode('edit')) this.getFieldsDefinition();
-                        this.createFields();
+                        if (!this.isIMode('menu')) this.createFields();
+                        else this.menuItemHandler.init();
                 }.bind(this));
         },
         
         isMode: function(assertedMode) {
-                //if (assertedMode == 'editfields') assertedMode = 'k2fields-editor';
                 return this.options.mode == assertedMode;
         },
         
@@ -477,9 +474,6 @@ var k2fields = new Class({
                                 this.removeProxyFieldContainer(fld);
                         }
                 }.bind(this));
-                
-                if (this.isIMode('menu'))
-                        this.menuItemHandler.loadValues();
                 
                 this.processingEnd();
         },
