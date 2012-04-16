@@ -1301,7 +1301,7 @@ class K2FieldsModelFields extends JModel {
                                 $access = self::value($field, 'access');
                                 
                                 if ($access && isset($access['edit'])) {
-                                        $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
+                                        $allowed = in_array($access['edit'], $user->getAuthorisedViewLevels());
                                         
                                         if (!$allowed) continue;
                                                                                 
