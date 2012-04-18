@@ -1925,6 +1925,8 @@ class K2FieldsModelFields extends JModel {
                         }
                 }
                 
+                $_plgSettings = array('merge'=>'', 'mergesection'=>'', 'sectiontitle'=>'');
+
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
                         if ($fieldId == 'all') {
@@ -1935,6 +1937,8 @@ class K2FieldsModelFields extends JModel {
                                         foreach ($position['absolute'] as $absolute) 
                                                 $absoluteRendered .= $absolute['rendered'];
                                 }
+                                
+                                $plgSettings = array_intersect_key($position, $_plgSettings);
                                 
                                 $sections = (array) JprovenUtility::getColumn($values, 'section');
                                 $sections = array_unique($sections);
@@ -1961,7 +1965,7 @@ class K2FieldsModelFields extends JModel {
                                 if (count($fieldIds) > 1) {
                                         $rendered = call_user_func(
                                                 array($this, 'renderUI'.ucfirst($ui)),
-                                                $values, $fields, $item
+                                                $values, $fields, $item, $plgSettings
                                         );
                                 } else {
                                         $rendered = $values[0]['rendered'];
@@ -2181,24 +2185,32 @@ class K2FieldsModelFields extends JModel {
                 return $str;
         }
         
-        private function renderUIList($values) {
-                $uis = $this->renderUIFoldValuesInSections($values, true, '<li>', '</li>');
+        private function renderUIList($values, $fields, $item, $plgSettings = array(), $headerElement = 'span') {
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, true, '<li>', '</li>');
+                $noSectionTitle = isset($plgSettings['sectiontitle']) && in_array($plgSettings['sectiontitle'], array('false', '0')) || false;
                 
                 foreach ($uis as $section => $_uis) {
                         $id = self::generateUISectionId($section);
-                        $ui .= '<ul class="sectioncontainer uilist '.$id.'"><span class="sec lbl">'.JText::_($section).'</span>'.$_uis.'</ul>';
+                        //$ui .= '<ul class="sectioncontainer uilist '.$id.'"><span class="sec lbl">'.JText::_($section).'</span>'.$_uis.'</ul>';
+                        
+                        $ui .= '<ul class="sectioncontainer uilist '.$id.'">'.
+                                ($noSectionTitle ? '' : '<'.$headerElement.' class="sectionheader">'.JText::_($section).'</'.$headerElement.'>').
+                                $_uis.'</ul>';
                 }
                 
                 return $ui;
         }
         
-        private function renderUIPlain($values, $fields, $item, $headerElement = 'span') {
-                $uis = $this->renderUIFoldValuesInSections($values, true);
+        private function renderUIPlain($values, $fields, $item, $plgSettings = array(), $headerElement = 'span') {
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, true);
                 $ui = '';
+                $noSectionTitle = isset($plgSettings['sectiontitle']) && in_array($plgSettings['sectiontitle'], array('false', '0')) || false;
                 
                 foreach ($uis as $section => $_uis) {
                         $id = self::generateUISectionId($section);
-                        $ui .= '<div class="sectioncontainer uiplain '.$id.'"><'.$headerElement.' class="sectionheader">'.JText::_($section).'</'.$headerElement.'><div class="sectioncontent">'.$_uis.'</div></div>';
+                        $ui .= '<div class="sectioncontainer uiplain '.$id.'">'.
+                                ($noSectionTitle ? '' : '<'.$headerElement.' class="sectionheader">'.JText::_($section).'</'.$headerElement.'>').
+                                '<div class="sectioncontent">'.$_uis.'</div></div>';
                 }
                 
                 return $ui;
@@ -2307,11 +2319,11 @@ class K2FieldsModelFields extends JModel {
                 return $ui;
         }        
         
-        private function renderUIHeaders($values, $fields, $item) {
-                return $this->renderUIPlain($values, $fields, $item, 'h3');
+        private function renderUIHeaders($values, $fields, $item, $plgSettings = array()) {
+                return $this->renderUIPlain($values, $fields, $item, 'h3', $plgSettings = array());
         }
         
-        private function renderUITab($values, $fields, $item, $type = 'tabs', $options = array()) {
+        private function renderUITab($values, $fields, $item, $plgSettings = array(), $type = 'tabs', $options = array()) {
                 static $count = 0;
                 $count++;
                 
@@ -2320,7 +2332,7 @@ class K2FieldsModelFields extends JModel {
                 if ($type == 'sliders') $options = array('allowAllClose' => true, 'show' => -1);
                 else $options = array();
                 
-                $uis = $this->renderUIFoldValuesInSections($values, false);
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
                 $pane = JPane::getInstance($type, $options);
                 $ui = $pane->startPane('k2f-'.$type.'-'.$count);
                 
@@ -2339,17 +2351,17 @@ class K2FieldsModelFields extends JModel {
                 return $ui;
         }
         
-        private function renderUIAccordion($values, $fields, $item) {
-                return $this->renderUITab($values, $fields, $item, 'sliders');
+        private function renderUIAccordion($values, $fields, $item, $plgSettings = array()) {
+                return $this->renderUITab($values, $fields, $item, $plgSettings, 'sliders');
         }
         
-        private function renderUIJkefeltab($values, $fields, $item, $type = 'tabs') {
+        private function renderUIJkefeltab($values, $fields, $item, $plgSettings = array(), $type = 'tabs') {
                 jimport('joomla.plugin.helper');
                 
                 if (!JPluginHelper::importPlugin('content', 'jkefel')) 
                         JError::raiseWarning('ERROR_CODE', JText::_('PLG_K2FIELDS_PLUGIN_JKEFEL_INACTIVE'));
                 
-                $uis = $this->renderUIFoldValuesInSections($values);
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings);
                 $ui = '';
                 $n = count($uis);
                 $i = 0;
@@ -2372,12 +2384,13 @@ class K2FieldsModelFields extends JModel {
                 return $ui;
         }
         
-        private function renderUIJkefelaccordion($values, $fields, $item) {
-                return $this->renderUIJkefeltab($values, $fields, $item, 'sliders');
+        private function renderUIJkefelaccordion($values, $fields, $item, $plgSettings = array()) {
+                return $this->renderUIJkefeltab($values, $fields, $item, $plgSettings = array(), 'sliders');
         }
         
         private function renderUIFoldValuesInSections(
-                $values, 
+                $values,
+                $plgSettings,
                 $glue = false, 
                 $itemGluePre = '', 
                 $itemGluePost = '',
@@ -2387,7 +2400,11 @@ class K2FieldsModelFields extends JModel {
                 $uis = array();
                 
                 foreach ($values as $value) {
-                        $section = $value['section'];
+                        if (isset($plgSettings['merge'])) {
+                                $section = isset($plgSettings['mergesection']) ? $plgSettings['mergesection'] : self::setting('emptysectionname');
+                        } else {
+                                $section = $value['section'];
+                        }
                         
                         if (!isset($uis[$section])) 
                                 $uis[$section] = $glue ? '' : array();
