@@ -4,7 +4,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-JLoader::register('JprovenUtility', JPATH_SITE.'/components/com_k2fields/helpers/utility.php');
+require_once JPATH_SITE.'/components/com_k2fields/helpers/utility.php';
 
 if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         jimport('joomla.application.component.model');
