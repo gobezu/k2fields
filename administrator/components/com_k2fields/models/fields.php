@@ -2400,7 +2400,7 @@ class K2FieldsModelFields extends JModel {
                 $uis = array();
                 
                 foreach ($values as $value) {
-                        if (isset($plgSettings['merge'])) {
+                        if (isset($plgSettings['merge']) && in_array($plgSettings['merge'], array('true', '1'))) {
                                 $section = isset($plgSettings['mergesection']) ? $plgSettings['mergesection'] : self::setting('emptysectionname');
                         } else {
                                 $section = $value['section'];
