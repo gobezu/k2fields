@@ -189,7 +189,14 @@ group by vvv.itemid
                                         if ($menuItem->component == 'com_k2' && $menuItem->query['view'] == 'itemlist') {
                                                 $c = $menuItem->query['id'];
                                         } else if ($menuItem->component == 'com_k2fields' && $menuItem->query['view'] == 'itemlist') {
-                                                $c = $menuItem->query['cid'];
+                                                if (isset($menuItem->query['cid'])) {
+                                                        $c = $menuItem->query['cid'];
+                                                } else if (isset($menuItem->query['srs'])) {
+                                                        $srs = $menuItem->query['srs'];
+                                                        $srs = json_decode($srs);
+                                                        if (isset($srs->cid)) $c = $srs->cid;
+                                                        else $c = '';
+                                                }
                                         }
                                         if ($found = ($c == $catid)) break;
                                 }
@@ -215,7 +222,14 @@ group by vvv.itemid
                         $catId = $menuItem->query['id'];
                         $state = '';
                 } else if ($component == 'com_k2fields' && $menuItem->query['view'] == 'itemlist') {
-                        $catId = $menuItem->query['cid'];
+                        if (isset($menuItem->query['cid'])) {
+                                $catId = $menuItem->query['cid'];
+                        } else if (isset($menuItem->query['srs'])) {
+                                $srs = $menuItem->query['srs'];
+                                $srs = json_decode($srs);
+                                if (isset($srs->cid)) $catId = $srs->cid;
+                                else $catId = '';
+                        }                        
                         $state = self::buildUrl($menuItem->query, array('option', 'view', 'task', 'layout', 'cid'));
                         //$state = str_replace('index.php?option=com_k2fields&view=itemlist&task=search&', '', $menuItem->link);
                 } else if ($includeNonK2) {
