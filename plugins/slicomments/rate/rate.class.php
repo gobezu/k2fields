@@ -131,7 +131,7 @@ class SliRate {
                 $extensionName = $comment->extension_name;
                 $item = $this->getItem($comment->article_id, $comment->extension_name);
                 $criterias = $this->getCriterias($item->catid, $comment->extension_name);
-                jdbg::pf($criterias, 'file reset');
+                
                 $criteriaId = 'k2frate_'.$comment->article_id.'_';
                 $rates = array();
                 $ratesGrade = array();
