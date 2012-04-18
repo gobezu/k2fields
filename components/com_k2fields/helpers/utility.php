@@ -899,7 +899,7 @@ group by vvv.itemid
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
                 if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
                 $file = false;
-                $ext = $type == 'field' ? 'fld' : 'php';
+                $ext = $type == 'fields' ? 'fld' : 'php';
                 
                 foreach ($dirs as $dir) {
                         if ($file !== false) break;
