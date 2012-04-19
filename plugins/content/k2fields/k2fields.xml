@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="content" method="upgrade">
+	<name>Content - k2fields</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>Pulls in k2fields fields.</description>
+	<files>
+		<filename plugin="k2fields">k2fields.php</filename>
+		<filename>index.html</filename>
+	</files>
+        <config />
+</extension>
