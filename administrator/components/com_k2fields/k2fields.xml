@@ -59,6 +59,7 @@
         <additional>
                 <plugin name="k2fields" folder="plugins/k2/k2fields" group="k2" enable="1">main k2 plugin</plugin>
                 <plugin name="k2fields" folder="plugins/system/k2fields" group="system" enable="1">system plugin required for proper functioning</plugin>
+                <plugin name="k2fields" folder="plugins/content/k2fields" group="content" enable="0">pulling in k2fields fields in custom module and in other content components</plugin>
                 <module name="k2fields" folder="modules/mod_k2fields">search module</module>
                 <module name="k2fields_usertools" folder="modules/mod_k2fields_usertools">user tools - currently mainly submission button</module>
                 <module name="k2fields_contents" folder="modules/mod_k2fields_contents">content presentation</module>
