@@ -1616,7 +1616,7 @@ class K2FieldsModelFields extends JModel {
         /**
          * @@todo: if (!$item->published) remove all values for all rules 
          */
-        public function renderK2f(&$item, $itemRules, $itemText, $itemObj) {
+        public function renderK2f(&$item, $itemRules, $itemText, $itemObj, $additionalRules = array()) {
                 $isItemObj = false;
                 $isK2item = isset($itemRules['all'][0]['k2item']) && $itemRules['all'][0]['k2item'] == 'true';
                 $view = JRequest::getCmd('view');
@@ -1711,8 +1711,10 @@ class K2FieldsModelFields extends JModel {
                 
                 $fields = array_keys($itemRules);
                 $option = JRequest::getCmd('option');
+                $inModule = $item->params->get('parsedInModule') || 
+                        isset($additionalRules['parsedInModule']) && $additionalRules['parsedInModule'];
                 
-                if ($item->params->get('parsedInModule')) {
+                if ($inModule) {
                         $filterView = 'module';
                         $modeFilter = array('view' => 'module');
                 } else {
@@ -1773,7 +1775,7 @@ class K2FieldsModelFields extends JModel {
                 $fieldsValues = $this->itemValues($itemId, $fieldIds);
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
                 $schemaType = false;
-                
+
                 foreach ($itemRules as $fieldId => &$fieldRules) {
                         $fld = $fields[$fieldId];
                         
@@ -1874,7 +1876,7 @@ class K2FieldsModelFields extends JModel {
                 
                 $sectionsOrder = self::categorySetting($item->catid, 'sectionsorder');
                 
-                if (!$isTabular && !empty($sectionsOrder)) {
+                if (isset($position['rendered']) && !$isTabular && !empty($sectionsOrder)) {
                         $sectionsOrder = JprovenUtility::first($sectionsOrder);
                         $sectionsOrder = $sectionsOrder[0];
                         $rendered = array();
@@ -1930,6 +1932,11 @@ class K2FieldsModelFields extends JModel {
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
                         if ($fieldId == 'all') {
+                                if (!isset($position['rendered'])) {
+                                        foreach ($_rules as $i => &$rule) $rule['rendered'] = '';
+                                        continue;
+                                }
+                                
                                 $values = $position['rendered'];
                                 $absoluteRendered = '';
                                 
