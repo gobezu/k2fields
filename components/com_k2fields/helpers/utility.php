@@ -1662,14 +1662,14 @@ group by vvv.itemid
                 
                 if (!$groupBy) return $values;
 
-                return self::indexBy($values, $groupBy, 'all', $groupByAllKeySubstitute);
+                return self::indexBy($values, (array) $groupBy, 'all', $groupByAllKeySubstitute);
         }
 
         /**
          *
          * @@todo: currently k2 specific
          */
-        public static function replacePluginValues(&$content, $plgName, $provided = false) {
+        public static function replacePluginValues(&$content, $plgName, $provided = false, $additionalRules = array()) {
                 $itemId = null;
                 $text = $content;
                 $textAttr = '';
@@ -1681,8 +1681,6 @@ group by vvv.itemid
 
                         if (!$provided) 
                                 $itemId = $content->id;
-                } else {
-                        $text = $content;
                 }
                 
                 if (!$provided)
@@ -1693,6 +1691,8 @@ group by vvv.itemid
                 
                 $item = empty($item) ? null : $item;
                 $rules = self::parsePluginValues($text, $plgName, array('item', 'field'), array($item));
+                
+                if (empty($rules)) return false;
                 
                 if ($provided && empty($item)) {
                         $item = key($rules);
@@ -1716,7 +1716,7 @@ group by vvv.itemid
                 foreach ($rules as $item => $itemRules) {
                         $renderedItemRules = call_user_func_array(
                                 array($model, 'render'.ucfirst($plgName)), 
-                                array(is_object($content) ? $content : $item, $itemRules, $text, $content)
+                                array(is_object($content) ? $content : $item, $itemRules, $text, $content, $additionalRules)
                         );
                         
                         foreach ($renderedItemRules as $renderedFieldsRule)
