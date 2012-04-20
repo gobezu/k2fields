@@ -1,5 +1,10 @@
 <?php
-/**
+//$Copyright$
+
+/** original copyright where changes made are:
+ * 1. replaced JSON_Services with native PHP ditto
+ * 2. see where jproven related comments are inserted
+ * 
  * @version		$Id: item.php 1520 2012-03-08 18:08:35Z lefteris.kavadas $
  * @package		K2
  * @author		JoomlaWorks http://www.joomlaworks.net
@@ -97,7 +102,11 @@ class K2ModelItem extends JModel
                 JprovenUtility::normalizeK2Parameters($item);
                 
                 //Edit link
-		if (K2HelperPermissions::canEditItem($item->created_by,$item->catid))
+                if (!class_exists('K2FieldsHelperPermissions')) {
+                        require_once JPATH_SITE.'/components/com_k2fields/helpers/permissions.php';
+                        K2FieldsHelperPermissions::setPermissions();
+                }
+		if (K2FieldsHelperPermissions::canEditItem($item->created_by,$item->catid))
                         $item->editLink = JRoute::_('index.php?option=com_k2&view=item&task=edit&cid='.$item->id.'&catid='.$item->catid.'&tmpl=component');
                 // end jproven.com
                 

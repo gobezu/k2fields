@@ -924,6 +924,8 @@ group by vvv.itemid
                                         if ($addId != -1) $ids[] = 'c'.$addId;
                                 } else if ($addId != -1) {
                                         $ids = array('c'.$addId);
+                                } else {
+                                        $ids = array();
                                 }
                                 
                                 $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $ids, '', $ext);
