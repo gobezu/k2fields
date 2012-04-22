@@ -760,8 +760,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         
                         if ($tab == 'menu') JprovenUtility::load('jpmenuitemhandler.js', 'js');
                         
-                        $js = 'media/k2fields/js/k2fields.all.js';
-                        if (!JFile::exists(JPATH_SITE.'/media/k2fields/js/k2fields.all.js')) {
+                        if (JFile::exists(JPATH_SITE.'/media/k2fields/js/k2fields.all.js')) {
                                 $ver = "$Ver$";
                                 JprovenUtility::load('k2fields.all.js?v='.$ver, 'js');
                                 $compressedLoaded = true;
