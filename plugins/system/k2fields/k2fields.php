@@ -292,7 +292,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 if (!defined('K2_JVERSION')) define('K2_JVERSION', '16');
                 
-                JLoader::register('K2HelperPermissions', JPATH_SITE.'/components/com_k2/helpers/permissions.j16.php');
+                // JLoader::register('K2HelperPermissions', JPATH_SITE.'/components/com_k2/helpers/permissions.j16.php');
                 
                 self::checkQuota();
                 self::processListImport();

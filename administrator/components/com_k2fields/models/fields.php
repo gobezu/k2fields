@@ -1638,6 +1638,9 @@ class K2FieldsModelFields extends JModel {
                         $item = $this->_db->loadObject();
                         $item->k2item = $isK2item;
                         if ($isK2item) $item->k2cat = $itemRules['all'][0]['k2cat'];
+                        if (!class_exists('K2HelperPermissions')) {
+                                JLoader::register('K2HelperPermissions', JPATH_SITE.'/components/com_k2/helpers/permissions.php');
+                        }                        
                         JModel::addIncludePath('item', JPATH_SITE . '/components/com_k2/models');
                         $itemModel = JModel::getInstance('item', 'K2Model');
                         $item = $itemModel->prepareItem($item, $view, $task);
