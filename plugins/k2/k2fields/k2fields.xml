@@ -23,6 +23,14 @@
                                 <field name="jpmodeitemlistlimit" type="text" default="10" label="# of items in k2item as jpajaxlist" />
                                 <field name="alphafieldmaxlength" type="text" default="500" label="Max allowed characters in text fields" description="Overridable through field setting" />
                                 <field name="emptysectionname" type="text" default="Additional info" label="Default section name" description="All fields without section name will be placed in this section" />
+                        </fieldset>
+                                
+                        <fieldset name="PLG_K2FIELDS_VARIOUS_OVERRIDE_VALUES">
+                                <field type="spacer" name="overridespacer" label="&lt;style type=&quot;text/css&quot;&gt;li span.spacer label {width:100% !important;} #jform_params_overridespacer-lbl { color:#fff; background:#c61f29; }&lt;/style&gt;By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not mix these with various K2 related modules that make effort of loading K2 item model explicitly through PHP file including or requires.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
+                                <field name="override_itemmodel" type="radio" default="0" label="Override K2 item model" description="">
+                                        <option value="1">JYES</option>
+                                        <option value="0">JNO</option>
+                                </field>                                
                                 <field name="inheritfromcategory" type="k2fcategories" default="" label="Inherit from this category for all other categories" description="Parameters from this category will override parameters in all other categories except categories excluded below. For all categories excluded parameters will not be overriden." />
                                 <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Exclude to inherit the above categorys parameters for the following categories" />
                                 <field name="dontinheritparams" type="k2fparams" default="" label="Exclude to inherit the following parameters" />

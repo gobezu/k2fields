@@ -16,39 +16,39 @@ if (JRequest::getCmd('option') != 'com_k2') K2HelperPermissions::setPermissions(
 $canAdd = K2HelperPermissions::canAddItem();
 
 if ($canAdd):
-$app = JFactory::getApplication();
-$catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
-$canPublish = K2HelperPermissions::canPublishItem($catId);
-$width = $canPublish ? '990' : '700';
-$launcherID = 'k2fEditorLauncher';
-$categoriesSelector = JprovenUtility::getK2PostCategoriesSelector($launcherID, 'Post item...');
-$document = JFactory::getDocument();
-$document->addScriptDeclaration('
-window.addEvent("domready", function(){
-        var sel = document.getElement("select[name='. $launcherID.']");
-        sel.addEvent("change", function() {
-                window.parent.SqueezeBox.close();
+        $app = JFactory::getApplication();
+        $catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
+        $canPublish = K2HelperPermissions::canPublishItem($catId);
+        $width = $canPublish ? '990' : '700';
+        $launcherID = 'k2fEditorLauncher';
+        $categoriesSelector = JprovenUtility::getK2PostCategoriesSelector($launcherID, 'Post item...');
+        $document = JFactory::getDocument();
+        $document->addScriptDeclaration('
+        window.addEvent("domready", function(){
+                var sel = document.getElement("select[name='. $launcherID.']");
+                sel.addEvent("change", function() {
+                        window.parent.SqueezeBox.close();
 
-                var 
-                        href = "'.JURI::base().'index.php?option=com_k2&view=item&task=add&tmpl=component", 
-                        opt = document.id(this.options[this.selectedIndex]), 
-                        catid = opt.get("value"), 
-                        init = opt.get("init-state")
-                        ;
+                        var 
+                                href = "'.JURI::base().'index.php?option=com_k2&view=item&task=add&tmpl=component", 
+                                opt = document.id(this.options[this.selectedIndex]), 
+                                catid = opt.get("value"), 
+                                init = opt.get("init-state")
+                                ;
 
-                if (!catid) {
-                        alert("'.JText::_("Select category").'");
-                        return false;
-                }
+                        if (!catid) {
+                                alert("'.JText::_("Select category").'");
+                                return false;
+                        }
 
-                var _href = href + "&catid="+catid + (init ? "&" + init : "");
+                        var _href = href + "&catid="+catid + (init ? "&" + init : "");
 
-                window.parent.SqueezeBox.open(_href, {handler:"iframe", size:{x:'. $width.',y:650}});
+                        window.parent.SqueezeBox.open(_href, {handler:"iframe", size:{x:'. $width.',y:650}});
 
-                this.selectedIndex = 0;
+                        this.selectedIndex = 0;
+                });
         });
-});
-');
+        ');
 endif;
 
 $uri = JFactory::getURI();

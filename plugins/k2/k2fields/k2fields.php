@@ -22,6 +22,12 @@ class plgk2k2fields extends K2Plugin {
 
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
+                if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1')
+                        JprovenUtility::normalizeK2Parameters($item);
+                
+                $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
+		$item->link = urldecode(JRoute::_($link));
+                
                 $item->nonk2rating = 
                         JPluginHelper::importPlugin('jcomments', 'rate') || JPluginHelper::importPlugin('slicomments', 'rate');
                 

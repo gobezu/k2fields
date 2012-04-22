@@ -7,8 +7,6 @@ defined('_JEXEC') or die('Restricted access');
 require_once JPATH_SITE.'/components/com_k2fields/helpers/utility.php';
 
 if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
-        jimport('joomla.application.component.model');
-
         $app = JFactory::getApplication();
         $input = $app->input;
         
@@ -23,22 +21,20 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
                 $opt = isset($req['option']) ? $req['option'] : '';
         }
         
-        //require_once JPATH_SITE.'/components/com_k2fields/helpers/route.php';
         JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
-        JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2fields/helpers/utilities.php');
         JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
         
-        if ($app->isSite() && !in_array($task, array('edit', 'add', 'save'))) {
+        jimport('joomla.application.component.model');
+        
+        if ($app->isSite() && JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') == '1' && !in_array($task, array('edit', 'add', 'save'))) {
                 JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
                 JModel::getInstance('item', 'K2Model');
         }
-
+        
         JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models');
         JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables');
-        
-        // JModel::getInstance('fields', 'K2FieldsModel');
 }
 
 class plgSystemk2fields extends JPlugin {

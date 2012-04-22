@@ -3,7 +3,6 @@
 
 /** original copyright where changes made are:
  * 1. replaced JSON_Services with native PHP ditto
- * 2. see where jproven related comments are inserted
  * 
  * @version		$Id: item.php 1520 2012-03-08 18:08:35Z lefteris.kavadas $
  * @package		K2
