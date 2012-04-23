@@ -458,8 +458,7 @@ fjs.parentNode.insertBefore(js, fjs);
 
                         $plg = '';
                         $view = JFactory::getApplication()->input->get('view');
-                        $addId = $view == 'item' ? $item->catid : $item->id;
-                        $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields', $addId);
+                        $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields', array('i'.$item->id, 'c'.$item->catid));
                         
                         if ($file) {
                                 $plg = JFile::read($file);
@@ -471,7 +470,7 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 $tmp = $item->text;
                 $item->text = $plg;
-                $item = JprovenUtility::replacePluginValues($item, 'k2f');
+                $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
                 // TOO obtrusive
                 $item->extra_fields = array();
                 $result = $item->text;

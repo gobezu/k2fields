@@ -906,9 +906,13 @@ group by vvv.itemid
 //                $dir = JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/';
                 $listLayout = JRequest::getWord('listlayout', self::setting('listLayout', 'k2fields', 'k2', null, ''));
                 $id = JRequest::getInt('id', -1);
-                
-                $view = JRequest::getWord('view');
-                $task = JRequest::getCmd('task');
+                $option = JRequest::getCmd('option');
+                if ($option == 'com_k2' || $option == 'com_k2fields') {
+                        $view = JRequest::getWord('view');
+                        $task = JRequest::getCmd('task');
+                } else if ($type == 'fields') {
+                        $view = 'item';
+                }
                 $isForm = self::isK2EditMode();
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
                 if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
@@ -919,27 +923,33 @@ group by vvv.itemid
                         if ($file !== false) break;
                         
                         if ($view == 'item') {
-                                if ($id != -1) {
-                                        $ids = array('i'.$id);
-                                        if ($addId != -1) $ids[] = 'c'.$addId;
-                                } else if ($addId != -1) {
-                                        $ids = array('c'.$addId);
+                                if (is_array($addId)) {
+                                        $ids = $addId;
                                 } else {
-                                        $ids = array();
+                                        if ($id != -1) {
+                                                $ids = array('i'.$id);
+                                                if ($addId != -1) $ids[] = 'c'.$addId;
+                                        } else if ($addId != -1) {
+                                                $ids = array('c'.$addId);
+                                        } else {
+                                                $ids = array();
+                                        }
                                 }
                                 
                                 $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $ids, '', $ext);
                         } else if ($view == 'itemlist' && $task == 'category') {
-                                $ids = array();
-                                
-                                if ($addId != -1) $ids[] = 'i'.$addId;
-                                
-                                $option = JRequest::getCmd('option');
+                                if (is_array($addId)) {
+                                        $ids = $addId;
+                                } else {
+                                        $ids = array();
 
-                                if ($option == 'com_k2fields' && $id == -1) 
-                                        $id = JRequest::getInt('cid', -1);
-                                
-                                if ($id != -1) $ids[] = 'c'.$id;
+                                        if ($addId != -1) $ids[] = 'i'.$addId;
+
+                                        if ($option == 'com_k2fields' && $id == -1) 
+                                                $id = JRequest::getInt('cid', -1);
+
+                                        if ($id != -1) $ids[] = 'c'.$id;
+                                }
                                 
                                 $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $ids, $listLayout, $ext);
                         } else {
