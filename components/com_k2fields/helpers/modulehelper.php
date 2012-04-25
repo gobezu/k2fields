@@ -491,9 +491,22 @@ class K2FieldsModuleHelper {
                         require_once JPATH_SITE.'/components/com_k2/helpers/permissions.php';
                         
                         $limitstart = $params->get('limitstart');
+                        $catId = key($items);
+                        $cats = null;
+                        
+                        if (!isset($items[$catId][0]->category) || !is_object($items[$catId][0]->category)) {
+                                $cats = array_keys($items);
+                                $cats = JprovenUtility::toIntArray($cats, true);
+                                $query = 'SELECT * FROM #__k2_categories WHERE id IN ('.$cats.')';
+                                $db = JFactory::getDbo();
+                                $db->setQuery($query);
+                                $cats = $db->loadObjectList('id');
+                        }
                         
 			foreach ($items as $catId => &$itemsPerCat) {
                                 foreach ($itemsPerCat as &$item) {
+                                        if ($cats) $item->category = $cats[$catId];
+                                        
                                         JprovenUtility::loadK2SpecificResources($catId, $item->id);
                                         
                                         //Clean title
