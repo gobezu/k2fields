@@ -39,25 +39,26 @@ class K2FieldsModuleHelper {
         private static $categories = array(), $categoryTree = array(), $categoryParents = array(), $categoriesData, $_items = array();
         
         private static function getCategoryChildren($ids, $excludeIds, $depth = -1, $clear = false) {
-                static $currDepth = 0;
+                static $currDepth = 1;
                 
                 if ($clear) {
                         self::$categories = array();
                         self::$categoryTree = array();
                         self::$categoryParents = array();
-                        $currDepth = 0;
+                        $currDepth = 1;
                 }
                 
                 if (($depth != -1 && $currDepth > $depth) || empty($ids))
                         return self::$categories;
                 
                 $user = JFactory::getUser();
-                $aid = (int) $user->get('aid');
+                $access = ".access IN (".implode(',', $user->authorisedLevels()).")";
+                
                 $db = JFactory::getDBO();
                 $ids = (array) $ids;
                 $ids = array_unique($ids);
                 
-                $query = "SELECT *, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc.access<={$aid}) AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c.access<={$aid}";
+                $query = "SELECT *, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc".$access.") AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c".$access;
                 
                 if (!empty($excludeIds)) {
                         $excludeIds = (array) $excludeIds;
@@ -194,8 +195,12 @@ class K2FieldsModuleHelper {
                                 $excludeCategories = array_merge((array) $excludeCategories, $excl['cats']);
                         }
 
-                        $depth = $childrenMode == 0 ? 1 : -1;
-                        $cid = self::getCategoryChildren($rootCategory, $excludeCategories, $depth, true);
+                        if ($childrenMode != 0) {
+                                $depth = $childrenMode == 2 ? 1 : -1;
+                                $cid = self::getCategoryChildren($rootCategory, $excludeCategories, $depth, true);
+                        } else {
+                                $cid = array();
+                        }
                         
                         if ($isStickyMenu && !empty($rootCategory)) {
                                 if (!$cid) $cid = array();
