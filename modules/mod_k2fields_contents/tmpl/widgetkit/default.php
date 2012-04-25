@@ -4,33 +4,17 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
 
-$settings->style = $settings->theme;
-$settings = get_object_vars($settings);
+$k2Settings = array('source'=>'specific', 'module_id' =>$module->id, 'module' => 'mod_'.$module->name, 'itemIntroText' =>'', 'itemTitle'=>'', 'itemExtraFields'=>'');
 
-require_once dirname(__FILE__).'/widgetkithelper.php';
+foreach ($k2Settings as $setting => $k2Setting) {
+        if (empty($k2Setting)) $k2Settings[$setting] = $params->get($setting);
+}
 
 if ($isPartitioned) {
-        $partTitles = array('category'=>'categoryname', 'author'=>'author');
-        
-        jimport( 'joomla.html.pane' );
-        
-        $pane = JPane::getInstance('tabs');
-        
-        $partitionId = "mod_k2fields_contents_".$module->id;
-        $document->addScriptDeclaration('new WKK2fields("'.$partitionId.'");');
-
-        echo $pane->startPane($partitionId);
-
-        foreach ($itemList as $partId => $list) {
-                $partTitle = $list[0]->{$partTitles[$partBy]};
-                echo $pane->startPanel($partTitle, $partBy."_page_".$partId );
-                require dirname(__FILE__).'/partition.php';
-                echo $pane->endPanel();
-        }
-
-        echo $pane->endPane();
-} else {
-        $list = $itemList;
-        require dirname(__FILE__).'/partition.php';
-        $document->addScriptDeclaration('new WKK2fields();');
+        $k2Settings['partby'] = $partBy;
+        $k2Settings['partid'] = $partId;
 }
+
+$items = JprovenUtility::getColumn($list, 'id');
+
+echo K2fieldsModuleWidgetkitHelper::render($items, $module, $k2Settings, $settings);

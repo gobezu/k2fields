@@ -1,69 +1,60 @@
-<?php 
+<?php
 //$Copyright$
-
 // no direct access
-defined('_JEXEC') or die('Restricted access'); 
+defined('_JEXEC') or die('Restricted access');
+?>
+<div id="lofass-<?php echo $module->id . '-' . $catId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>; width:<?php echo $moduleWidth; ?>">
+        <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
+                <div class="preload"><div></div></div>
+                <!-- MAIN CONTENT --> 
+                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('main_height', 300); ?>px;width:<?php echo (int) $params->get('main_width', 650); ?>px;">
+                        <?php foreach ($list as $no => $item): ?>
+                                <div class="lof-main-item<?php echo(isset($customSliderClass[$no]) ? " " . $customSliderClass[$no] : "" ); ?>">
+                                        <div class="<?php echo 'item' . $item->id . ' moditem' . $item->id . ' cat' . $item->catid; ?>">
+                                                <div class="lof-description">
+                                                        <?php require($itemLayout); ?>
+                                                </div>
+                                        </div>
+                                </div> 
+                        <?php endforeach; ?>
 
-// UI settings
-$tmp = $params->get( 'module_height', 'auto' );
-$moduleHeight = ( $tmp=='auto' ) ? 'auto' : (int)$tmp.'px';
-$tmp = $params->get( 'module_width', 'auto' );
-$moduleWidth = ( $tmp=='auto') ? 'auto': (int)$tmp.'px';
-$themeClass = $params->get( 'loftheme' , '');
-$openTarget = $params->get( 'open_target', 'parent' );
-$class = $params->get( 'navigator_pos', 'right' ) == "0" ? '':'lof-sn'.$params->get( 'navigator_pos', 'right' );
+                </div>
+                <!-- END MAIN CONTENT --> 
+                <!-- NAVIGATOR -->
+                <?php if ($params->get('display_button', 1)) : ?>
+                        <div class="lof-buttons-control">
+                                <a href="" onclick="return false;" class="lof-previous"><?php echo JText::_('Previous'); ?></a>
+                                <a href="" class="lof-next"  onclick="return false;"><?php echo JText::_('Next'); ?></a>
+                        </div>
+                <?php endif; ?>
+                <?php if ($class): ?>    
+                        <div class="lof-navigator-outer">
+                                <ul class="lof-navigator">
+                                        <?php
+                                        for ($i = 0, $n = count($list); $i < $n; $i++):
+                                                $item = $list[$i];
+                                                ?>
+                                                <li class="lof-navigator-item-<?php echo $i . ($i == 0 ? ' lof-navigator-item-first' : '') . ($i == $n - 1 ? ' lof-navigator-item-last' : '') ?>">
+                                                        <div>
+                                                                <?php if ($navEnableThumbnail && isset($item->thumbnail)): ?>
+                                                                        <?php echo $item->thumbnail; ?> 
+                                                                <?php endif; ?> 
+                                                                <?php if ($navEnableTitle): ?>
+                                                                        <h4><?php echo $item->title; ?></h4>
+                                                                <?php endif; ?> 
+                                                                <?php if ($navEnableDate): ?> 
+                                                                        <span><?php echo $item->date; ?></span>
+                                                                <?php endif; ?> 
+                                                                <?php if ($navEnableCate): ?> 
+                                                                        <br><span><b><?php echo JText::_("Publish In:"); ?></b></span>
+                                                                        <a href="<?php $item->catlink; ?>" title="<?php echo $item->category_title; ?>"><b><?php echo $item->category_title; ?></b></a>
 
-$css3 = $params->get('enable_css3','1')? " lof-css3":"";
-$isIntrotext = $params->get('slider_information', 'description') == 'description'?0:1;
-
-$navEnableThumbnail = $params->get( 'enable_thumbnail', 1 );
-$navEnableTitle = $params->get( 'enable_navtitle', 1 );
-$navEnableDate = $params->get( 'enable_navdate', 1 );
-$navEnableCate = $params->get( 'enable_navcate', 1 );
-$enableImageLink = $params->get( 'enable_image_link', 1 );
-$customSliderClass = $params->get('custom_slider_class','');
-$customSliderClass = is_array($customSliderClass)?$customSliderClass:array($customSliderClass);
-
-$itemLayout = modK2fieldsContentsHelper::layout($module, $params, 'item');
-
-$lofIds = array();
-if ($isPartitioned) {
-        foreach ($itemList as $catId => $v) $lofIds[] = 'lofass-'.$module->id.'-'.$catId;
-        
-        jimport( 'joomla.html.pane' );
-        $pane = JPane::getInstance('tabs');
-        echo $pane->startPane( "cat-pane-".$module->id );
-        foreach ($itemList as $catId => $list) {
-                echo $pane->startPanel($list[0]->categoryname, "cat-page-".$catId );
-                require dirname(__FILE__).'/partition.php';
-                echo $pane->endPanel();
-        }
-        echo $pane->endPane();
-} else {
-        $catId = 0;
-        $lofIds[] = 'lofass-'.$module->id.'-'.$catId;
-        $list = $itemList;
-        require dirname(__FILE__).'/partition.php';
-}
-
-$document->addScriptDeclaration(
-"window.addEvent('domready', function(){         
-        new LofK2SlideShowsCreator(
-                ".json_encode($lofIds) .",
-                { 
-                        fxObject:{
-                                transition:" . $params->get( 'effect', 'Fx.Transitions.Quad.easeIn' ) . ",
-                                duration:" . (int)$params->get('duration', '700') . "
-                        },
-                        interval:" . (int)$params->get('interval', '3000') . ",
-                        direction :'" . $params->get('layout_style','opacity') . "', 
-                        navItemHeight:" . $params->get('navitem_height', 100) . ",
-                        navItemWidth:" . $params->get('navitem_width', 310) . ",
-                        navItemsDisplay:" . $params->get('max_items_display', 3) . "
-                },
-                {
-                        displayButton:" . $params->get('display_button', '') . ",
-                        autoStart:" . $params->get('auto_start', 1) . "
-                }
-        );
-});");
+                                                                <?php endif; ?> 
+                                                        </div>    
+                                                </li>
+                                        <?php endfor; ?> 		
+                                </ul>
+                        </div>
+                <?php endif; ?>       
+        </div>
+</div>

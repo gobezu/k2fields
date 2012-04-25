@@ -56,7 +56,21 @@ if (count($itemList)) {
         
         $mediaFolder = 'media/mod_'.$module->name.'/'.$templateName.'/';
         
-        require $template;
+        $templateParams = str_replace('default.php', 'params.php', $template);
+        require $templateParams;
+        
+        if ($isPartitioned) {
+                $partitionTemplate = $params->get('partition_template', 'joomla_tabs');
+                $partitionTemplate = dirname(__FILE__).'/tmpl/_partition/'.$partitionTemplate.'.php';
+                require $partitionTemplate;
+        } else {
+                $list = $itemList;
+                require $template;
+        }
+        
+        $templateWrap = str_replace('default.php', 'wrap.php', $template);
+        
+        if (JFile::exists($templateWrap)) require $templateWrap;
         
         if (JFile::exists(JPATH_SITE.'/'.$mediaFolder.'script.js')) 
                 $document->addScript(JURI::base().$mediaFolder.'script.js');

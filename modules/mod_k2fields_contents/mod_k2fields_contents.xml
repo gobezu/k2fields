@@ -28,12 +28,17 @@
         <config>
                 <fields name="params">
                         <fieldset name="basic">
-                                <field name="template" type="folderlist" default="awkwardshowcase" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_" />
-                                <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext=".php" />
+                                <field name="template" type="folderlist" default="awkwardshowcase" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />
+                                <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext="true" />
                                 <field name="part_by" type="list" default="category" label="PARTITION_BY">
                                         <option value="none">None</option>
                                         <option value="category">Category</option>
                                         <option value="author">Author</option>
+                                </field>
+                                <field name="partition_template" type="filelist" default="joomla_tabs" hide_none="true" label="PARTITION_TEMPLATE" directory="modules/mod_k2fields_contents/tmpl/_partition" stripext="true" />
+                                <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION">
+                                        <option value="item">Individual items</option>
+                                        <option value="list">Lists</option>
                                 </field>
                         </fieldset>
                         <fieldset name="awkwardshowcaseoptions">
