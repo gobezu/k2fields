@@ -131,7 +131,11 @@ class K2FieldsModuleHelper {
                 if ($itemsProvided) {
                         if (!is_array($items)) $items = explode('|', $items);
                         
-                        if (!is_numeric($items[0])) return self::prepareList($items, $params);
+                        if (!is_numeric($items[0])) {
+                                $items = self::prepareList($items, $params);
+                                if ($moduleId) self::$_items[$moduleId] = $items;
+                                return $items;
+                        }
                 } else {
                         $childrenMode = (int) $params->get('getChildren', 0);
                         $rootCategory = $params->get('catid');
