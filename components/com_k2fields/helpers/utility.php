@@ -356,7 +356,7 @@ group by vvv.itemid
 //                                }
 //                        }
                         
-                        if ($firstElement) array_unshift($categories, '<option value="" selected="selected">'.JText::_($firstElement).'</option>');
+                        if ($firstElement) array_unshift($categories, '<option value=""'.(empty($currentCatid) ? ' selected="selected"' : '').'>'.JText::_($firstElement).'</option>');
                         
                         if ($onlyValues) return array_filter($cats);
                         
