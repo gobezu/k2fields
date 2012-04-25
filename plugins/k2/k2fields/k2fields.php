@@ -68,6 +68,17 @@ class plgk2k2fields extends K2Plugin {
 
         function onK2CategoryDisplay(&$category, &$params, $limitstart) {
                 JprovenUtility::normalizeK2Parameters($category, $params);
+                
+                if (self::param('paginationmode', 'k2') == 'ajax') {
+                        if (!$params->get('num_leading_items')) {
+                                $num = self::param('itemlistlimit', 20);
+                                $params->set('num_leading_items', $num);
+                        }
+                        
+                        $params->set('num_primary_items', 0);
+                        $params->set('num_secondary_items', 0);
+                        $params->set('num_links', 0);
+                }
                 // In view of itemlist layout is set after category plugin called
                 // therefore we can't do it here and will rely on having this set in onK2BeforeDisplay
                 // but if no items are present then this will not work
