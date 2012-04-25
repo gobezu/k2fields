@@ -984,7 +984,6 @@ group by vvv.itemid
                 $tmplFile = preg_replace('#\_c\d+$#', '', $tmplFile);
                 if ($tmplFile != $layout) $bases[] = $tmplFile;
                 $posts = array('item_i'.$item->id, 'item_c'.$item->catid, 'item');
-                $file = '';
                 jimport('joomla.filesystem.file');
                 foreach ($bases as $base) {
                         foreach ($posts as $post) {
