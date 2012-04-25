@@ -1,4 +1,6 @@
-/**
+//$Copyright$
+
+/** original copyright
  * @version		$Id:  $Revision
  * @package		mootool
  * @subpackage	lofslidernews
@@ -7,6 +9,7 @@
  * @license		This plugin is dual-licensed under the GNU General Public License and the MIT License 
  */
 if( typeof(LofK2SlideShow) == 'undefined' ){
+        // k2fields customization
         var LofK2SlideShowsCreator = new Class( {
                 initialize:function(eMainIds, lofOptions, options){
                         var el, lof;
