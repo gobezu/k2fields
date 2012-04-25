@@ -673,7 +673,7 @@
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_MISC">
-                                <field name="paginationmode" type="radio" default="k2" label="Pagination mode">
+                                <field name="paginationmode" type="radio" default="k2" label="Pagination mode. Leading layout is assumed in this case and all other layouts are disregarded.">
                                         <option value="ajax">Ajax based button</option>
                                         <option value="k2">K2 page links</option>
                                 </field>  
