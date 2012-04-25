@@ -239,18 +239,21 @@ group by vvv.itemid
                         return '';
                 }
                 
-                $nameAttr = K2_JVERSION == '16' ? 'title' : 'name';
-                $name = explode(' || ', $menuItem->$nameAttr);
+                $name = explode(' || ', $menuItem->title);
                 
                 if ($checkPermission && $catId != '' && !K2HelperPermissions::canAddItem($catId)) {
                         return '';
                 }
                 
+                $itemId = JRequest::getInt('Itemid');
+                $currentItemId = $menuItem->id;
+                $selected = $itemId == $currentItemId && !empty($currentCatid) && $currentCatid == $catId;
+                
                 return 
                         array(
                             $catId ? array($catId, $name[0]) : '', 
                             '<option value="'.$catId.'" init-state="'.$state.'" init-itemid="'.$menuItem->id.'" '.
-                                (!empty($currentCatid) && $currentCatid == $catId ? ' selected="selected" ' : '').
+                                ($selected ? ' selected="selected" ' : '').
                                 ($menuItem->type == 'separator' ? ' disabled="disabled" ' : '').
                                 '>' .
                                 str_repeat($prefix, count($menuItem->tree) - 1) . $name[0] .
@@ -320,41 +323,6 @@ group by vvv.itemid
                                 $categories[$itemId] = $option[1];
                                 $cats[] = $option[0];
                         }
-                        
-//                        $parentRendered = array();
-//                        $rendered = array();
-//                        
-//                        if (false && $maintainMenuHierarchy) {
-//                                foreach ($categories as $itemId => $category) {
-//                                        $menuItem = $menuItems[$itemId];
-//                                        $tmp = array_pop($menuItem->tree);
-//                                        $tree = $menuItem->tree;
-//                                        $parents = '';
-//                                        
-//                                        if (count($tree) > 0) {
-//                                                foreach ($tree as $parent) {
-//                                                        if (in_array($parent, $parentRendered)) continue;
-//                                                        
-//                                                        $parentRendered[] = $parent;
-//                                                        
-//                                                        if (isset($categories[$parent])) {
-//                                                                $_parent = $categories[$parent];
-//                                                                unset($categories[$parent]);
-//                                                        } else {
-//                                                                $_parent = $menuItems[$parent];
-//                                                                $_parent = self::getK2CategoriesSelectorMenuItem($_parent, $menuItems, '', $prefix, true, $checkPermission);
-//                                                        }
-//                                                        
-//                                                        $parents .= $_parent[1];
-//                                                        $cats[] = $_parent[0];
-//                                                }
-//                                                
-//                                                $categories[$itemId] = $parents . $categories[$itemId];
-//                                        }
-//                                        
-//                                        if ($tmp) array_push($menuItem->tree, $tmp);
-//                                }
-//                        }
                         
                         if ($firstElement) array_unshift($categories, '<option value=""'.(empty($currentCatid) ? ' selected="selected"' : '').'>'.JText::_($firstElement).'</option>');
                         
