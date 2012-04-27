@@ -3,6 +3,7 @@
 
 /** original copyright where changes made are:
  * 1. replaced JSON_Services with native PHP ditto
+ * 2. param inheritance, see below
  * 
  * @version		$Id: item.php 1520 2012-03-08 18:08:35Z lefteris.kavadas $
  * @package		K2
@@ -97,17 +98,13 @@ class K2ModelItem extends JModel
 		$item->params->merge($cparams);
 		$item->params->merge($iparams);
 
-                // start jproven.com
+                // start k2fields customization/jproven.com
                 JprovenUtility::normalizeK2Parameters($item);
+                // end k2fields customization/jproven.com
                 
                 //Edit link
-                if (!class_exists('K2FieldsHelperPermissions')) {
-                        require_once JPATH_SITE.'/components/com_k2fields/helpers/permissions.php';
-                        K2FieldsHelperPermissions::setPermissions();
-                }
-		if (K2FieldsHelperPermissions::canEditItem($item->created_by,$item->catid))
-                        $item->editLink = JRoute::_('index.php?option=com_k2&view=item&task=edit&cid='.$item->id.'&catid='.$item->catid.'&tmpl=component');
-                // end jproven.com
+		if (K2HelperPermissions::canEditItem($item->created_by, $item->catid))
+			$item->editLink = JRoute::_('index.php?option=com_k2&view=item&task=edit&cid='.$item->id.'&tmpl=component');
                 
 		//Tags
 		if (($view == 'item' && ($item->params->get('itemTags') || $item->params->get('itemRelated'))) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemTags')) || ($view == 'itemlist' && $task == 'user' && $item->params->get('userItemTags')) || ($view == 'latest' && $params->get('latestItemTags')))
