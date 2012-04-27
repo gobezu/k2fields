@@ -196,6 +196,10 @@ class K2FieldsModuleHelper {
                         }
 
                         if ($childrenMode != 0) {
+                                if ($rootCategory == 0) {
+                                        JError::raiseWarning('__ERROR__', 'NO_ROOT_CATEGORY_PROVIDED');
+                                        return;
+                                }                                
                                 $depth = $childrenMode == 2 ? 1 : -1;
                                 $cid = self::getCategoryChildren($rootCategory, $excludeCategories, $depth, true);
                         } else {
@@ -484,7 +488,7 @@ class K2FieldsModuleHelper {
                 return $preTexts;
         }
         
-        public static function prepareList($items, $params, $cparams, $format) {
+        public static function prepareList($items, $params, $componentParams, $format) {
 		if (count($items)) {
                         $model = JModel::getInstance('item', 'K2Model');
                         
@@ -713,7 +717,7 @@ class K2FieldsModuleHelper {
                                                         $db->setQuery($query, 0, 1);
                                                         $item->authorGender = $db->loadResult();
                                                         if ($params->get('itemAuthorAvatar')) {
-                                                                $item->authorAvatar = K2HelperUtilities::getAvatar($author->id, $author->email, $cparams->get('userImageWidth'));
+                                                                $item->authorAvatar = K2HelperUtilities::getAvatar($author->id, $author->email, $componentParams->get('userImageWidth'));
                                                         }
                                                         //Author Link
                                                         $item->authorLink = JRoute::_(K2FieldsHelperRoute::getUserRoute($item->created_by));

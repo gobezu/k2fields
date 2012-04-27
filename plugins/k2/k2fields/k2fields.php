@@ -24,6 +24,13 @@ class plgk2k2fields extends K2Plugin {
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
                 if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1')
                         JprovenUtility::normalizeK2Parameters($item);
+
+                if (!isset($item->category) || !is_object($item->category)) {
+                        $query = 'SELECT * FROM #__k2_categories WHERE id = '.(int) $item->catid;
+                        $db = JFactory::getDbo();
+                        $db->setQuery($query);
+                        $item->category = $db->loadObject();                        
+                }
                 
                 $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
 		$item->link = urldecode(JRoute::_($link));
