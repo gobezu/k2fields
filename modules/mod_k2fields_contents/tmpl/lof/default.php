@@ -2,6 +2,8 @@
 //$Copyright$
 // no direct access
 defined('_JEXEC') or die('Restricted access');
+if (!$isPartitioned) $catId = 0;
+$lofIds[] = 'lofass-'.$module->id.'-'.$catId;
 ?>
 <div id="lofass-<?php echo $module->id . '-' . $catId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>; width:<?php echo $moduleWidth; ?>">
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">

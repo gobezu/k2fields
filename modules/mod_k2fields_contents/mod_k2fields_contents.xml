@@ -340,7 +340,7 @@
                                         <option value="random">random</option>
                                 </field>
                         </fieldset>
-                        <fieldset name="lofoptions" addfieldpath="/modules/mod_k2fields_contents/tmpl/lof/libs/elements">
+                        <fieldset name="lofoptions">
                                 <field name="loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
                                 <field name="module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
                                 <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
@@ -348,18 +348,11 @@
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
+                                
                                 <field type="spacer" name="lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
-                                <field name="enable_image_link" type="radio" default="1" label="ENABLE_IMAGE_LINK" description="ENABLE_IMAGE_LINK_DESC">
-                                        <option value="0">NO</option>
-                                        <option value="1">YES</option>
-                                </field>	
                                 <field name="main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
                                 <field name="main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>
-                                <field name="desciption_opacity" type="text" default="1" label="DESCRIPTION_OPACITY" description="DESCRIPTION_OPACITY_DESC" />	
-                                <field name="description_max_chars" type="text" default="100" label="DESCIPTION MAX CHARS" description="DESCIPTION MAX CHARS DESC" />
-                                <field type="spacer" name="lofoverridinglinkspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofoverridinglinkspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Overriding link" />
-                                <field name="override_links" type="itaddrow" default="" label="OVERRIDING_LINK_BOX" description="OVERRIDING_LINK_BOX_DESC" />
-                                <field name="custom_slider_class" type="itaddrow" default="" label="CUSTOM_SLIDER_CLASS" description="CUSTOM_SLIDER_CLASS_DESC" />
+                                
                                 <field type="spacer" name="lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
                                 <field name="navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
                                 <field name="navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
@@ -379,7 +372,6 @@
                                 </field>
                                 <field name="thumbnail_width" type="text" default="60" label="THUMBNAIL WIDTH" description="THUMBNAIL WIDTH DESC" />
                                 <field name="thumbnail_height" type="text" default="45" label="THUMBNAIL HEIGHT" description="THUMBNAIL HEIGHT DESC" />
-		
                                 <field name="enable_navtitle" type="radio" default="1" label="ENABLE_TITLE" description="ENABLE_TITLE_DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
@@ -392,6 +384,7 @@
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
+                                
                                 <field type="spacer" name="lofeffectsettingspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofeffectsettingspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Effect settings" />
                                 <field name="layout_style" type="list" default="vrdown" label="PLAY STYLE" description="PLAY STYLE DESC">
                                         <option value="hrleft">HORIZONTAL RIGHT TO LEFT</option>
@@ -443,18 +436,6 @@
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>    
-                                <field name="auto_renderthumb" type="radio" default="1" label="RENDER THUMBNAIL" description="RENDER THUMBNAIL DESC">
-                                        <option value="0">NO</option>
-                                        <option value="1">YES</option>
-                                </field>
-                                <field name="auto_strip_tags" type="radio" default="1" label="STRIP TAGS" description="STRIP TAGS DESC">
-                                        <option value="0">NO</option>
-                                        <option value="1">YES</option>
-                                </field>
-                                <field name="open_target" type="list" default="parent" label="CLICK LINK OPEN IN" description="CLICK LINK OPEN IN DESC">
-                                        <option value="blank">New window</option>
-                                        <option value="parent">Parent window</option>
-                                </field>                                
                         </fieldset>
 	
                         <fieldset name="itemsoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
@@ -647,6 +628,105 @@
                                 <field name="itemCustomLinkURL" type="text" default="http://" label="Custom link URL" description="" />
                                 <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />                
                         </fieldset>
+                        
+                        <fieldset name="partition_lofoptions">
+                                <field name="partition_loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
+                                <field name="partition_module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
+                                <field name="partition_module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
+                                <field name="partition_enable_css3" type="radio" default="1" label="ENABLE CSS3" description="ENABLE CSS3 DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                
+                                <field type="spacer" name="partition_lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
+                                <field name="partition_main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
+                                <field name="partition_main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>
+                                
+                                <field type="spacer" name="partition_lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
+                                <field name="partition_navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
+                                <field name="partition_navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
+                                <field name="partition_max_items_display" type="text" default="4" label="MAX ITEMS DISPLAY" description="MAX ITEMS DISPLAY DESC"></field>	
+                                <field name="partition_display_button" type="radio" default="1" label="DISPLAY BUTTON" description="DISPLAY BUTTON DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="partition_navigator_pos" type="list" default="right" label="NAVIGATOR POSITION" description="NAVIGATOR POSITION DESC">
+                                        <option value="0">DISABLE</option>	
+                                        <option value="left">LEFT</option>
+                                        <option value="right">RIGHT</option>
+                                </field>
+                                <field name="partition_enable_thumbnail" type="radio" default="1" label="ENABLE_THUMBNAIL" description="ENABLE_THUMBNAIL_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="partition_thumbnail_width" type="text" default="60" label="THUMBNAIL WIDTH" description="THUMBNAIL WIDTH DESC" />
+                                <field name="partition_thumbnail_height" type="text" default="45" label="THUMBNAIL HEIGHT" description="THUMBNAIL HEIGHT DESC" />
+                                <field name="partition_enable_navtitle" type="radio" default="1" label="ENABLE_TITLE" description="ENABLE_TITLE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="partition_enable_navdate" type="radio" default="1" label="ENABLE_DATE" description="ENABLE_DATE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                <field name="partition_enable_navcate" type="radio" default="0" label="ENABLE_NAVCATE" description="ENABLE_NAVCATE_DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>
+                                
+                                <field type="spacer" name="partition_lofeffectsettingspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofeffectsettingspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Effect settings" />
+                                <field name="partition_layout_style" type="list" default="vrdown" label="PLAY STYLE" description="PLAY STYLE DESC">
+                                        <option value="hrleft">HORIZONTAL RIGHT TO LEFT</option>
+                                        <option value="hrright">HORIZONTAL LEFT TO RIGHT</option>
+                                        <option value="vrup">VERTICAL DOWN TO UP</option>
+                                        <option value="vrdown">VERTICAL UP TO DOWN</option>
+                                        <option value="opacity">OPACITY</option>
+                                </field>
+                                <field name="partition_interval" type="text" default="5000" label="INTERVAL" description="INTERVAL DESC" />
+                                <field name="partition_duration" type="text" default="500" label="ANIMATION DURATION" description="ANIMATION DURATION DESC" />
+                                <field name="partition_effect" type="list" default="Fx.Transitions.Quad.easeInOut" label="ANIMATION TRANSITION" description="ANIMATION TRANSITION DESC">
+                                        <option value="Fx.Transitions.linear">linear</option>
+                                        <option value="Fx.Transitions.quartOut">QuartOut</option>
+                                        <option value="Fx.Transitions.Quad.easeIn">Quad.easeIn</option>
+                                        <option value="Fx.Transitions.Quad.easeOut">Quad.easeOut</option>
+                                        <option value="Fx.Transitions.Quad.easeInOut">Quad.easeInOut</option>
+                                        <option value="Fx.Transitions.Cubic.easeIn">Cubic.easeIn</option>
+                                        <option value="Fx.Transitions.Cubic.easeOut">Cubic.easeOut</option>
+                                        <option value="Fx.Transitions.Cubic.easeInOut">Cubic.easeInOut</option>
+                                        <option value="Fx.Transitions.Quart.easeIn">Quart.easeIn</option>
+                                        <option value="Fx.Transitions.Quart.easeOut">Quart.easeOut</option>
+                                        <option value="Fx.Transitions.Quart.easeInOut">Quart.easeInOut</option>
+                                        <option value="Fx.Transitions.Quint.easeIn">Quint.easeIn</option>
+                                        <option value="Fx.Transitions.Quint.easeOut">Quint.easeOut</option>
+                                        <option value="Fx.Transitions.Quint.easeInOut">Quint.easeInOut</option>
+                                        <option value="Fx.Transitions.Pow.easeIn">Pow.easeIn</option>
+                                        <option value="Fx.Transitions.Pow.easeOut">Pow.easeOut</option>
+                                        <option value="Fx.Transitions.Pow.easeInOut">Pow.easeInOut</option>
+                                        <option value="Fx.Transitions.Expo.easeIn">Expo.easeIn</option>
+                                        <option value="Fx.Transitions.Expo.easeOut">Expo.easeOut</option>
+                                        <option value="Fx.Transitions.Expo.easeInOut">Expo.easeInOut</option>
+                                        <option value="Fx.Transitions.Circ.easeIn">Circ.easeIn</option>
+                                        <option value="Fx.Transitions.Circ.easeOut">Circ.easeOut</option>
+                                        <option value="Fx.Transitions.Circ.easeInOut">Circ.easeInOut</option>
+                                        <option value="Fx.Transitions.Sine.easeIn">Sine.easeIn</option>
+                                        <option value="Fx.Transitions.Sine.easeOut">Sine.easeOut</option>
+                                        <option value="Fx.Transitions.Sine.easeInOut">Sine.easeInOut</option>
+                                        <option value="Fx.Transitions.Back.easeIn">Back.easeIn</option>
+                                        <option value="Fx.Transitions.Back.easeOut">Back.easeOut</option>
+                                        <option value="Fx.Transitions.Back.easeInOut">Back.easeInOut</option>
+                                        <option value="Fx.Transitions.Bounce.easeIn">Bounce.easeIn</option>
+                                        <option value="Fx.Transitions.Bounce.easeOut">Bounce.easeOut</option>
+                                        <option value="Fx.Transitions.Bounce.easeInOut">Bounce.easeInOut</option>
+                                        <option value="Fx.Transitions.Elastic.easeIn">Elastic.easeIn</option>
+                                        <option value="Fx.Transitions.Elastic.easeOut">Elastic.easeOut</option>
+                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>				  
+                                </field> 
+                                <field name="partition_auto_start" type="radio" default="1" label="AUTO START" description="AUTO START DESC">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>    
+                        </fieldset>     
+                        
                         <fieldset name="advanced">
 				<field
 					name="moduleclass_sfx"
