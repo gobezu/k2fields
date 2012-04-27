@@ -446,12 +446,18 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 if ($caller != $pos) return;
                 
-                $p = is_object($item->params) ? $item->params : $params;
+                $p = is_object($params) ? $params : $item->params;
+                
+                if (is_string($p)) {
+                        jimport('joomla.html.parameter');
+                        $p = new JParameter($p);
+                }
+                
                 $view = JRequest::getCmd('view');
                 
                 $ef = is_array($item->extra_fields) && count($item->extra_fields) > 0 &&
                       (
-                        $params->get('parsedInModule') || 
+                        $p->get('parsedInModule') || 
                         $view == 'itemlist' && $p->get('catItemExtraFields') || 
                         $view == 'item' && $p->get('itemExtraFields')
                       )
