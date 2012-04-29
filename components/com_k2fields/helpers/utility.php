@@ -218,9 +218,12 @@ group by vvv.itemid
         protected static function getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission) {
                 $component = $menuItem->component;
                 
+                $selected = false;
+                
                 if ($component == 'com_k2' && $menuItem->query['view'] == 'itemlist') {
                         $catId = $menuItem->query['id'];
                         $state = '';
+                        $selected = true;
                 } else if ($component == 'com_k2fields' && $menuItem->query['view'] == 'itemlist') {
                         if (isset($menuItem->query['cid'])) {
                                 $catId = $menuItem->query['cid'];
@@ -233,6 +236,7 @@ group by vvv.itemid
                         $state = self::buildUrl($menuItem->query, array('option', 'view', 'task', 'layout', 'cid'));
                         //$state = str_replace('index.php?option=com_k2fields&view=itemlist&task=search&', '', $menuItem->link);
                 } else if ($includeNonK2) {
+                        $selected = true;
                         $catId = '';
                         $state = $menuItem->link;
                 } else {
@@ -247,7 +251,7 @@ group by vvv.itemid
                 
                 $itemId = JRequest::getInt('Itemid');
                 $currentItemId = $menuItem->id;
-                $selected = $itemId == $currentItemId && !empty($currentCatid) && $currentCatid == $catId;
+                $selected = $selected && !empty($currentCatid) && $currentCatid == $catId;
                 
                 return 
                         array(
