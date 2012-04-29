@@ -61,8 +61,18 @@ if (count($itemList)) {
         
         if ($isPartitioned) {
                 $partitionTemplate = $params->get('partition_template', 'joomla_tabs');
-                $partitionTemplate = dirname(__FILE__).'/tmpl/_partition/'.$partitionTemplate.'.php';
-                require $partitionTemplate;
+                
+                if ($partitionTemplate != $templateName) {
+                        $partitionMediaFolder = 'media/mod_'.$module->name.'/'.$partitionTemplate.'/';
+                        
+                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'script.js')) 
+                                $document->addScript(JURI::base().$partitionMediaFolder.'script.js');
+
+                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'style.css')) 
+                                $document->addStyleSheet(JURI::base().$partitionMediaFolder.'style.css');                        
+                }
+                
+                require dirname(__FILE__).'/tmpl/_partition/'.$partitionTemplate.'.php';
         } else {
                 $list = $itemList;
                 require $template;

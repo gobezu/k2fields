@@ -9,7 +9,7 @@ $lofIds[] = 'lofass-'.$module->id.'-'.$catId;
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
-                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('main_height', 300); ?>px;width:<?php echo (int) $params->get('main_width', 650); ?>px;">
+                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('main_height', 300); ?>px;width:<?php echo (int) $mainWidth; ?>px;">
                         <?php foreach ($list as $no => $item): ?>
                                 <div class="lof-main-item<?php echo(isset($customSliderClass[$no]) ? " " . $customSliderClass[$no] : "" ); ?>">
                                         <div class="<?php echo 'item' . $item->id . ' moditem' . $item->id . ' cat' . $item->catid; ?>">

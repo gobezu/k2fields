@@ -30,10 +30,10 @@
                         <fieldset name="basic">
                                 <field name="template" type="folderlist" default="awkwardshowcase" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />
                                 <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext="true" />
-                                <field name="part_by" type="list" default="category" label="PARTITION_BY">
+                                <field name="part_by" type="list" default="none" label="PARTITION_BY" description="Currently the following combinations are supported:&lt;br/&gt;lof/lof&lt;br/&gt;...">
                                         <option value="none">None</option>
                                         <option value="category">Category</option>
-                                        <option value="author">Author</option>
+                                        <option value="author">Author (TBI)</option>
                                 </field>
                                 <field name="partition_template" type="filelist" default="joomla_tabs" hide_none="true" label="PARTITION_TEMPLATE" directory="modules/mod_k2fields_contents/tmpl/_partition" stripext="true" />
                                 <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION">
@@ -177,6 +177,7 @@
                         <fieldset name="slideshowoptions">
                         </fieldset>
                         <fieldset name="cameraoptions">
+                                <field name="camera_height" default="50%" label="height" description="here you can type pixels (for instance '300px'), a percentage (relative to the width of the slideshow, for instance '50%') or 'auto'" />
                                 <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
                                         <option value="camera_amber_skin">amber</option>
                                         <option value="camera_ash_skin">ash</option>

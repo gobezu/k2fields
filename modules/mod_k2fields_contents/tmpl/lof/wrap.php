@@ -16,7 +16,7 @@ $document->addScriptDeclaration(
                         interval:" . (int)$params->get('interval', '3000') . ",
                         direction :'" . $params->get('layout_style','opacity') . "', 
                         navItemHeight:" . $params->get('navitem_height', 100) . ",
-                        navItemWidth:" . $params->get('navitem_width', 310) . ",
+                        navItemWidth:" . $navItemWidth . ",
                         navItemsDisplay:" . $params->get('max_items_display', 3) . "
                 },
                 {

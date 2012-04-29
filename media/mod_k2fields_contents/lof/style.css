@@ -1,6 +1,6 @@
 @charset "utf-8";
 /* CSS Document */
-.lof-ass{border:#F4F4F4 solid 1px; color:#FFF }
+/*.lof-ass{border:#F4F4F4 solid 1px; color:#FFF }*/
 .lof-ass .lofass-container{width:auto; height:auto	; overflow:hidden;	position:relative;}
 .lof-ass li { list-style-type:none!important; padding:0; margin:0}
 .lof-ass h4 { text-transform:inherit;margin:0!important;padding:0;background:none!important}
@@ -92,7 +92,6 @@
 	background:url(images/transparent_bg.png);;
 	height:100%;
 	position:relative;
-	margin-left:15px;
 	padding-left:15px;
 	border-top:1px solid #E1E1E1;
 }
@@ -115,12 +114,12 @@
  * Theme setting
  */
  /* grey theme */
-.lof-ass .grey{	border:1px solid #C5C5C5;	}
+/*.lof-ass .grey{	border:1px solid #C5C5C5;	}*/
 .lof-ass .grey .lof-navigator li{background:none!important;    }
 .lof-ass .grey .lof-navigator li div{border-top:	1px solid #C5C5C5;}
 .lof-ass .grey .lof-navigator li.active div{background:url(images/grey/grad-bg.png) repeat-x !important; color:#fff }
  /* blue */
-.lof-ass .blue{border:1px solid #D9E1E7;}
+/*.lof-ass .blue{border:1px solid #D9E1E7;}*/
 .lof-ass .blue .lof-navigator li{background:none!important;	}
 .lof-ass .blue .lof-navigator li div{background:#F3F8FB; }
 .lof-ass .blue .lof-navigator li.active div{background:url(images/blue/grad-bg.png) repeat-x  !important; color:#FFF  }
@@ -130,7 +129,7 @@
   /**
    * red
    */
-.lof-ass .red{border:1px solid #E5D7F1;	}
+/*.lof-ass .red{border:1px solid #E5D7F1;	}*/
 .lof-ass .red .lof-navigator li{background:none!important;  }
 .lof-ass .red .lof-navigator li div{border-top:	1px solid #C5C5C5;}
 .lof-ass .red .lof-navigator li.active div{	background:url(images/red/grad-bg.png) repeat-x !important;  }
@@ -138,7 +137,7 @@
 /**
    * purple
    */
-.lof-ass .purple{border:1px solid #E5D7F1;}
+/*.lof-ass .purple{border:1px solid #E5D7F1;}*/
 .lof-ass .purple .lof-navigator li{background:none!important; }
 .lof-ass .purple .lof-navigator li div{border-top:	1px solid #E5D7F1;background:#F9F6FD;color:#676767;}
 .lof-ass .purple .lof-navigator li.active div{background:url(images/purple/grad-bg.png) repeat-x  !important; color:#fff }
@@ -148,7 +147,7 @@
 /**
    * pink
    */
-.lof-ass .pink{	border:1px solid #E5D7F1;}
+/*.lof-ass .pink{	border:1px solid #E5D7F1;}*/
 .lof-ass .pink .lof-navigator li{background:none!important; }
 .lof-ass .pink .lof-navigator li div{border-top:	1px solid #E5D7F1;background:#F9F6FD;color:#676767;}
 .lof-ass .pink .lof-navigator li.active div{background:url(images/pink/grad-bg.png) repeat-x !important; color:#fff }  

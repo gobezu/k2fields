@@ -1,3 +1,59 @@
+/* Reset */
+html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,code,del,dfn,em,img,q,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,dialog,figure,footer,header,hgroup,nav,section{margin:0;padding:0;border:0;font-weight:inherit;font-style:inherit;font-size:100%;font-family:inherit;vertical-align:baseline}article,aside,dialog,figure,footer,header,hgroup,nav,section{display:block}body{line-height:1}a img{border:none}table{border-collapse:separate;border-spacing:0}caption,th,td{text-align:left;font-weight:normal}table,td,th{vertical-align:middle}blockquote:before,blockquote:after,q:before,q:after{content:""}blockquote,q{quotes:""""}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}button::-moz-focus-inner{border:0}
+
+body
+{
+	background-color: #dfdfdf;
+	color: #fff;
+	font-family: Century Gothic, Arial;
+	font-size: 12px;
+	line-height: 1.5;
+	margin-top: 20px;
+	margin-bottom: 30px;
+}
+
+a
+{
+	color: #ff377c;
+}
+
+p
+{
+	margin-bottom: 10px;
+}
+
+h1
+{
+	font-size: 20px;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+h2
+{
+	font-size: 16px;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+.menu
+{
+	margin-bottom: 40px;
+	text-align: center;
+	color: #999;
+}
+
+	.menu a
+	{
+		color: #999;
+	}
+	
+	.menu a.active
+	{
+		font-weight: bold;
+	}
+
+
 /* Showcase
 -------------*/
 

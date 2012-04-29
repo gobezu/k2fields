@@ -20,8 +20,9 @@ $navEnableDate = $params->get( 'enable_navdate', 1 );
 $navEnableCate = $params->get( 'enable_navcate', 1 );
 $customSliderClass = $params->get('custom_slider_class','');
 $customSliderClass = is_array($customSliderClass)?$customSliderClass:array($customSliderClass);
+$mainWidth = $params->get( 'main_width', 650 );
+$navItemWidth = (int) $params->get('navitem_width', 310);
 
 $itemLayout = modK2fieldsContentsHelper::layout($module, $params, 'item');
 
 $lofIds = array();
-

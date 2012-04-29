@@ -20,12 +20,16 @@ $partition_navEnableTitle = $params->get( 'partition_enable_navtitle', 1 );
 $partition_navEnableDate = $params->get( 'partition_enable_navdate', 1 );
 $partition_navEnableCate = $params->get( 'partition_enable_navcate', 1 );
 $partition_enableImageLink = $params->get( 'partition_enable_image_link', 1 );
+$partition_mainWidth = (int) $params->get('partition_main_width', 650);
+if ($templateName == 'lof') {
+        $mainWidth = $partition_mainWidth - $navItemWidth;
+}
 ?>
 <div id="lofass-<?php echo $module->id; ?>" class="lof-ass<?php echo $params->get('partition_moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>; width:<?php echo $partition_moduleWidth; ?>">
         <div class="lofass-container <?php echo $partition_css3; ?> <?php echo $partition_themeClass; ?> <?php echo $partition_class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
-                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('partition_main_height', 300); ?>px;width:<?php echo (int) $params->get('partition_main_width', 650); ?>px;">
+                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('partition_main_height', 300); ?>px;width:<?php echo $partition_mainWidth; ?>px;">
                         <?php 
                                 foreach ($itemList as $catId => $list) {
                                 ?>

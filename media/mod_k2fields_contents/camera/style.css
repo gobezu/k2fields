@@ -17,5 +17,5 @@
         position:relative;
 }
 
-.pix_thumb_text { display:none; position:absolute; bottom:0px; text-align:center; background:#333; color:#fff; width:90%; padding:5px; }
+.pix_thumb_text { cursor:pointer; display:none; position:absolute; bottom:0px; text-align:center; background:#333; color:#fff; width:90%; padding:5px; }
 .camera_thumbs_cont ul li:hover .pix_thumb_text { display:block; }
