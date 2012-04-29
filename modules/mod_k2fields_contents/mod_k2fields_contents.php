@@ -54,6 +54,10 @@ if (count($itemList)) {
         
         $document = JFactory::getDocument();
         
+        if ($params->get('addJQuery')) {
+                $document->addScript(JURI::base().'/media/mod_'.$module->name.'/jquery-1.7.1.min.js');
+        }
+        
         $mediaFolder = 'media/mod_'.$module->name.'/'.$templateName.'/';
         
         $templateParams = str_replace('default.php', 'params.php', $template);

@@ -32,13 +32,19 @@ class modK2fieldsContentsHelper {
                 
                 foreach ($arr as $key => $val) {
                         if (strpos($key, $template.'_') === 0) {
-                                if (is_numeric($val)) $val = (int) $val;
+                                if (is_numeric($val)) {
+                                        if (strpos($val, '.') !== false) {
+                                                $val = (float) $val;
+                                        } else {
+                                                $val = (int) $val;
+                                        }
+                                }
                                 $key = str_replace($template.'_', '', $key);
                                 $settings[$key] = $val;
                         }
                 }
                 
-                return new K2fieldsContentsSettings($settings);;
+                return new K2fieldsContentsSettings($settings);
 //                
 //                $theme = $params->get($template.'_theme', '');
 //                $defaults = isset(self::$templateSettingMap[$template.'_defaults']) ? 
