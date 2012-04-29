@@ -176,6 +176,83 @@
                         </fieldset>
                         <fieldset name="slideshowoptions">
                         </fieldset>
+                        <fieldset name="nivooptions">
+                                <field name="nivo_height" default="246px" label="height" />
+                                <field name="nivo_width" default="618px" label="width" />
+                                <field name="nivo_theme" type="list" default="default" label="theme" >
+                                        <option value="default">default</option>
+                                        <option value="orman">orman</option>
+                                        <option value="pascal">pascal</option>
+                                </field>
+                                <field name="nivo_effect" type="list" default="center" label="animation">
+                                        <option value="sliceDownRight">sliceDownRight</option>
+                                        <option value="sliceDownLeft">sliceDownLeft</option>
+                                        <option value="sliceUpRight">sliceUpRight</option>
+                                        <option value="sliceUpLeft">sliceUpLeft</option>
+                                        <option value="sliceUpDown">sliceUpDown</option>
+                                        <option value="sliceUpDownLeft">sliceUpDownLeft</option>
+                                        <option value="fold">fold</option>
+                                        <option value="fade">fade</option>
+                                        <option value="boxRandom">boxRandom</option>
+                                        <option value="boxRain">boxRain</option>
+                                        <option value="boxRainReverse">boxRainReverse</option>
+                                        <option value="boxRainGrow">boxRainGrow</option>
+                                        <option value="boxRainGrowReverse">boxRainGrowReverse</option>
+                                </field>
+                                <field name="nivo_linked" type="radio" default="1" label="link">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>                                
+                                <field name="nivo_linktarget" type="list" default="_self" label="link target">
+                                        <option value="_blank">blank</option>
+                                        <option value="_new">new</option>
+                                        <option value="_parent">parent</option>
+                                        <option value="_self">self</option>
+                                </field>                                
+                                <field name="nivo_randomStart" type="radio" default="1" label="randomStart">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>                                
+                                <field name="nivo_startSlide" type="text" default="0" label="startSlide" />
+                                <field name="nivo_show_caption" type="radio" default="1" label="SHOW_CAPTION">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>                                
+                                <field name="nivo_captionOpacity" type="text" default="0.8" label="captionOpacity" />
+                                <field name="nivo_directionNav" type="radio" default="1" label="directionNav">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_directionNavHide" type="radio" default="1" label="directionNavHide">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_controlNav" type="radio" default="1" label="controlNav">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_controlNavThumbs" type="radio" default="0" label="controlNavThumbs">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_controlNavThumbsFromRel" type="radio" default="0" label="controlNavThumbsFromRel">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_keyboardNav" type="radio" default="1" label="keyboardNav">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_pauseOnHover" type="radio" default="1" label="pauseOnHover">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="nivo_animSpeed" type="text" default="15" label="animSpeed (slice animation)" />
+                                <field name="nivo_boxCols" type="text" default="8" label="boxCols (box animation)" />
+                                <field name="nivo_boxRows" type="text" default="4" label="boxRows (box animation)" />
+                                <field name="nivo_animSpeed" type="text" default="500" label="animSpeed" />
+                                <field name="nivo_pauseTime" type="text" default="3000" label="pauseTime" />                                
+                        </fieldset>                        
                         <fieldset name="cameraoptions">
                                 <field name="camera_height" default="50%" label="height" description="here you can type pixels (for instance '300px'), a percentage (relative to the width of the slideshow, for instance '50%') or 'auto'" />
                                 <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
@@ -729,6 +806,10 @@
                         </fieldset>     
                         
                         <fieldset name="advanced">
+                                <field name="addJQuery" type="radio" default="0" label="Add jQuery">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>                                 
 				<field
 					name="moduleclass_sfx"
 					type="text"
