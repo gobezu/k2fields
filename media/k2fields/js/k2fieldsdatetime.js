@@ -442,7 +442,7 @@ var k2fields_type_datetime = {
                 
                 pos++;
                 var required = this.getOpt(proxyField, 'required');
-                this.setOpt(proxyField, 'required', 'true');
+                this.setOpt(proxyField, 'required', '1');
                 var freq = this.ccf(proxyField, value[pos], pos, false, '', holder, 'select', {
                         values:[{value:'', text:'Repeat on'}].combine([].range(1, 10))
                 }, false);

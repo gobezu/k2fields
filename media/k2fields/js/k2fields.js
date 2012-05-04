@@ -1503,7 +1503,7 @@ var k2fields = new Class({
                 
                 var v = validType || this.getOpt(proxyField, 'valid'), vs = Object.keys(Form.Validator.validators), isReq = false;
                 
-                if (this.getOpt(proxyField, 'required') && String.from(this.getOpt(proxyField, 'required')) == 'true') {
+                if (this.getOpt(proxyField, 'required') && String.from(this.getOpt(proxyField, 'required')) == '1') {
                         k2field.addClass('required');
                         k2field.store('k2ftype', v);
                         isReq = true;

@@ -450,7 +450,7 @@ var k2fields_type_basic = {
                 
                 switch (fieldType) {
                         case 'select':
-                                typeOptions = Object.merge(typeOptions, {values:values, first:'-- Select '+name+' --', multiple:field['multiple']=='true'||field['multiple']=='multiple'||field['multiple']=='1'});
+                                typeOptions = Object.merge(typeOptions, {values:values, first:'-- Select '+name+' --', multiple:field['multiple']=='1'});
                                 break;
                         case 'textarea':
                                 typeOptions = Object.merge(typeOptions, {cols:field['cols'], rows:field['rows']});

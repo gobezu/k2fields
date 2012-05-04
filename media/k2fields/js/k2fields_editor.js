@@ -131,7 +131,7 @@ var k2fieldseditor = new Class({
                                                         if (vals[i].length) val.push(vals[i].join('=='));
                                                 }
                                                 val = val.join(ps.sep ? ps.sep : k2fs.options.valueSeparator);
-                                        } else if (ps.list || ps.ui == 'checkbox' || ps.multiple == 'true') {
+                                        } else if (ps.list || ps.ui == 'checkbox' || ps.multiple == 'multiple' || ps.multiple == '1') {
                                                 val = vals.join(ps.sep ? ps.sep : k2fs.options.valueSeparator);
                                         } else {
                                                 val = vals[0];
@@ -420,7 +420,7 @@ var k2fieldseditor = new Class({
                                 'name':'Field name',
                                 'optName':'name',
                                 'valid':'text',
-                                'required':true,
+                                'required':'1',
                                 'skip':true,
                                 'section':'Basic'
                         },
@@ -468,7 +468,7 @@ var k2fieldseditor = new Class({
                                         'complex':['id:1051'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355']
                                 },
-                                'required':true,
+                                'required':'1',
                                 'savevalues':'validtypes',
                                 'sorted':true,
                                 'section':'Basic'
@@ -559,7 +559,7 @@ var k2fieldseditor = new Class({
                                 'optName':'multiple',
                                 'deps':{
                                         '1':['id:13']
-                                }                        
+                                }
                         },
                         '13':{
                                 'name':'Multiple size',

@@ -72,7 +72,7 @@ var k2fields_type_k2item = {
                         catId = -1, values = [], title, catCnt = 0;
                         ;
                    
-                if (multiple == 'yes') 
+                if (multiple == '1') 
                         typeOptions['multiple'] = true;
                 
                 for (var i = 0, n = items.length; i < n; i++) {

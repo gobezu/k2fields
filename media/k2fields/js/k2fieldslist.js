@@ -149,7 +149,7 @@ var k2fields_type_list = {
                                 var v = Array.from(value), mv;
                                 for (var i = v.length - 1; i >= 0; i--) if (!v[i]) v.erase(v[i]);
                                 v = v[v.length - 1];
-                                if (this.chkOpt(proxyField, 'multiple', 'true')) {
+                                if (this.chkOpt(proxyField, 'multiple', '1')) {
                                         v = v.split(this.options.multiValueSeparator);
                                         mv = v;
                                         v = v[0]; // Any will do as all multiple values should be on the same level
@@ -175,7 +175,7 @@ var k2fields_type_list = {
                                                 r = this._listFindSyblings(tree, c);
                                         }
                                         
-                                        if (this.chkOpt(proxyField, 'multiple', 'true')) v = value;
+                                        if (this.chkOpt(proxyField, 'multiple', '1')) v = value;
                                 }
                         }
                         
