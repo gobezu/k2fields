@@ -1324,6 +1324,8 @@ class K2FieldsMedia {
                         $medias[$mediaType][] = $value;
                 }
                 
+                $postProcess = true;
+                
                 foreach ($medias as $mediaType => $_medias) {
                         if (empty($mediaType)) {
                                 $rendered['other'][] = JText::_('Unknown media type');
@@ -1358,15 +1360,27 @@ class K2FieldsMedia {
                         }
                 }
                 
-                $rendered = implode($rendered['other'], '').implode($rendered['embed'], '');
+                $_rendered = '';
+                $dontProcess = array();
+                $process = '';
                 
+                foreach ($rendered['other'] as $r) {
+                        if (is_array($r)) $dontProcess[] = $r;
+                        else $process .= $r;
+                }
+                
+                $rendered = $process.implode($rendered['embed'], '');
                 $rendered = $helper->renderFieldValues(array($rendered), $field, $rule);
+                
+                if (!empty($dontProcess)) {
+                        return array($rendered, $dontProcess);
+                }
                 
                 return $rendered;
         }
         
         protected static function getPlugin($field, $mediaType) {
-                $nonePlugins = array('widgetkit_k2', 'img');
+                $nonePlugins = array('widgetkit_k2', 'img', 'source');
                 
                 $input = JFactory::getApplication()->input;
                 $view = $input->get('view', '', 'cmd');
@@ -1384,6 +1398,7 @@ class K2FieldsMedia {
                 if (in_array($plugin, $nonePlugins)) {
                         $result = new stdClass();
                         $result->name = $plugin;
+                        $result->dontPostprocess = $plugin == 'source';
                         return $result;
                 }
                 
@@ -1398,8 +1413,21 @@ class K2FieldsMedia {
                 $params = new JRegistry;
                 $params->loadString($plugin->params);
                 $plugin->params = $params;
+                $result->dontPostprocess = false;
                 
                 return $plugin;
+        }
+        
+        protected static function renderSource($medias, $mediaType, $plugin, $item, $field) {
+                $ui = array();
+                
+                $src = JRequest::getCmd('view', 'itemlist') == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
+                
+                foreach ($medias as $media) {
+                        $ui[] = array('src'=>$media[self::SRCPOS]->value, 'thumb'=>$media[self::THUMBSRCPOS]->value, 'caption'=>$media[self::CAPTIONPOS]->value);
+                }
+                
+                return $ui;
         }
         
         protected static function renderImg($medias, $mediaType, $plugin, $item, $field) {

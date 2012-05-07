@@ -99,7 +99,7 @@ from (
                 $query = 'SELECT element, folder, enabled FROM #__extensions WHERE element IN (' . implode(',', $_plgs) . ') AND folder IN ("content", "system")';
                 $db->setQuery($query);
                 $folders = $db->loadObjectList('element');
-                $natives = array('img');
+                $natives = array('img', 'source');
                 
                 foreach ($res as $mt => &$plgs) {
                         foreach ($plgs as &$plg) {

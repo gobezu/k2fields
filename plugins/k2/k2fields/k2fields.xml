@@ -207,6 +207,7 @@
                                         <option value="ppgallery">pPgallery</option>
                                         <option value="jcemediabox">JCE Mediabox - thumb</option>
                                         <option value="img">Image (HTML-tag)</option>
+                                        <option value="source">Source for consumption elsewhere</option>
                                 </field>
                                 <field name="itemlistpicplg" type="list" default="jwsig" label="Picture engine (itemlist view)" description="Make sure that all of your plugins parameter are set as you need them either through your fields definitions or in the plugins setting directly. Most common choice for list based view galleries is to choose those with single mode available.">
                                         <option value="widgetkit">Widgetkit</option>

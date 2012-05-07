@@ -642,54 +642,96 @@ class K2FieldsModuleHelper {
 
                                         //Images
                                         if ($params->get('itemImage')) {
-                                                $date = JprovenUtility::createDate($item->modified);
-                                                $timestamp = '?t='.$date->format('U');
-
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_XS.jpg')){
-                                                        $item->imageXSmall = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_XS.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageXSmall.=$timestamp;
+                                                $imageFound = false;
+                                                $imageFields = $params->get('imagefield');
+                                                
+                                                if ($imageFields) {
+                                                        $imageFields = (array) $imageFields;
+                                                        $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                                                        $imageFields = $fieldsModel->getFieldsById($imageFields, array('view' => 'module'));
+                                                        K2FieldsModelFields::filterBasedOnView($imageFields, 'module');
+                                                        $theImageField = null;
+                                                        
+                                                        foreach ($imageFields as $i => $imageField) {
+                                                                $_cats = K2FieldsModelFields::value($imageField, 'cats');
+                                                                $_cats = explode(',', $_cats);
+                                                                
+                                                                if (in_array($item->catid, $_cats)) {
+                                                                        if (K2FieldsModelFields::value($imageField, 'mainmedia')) {
+                                                                                $theImageField = $imageField;
+                                                                                break;
+                                                                        }
+                                                                }
+                                                        }
+                                                        
+                                                        if ($theImageField) {
+                                                                $picplg = K2FieldsModelFields::value($theImageField, 'picplg');
+                                                                $itemlistpicplg = K2FieldsModelFields::value($theImageField, 'itemlistpicplg');
+                                                                K2FieldsModelFields::setValue($theImageField, 'picplg', 'source');
+                                                                K2FieldsModelFields::setValue($theImageField, 'itemlistpicplg', 'source');
+                                                                $medias = $fieldsModel->itemValues($item->id, K2FieldsModelFields::value($theImageField, 'id'));
+                                                                $medias = K2FieldsMedia::render($item, $medias, $theImageField, $fieldsModel);
+                                                                
+                                                                if (is_array($medias)) {
+                                                                        $medias = $medias[1][0][0];
+                                                                        $item->image = $medias;
+                                                                        $imageFound = true;
+                                                                }
+                                                                K2FieldsModelFields::setValue($theImageField, 'picplg', $picplg);
+                                                                K2FieldsModelFields::setValue($theImageField, 'itemlistpicplg', $itemlistpicplg);
                                                         }
                                                 }
+                                                
+                                                if (!$imageFound) {
+                                                        $date = JprovenUtility::createDate($item->modified);
+                                                        $timestamp = '?t='.$date->format('U');
 
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_S.jpg')){
-                                                        $item->imageSmall = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_S.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageSmall.=$timestamp;
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_XS.jpg')){
+                                                                $item->imageXSmall = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_XS.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageXSmall.=$timestamp;
+                                                                }
                                                         }
-                                                }
 
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_M.jpg')){
-                                                        $item->imageMedium = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_M.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageMedium.=$timestamp;
-                                                        }					    
-                                                }
-
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_L.jpg')){
-                                                        $item->imageLarge = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_L.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageLarge.=$timestamp;
-                                                        }	
-                                                }
-
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_XL.jpg')){
-                                                        $item->imageXLarge = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_XL.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageXLarge.=$timestamp;
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_S.jpg')){
+                                                                $item->imageSmall = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_S.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageSmall.=$timestamp;
+                                                                }
                                                         }
-                                                }
 
-                                                if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_Generic.jpg')){
-                                                        $item->imageGeneric = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_Generic.jpg';
-                                                        if($componentParams->get('imageTimestamp')){
-                                                                $item->imageGeneric.=$timestamp;
-                                                        }	
-                                                }
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_M.jpg')){
+                                                                $item->imageMedium = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_M.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageMedium.=$timestamp;
+                                                                }					    
+                                                        }
 
-                                                $image = 'image'.$params->get('itemImgSize','Small');
-                                                if (isset($item->$image))
-                                                        $item->image = $item->$image;
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_L.jpg')){
+                                                                $item->imageLarge = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_L.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageLarge.=$timestamp;
+                                                                }	
+                                                        }
+
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_XL.jpg')){
+                                                                $item->imageXLarge = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_XL.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageXLarge.=$timestamp;
+                                                                }
+                                                        }
+
+                                                        if (JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_Generic.jpg')){
+                                                                $item->imageGeneric = JURI::base(true).'/media/k2/items/cache/'.md5("Image".$item->id).'_Generic.jpg';
+                                                                if($componentParams->get('imageTimestamp')){
+                                                                        $item->imageGeneric.=$timestamp;
+                                                                }	
+                                                        }
+
+                                                        $image = 'image'.$params->get('itemImgSize', 'Small');
+                                                        if (isset($item->$image))
+                                                                $item->image = $item->$image;
+                                                }
                                         }
                                         
                                         //Read more link

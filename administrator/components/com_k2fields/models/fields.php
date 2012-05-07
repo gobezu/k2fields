@@ -2052,7 +2052,7 @@ class K2FieldsModelFields extends JModel {
                 return $rules;
         }
         
-        protected static function filterBasedOnView(&$fields, $filterView) {
+        public static function filterBasedOnView(&$fields, $filterView) {
                 if (!$filterView) return;
                 
                 foreach ($fields as $f => &$field) {
