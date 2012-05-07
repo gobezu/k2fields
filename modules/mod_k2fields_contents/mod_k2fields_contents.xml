@@ -163,8 +163,8 @@
                                         <option value="Large">Large</option>
                                         <option value="XLarge">XLarge</option>
                                 </field>
-                                <field name="imagefield" type="msql" default="" label="Select an image field that will replace K2 image" description="Please select appropriate one for each field group/category"
-                                query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as imagefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=media%' ORDER BY c.`id`, f.`ordering`) AS s"
+                                <field name="imagefield" type="msql" default="" label="Image field" description="This field will replace K2 image. Make sure to select appropriate one for each field group/category"
+                                query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as imagefield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND f.name LIKE '%TYPE:media%'"
                                 />
                                 <field name="itemVideo" type="radio" default="1" label="Video" description="">
                                         <option value="0">Hide</option>
@@ -422,6 +422,7 @@
                                         <option value="pascal">pascal</option>
                                 </field>
                                 <field name="nivo_effect" type="list" default="center" label="animation">
+                                        <option value="random">random</option>
                                         <option value="sliceDownRight">sliceDownRight</option>
                                         <option value="sliceDownLeft">sliceDownLeft</option>
                                         <option value="sliceUpRight">sliceUpRight</option>
@@ -454,6 +455,7 @@
                                 <field name="nivo_show_caption" type="radio" default="title" label="SHOW_CAPTION">
                                         <option value="0">No</option>
                                         <option value="title">Title</option>
+                                        <option value="item">Item</option>
                                 </field>                                
                                 <field name="nivo_captionOpacity" type="text" default="0.8" label="captionOpacity" />
                                 <field name="nivo_directionNav" type="radio" default="1" label="directionNav">
@@ -643,6 +645,10 @@ Default value is empty.-->
                         </fieldset> 
                         <fieldset name="galleriaoptions">
                                 <field name="galleria_theme" type="folderlist" default="classic" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/galleria/themes" filter="" exclude="" stripext="" description="If you get additional themes please do save them in there own folders in media/mod_k2fields_contents/galleria/themes and reload to see them here as option" />
+                                <field name="galleria_layerData" type="list" default="item" label="layerData">
+                                        <option value="item">item</option>
+                                        <option value="title">title</option>
+                                </field>
                                 <field name="galleria_autoplay" type="radio" default="1" label="autoplay" description="">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
