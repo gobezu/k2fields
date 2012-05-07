@@ -9,6 +9,8 @@ jimport('joomla.application.component.helper');
 if (class_exists('JprovenUtility')) return;
 
 class JprovenUtility {
+        public static function html($txt) { return htmlentities($txt, ENT_QUOTES, 'UTF-8'); }
+        
         /**
          * assists in overwriting values in items table by taking values from 
          * extra_fields_values for a certain field and category by aggregating it back
@@ -215,7 +217,7 @@ group by vvv.itemid
                 return $catid;
         }
         
-        protected static function getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission) {
+        protected static function getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission, $excludes) {
                 $component = $menuItem->component;
                 
                 $selected = false;
@@ -242,6 +244,8 @@ group by vvv.itemid
                 } else {
                         return '';
                 }
+                
+                if (in_array($catId, $excludes)) return;
                 
                 $name = explode(' || ', $menuItem->title);
                 
@@ -282,6 +286,7 @@ group by vvv.itemid
                         $currentCatid = '';
                 
                 $cats = array();
+                $excludes = (array) $excludes;
                 
                 $prefix = '&nbsp;&nbsp;- ';
                 $maintainMenuHierarchy = true;
@@ -320,7 +325,7 @@ group by vvv.itemid
                         foreach ($menuItems as $itemId => $menuItem) {
                                 if (!$includeDefaultMenuItem && $menuItem->id == $default->id) continue;
                                 
-                                $option = self::getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission);
+                                $option = self::getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission, $excludes);
                                 
                                 if (empty($option)) continue;
                                 
@@ -351,7 +356,6 @@ group by vvv.itemid
                 $parentDepth = -1;
                 $remove = '&nbsp;&nbsp;&nbsp;';
                 $cats = array();
-                $excludes = (array) $excludes;
                 
                 foreach ($categories as $i => $category) {
                         $category->text = preg_replace('#^'.$remove.'#', '', $category->text);

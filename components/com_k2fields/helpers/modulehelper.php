@@ -121,6 +121,12 @@ class K2FieldsModuleHelper {
         }
 
         // Credit: modified version of corresponding fuction in mod_k2_content
+        /**
+         * Priorities:
+         * 1. explicit items
+         * 2. sticky criterias
+         * 3. categories
+         */
 	static function _getList($params, $componentParams, $format = 'html', $partBy = 'category') {
                 $moduleId = $params->get('module_id');
                 
@@ -128,6 +134,17 @@ class K2FieldsModuleHelper {
                 
                 $items = $params->get('items');
                 $itemsProvided = !empty($items);
+                $stickTo = $params->get('stickto');
+                $categories = $params->get('cats', array());
+                $childrenMode = (int) $params->get('getChildren', 0);
+                $input = JFactory::getApplication()->input;
+                $option = $input->get('option');
+                $view = $input->get('view');
+                $itemId = $input->get('id', '', 'int');
+                $db = JFactory::getDbo();
+                $now = $db->quote(JFactory::getDate()->toMySQL());
+                $nullDate = $db->quote($db->getNullDate());
+                $user = JFactory::getUser();
                 
                 if ($itemsProvided) {
                         if (!is_array($items)) $items = explode('|', $items);
@@ -137,96 +154,205 @@ class K2FieldsModuleHelper {
                                 if ($moduleId) self::$_items[$moduleId] = $items;
                                 return $items;
                         }
-                } else {
-                        $childrenMode = (int) $params->get('getChildren', 0);
-                        $rootCategory = $params->get('catid');
-                        $isStickyMenu = $rootCategory == 'stickymenu';
+                } else if ($stickTo == 'item') {
+                        $items = $option == 'com_k2' && $view == 'item' && $itemId ? array($itemId) : null;
                         
-                        if ($isStickyMenu) {
-                                self::$categoriesData = JprovenUtility::getK2CategoriesSelector(
-                                        2, 0, array(), false, '', false, '', true, false
-                                );
-                                
-                                $rootCategory = (array) JprovenUtility::getColumn(self::$categoriesData, 0);
-                                self::$categoriesData = JprovenUtility::indexBy(self::$categoriesData, array(0));
-                        } else if (strpos($rootCategory, 'sticky') === 0) {
-                                $option = JRequest::getCmd('option');
-                                
-                                if ($option != 'com_k2' && $option != 'com_k2fields') return;
-
-                                $stickTo = str_replace('sticky', '', $rootCategory);
-                                $view = JRequest::getCmd('view');
-                                
-                                if ($stickTo != 'cat' && $view != 'item') return;
-                                
-                                switch ($stickTo) {
-                                        case 'cat':
-                                                $rootCategory = null;
-
-                                                if ($view == 'item') {
-                                                        $itemId = JRequest::getInt('id');
-                                                        require_once JPATH_SITE.'/components/com_k2/models/item.php';
-                                                        $itemModel = JModel::getInstance('item', 'K2Model');
-                                                        $item = $itemModel->getData();
-                                                        $rootCategory = $item->catid;
-                                                } else {
-                                                        $rootCategory = JRequest::getInt('id', JRequest::getInt('cid', null));
-                                                }
-
-                                                if (empty($rootCategory)) return;
-                                                
-                                                break;
-                                        case 'itemtag':
-                                        case 'itemkeyword':
-                                        case 'itemfield':
-                                                $itemId = JRequest::getInt('id');
-                                                require_once JPATH_SITE.'/components/com_k2/models/item.php';
-                                                $itemModel = JModel::getInstance('item', 'K2Model');
-                                                $item = $itemModel->getData();
-                                                
-                                                break;
-                                }
-                        }
+                        if (empty($items)) return;
                         
-                        $excludeCategories = $params->get('excludecatids');
-
-                        if (!empty($excludeCategories)) {
-                                $excl = JprovenUtility::getK2CategoryChildren($excludeCategories, -1, true);
-                                $excludeCategories = array_merge((array) $excludeCategories, $excl['cats']);
-                        }
-
-                        if ($childrenMode != 0) {
-                                if ($rootCategory == 0) {
-                                        JError::raiseWarning('__ERROR__', 'NO_ROOT_CATEGORY_PROVIDED');
-                                        return;
-                                }                                
-                                $depth = $childrenMode == 2 ? 1 : -1;
-                                $cid = self::getCategoryChildren($rootCategory, $excludeCategories, $depth, true);
-                        } else {
-                                $cid = array();
-                        }
-                        
-                        if ($isStickyMenu && !empty($rootCategory)) {
-                                if (!$cid) $cid = array();
-                                foreach ($rootCategory as $rc) {
-                                        if (!isset($cid[$rc])) {
-                                                $cid[$rc] = '';
-                                        }
-                                }
-                                $rootCategory = null;
-                        }
+                        $itemsProvided = true;
                 }
                 
                 $limit = $params->get('itemCountTotal', 0);
                 $limitPerCat = $params->get('itemCount', 0);
-                $ordering = $params->get('itemsOrdering','');
-                $user = JFactory::getUser();
-                $access = '.access IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
                 
-                $db = JFactory::getDBO();
-                $jnow = JFactory::getDate();
-                $now = $jnow->toMySQL();
-                $nullDate = $db->getNullDate();
+                if (!$itemsProvided) {
+                        if ($stickTo != 'none' && $stickTo != 'menu' && $option != 'com_k2' && $option != 'com_k2fields') return;
+                        
+                        if ($stickTo != 'none' && $stickTo != 'menu' && $stickTo != 'cat' && $view != 'item') return;
+                        
+                        $stickToCategory = $params->get('sticktocategory');
+                        $excludeCategories = $params->get('excludecats', array());
+
+                        if (!empty($excludeCategories)) {
+                                $excludeChildrenMode = (int) $params->get('getChildrenExclude', 0);
+                                
+                                if ($excludeChildrenMode != 0) {
+                                        $depth = $excludeChildrenMode == 2 ? 1 : -1;
+                                        $childrenCategories = self::getCategoryChildren($excludeCategories, array(), $depth, true);
+                                        $childrenCategories = array_keys($childrenCategories);
+                                        $excludeCategories = array_merge($excludeCategories, $childrenCategories);
+                                }
+                                
+                                $excludeCategories = JprovenUtility::toIntArray($excludeCategories);
+                        }
+                        
+                        if ($stickTo != 'menu' && $stickTo != 'cat') {
+                                if ($childrenMode != 0) {
+                                        $depth = $childrenMode == 2 ? 1 : -1;
+                                        $childrenCategories = self::getCategoryChildren($categories, $excludeCategories, $depth, true);
+                                        $childrenCategories = array_keys($childrenCategories);
+                                        $categories = array_merge($categories, $childrenCategories);
+                                }
+                                
+                                $categories = JprovenUtility::toIntArray($categories);
+                        }
+                        
+                        $query = '';
+                        
+                        if ($stickTo == 'menu') {
+                                self::$categoriesData = JprovenUtility::getK2CategoriesSelector(
+                                        2, 0, $excludeCategories, false, '', false, '', true, false
+                                );
+                                
+                                $categories = (array) JprovenUtility::getColumn(self::$categoriesData, 0);
+                                self::$categoriesData = JprovenUtility::indexBy(self::$categoriesData, array(0));
+                        } else if ($stickTo == 'cat') {
+                                if ($view == 'item') {
+                                        $query = 'SELECT catid FROM #__k2_items WHERE id = '.$itemId;
+                                        $db->setQuery($query);
+                                        $categories = $db->loadResult();
+                                } else {
+                                        $categories = $input->get($option == 'com_k2fields' ? 'cid' : 'id', null, 'int');
+                                        $itemId = null;
+                                }
+                                
+                                if (empty($categories) || in_array($categories, $excludeCategories)) return;
+                                
+                                $categories = (array) $categories;
+                        } else if ($stickTo == 'tag') {
+                                $query = "SELECT DISTINCT itemID FROM #__k2_tags_xref WHERE tagID IN (SELECT tagID FROM #__k2_tags_xref WHERE itemId = ".$itemId.") AND itemID <> ".$itemId;
+                        } else if ($stickTo == 'key') {
+                                $query = 'SELECT metakey FROM #__k2_items WHERE id = '.$itemId;
+                                $db->setQuery($query);
+                                
+                                $keys = $db->loadResult();
+
+                                if (empty($keys)) return;
+
+                                $keys = explode(',', $keys);
+                                $keys = ' CONCAT(",", REPLACE(i.metakey, ", ", ","), ",") LIKE "%'.
+                                        implode('%" OR CONCAT(",", REPLACE(i.metakey, ", ", ","), ",") LIKE "%', $keys).'%"';
+
+                                $query = 'SELECT DISTINCT id FROM #__k2_items i';
+                                $query .= ' WHERE i.published = 1';
+                                $query .= ' AND (i.publish_up = '.$nullDate.' OR i.publish_up <= '.$now.')';
+                                $query .= ' AND (i.publish_down = '.$nullDate.' OR i.publish_down >= '.$now.')';
+                                $query .= ' AND i.access IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
+                                $query .= ' AND i.trash = 0';
+                                $query .= ' AND '.$keys;
+                        } else if ($stickTo == 'field') {
+                                
+                                $fields = $params->get('sticktofields', '');
+
+                                if (!is_array($fields)) $fields = explode(',', $fields);
+
+                                $complexFields = array();
+                                $subFields = array();
+
+                                foreach ($fields as $i => $field) {
+                                        if (strpos($field, ',')) {
+                                                list($sf,$f) = explode(',', $field);
+                                                if (!in_array($f, $complexFields)) $complexFields[] = $f;
+                                                if (!isset($subFields[$f])) $subFields[$f] = array();
+                                                $subFields[$f][] = $sf;
+                                                unset($fields[$i]);
+                                        } else {
+                                                $fields[$i] = array($field, 0);
+                                        }
+                                }
+
+                                if (!empty($complexFields)) {
+                                        $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                                        $complexFields = $fieldsModel->getFieldsById($complexFields);
+                                        
+                                        foreach ($complexFields as $f) {
+                                                $sfs = K2FieldsModelFields::value($f, 'subfields');
+                                                $id = K2FieldsModelFields::value($f, 'id');
+                                                $_sfs = $subFields[$id];
+                                                foreach ($sfs as $pos => $sf) {
+                                                        $sfid = K2FieldsModelFields::value($sf, 'subfieldid');
+                                                        if (!in_array($sfid, $_sfs)) continue;
+                                                        $fields[] = array($id, $pos);
+                                                }
+                                        }
+                                }
+                                
+                                $query = 'SELECT fieldid, partindex, listindex, GROUP_CONCAT(value SEPARATOR "%%") AS value
+                                        FROM #__k2_extra_fields_values
+                                        WHERE itemid = '.$itemId.' AND partindex <> -1'
+                                        ;
+                                
+                                foreach ($fields as $field) {
+                                        $query .= ' AND fieldid = ' .(int)$field[0].' AND partindex = '.(int)$field[1];
+                                }
+                                
+                                $query .= ' GROUP BY fieldid, partindex, listindex ORDER BY `index`';
+                                
+                                $db->setQuery($query);
+                                $values = $db->loadObjectList();
+                                
+                                $valuesByField = JprovenUtility::indexBy($values, array('fieldid', 'partindex'));
+                                $fields = array_keys($valuesByField);
+                                
+                                
+                                $tbl = 'SELECT itemid, fieldid, listindex, partindex, GROUP_CONCAT(value SEPARATOR "%%") AS value FROM #__k2_extra_fields_values WHERE itemid <> '.$itemId.' AND (';
+                                
+                                $i = 0;
+                                foreach ($valuesByField as $fieldId => $valuesByParts) {
+                                        foreach ($valuesByParts as $partIndex => $valuesByList) {
+                                                if ($i > 0) $tbl .= ' OR ';
+                                                $tbl .= '(fieldid = '.$fieldId.' AND partindex = '.$partIndex.')';
+                                                $i++;
+                                        }
+                                }
+                                
+                                $tbl .= ') GROUP BY itemid, fieldid, partindex, listindex';
+                                
+                                $query = 'SELECT DISTINCT itemid AS id FROM ('.$tbl.') AS i WHERE ';
+
+                                $j = 0;
+                                foreach ($valuesByField as $fieldId => $valuesByParts) {
+                                        foreach ($valuesByParts as $partIndex => $valuesByList) {
+                                                if ($j > 0) $query .= ' AND ';
+                                                $query .= 'fieldid = ' . $fieldId . ' AND partindex = ' . $partIndex . ' AND value IN (';
+                                                $i = 0;
+                                                foreach ($valuesByList as $value) {
+                                                        if ($i > 0) $query .= ', ';
+                                                        $query .= $db->quote($value->value);
+                                                        $i++;
+                                                }
+                                                $query .= ')';
+                                                $j++;
+                                        }
+                                }
+                        }
+                        
+                        if ($query) {
+                                if ($stickToCategory == 'same') {
+                                        $query .= ' AND i.id in (SELECT id FROM #__k2_items WHERE catid IN (SELECT catid FROM #__k2_items WHERE id = '.$itemId.'))';
+                                } else if ($stickToCategory == 'cats' && !empty($categories)) {
+                                        $query .= ' AND i.id in (SELECT id FROM #__k2_items WHERE catid IN ('.implode(',', $categories).'))';
+                                }  
+                                
+                                $lim = $stickToCategory != 'none' && isset($limitPerCat) ? $limitPerCat : $limit;
+                                if (!empty($lim)) $query .= ' LIMIT 0, '.$lim;
+                                
+                                $db->setQuery($query);
+                                $items = $db->loadResultArray();
+                                
+                                if (empty($items)) return;
+                                
+                                $categories = null;
+                        }
+                        
+                        if (!empty($categories)) {
+                                $categories = JprovenUtility::toIntArray($categories);
+                                $categories = array_unique($categories);
+                        }
+                }
+                
+                $ordering = $params->get('itemsOrdering','');
+                $access = '.access IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
                 
                 $query = "SELECT DISTINCT i.*, c.name AS categoryname, c.id AS categoryid, c.image AS categoryimage, c.alias AS categoryalias, c.alias AS catalias, c.params AS categoryparams";
 
@@ -242,8 +368,8 @@ class K2FieldsModuleHelper {
                 if ($ordering == 'comments') $queryFrom .= " LEFT JOIN #__k2_comments comments ON comments.itemID = i.id";
 
                 $queryWhere = " WHERE i.published = 1 AND i{$access} AND i.trash = 0 AND c.published = 1 AND c{$access} AND c.trash = 0";
-                $queryWhere .= " AND ( i.publish_up = ".$db->Quote($nullDate)." OR i.publish_up <= ".$db->Quote($now)." )";
-                $queryWhere .= " AND ( i.publish_down = ".$db->Quote($nullDate)." OR i.publish_down >= ".$db->Quote($now)." )";
+                $queryWhere .= " AND ( i.publish_up = ".$nullDate." OR i.publish_up <= ".$now." )";
+                $queryWhere .= " AND ( i.publish_down = ".$nullDate." OR i.publish_down >= ".$now." )";
 
                 if ($params->get('FeaturedItems') == '0')
                         $queryWhere .= " AND i.featured != 1";
@@ -354,15 +480,12 @@ class K2FieldsModuleHelper {
                         if (!empty($limitPerCat) || empty($limit)) {
                                 if (empty($limitPerCat)) $limitPerCat = 5;
 
-                                $cats = array_keys($cid);
-                                $cnts = array_fill(0, count($cats), $limitPerCat);
+                                $cnts = array_fill(0, count($categories), $limitPerCat);
                         } else {
-                                $cats = array_keys($cid);
-                                $cats = array($cats);
+                                $categories = array($categories);
                                 $cnts = array($limit);
                         }
-
-                        $items = array();
+                        
                         $queries = array();
 
                         $efCriterias = $params->get('itemExtraFieldsCriterias');
@@ -385,7 +508,7 @@ class K2FieldsModuleHelper {
                                 }
                         }
                         
-                        foreach ($cats as $c => $cat) {
+                        foreach ($categories as $c => $cat) {
                                 if (!is_array($cat)) $cat = array($cat);
                                 
                                 $q = $query;
@@ -401,6 +524,7 @@ class K2FieldsModuleHelper {
                                 $queries[] = "(" . $q . " AND i.catid IN ({$sql}) ORDER BY i.catid, " . $orderby . " LIMIT 0, ".$cnts[$c] . ")";
                         }
                         
+                        // TODO: group by instead of union
                         $queries = implode(' UNION  ALL ', $queries);
                 } else {
                         $queries = 
@@ -418,7 +542,7 @@ class K2FieldsModuleHelper {
                 
                 $items = JprovenUtility::indexBy($items, $indexBy);
                 
-                if (!$itemsProvided && $childrenMode == 2 && isset($rootCategory)) {
+                if (!$itemsProvided && $childrenMode == 2 && isset($categories)) {
                         $rootChildren = self::$categoryTree[$rootCategory];
                         $_items = array();
                         

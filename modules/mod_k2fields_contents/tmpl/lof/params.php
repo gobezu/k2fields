@@ -5,10 +5,6 @@
 defined('_JEXEC') or die('Restricted access'); 
 
 // UI settings
-$tmp = $params->get( 'module_height', 'auto' );
-$moduleHeight = ( $tmp=='auto' ) ? 'auto' : (int)$tmp.'px';
-$tmp = $params->get( 'module_width', 'auto' );
-$moduleWidth = ( $tmp=='auto') ? 'auto': (int)$tmp.'px';
 $themeClass = $params->get( 'loftheme' , '');
 $class = $params->get( 'navigator_pos', 'right' ) == "0" ? '':'lof-sn'.$params->get( 'navigator_pos', 'right' );
 $css3 = $params->get('enable_css3','1')? " lof-css3":"";

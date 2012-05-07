@@ -3,30 +3,25 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
+$captions = array();
 ?>
-<div class="slider-wrapper theme-<?php echo $themeName; ?>">
-        <div id="<?php echo $partitionId; ?>" class="nivoSlider"<?php echo $styles; ?>>
-                <?php foreach ($list as $no => $item) { 
+<div class="nivo-wrapper theme-<?php echo $themeName; ?>" style="<?php echo $moduleSize; ?>">
+        <div id="<?php echo $partitionId; ?>" class="nivoSlider" style="<?php echo $moduleSize; ?>">
+                <?php foreach ($list as $no => $item) : 
                         $image = isset($item->image) ? $item->image : JURI::base().$mediaFolder.'bg.png';
                         $link = $settings->get('linked') ? $item->link : '';
                         $linkTarget = $link ? $settings->get('linktarget', '') : '';
-                        $captionId = $partitionId.'-'.$no;
-                        if ($link) { ?>
-                                <a href="<?php echo $linkTarget; ?>" target="<?php echo $linkTarget; ?>"><img src="<?php echo $image; ?>" title="#<?php echo $captionId; ?>" /></a>
-                        <?php 
-                        } else { 
-                        ?>
-                                <img src="<?php echo $image; ?>" title="#<?php echo $captionId; ?>" />
-                        <?php
+                        $caption = '';
+                        if ($settings->get('show_caption') == 'title') {
+                                $caption = JprovenUtility::html($item->title);
                         }
-                        if ($settings->get('show_caption')) {
+                        if ($caption) $caption = ' title="'.$caption.'"';
                         ?>
-                                <div id="<?php echo $captionId; ?>" class="nivo-html-caption">
-                                        <?php require $itemLayout; ?>
-                                </div>
-                        <?php 
-                        } 
-                }
-                ?> 
+                <div>
+                        <?php if ($link) : ?><a href="<?php echo $linkTarget; ?>" target="<?php echo $linkTarget; ?>"><?php endif; ?>
+                        <img src="<?php echo $image; ?>" <?php echo $caption; ?> />
+                        <?php if ($link) : ?></a><?php endif; ?>
+                </div>
+                <?php endforeach; ?> 
         </div>
 </div>

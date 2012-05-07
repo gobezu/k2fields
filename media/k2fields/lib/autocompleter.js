@@ -1,4 +1,6 @@
-// I have merely aggregated required js files to one file and copied the css to k2fields.css
+// I have
+// 1. aggregated required js files to one file and copied the css to k2fields.css and
+// 2. updated $ to document.id
 
 /**
  * Observer - Observe formelements for changes
@@ -21,7 +23,7 @@ var Observer = new Class({
 	},
 
 	initialize: function(el, onFired, options){
-		this.element = $(el) || $$(el);
+		this.element = document.id(el) || $document.id(el);
 		this.addEvent('onFired', onFired);
 		this.setOptions(options);
 		this.bound = this.changed.bind(this);
@@ -130,7 +132,7 @@ var Autocompleter = new Class({
 	},
 
 	initialize: function(element, options) {
-		this.element = $(element);
+		this.element = document.id(element);
 		this.setOptions(options);
 		this.build();
 		this.observer = new Observer(this.element, this.prefetch.bind(this), $merge({
@@ -151,7 +153,7 @@ var Autocompleter = new Class({
 	 * Override this function to modify the html generation.
 	 */
 	build: function() {
-		if ($(this.options.customChoices)) {
+		if (document.id(this.options.customChoices)) {
 			this.choices = this.options.customChoices;
 		} else {
 			this.choices = new Element('ul', {
@@ -428,7 +430,7 @@ var OverlayFix = new Class({
 
 	initialize: function(el) {
 		if (Browser.Engine.trident) {
-			this.element = $(el);
+			this.element = document.id(el);
 			this.relative = this.element.getOffsetParent();
 			this.fix = new Element('iframe', {
 				'frameborder': '0',
@@ -543,7 +545,7 @@ Autocompleter.Request = new Class({
 	query: function(){
 		var data = $unlink(this.options.postData) || {};
 		data[this.options.postVar] = this.queryValue;
-		var indicator = $(this.options.indicator);
+		var indicator = document.id(this.options.indicator);
 		if (indicator) indicator.setStyle('display', '');
 		var cls = this.options.indicatorClass;
 		if (cls) {
@@ -560,7 +562,7 @@ Autocompleter.Request = new Class({
 	 * Inherated classes have to extend this function and use this.parent()
 	 */
 	queryResponse: function() {
-		var indicator = $(this.options.indicator);
+		var indicator = document.id(this.options.indicator);
 		if (indicator) indicator.setStyle('display', 'none');
 		var cls = this.options.indicatorClass;
 		if (cls) this.element.removeClass(cls);

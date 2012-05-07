@@ -27,8 +27,215 @@
         </languages>
         <config>
                 <fields name="params">
-                        <fieldset name="basic">
-                                <field name="template" type="folderlist" default="awkwardshowcase" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />
+                        <fieldset name="basic" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field name="item" type="k2fitem" default="" label="Specific items" description="Higher presedence over category selection" />
+                                <field name="items" type="k2fitems" default="" label="Drag and drop to re-order items"/>
+                                <field name="stickto" type="list" default="none" label="Sticky on" description="&lt;b&gt;Menu&lt;/b&gt; sticky is one that features items found within categories assigned anywhere in your main menu. This is particularly useful if you have a website that is mainly based on K2 and would want to feature selected items from each of those.&lt;br/&gt;&lt;b&gt;Category&lt;/b&gt; sticky is one used to feature list of items with the same category as the current category or item page. If current page doesn't relate to K2 then nothing is shown.&lt;br/&gt;&lt;b&gt;Item&lt;/b&gt; sticky is one used to feature various parts about the same item currently showing. If current page is not an item page then nothing is shown. &lt;br/&gt;&lt;b&gt; Item tag/keyword/field&lt;/b&gt; is used to feature items that have the same value of tag, keyword or field. In case of field you can and is advised to choose in [Stick to fields] which fields values to match up on. Not choosing [Stick to fields] might lead to decreased responsiveness. If current page is not an item page then nothing is shown.">
+                                        <option value="none">None</option>
+                                        <option value="menu">Menu</option>
+                                        <option value="cat">Category</option>
+                                        <option value="item">Item</option>
+                                        <option value="tag">Item tag</option>
+                                        <option value="key">Item keywords</option>
+                                        <option value="field">Item fields</option>
+                                </field>
+                                <field name="sticktocategory" type="radio" default="none" label="Stick to categories (for item stickys)">
+                                        <option value="same">Same category</option>
+                                        <option value="cats">Categories below</option>
+                                        <option value="none">None</option>
+                                </field>
+                                <field name="cats" type="k2fmulticategories" default="" label="&lt;style type=&quot;text/css&quot;&gt;#jformparamscats, #jformparamsexcludecats {width:65% !important;}&lt;/style&gt;Categories" />
+                                <field name="getChildren" type="list" default="1" label="Fetch items from children categories" description="Immediate children selects immediate children of chosen top most category">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                        <option value="2">Immediate children only</option>
+                                </field>
+                                <field 
+                                        name="excludecats" type="k2fmulticategories" default="" 
+                                        label="Exclude the following categories" />
+                                <field name="getChildrenExclude" type="list" default="1" label="Exclude items from children categories" description="Immediate children selects immediate children of chosen top most category">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                        <option value="2">Immediate children only</option>
+                                </field>
+                                <field name="sticktofields" type="msql" default="" label="Stick to fields (Applies only if sticky criteria is set to field)"
+                                        query="SELECT sall.value, sall.sticktofields FROM (SELECT f.id as value, c.id as catid, f.ordering, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as sticktofields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND f.name NOT LIKE '%TYPE:complex%' union all SELECT CONCAT(sf.id, ',', sf.subofId) as value, c.id as catid, sf.subofOrdering, concat(trim(substring(sf.name, 1, instr(sf.name, ' / '))), ' (Subfield of ', trim(substring(sf.subofName, 1, instr(sf.subofName, ' in '))), ', ',c.name, ')') as sticktofields FROM (select f.*, fd.id as subofId, fd.name as subofName, fd.`group` as subofGroup, fd.published as subofPublished, fd.ordering as subofOrdering FROM #__k2_extra_fields f, #__k2_extra_fields_definition d, #__k2_extra_fields fd WHERE d.definition LIKE CONCAT('%subfields=%', f.id, '%') AND d.id = fd.id) as sf INNER JOIN #__k2_extra_fields_groups g ON sf.subofGroup = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE sf.published = 1 AND sf.subofPublished = 1 AND c.published = 1) as sall ORDER BY sall.catid, sall.ordering"
+                                />
+                                <field name="timerange" type="list" default="" label="Time range" description="All counts relative to today. Need to select field to set range on.">
+                                        <option value="">All time</option>
+                                        <option value="today">Today</option>
+                                        <option value="tomorrow">Tomorrow</option>
+                                        <option value="thisevening">This evening</option>
+                                        <option value="thisweekend">This weekend</option>
+                                        <option value="thisweek">This week</option>
+                                        <option value="nextweek">Next week</option>
+                                        <option value="1%days">1 day</option>
+                                        <option value="3%days">3 days</option>
+                                        <option value="7%days">1 week</option>
+                                        <option value="15%days">2 weeks</option>
+                                        <option value="30%days">1 month</option>
+                                        <option value="180%days">6 months</option>                        
+                                </field>
+                                <field name="timerangefield" type="sql" default="" label="Select a date/datetime field that will be used for the time range filtering"
+                               query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as timerangefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=date%' ORDER BY c.`id`, f.`ordering`) AS s"
+                />
+                                <field name="order" type="list" default="id" label="Category ordering" description="Ordering options">
+                                        <option value="name">Category name</option>
+                                        <option value="id">Created order</option>
+                                </field>
+                                <field name="itemCount" type="text" size="4" default="5" label="Item count (per category, higher presedence)" description="" />
+                                <field name="itemCountTotal" type="text" size="4" default="20" label="Item count (total)" description="" />
+                                <field name="itemsOrdering" type="list" default="" label="Item ordering" description="">
+                                        <option value="">Default</option>
+                                        <option value="date">Oldest first</option>
+                                        <option value="rdate">Most recent first</option>
+                                        <option value="alpha">Title Alphabetical</option>
+                                        <option value="ralpha">Title Reverse-Alphabetical</option>
+                                        <option value="order">Ordering</option>
+                                        <option value="rorder">Ordering Reverse</option>
+                                        <option value="hits">Most popular</option>
+                                        <option value="best">Highest rated</option>
+                                        <option value="comments">Most commented (not supported yet)</option>
+                                        <option value="modified">Latest modified</option>
+                                        <option value="rand">Random ordering</option>
+                                </field>
+                                <field name="FeaturedItems" type="list" default="1" label="Featured items" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                        <option value="2">Show only Featured Items</option>
+                                </field>
+                                <field name="popularityRange" type="list" default="" label="Time range (if ordering is set to 'most popular' or 'most commented')" description="">
+                                        <option value="">All time</option>
+                                        <option value="1">1 day</option>
+                                        <option value="3">3 days</option>
+                                        <option value="7">1 week</option>
+                                        <option value="15">2 weeks</option>
+                                        <option value="30">1 month</option>
+                                        <option value="180">6 months</option>
+                                </field>
+                                <field name="videosOnly" type="radio" default="0" label="Fetch only items with videos" description="">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                
+                                <field name="@item-display-settings" type="spacer" default="Item display settings" />
+                                <field name="itemTitle" type="radio" default="1" label="Title" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemTitleTag" type="list" default="h3" label="Item title tag" description="">
+                                        <option value="">None</option>
+                                        <option value="h4">H4</option>
+                                        <option value="h3">H3</option>
+                                        <option value="h2">H2</option>
+                                        <option value="h1">H1</option>
+                                </field>
+                                <field name="itemAuthor" type="radio" default="1" label="User (author)" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAuthorAvatar" type="radio" default="1" label="User avatar" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAuthorAvatarWidthSelect" type="list" default="custom" label="User avatar width" description="">
+                                        <option value="inherit">Inherit from component parameters</option>
+                                        <option value="custom">Use custom width</option>
+                                </field>
+                                <field name="itemAuthorAvatarWidth" type="text" default="50" size="4" label="Custom width for user avatar (in px)" description="" />
+                                <field name="userDescription" type="radio" default="1" label="User description" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemIntroText" type="radio" default="1" label="Introtext" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="Introtext word limit" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
+                                <field name="itemImage" type="radio" default="1" label="Image" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemImgSize" type="list" default="Small" label="Image size" description="">
+                                        <option value="XSmall">XSmall</option>
+                                        <option value="Small">Small</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                        <option value="XLarge">XLarge</option>
+                                </field>
+                                <field name="imagefield" type="msql" default="" label="Select an image field that will replace K2 image" description="Please select appropriate one for each field group/category"
+                                query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as imagefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=media%' ORDER BY c.`id`, f.`ordering`) AS s"
+                                />
+                                <field name="itemVideo" type="radio" default="1" label="Video" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemVideoCaption" type="radio" default="1" label="Video caption" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemVideoCredits" type="radio" default="1" label="Video credits" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemAttachments" type="radio" default="1" label="Attachments" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemTags" type="radio" default="1" label="Tags" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCategory" type="radio" default="1" label="Category" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="catImage" type="radio" default="1" label="Category image in label (TBI)" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="catReadMore" type="radio" default="1" label="Category read more... link" description="If more items than what's provided by Item count then this link will appear">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemDateCreated" type="radio" default="1" label="Created date and time" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemHits" type="radio" default="1" label="Hits" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemReadMore" type="radio" default="1" label="Read more... link" description="This option is not applicable for an item in which the 'fulltext' block is empty.">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemExtraFields" type="radio" default="0" label="Extra fields" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCommentsCounter" type="radio" default="1" label="Comments counter and anchor link" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemPreText" type="textarea" default="" label="Description text at the top for each of the tabs and a generic one (optional)" description="" cols="40" rows="20" />
+                                <field name="itemPreTextTag" type="list" default="h3" label="Description text tag" description="">
+                                        <option value="">None</option>
+                                        <option value="h4">H4</option>
+                                        <option value="h3">H3</option>
+                                        <option value="h2">H2</option>
+                                        <option value="h1">H1</option>
+                                </field>
+                                <field name="itemExtraFieldsCriterias" type="textarea" default="" label="Selection criterias applied to each of the tabs" description="" cols="40" rows="20" />
+                                <field name="itemCustomLink" type="radio" default="0" label="Custom link at the bottom" description="">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemCustomLinkURL" type="text" default="http://" label="Custom link URL" description="" />
+                                <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />                
+                        </fieldset>                        
+                        <fieldset name="layoutoptions">
+                                <field name="template" type="folderlist" default="ul" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />
                                 <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext="true" />
                                 <field name="part_by" type="list" default="none" label="PARTITION_BY" description="Currently the following combinations are supported:&lt;br/&gt;lof/lof&lt;br/&gt;...">
                                         <option value="none">None</option>
@@ -40,6 +247,8 @@
                                         <option value="item">Individual items</option>
                                         <option value="list">Lists</option>
                                 </field>
+                                <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
+                                <field name="module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
                         </fieldset>
                         <fieldset name="awkwardshowcaseoptions">
                                 <field name="awkwardshowcase_theme" type="list" default="normal" label="THEME">
@@ -174,11 +383,39 @@
                                 <field name="widgetkit_width" label="Width" type="text" default="auto" />
                                 <field name="widgetkit_height" label="Height" type="text" default="auto" />
                         </fieldset>
-                        <fieldset name="slideshowoptions">
+                        <fieldset name="rpflorence-SlideShowoptions">
+                                <field name="rpflorence-SlideShow_transition" type="list" default="slideDown" label="transition">
+                                        <option value="slideDown">slideDown</option>
+                                        <option value="slideUp">slideUp</option>
+                                        <option value="slideLeft">slideLeft</option>
+                                        <option value="slideRight">slideRight</option>
+                                        <option value="crossFade">crossFade</option>
+                                        <option value="pushUp">pushUp</option>
+                                        <option value="pushDown">pushDown</option>
+                                        <option value="pushLeft">pushLeft</option>
+                                        <option value="pushRight">pushRight</option>
+                                        <option value="blindUp">blindUp</option>
+                                        <option value="blindDown">blindDown</option>
+                                        <option value="blindLeft">blindLeft</option>
+                                        <option value="blindRight">blindRight</option>
+                                        <option value="blindUpFade">blindUpFade</option>
+                                        <option value="blindDownFade">blindDownFade</option>
+                                        <option value="blindLeftFade">blindLeftFade</option>
+                                        <option value="blindRightFade">blindRightFade</option>
+                                        <option value="fade">fade</option>
+                                </field>
+                                <field name="rpflorence-SlideShow_duration" type="text" default="500" label="transition duration (milli-seconds)" />
+                                <field name="rpflorence-SlideShow_delay" type="text" default="2000" label="delay (milli-seconds)" />
+                                <field name="rpflorence-SlideShow_autoplay" type="radio" default="1" label="autoplay">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="rpflorence-SlideShow_show_caption" type="radio" default="1" label="show caption">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
                         </fieldset>
                         <fieldset name="nivooptions">
-                                <field name="nivo_height" default="246px" label="height" />
-                                <field name="nivo_width" default="618px" label="width" />
                                 <field name="nivo_theme" type="list" default="default" label="theme" >
                                         <option value="default">default</option>
                                         <option value="orman">orman</option>
@@ -214,9 +451,9 @@
                                         <option value="0">No</option>
                                 </field>                                
                                 <field name="nivo_startSlide" type="text" default="0" label="startSlide" />
-                                <field name="nivo_show_caption" type="radio" default="1" label="SHOW_CAPTION">
+                                <field name="nivo_show_caption" type="radio" default="title" label="SHOW_CAPTION">
                                         <option value="0">No</option>
-                                        <option value="1">Yes</option>
+                                        <option value="title">Title</option>
                                 </field>                                
                                 <field name="nivo_captionOpacity" type="text" default="0.8" label="captionOpacity" />
                                 <field name="nivo_directionNav" type="radio" default="1" label="directionNav">
@@ -252,7 +489,392 @@
                                 <field name="nivo_boxRows" type="text" default="4" label="boxRows (box animation)" />
                                 <field name="nivo_animSpeed" type="text" default="500" label="animSpeed" />
                                 <field name="nivo_pauseTime" type="text" default="3000" label="pauseTime" />                                
-                        </fieldset>                        
+                        </fieldset>
+                        <fieldset name="nivo-galleryoptions">
+                                <field name="nivo-gallery_pauseTime" type="text" default="3000" label="pauseTime" description="The amount of time to show each slide in milliseconds" />
+                                <field name="nivo-gallery_animSpeed" type="text" default="300" label="animSpeed" description="The duration of the transition animation" />
+                                <field name="nivo-gallery_effect" type="list" default="fade" label="animation" description="The name of the transition effect to use (only fade is available at the moment)">
+                                        <option value="fade">fade</option>
+                                </field>     
+                                <field name="nivo-gallery_startPaused" type="radio" default="1" label="startPaused" description="If true the gallery will start in a paused state">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="nivo-gallery_directionNav" type="radio" default="1" label="directionNav" description="Use direction navigation in the gallery (previous and next arrows)">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="nivo-gallery_progressBar" type="radio" default="1" label="progressBar" description="Show an animated progress bar at the top of the gallery between transitions while playing">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                        </fieldset>
+                        <fieldset name="slidejsoptions">
+                                <field name="slidejs_preload" type="radio" default="0" label="preload" description="Set true to preload images in an image based slideshow.">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="slidejs_showNextPrev" type="radio" default="0" label="Show Next/Prev buttons" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>   
+                                <field name="slidejs_start" type="radio" default="first" label="Start on slide">
+                                        <option value="first">First</option>
+                                        <option value="random">Random</option>
+                                </field>
+                                <field name="slidejs_preloadImage" type="hidden" default="img/loading.gif" label="Name and location of loading image for preloader." />
+                                <field name="slidejs_container" type="hidden" default="slides_container" label="Class name for slides container." />
+                                <field name="slidejs_generatePagination" type="radio" default="1" label="Auto generate pagination">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="slidejs_effectNextPrev" type="radio" default="slide" label="Effect for Next/Prev">
+                                        <option value="slide">Slide</option>
+                                        <option value="fade">Fade</option>
+                                </field>
+                                <field name="slidejs_effectPage" type="radio" default="slide" label="Effect for paging">
+                                        <option value="slide">Slide</option>
+                                        <option value="fade">Fade</option>
+                                </field>
+                                <field name="slidejs_randomize" type="radio" default="0" label="Randomize slides">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="slidejs_autoplay" type="radio" default="0" label="Autoplay slideshow">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="slidejs_autoplayTime" type="text" default="4000" label="Autoplay time between slides (milliseconds)" />
+                                <field name="slidejs_pauseAutoplay" type="radio" default="0" label="Pause slideshow on click of next/prev or pagination">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <field name="slidejs_pauseAutoplayTime" type="text" default="0" label="Pause time between slides (milliseconds)" />
+                                <field name="slidejs_hoverPause" type="radio" default="0" label="Pause slideshow on hovering">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                                <!-- 
+autoHeight (boolean)
+Set to true to auto adjust height. Show example
+Default value is false.
+autoHeightSpeed (number)
+Set auto height animation time in milliseconds. Show example
+Default value is 350.
+bigTarget (boolean)
+Set to true and the whole slide will link to next slide on click. Show example
+Default value is false.
+animationStart() (callback)
+Function called at the start of animation. Show example
+Default value is empty.
+animationComplete() (callback)
+Function called at the completion of animation Show example
+Default value is empty.-->
+                                <field name="slidejs_fadeSpeed" type="text" default="350" label="Set the speed of the fading animation (milliseconds)" />
+                                <field name="slidejs_fadeEasing" type="list" default="easeInOutExpo" label="Set the easing of the fade animation">
+                                        <option value="linear">linear</option>
+                                        <option value="swing">swing</option>
+                                        <option value="easeInQuad">easeInQuad</option>
+                                        <option value="easeOutQuad">easeOutQuad</option>
+                                        <option value="easeInOutQuad">easeInOutQuad</option>
+                                        <option value="easeInCubic">easeInCubic</option>
+                                        <option value="easeOutCubic">easeOutCubic</option>
+                                        <option value="easeInOutCubic">easeInOutCubic</option>
+                                        <option value="easeInQuart">easeInQuart</option>
+                                        <option value="easeOutQuart">easeOutQuart</option>
+                                        <option value="easeInOutQuart">easeInOutQuart</option>
+                                        <option value="easeInQuint">easeInQuint</option>
+                                        <option value="easeOutQuint">easeOutQuint</option>
+                                        <option value="easeInOutQuint">easeInOutQuint</option>
+                                        <option value="easeInSine">easeInSine</option>
+                                        <option value="easeOutSine">easeOutSine</option>
+                                        <option value="easeInOutSine">easeInOutSine</option>
+                                        <option value="easeInExpo">easeInExpo</option>
+                                        <option value="easeOutExpo">easeOutExpo</option>
+                                        <option value="easeInOutExpo">easeInOutExpo</option>
+                                        <option value="easeInCirc">easeInCirc</option>
+                                        <option value="easeOutCirc">easeOutCirc</option>
+                                        <option value="easeInOutCirc">easeInOutCirc</option>
+                                        <option value="easeInElastic">easeInElastic</option>
+                                        <option value="easeOutElastic">easeOutElastic</option>
+                                        <option value="easeInOutElastic">easeInOutElastic</option>
+                                        <option value="easeInBack">easeInBack</option>
+                                        <option value="easeOutBack">easeOutBack</option>
+                                        <option value="easeInOutBack">easeInOutBack</option>
+                                        <option value="easeInBounce">easeInBounce</option>
+                                        <option value="easeOutBounce">easeOutBounce</option>
+                                        <option value="easeInOutBounce">easeInOutBounce</option>
+                                </field>
+                                <field name="slidejs_slideSpeed" type="text" default="350" label="Set the speed of the sliding animation (milliseconds)" />
+                                <field name="slidejs_slideEasing" type="list" default="easeInOutExpo" label="slideEasing">
+                                        <option value="linear">linear</option>
+                                        <option value="swing">swing</option>
+                                        <option value="easeInQuad">easeInQuad</option>
+                                        <option value="easeOutQuad">easeOutQuad</option>
+                                        <option value="easeInOutQuad">easeInOutQuad</option>
+                                        <option value="easeInCubic">easeInCubic</option>
+                                        <option value="easeOutCubic">easeOutCubic</option>
+                                        <option value="easeInOutCubic">easeInOutCubic</option>
+                                        <option value="easeInQuart">easeInQuart</option>
+                                        <option value="easeOutQuart">easeOutQuart</option>
+                                        <option value="easeInOutQuart">easeInOutQuart</option>
+                                        <option value="easeInQuint">easeInQuint</option>
+                                        <option value="easeOutQuint">easeOutQuint</option>
+                                        <option value="easeInOutQuint">easeInOutQuint</option>
+                                        <option value="easeInSine">easeInSine</option>
+                                        <option value="easeOutSine">easeOutSine</option>
+                                        <option value="easeInOutSine">easeInOutSine</option>
+                                        <option value="easeInExpo">easeInExpo</option>
+                                        <option value="easeOutExpo">easeOutExpo</option>
+                                        <option value="easeInOutExpo">easeInOutExpo</option>
+                                        <option value="easeInCirc">easeInCirc</option>
+                                        <option value="easeOutCirc">easeOutCirc</option>
+                                        <option value="easeInOutCirc">easeInOutCirc</option>
+                                        <option value="easeInElastic">easeInElastic</option>
+                                        <option value="easeOutElastic">easeOutElastic</option>
+                                        <option value="easeInOutElastic">easeInOutElastic</option>
+                                        <option value="easeInBack">easeInBack</option>
+                                        <option value="easeOutBack">easeOutBack</option>
+                                        <option value="easeInOutBack">easeInOutBack</option>
+                                        <option value="easeInBounce">easeInBounce</option>
+                                        <option value="easeOutBounce">easeOutBounce</option>
+                                        <option value="easeInOutBounce">easeInOutBounce</option>
+                                </field>
+                        </fieldset> 
+                        <fieldset name="galleriaoptions">
+                                <field name="galleria_theme" type="folderlist" default="classic" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/galleria/themes" filter="" exclude="" stripext="" description="If you get additional themes please do save them in there own folders in media/mod_k2fields_contents/galleria/themes and reload to see them here as option" />
+                                <field name="galleria_autoplay" type="radio" default="1" label="autoplay" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field> 
+                                <field name="galleria_autoplayInterval" type="text" default="5000" label="autoplay interval (milliseconds)" description="" />
+                                <field name="galleria_carousel" type="radio" default="true" label="carousel" description="Setting this to true, the carousel will be automatically applied if the total som of thumbnails width exceeds the thumbnail container. This will be re-calculaed on resize.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field> 
+                                <field name="galleria_carouselFollow" type="radio" default="true" label="carouselFollow" description="This option defines if the the carousel should follow the active image. You can control the speed of the animation with the carouselSpeed option. Please note that animating heavy thumbnails can affect your main image animation, so if you are seeing big lags in the main animation you can try to set this option to false.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field> 
+                                <field name="galleria_carouselSpeed" type="text" default="200" label="slide speed of the carousel (milliseconds)" description="" />
+                                <field name="galleria_carouselSteps" type="text" default="auto" label="carouselSteps" description="(a number or auto = will move the carousel as many steps as there are visible thumbnails) The number of “steps” the carousel will advance when navigating between available thumbnails. You can control the animation speed using the carouselSpeed option." />
+                                <field name="galleria_clicknext" type="radio" default="false" label="clicknext" description="This options adds a click event over the stage that navigates to the next image in the gallery. Useful for mobile browsers and other simpler applications. Note that setting this to true will disable any other links that you might have in the data object.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_dataConfig" type="textarea" default="" label="dataConfig (tbi)" description="This very useful function configures how the data should be extracted from the source. It should return an object that will blend in with the default extractions." />
+                                <field name="galleria_dataSelector" type="text" default="img" label="dataSelector" description="The selector Galleria should look for in the HTML source. If you are using other elements than images to store data in the HTML, you can set this option to configure Galleria to look for the right elements. You can use any jQuery selector." />
+                                <field name="galleria_dummy" type="text" default="" label="dummy" description="This option allows you to define an image that should be shown if Galleria can’t find the original image. Think of it as a 404 for Galleria." />
+                                <field name="galleria_easing" type="list" default="galleria" label="easing" description="If you use any easing other than those prefixed with galleria please make sure to include the jQuery easing plugin found in the advanced section.">
+                                        <option value="galleria">galleria</option>
+                                        <option value="galleriaIn">galleriaIn</option>
+                                        <option value="galleriaOut">galleriaOut</option>
+                                        <option value="linear">linear</option>
+                                        <option value="swing">swing</option>
+                                        <option value="easeInQuad">easeInQuad</option>
+                                        <option value="easeOutQuad">easeOutQuad</option>
+                                        <option value="easeInOutQuad">easeInOutQuad</option>
+                                        <option value="easeInCubic">easeInCubic</option>
+                                        <option value="easeOutCubic">easeOutCubic</option>
+                                        <option value="easeInOutCubic">easeInOutCubic</option>
+                                        <option value="easeInQuart">easeInQuart</option>
+                                        <option value="easeOutQuart">easeOutQuart</option>
+                                        <option value="easeInOutQuart">easeInOutQuart</option>
+                                        <option value="easeInQuint">easeInQuint</option>
+                                        <option value="easeOutQuint">easeOutQuint</option>
+                                        <option value="easeInOutQuint">easeInOutQuint</option>
+                                        <option value="easeInSine">easeInSine</option>
+                                        <option value="easeOutSine">easeOutSine</option>
+                                        <option value="easeInOutSine">easeInOutSine</option>
+                                        <option value="easeInExpo">easeInExpo</option>
+                                        <option value="easeOutExpo">easeOutExpo</option>
+                                        <option value="easeInOutExpo">easeInOutExpo</option>
+                                        <option value="easeInCirc">easeInCirc</option>
+                                        <option value="easeOutCirc">easeOutCirc</option>
+                                        <option value="easeInOutCirc">easeInOutCirc</option>
+                                        <option value="easeInElastic">easeInElastic</option>
+                                        <option value="easeOutElastic">easeOutElastic</option>
+                                        <option value="easeInOutElastic">easeInOutElastic</option>
+                                        <option value="easeInBack">easeInBack</option>
+                                        <option value="easeOutBack">easeOutBack</option>
+                                        <option value="easeInOutBack">easeInOutBack</option>
+                                        <option value="easeInBounce">easeInBounce</option>
+                                        <option value="easeOutBounce">easeOutBounce</option>
+                                        <option value="easeInOutBounce">easeInOutBounce</option>
+                                </field>
+                                <field name="galleria_fullscreenCrop" type="list" default="" label="fullscreenCrop" description="Sets how Galleria should crop when in fullscreen mode.">
+                                        <option value="">Undefined</option>
+                                        <option value="true">true (all images will be scaled to fill the stage, centered and cropped)</option>
+                                        <option value="false">false (will scale down so the entire image fits)</option>
+                                        <option value="height">height (will scale the image to fill the height of the stage)</option>
+                                        <option value="width">width (will scale the image to fill the width of the stage)</option>
+                                        <option value="landscape">landscape (will fill up images that has landscape proportions, but scale portrait images to fit inside the container)</option>
+                                        <option value="portrait">portrait (is like landscape but the other way around)</option>
+                                </field>
+                                <field name="galleria_fullscreenDoubleTap" type="radio" default="true" label="fullscreenDoubleTap" description="This options listens for the double-tap event on touch devices and toggle fullscreen mode if it happens.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_fullscreenTransition" type="list" default="" label="fullscreenTransition" description="Defines a different transition for fullscreen mode. Some transitions are less smooth in fullscreen mode, this option allows you to set a different transition when in fullscreen mode.">
+                                        <option value="">Undefined</option>
+                                        <option value="fade">fade</option>
+                                        <option value="flash">flash</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="slide">slide</option>
+                                        <option value="fadeslide">fadeslide</option>
+                                </field>
+                                <field name="galleria_height" type="text" default="" label="height" description="Unless you have specific requirements this is implicitly set by k2fields as we set the height of the container to the module height. Galleria need a height to work properly. You can set the height using this option to make sure it has the correct height. If no height is set, Galleria will try to find the height of the parent container. You can set an exact value, f.ex 200, and it will apply this exact height in pixels. You can also set a relative ratio value which is anything below 2. If you set a relative ratio value, the gallery height will be calculated by multiplying this value with the width at any given scaling process. This is very useful when programming responsive layouts." />
+                                <field name="galleria_idleMode" type="radio" default="true" label="idleMode" description="Global option for turning on/off idle mode. Eache gallery enters idle mode after certain amount of time and themes behave differently when this happens, f.ex clears the stage from distractions. If you want to prevent idle mode from ever occuring, set this to false.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_idleTime" type="text" default="3000" label="idleTime (milliseconds)" description="" />
+                                <field name="galleria_idleSpeed" type="text" default="200" label="idleSpeed (milliseconds)" description="animation speed of the idle elements" />
+                                <field name="galleria_imageCrop" type="list" default="false" label="imageCrop" description="Defines how the main image will be cropped inside its container.">
+                                        <option value="true">true (all images will be scaled to fill the stage, centered and cropped)</option>
+                                        <option value="false">false (will scale down so the entire image fits)</option>
+                                        <option value="height">height (will scale the image to fill the height of the stage)</option>
+                                        <option value="width">width (will scale the image to fill the width of the stage)</option>
+                                        <option value="landscape">landscape (will fill up images that has landscape proportions, but scale portrait images to fit inside the container)</option>
+                                        <option value="portrait">portrait (is like landscape but the other way around)</option>
+                                </field>
+                                <field name="galleria_imageMargin" type="text" default="0" label="imageMargin (pixels)" description="Since images are scaled to fit the stage container, there might be occations when you need to apply a margin between the image and stage border." />
+                                <field name="galleria_imagePan" type="radio" default="false" label="imagePan" description="Galleri comes with a built-in panning effect. The effect is sometimes useful if you have cropped images and want to let the users pan across the stage to see the entire image. Set imagePan to true to apply a mouse-controlled movement of the image to reveal the cropped parts. This effect is useful if you want to avoid dark areas around the image but still be able to view the entire image.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_imagePanSmoothness" type="text" default="12" label="imagePanSmoothness" description="This value sets how smooth the image pan movement should be when setting image_pan to true. The higher value, the smoother effect but also CPU consuming." />
+                                <field name="galleria_imagePosition" type="text" default="center" label="imagePosition" description="Positions the main image inside the stage container. Works like the CSS background-position property, f.ex ‘top right’ or ‘20% 100%’. You can use keywords, percents or pixels. The first value is the horizontal position and the second is the vertical." />
+                                <field name="galleria_imageTimeout" type="text" default="30000" label="imageTimeout (milliseconds)" description="This option defines how long Galleria will try to fetch the images (unless it returns 404) before an exception is thrown." />
+                                <field name="galleria_initialTransition" type="list" default="" label="initialTransition" description="Defines a different transition to show on the first image. F.ex, if you are using a slide transition, you might want the first image to fade. You can then set this option to ‘fade’.">
+                                        <option value="fade">fade</option>
+                                        <option value="flash">flash</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="slide">slide</option>
+                                        <option value="fadeslide">fadeslide</option>
+                                </field>
+                                <field name="galleria_keepSource" type="radio" default="0" label="keepSource" description="By default, Galleria clears the source container when rendering the gallery. Sometimes you need to apply the gallery some place else, like a lightbox, but still want to keep the thumbnails in the source. This option sets if the source HTML should be left intact. Setting this to true will also add click events inside the source code, to make your thumbnails clickable. Useful for building custom thumbnails and still have galleria control the gallery.">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="galleria_layerFollow" type="radio" default="1" label="layerFollow" description="Layer follows the image size on the stage, even if crop is set. This means that the HTML layer will stretch according to the active image. If you want the layer to fill the stage regardless of cropping settings, set this to false.">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="galleria_lightbox" type="radio" default="false" label="lightbox" description="This option acts as a helper for attaching a lightbox when the user clicks on an image. If you have a link defined for the image, the link will take precedence.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_lightboxFadeSpeed" type="text" default="200" label="lightboxFadeSpeed (milliseconds)" description="The lightbox will animate and fade the images and captions. This value controls how fast they should fade." />
+                                <field name="galleria_lightboxTransitionSpeed" type="text" default="300" label="lightboxTransitionSpeed (milliseconds)" description="The lightbox will animate the white square before displaying the image. This value controls how fast it should animate." />
+                                <field name="galleria_maxScaleRatio" type="text" default="" label="maxScaleRatio" description="Sets the maximum scale ratio for images. F.ex, if you don’t want Galleria to upscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
+                                <field name="galleria_minScaleRatio" type="text" default="" label="minScaleRatio" description="Sets the minimum scale ratio for images. F.ex, if you don’t want Galleria to downscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
+                                <field name="galleria_overlayBackground" type="text" default="#0b0b0b" label="overlayBackground" description="Overlay background color in lightbox." />
+                                <field name="galleria_overlayOpacity" type="text" default="0.85" label="overlayOpacity" description="Overlay opacity in lightbox." />
+                                <field name="galleria_pauseOnInteraction" type="radio" default="true" label="pauseOnInteraction" description="During playback, Galleria will stop the playback if the user presses thumbnails or any other navigational links. If you dont want this behaviour, set this option to false.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_popupLinks" type="radio" default="false" label="popupLinks" description="Setting this to true will open any image links in a new window.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_preload" type="text" default="2" label="preload" description="Defines how many images Galleria should preload in advance. Please note that this only applies when you are using separate thumbnail files. Galleria always cache all preloaded images. &lt;br/&gt;2 preloads the next 2 images in line&lt;br/&gt;all forces Galleria to start preloading all images. This may slow down client.&lt;br/&gt;0 will not preload any images" />
+                                <field name="galleria_queue" type="radio" default="true" label="queue" description="Galleria queues all activation clicks: next, prev and thumbnails. You can see this effect when f.ex clicking “next” fast many times. If you do not want Galleria to queue, set this to false. This will make Galleria stall during animations.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_responsive" type="radio" default="false" label="responsive" description="This option sets thew Gallery in responsive mode. That means that it will resize the entire container if your CSS is dynamic. In other words, you can add media queries or dynamic proportions in your CSS and the gallery will follow these proportions as the window resizes.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_show" type="text" default="0" label="show" description="This defines what image index to show at first. If you use the history plugin, a permalink will override this number." />
+                                <field name="galleria_showCounter" type="radio" default="true" label="showCounter" description="">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_showInfo" type="radio" default="true" label="showInfo" description="display the caption">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_showImagenav" type="radio" default="true" label="showImagenav" description="display the image navigation, next and prev arrows">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_swipe" type="radio" default="true" label="swipe" description="Enables a swipe movement for flicking through images on touch devices.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_thumbCrop" type="list" default="false" label="thumbCrop" description="Defines how the thumb image will be cropped.">
+                                        <option value="true">true (all images will be scaled to fill the stage, centered and cropped)</option>
+                                        <option value="false">false (will scale down so the entire image fits)</option>
+                                        <option value="height">height (will scale the image to fill the height of the stage)</option>
+                                        <option value="width">width (will scale the image to fill the width of the stage)</option>
+                                        <option value="landscape">landscape (will fill up images that has landscape proportions, but scale portrait images to fit inside the container)</option>
+                                        <option value="portrait">portrait (is like landscape but the other way around)</option>
+                                </field>
+                                <field name="galleria_thumbFit" type="radio" default="true" label="thumbFit" description="If this is set to true, all thumbnail containers will be shrinked to fit the actual thumbnail size. This is useful if you have thumbnails of various sizes and will then float nicely side-by-side. This is only relevant if thumbCrop is set to anything else but true. If you want all thumbnails to fit inside a container with predefined width and height, set this to false.">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                </field>
+                                <field name="galleria_thumbMargin" type="text" default="0" label="thumbMargin (pixels)" description="Since thumbs are scaled to fit there container, there might be occasions when you need to apply a margin between the thumbnail and container border." />
+                                <field name="galleria_thumbnails" type="list" default="true" label="thumbnails" description="">
+                                        <option value="true">Thumbnails</option>
+                                        <option value="false">Nothing</option>
+                                        <option value="empty">Empty spans with the className img</option>
+                                        <option value="numbers">Spans with numbers</option>
+                                </field>
+                                <field name="galleria_thumbQuality" type="list" default="1" label="thumbQuality" description="Defines if and how IE should use bicubic image rendering for thumbnails.">
+                                        <option value="1">will force high quality renedring (can slow down performance)</option>
+                                        <option value="0">will not use high quality (better performance)</option>
+                                        <option value="auto">uses high quality if image scaling is moderate</option>
+                                </field>
+                                <field name="galleria_touchTransition" type="list" default="" label="touchTransition" description="Defines a different transition when a touch device is detected.">
+                                        <option value="fade">fade</option>
+                                        <option value="flash">flash</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="slide">slide</option>
+                                        <option value="fadeslide">fadeslide</option>
+                                </field>
+                                <field name="galleria_transition" type="list" default="fade" label="transition" description="The transition that is used when displaying the images.">
+                                        <option value="fade">fade</option>
+                                        <option value="flash">flash</option>
+                                        <option value="pulse">pulse</option>
+                                        <option value="slide">slide</option>
+                                        <option value="fadeslide">fadeslide</option>
+                                </field>        
+                                <field name="galleria_transitionSpeed" type="text" default="400" label="transitionSpeed (milliseconds)" description="Time between applying transition. The higher number, the slower transition." />
+                                <field name="galleria_trueFullscreen" type="radio" default="1" label="trueFullscreen" description="Galleria supports true fullscreen mode if it is supported by the browser (currently FF10+, Safari 5.1+ and Chrome 15+). That means that it will enter a native OS fullscreen if the fullscreen method is triggered.">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="galleria_wait" type="text" default="5000" label="wait (milliseconds)" description="Sets how long Galleria should wait when trying to extract measurements, before throwing an error. Set this to true for infinity. When Galleria initializes, it needs to be able to take measures of the layout. Setting width and height is not enough, it also need to be able to extract computed values, and that can only be done if the gallery is visible. This can be a problem if you are running galleries in a javascript accordion or pagination, where you hide some parts of the content. Then Galleria will fail to load on all hidden pages. This little option allows you to define how long Galleria will try to extract these measurements. Default is 5 seconds, but you can also set this to true and let the Gallery wait for an infinity, or until the gallery is shown by user interaction. As soon as the Gallery can grab the right measurements, it will appear." />
+                                <field name="galleria_width" type="text" default="auto" label="height" description="Unless you have specific requirements this is implicitly set by k2fields as we set the width of the container to the module width." />
+                                <field name="galleria_debug" type="radio" default="1" label="debug" description="Galleria displays errors by printing them out in the gallery container and sometimes throw exceptions. For deployment you can turn debug off to generate a more generic error message if a fatal error is raised.">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                        </fieldset>
+                        <fieldset name="easyslideroptions">
+                                <field name="easyslider_orientation" type="radio" default="horizontal" label="Sliding orientation" description="">
+                                        <option value="horizontal">horizontal</option>
+                                        <option value="vertical">vertical</option>
+                                </field>
+                                <field name="easyslider_speed" type="text" default="800" label="Animation speed (milliseconds)" description="" />
+                                <field name="easyslider_controlsShow" type="radio" default="1" label="Show control" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="easyslider_auto" type="radio" default="1" label="Automatic sliding" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="easyslider_pause" type="text" default="3000" label="Duration of slide when automatically sliding (milliseconds)" description="" />
+                                <field name="easyslider_navigation" type="radio" default="nextprev" label="Navigation mode" description="">
+                                        <option value="numeric">Numeric</option>
+                                        <option value="nextprev">Next/Prev buttons</option>
+                                </field>
+                        </fieldset>
                         <fieldset name="cameraoptions">
                                 <field name="camera_height" default="50%" label="height" description="here you can type pixels (for instance '300px'), a percentage (relative to the width of the slideshow, for instance '50%') or 'auto'" />
                                 <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
@@ -420,8 +1042,6 @@
                         </fieldset>
                         <fieldset name="lofoptions">
                                 <field name="loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
-                                <field name="module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
-                                <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
                                 <field name="enable_css3" type="radio" default="1" label="ENABLE CSS3" description="ENABLE CSS3 DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
@@ -515,198 +1135,6 @@
                                         <option value="1">YES</option>
                                 </field>    
                         </fieldset>
-	
-                        <fieldset name="itemsoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
-                                <field 
-                                        name="catid" type="k2fcategories" default="" 
-                                        label="Top most category or Stickyness criteria" />
-                                <field 
-                                        name="excludecatids" type="k2fmulticategories" default="" 
-                                        label="Exclude the following categories (including subcategories of selected categories)" />
-                                <field name="item" type="k2fitem" default="" label="Specific items" description="Higher presedence over category selection" />
-                                <field name="items" type="k2fitems" default="" label="Drag and drop to re-order items"/>
-                                <field name="sticktofields" type="msql" default="" label="Select one or more fields to stick to (Applies only if sticky criteria is set to item/field)"
-                               query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as sticktofields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 ORDER BY c.`id`, f.`ordering`"
-                />
-                                <field name="getChildren" type="list" default="2" label="Fetch items from children categories" description="Immediate children selects immediate children of chosen top most category">
-                                        <option value="0">No</option>
-                                        <option value="1">Yes</option>
-                                        <option value="2">Immediate children only</option>
-                                </field>
-                                <field name="timerange" type="list" default="" label="Time range" description="All counts relative to today. Need to select field to set range on.">
-                                        <option value="">All time</option>
-                                        <option value="today">Today</option>
-                                        <option value="tomorrow">Tomorrow</option>
-                                        <option value="thisevening">This evening</option>
-                                        <option value="thisweekend">This weekend</option>
-                                        <option value="thisweek">This week</option>
-                                        <option value="nextweek">Next week</option>
-                                        <option value="1%days">1 day</option>
-                                        <option value="3%days">3 days</option>
-                                        <option value="7%days">1 week</option>
-                                        <option value="15%days">2 weeks</option>
-                                        <option value="30%days">1 month</option>
-                                        <option value="180%days">6 months</option>                        
-                                </field>
-                                <field name="timerangefield" type="sql" default="" label="Select a date/datetime field that will be used for the time range filtering"
-                               query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as timerangefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=date%' ORDER BY c.`id`, f.`ordering`) AS s"
-                />
-                                <field name="order" type="list" default="id" label="Category ordering" description="Ordering options">
-                                        <option value="name">Category name</option>
-                                        <option value="id">Created order</option>
-                                </field>
-                                <field name="itemCount" type="text" size="4" default="5" label="Item count (per category, higher priority)" description="" />
-                                <field name="itemCountTotal" type="text" size="4" default="" label="Item count (total)" description="" />
-                                <field name="itemsOrdering" type="list" default="" label="Item ordering" description="">
-                                        <option value="">Default</option>
-                                        <option value="date">Oldest first</option>
-                                        <option value="rdate">Most recent first</option>
-                                        <option value="alpha">Title Alphabetical</option>
-                                        <option value="ralpha">Title Reverse-Alphabetical</option>
-                                        <option value="order">Ordering</option>
-                                        <option value="rorder">Ordering Reverse</option>
-                                        <option value="hits">Most popular</option>
-                                        <option value="best">Highest rated</option>
-                                        <option value="comments">Most commented (not supported yet)</option>
-                                        <option value="modified">Latest modified</option>
-                                        <option value="rand">Random ordering</option>
-                                </field>
-                                <field name="FeaturedItems" type="list" default="1" label="Featured items" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                        <option value="2">Show only Featured Items</option>
-                                </field>
-                                <field name="popularityRange" type="list" default="" label="Time range (if ordering is set to 'most popular' or 'most commented')" description="">
-                                        <option value="">All time</option>
-                                        <option value="1">1 day</option>
-                                        <option value="3">3 days</option>
-                                        <option value="7">1 week</option>
-                                        <option value="15">2 weeks</option>
-                                        <option value="30">1 month</option>
-                                        <option value="180">6 months</option>
-                                </field>
-                                <field name="videosOnly" type="radio" default="0" label="Fetch only items with videos" description="">
-                                        <option value="0">No</option>
-                                        <option value="1">Yes</option>
-                                </field>
-                
-                                <field name="@item-display-settings" type="spacer" default="Item display settings" />
-                                <field name="itemTitle" type="radio" default="1" label="Title" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemTitleTag" type="list" default="h3" label="Item title tag" description="">
-                                        <option value="">None</option>
-                                        <option value="h4">H4</option>
-                                        <option value="h3">H3</option>
-                                        <option value="h2">H2</option>
-                                        <option value="h1">H1</option>
-                                </field>
-                                <field name="itemAuthor" type="radio" default="1" label="User (author)" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemAuthorAvatar" type="radio" default="1" label="User avatar" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemAuthorAvatarWidthSelect" type="list" default="custom" label="User avatar width" description="">
-                                        <option value="inherit">Inherit from component parameters</option>
-                                        <option value="custom">Use custom width</option>
-                                </field>
-                                <field name="itemAuthorAvatarWidth" type="text" default="50" size="4" label="Custom width for user avatar (in px)" description="" />
-                                <field name="userDescription" type="radio" default="1" label="User description" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemIntroText" type="radio" default="1" label="Introtext" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="Introtext word limit" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
-                                <field name="itemImage" type="radio" default="1" label="Image" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemImgSize" type="list" default="Small" label="Image size" description="">
-                                        <option value="XSmall">XSmall</option>
-                                        <option value="Small">Small</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="Large">Large</option>
-                                        <option value="XLarge">XLarge</option>
-                                </field>
-                                <field name="imagefield" type="msql" default="" label="Select an image field that will replace K2 image" description="Please select appropriate one for each field group/category"
-                                query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as imagefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=media%' ORDER BY c.`id`, f.`ordering`) AS s"
-                                />
-                                <field name="itemVideo" type="radio" default="1" label="Video" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemVideoCaption" type="radio" default="1" label="Video caption" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemVideoCredits" type="radio" default="1" label="Video credits" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemAttachments" type="radio" default="1" label="Attachments" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemTags" type="radio" default="1" label="Tags" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemCategory" type="radio" default="1" label="Category" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="catImage" type="radio" default="1" label="Category image in label (TBI)" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="catReadMore" type="radio" default="1" label="Category read more... link" description="If more items than what's provided by Item count then this link will appear">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemDateCreated" type="radio" default="1" label="Created date and time" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemHits" type="radio" default="1" label="Hits" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemReadMore" type="radio" default="1" label="Read more... link" description="This option is not applicable for an item in which the 'fulltext' block is empty.">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemExtraFields" type="radio" default="0" label="Extra fields" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemCommentsCounter" type="radio" default="1" label="Comments counter and anchor link" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemPreText" type="textarea" default="" label="Description text at the top for each of the tabs and a generic one (optional)" description="" cols="40" rows="20" />
-                                <field name="itemPreTextTag" type="list" default="h3" label="Description text tag" description="">
-                                        <option value="">None</option>
-                                        <option value="h4">H4</option>
-                                        <option value="h3">H3</option>
-                                        <option value="h2">H2</option>
-                                        <option value="h1">H1</option>
-                                </field>
-                                <field name="itemExtraFieldsCriterias" type="textarea" default="" label="Selection criterias applied to each of the tabs" description="" cols="40" rows="20" />
-                                <field name="itemCustomLink" type="radio" default="0" label="Custom link at the bottom" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
-                                </field>
-                                <field name="itemCustomLinkURL" type="text" default="http://" label="Custom link URL" description="" />
-                                <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />                
-                        </fieldset>
-                        
                         <fieldset name="partition_lofoptions">
                                 <field name="partition_loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
                                 <field name="partition_module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
@@ -807,6 +1235,10 @@
                         
                         <fieldset name="advanced">
                                 <field name="addJQuery" type="radio" default="0" label="Add jQuery">
+                                        <option value="0">NO</option>
+                                        <option value="1">YES</option>
+                                </field>                                 
+                                <field name="addJQueryEasing" type="radio" default="0" label="Add jQuery easing">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>                                 

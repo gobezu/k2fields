@@ -2822,6 +2822,7 @@ class K2FieldsModelFields extends JModel {
                         if (!$v) continue;
                         $sep = strpos($v, ':') !== false ? ':' : '.';
                         $v = explode($sep, $v);
+                        if (count($v) == 1) $v[1] = '00';
                         $val->value = sprintf($format, $v[0], $v[1]);
                         $n++;
                 }
@@ -3010,10 +3011,6 @@ class K2FieldsModelFields extends JModel {
                                         }
                                         
                                         $arr[] = '<li>'.$val.'</li>';
-                                        
-                                        if ($renderedCnt == $listmax - 1) {
-                                                $arr[] = '</ul>';
-                                        }
                                         
                                         $renderedCnt++;
                                 }
@@ -3252,7 +3249,7 @@ class K2FieldsModelFields extends JModel {
                 $sub = false;
                 if (preg_match('#subfields=([\d\%]+)#', $optStr, $m)) {
                         $ids = str_replace(self::VALUE_SEPARATOR, ',', $m[1]);
-                        $query = "SELECT id, replace(definition, 'k2f---', '') as def FROM #__k2_extra_fields_definition WHERE id IN ({$ids})";
+                        $query = "SELECT id, replace(definition, 'k2f---', CONCAT('subfieldid=', id, ':::')) as def FROM #__k2_extra_fields_definition WHERE id IN ({$ids})";
                         $this->_db->setQuery($query);
                         $defs = $this->_db->loadObjectList('id');
                         $ids = array_keys($defs);

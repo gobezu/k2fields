@@ -7,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
 $document->addScriptDeclaration(
 "window.addEvent('domready', function(){         
         new LofK2SlideShowsCreator(
-                ".json_encode($lofIds) .",
+                ".json_encode($partitionIds) .",
                 { 
                         fxObject:{
                                 transition:" . $params->get( 'effect', 'Fx.Transitions.Quad.easeIn' ) . ",

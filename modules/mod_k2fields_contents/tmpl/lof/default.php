@@ -3,9 +3,9 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 if (!$isPartitioned) $catId = 0;
-$lofIds[] = 'lofass-'.$module->id.'-'.$catId;
+else $mainWidth = $partition_mainWidth - $navItemWidth;
 ?>
-<div id="lofass-<?php echo $module->id . '-' . $catId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>; width:<?php echo $moduleWidth; ?>">
+<div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="<?php echo $moduleSize; ?>">
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
