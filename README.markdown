@@ -1,5 +1,8 @@
-k2fields
+k2fields 
 ========
+
+(wip, please refer to issues list)
+
 k2fields is a set of extensions primarily providing you:
 
 * additional set of field types defined through a comprehensive field editor. Currently available field types are:
@@ -28,7 +31,6 @@ Refer to the wiki [https://github.com/gobezu/k2fields/wiki](https://github.com/g
 
 Support
 -------
-* Discussion forum [https://groups.google.com/forum/#!forum/k2fields](https://groups.google.com/forum/#!forum/k2fields)
 * Specific issue to report - please do make entry in the issue tracker [https://github.com/gobezu/k2fields/issues](https://github.com/gobezu/k2fields/issues)
 * Specific support request - submit it [http://jproven.com/k2fields/contact](http://jproven.com/k2fields/contact)
 
