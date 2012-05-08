@@ -780,18 +780,23 @@ class K2FieldsModuleHelper {
                                                         $item->image = $item->$image;
                                         }
                                         
-                                        if ($params->get('itemImage') && empty($item->image) && $params->get('defaultimage')) {
-                                                $image = JURI::base().'media/mod_k2fields_contents/defaultimage/'.$params->get('defaultimage');
-                                                
-                                                if (!$params->get('defaultimagethumb')) {
-                                                        $imageThumb = preg_replace('#\d+$#', '', $image);
-                                                        $imageThumb = str_replace('/defaultimage/', '/defaultimagethumb/', $imageThumb);
+                                        if ($params->get('itemImage') && empty($item->image)) {
+                                                if ($params->get('defaultimage') && $params->get('defaultimage') != -1) {
+                                                        $image = JURI::base().'media/mod_k2fields_contents/defaultimage/'.$params->get('defaultimage');
+
+                                                        if (!$params->get('defaultimagethumb')) {
+                                                                $imageThumb = preg_replace('#\d+$#', '', $image);
+                                                                $imageThumb = str_replace('/defaultimage/', '/defaultimagethumb/', $imageThumb);
+                                                        } else {
+                                                                $imageThumb = JURI::base().'media/mod_k2fields_contents/defaultimagethumb/'.$params->get('defaultimagethumb');
+                                                        }
+                                                        
+                                                        $item->image = $image.'.png';
+                                                        $item->imageThumb = $imageThumb.'.png';
                                                 } else {
-                                                        $imageThumb = JURI::base().'media/mod_k2fields_contents/defaultimagethumb/'.$params->get('defaultimagethumb');
+                                                        $item->image = JURI::base().'media/mod_k2fields_contents/noimage.png';
+                                                        $item->imageThumb = $item->image;
                                                 }
-                                                
-                                                $item->imageThumb = $imageThumb.'.png';
-                                                $item->image = $image.'.png';
                                         }
                                         
                                         //Read more link

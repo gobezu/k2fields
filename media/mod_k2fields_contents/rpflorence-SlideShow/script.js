@@ -45,15 +45,17 @@ var SlideShowCreator = Class({
                                         }.bind(this));
                                 }.bind(this));
                         
-                                new Tips(this.navs[showIndex], {
-                                        fixed: true,
-                                        text: '',
-                                        offset: {
-                                                x: -100,
-                                                y: -60
-                                        },
-                                        className:'rpflorence-SlideShow-tip-wrap'
-                                });
+                                if (options['show_caption']) {
+                                        new Tips(this.navs[showIndex], {
+                                                fixed: true,
+                                                text: '',
+                                                offset: {
+                                                        x: -100,
+                                                        y: -60
+                                                },
+                                                className:'rpflorence-SlideShow-tip-wrap'
+                                        });
+                                }
                         }
 
                         document.id(aShow).addEvents({

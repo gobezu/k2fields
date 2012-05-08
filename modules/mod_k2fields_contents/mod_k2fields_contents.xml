@@ -171,7 +171,7 @@
                                         <option value="none">None</option>
                                         <option value="intro">Item intro</option>
                                         <option value="title">Item title</option>
-                                        <option value="image">Image caption</option>
+                                        <option value="image">Image caption (only if image source is k2fields)</option>
                                         <option value="layout">Layout</option>
                                 </field>
                                 <field name="wordlimitcaption" type="text" size="4" default="" label="Word limit for caption" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
@@ -258,7 +258,6 @@
                                 <field name="partition_template" type="filelist" default="joomla_tabs" hide_none="true" label="PARTITION_TEMPLATE" directory="modules/mod_k2fields_contents/tmpl/_partition" stripext="true" />
                                 <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION">
                                         <option value="item">Individual items</option>
-                                        <option value="list">Lists</option>
                                 </field>
                                 <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
                                 <field name="module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
@@ -423,9 +422,13 @@
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>
-                                <field name="rpflorence-SlideShow_show_caption" type="radio" default="1" label="show caption">
+                                <field name="rpflorence-SlideShow_show_navigator" type="radio" default="1" label="show navigator">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
+                                </field>
+                                <field name="rpflorence-SlideShow_show_caption" type="radio" default="true" label="show caption">
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
                                 </field>
                         </fieldset>
                         <fieldset name="nivooptions">

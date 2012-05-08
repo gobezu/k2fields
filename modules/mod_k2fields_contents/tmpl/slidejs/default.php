@@ -46,16 +46,8 @@ if ($_moduleHeight && $_moduleWidth) {
 <div class="slidejs-wrapper">
         <div id="<?php echo $partitionId; ?>">
                 <div class="slides_container" style="<?php echo $_moduleSize; ?>">
-                <?php foreach ($list as $no => $item) : 
-                        $image = isset($item->image) ? $item->image : '';
-                        ?>
+                <?php foreach ($list as $no => $item) : ?>
                         <div class="slide" style="<?php echo $__moduleSize; ?>;">
-                                <?php 
-                                if ($image): 
-                                        $caption = ' title="'.$caption.'"';
-                                ?>
-                                <img src="<?php echo $image; ?>" <?php echo $caption; ?> />
-                                <?php endif; ?>
                                 <?php require $itemLayout; ?>
                         </div>
                 <?php endforeach; ?> 

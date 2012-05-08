@@ -26,7 +26,7 @@ if ($_moduleHeight) {
                                 if (empty($imageCaption)) $imageCaption = K2FieldsModuleHelper::imageCaption($item, $params, $itemLayout, 'title');
                                 if ($imageCaption == $dataCaption) $dataCaption = '';
                                 ?>
-                        <li data-type="html" data-title="<?php echo $imageCaption; ?>" data-caption="<?php echo $dataCaption; ?>">
+                        <li data-title="<?php echo $imageCaption; ?>" data-caption="<?php echo $dataCaption; ?>">
                                 <?php echo K2FieldsModuleHelper::image($item, $params, $itemLayout); ?>
                         </li>
                         <?php endif; ?>

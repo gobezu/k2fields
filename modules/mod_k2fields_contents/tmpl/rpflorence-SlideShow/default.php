@@ -17,18 +17,15 @@ if ($_moduleHeight) {
 <div class="rpflorence-SlideShow" style="<?php echo $_moduleSize; ?>"> 
 	<div id="<?php echo $partitionId; ?>">
         <?php foreach ($list as $no => $item) {
-                $image = isset($item->image) ? $item->image : JURI::base().$mediaFolder.'bg.png';
-                $imageThumb = isset($item->image_thumb) ? $item->image_thumb : JURI::base().$mediaFolder.'bgThumb.png';
-                $link = $settings->get('linked') ? $item->link : '';
-                $linkTarget = $link ? $settings->get('linktarget', '') : '';
                 $id = $partitionId.'_item_'.$no;
                 ?>
-		<div id="<?php echo $id; ?>">
-                        <?php require $itemLayout; ?>
-                </div>
+		<div id="<?php echo $id; ?>"><?php require $itemLayout; ?></div>
                 <?php 
-                if ($settings->get('show_caption')) {
-                        $captions[] = '<li><a class="current" href="#'.$id.'" title="'.JprovenUtility::html($item->title).'"></a></li>';
+                if ($settings->get('show_navigator')) {
+                        $imageCaption = $settings->get('show_caption') ?
+                                K2FieldsModuleHelper::imageCaption($item, $params, $itemLayout):
+                                '';
+                        $captions[] = '<li><a class="current" href="#'.$id.'" title="'.$imageCaption.'"></a></li>';
                 }
         }
         ?>
