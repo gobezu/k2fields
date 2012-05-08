@@ -7,21 +7,26 @@ $captions = array();
 ?>
 <div class="nivo-wrapper theme-<?php echo $themeName; ?>" style="<?php echo $moduleSize; ?>">
         <div id="<?php echo $partitionId; ?>" class="nivoSlider" style="<?php echo $moduleSize; ?>">
-                <?php foreach ($list as $no => $item) : 
-                        $image = isset($item->image) ? $item->image : JURI::base().$mediaFolder.'bg.png';
+                <?php 
+                $no = 0;
+                foreach ($list as $item) : 
                         $link = $settings->get('linked') ? $item->link : '';
                         $linkTarget = $link ? $settings->get('linktarget', '') : '';
-                        $caption = '';
-                        if ($settings->get('show_caption') == 'title') {
-                                $caption = JprovenUtility::html($item->title);
-                        }
-                        if ($caption) $caption = ' title="'.$caption.'"';
+                        $captions[] = K2FieldsModuleHelper::imageCaption($item, $params, $itemLayout, $settings->get('show_caption'), true);
                         ?>
                 <div>
                         <?php if ($link) : ?><a href="<?php echo $linkTarget; ?>" target="<?php echo $linkTarget; ?>"><?php endif; ?>
-                        <img src="<?php echo $image; ?>" <?php echo $caption; ?> />
+                        <?php echo K2FieldsModuleHelper::image($item, $params, $itemLayout, array('title'=>'#'.$partitionId.'_'.$no)); ?>
                         <?php if ($link) : ?></a><?php endif; ?>
                 </div>
-                <?php endforeach; ?> 
+                <?php 
+                        $no++;
+                endforeach; 
+                ?> 
         </div>
+        <?php foreach ($captions as $no => $caption) : ?>
+        <div id="<?php echo $partitionId . '_' . $no; ?>" class="nivo-html-caption">
+                <?php echo $caption; ?>
+        </div>
+        <?php endforeach; ?>
 </div>

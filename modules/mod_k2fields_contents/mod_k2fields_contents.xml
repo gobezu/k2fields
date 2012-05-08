@@ -117,8 +117,8 @@
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>
-                
-                                <field name="@item-display-settings" type="spacer" default="Item display settings" />
+                        </fieldset>
+                        <fieldset name="itemdisplay" addfieldpath="/administrator/components/com_k2fields/elements/">
                                 <field name="itemTitle" type="radio" default="1" label="Title" description="">
                                         <option value="0">Hide</option>
                                         <option value="1">Show</option>
@@ -152,9 +152,10 @@
                                         <option value="1">Show</option>
                                 </field>
                                 <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="Introtext word limit" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
-                                <field name="itemImage" type="radio" default="1" label="Image" description="">
-                                        <option value="0">Hide</option>
-                                        <option value="1">Show</option>
+                                <field name="itemImage" type="list" default="" label="Image source" description="">
+                                        <option value="k2">K2 (select image size)</option>
+                                        <option value="k2fields">k2fields (select image field)</option>
+                                        <option value="">None</option>
                                 </field>
                                 <field name="itemImgSize" type="list" default="Small" label="Image size" description="">
                                         <option value="XSmall">XSmall</option>
@@ -166,6 +167,18 @@
                                 <field name="imagefield" type="msql" default="" label="Image field" description="This field will replace K2 image. Make sure to select appropriate one for each field group/category"
                                 query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as imagefield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND f.name LIKE '%TYPE:media%'"
                                 />
+                                <field name="imagecaptionsource" type="list" default="title" label="Caption source">
+                                        <option value="none">None</option>
+                                        <option value="intro">Item intro</option>
+                                        <option value="title">Item title</option>
+                                        <option value="image">Image caption</option>
+                                        <option value="layout">Layout</option>
+                                </field>
+                                <field name="wordlimitcaption" type="text" size="4" default="" label="Word limit for caption" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
+                                <field name="defaultimage" type="filelist" default="black" label="Default image" stripext="true" directory="media/mod_k2fields_contents/defaultimage"
+                                description="If image was not found as per selection above we can set a default image. The trailing figure indicates level of transparency. You can use your own images by placing them in media/mod_k2fields_contents/defaultimage as defaultimagethumb"/>
+                                <field name="defaultimagethumb" type="filelist" default="black" label="Default image thumb" stripext="true" directory="media/mod_k2fields_contents/defaultimagethumb"
+                                description="If default image is not set above this will not apply."/>
                                 <field name="itemVideo" type="radio" default="1" label="Video" description="">
                                         <option value="0">Hide</option>
                                         <option value="1">Show</option>
@@ -452,10 +465,10 @@
                                         <option value="0">No</option>
                                 </field>                                
                                 <field name="nivo_startSlide" type="text" default="0" label="startSlide" />
-                                <field name="nivo_show_caption" type="radio" default="title" label="SHOW_CAPTION">
-                                        <option value="0">No</option>
+                                <field name="nivo_show_caption" type="radio" default="title" label="Show caption">
+                                        <option value="none">None</option>
                                         <option value="title">Title</option>
-                                        <option value="item">Item</option>
+                                        <option value="layout">Item</option>
                                 </field>                                
                                 <field name="nivo_captionOpacity" type="text" default="0.8" label="captionOpacity" />
                                 <field name="nivo_directionNav" type="radio" default="1" label="directionNav">
@@ -493,6 +506,10 @@
                                 <field name="nivo_pauseTime" type="text" default="3000" label="pauseTime" />                                
                         </fieldset>
                         <fieldset name="nivo-galleryoptions">
+                                <field name="nivo-gallery_show" type="list" default="image" label="Show">
+                                        <option value="html">Item</option>
+                                        <option value="image">Image only</option>
+                                </field>
                                 <field name="nivo-gallery_pauseTime" type="text" default="3000" label="pauseTime" description="The amount of time to show each slide in milliseconds" />
                                 <field name="nivo-gallery_animSpeed" type="text" default="300" label="animSpeed" description="The duration of the transition animation" />
                                 <field name="nivo-gallery_effect" type="list" default="fade" label="animation" description="The name of the transition effect to use (only fade is available at the moment)">
@@ -1005,15 +1022,15 @@ Default value is empty.-->
                                         <option value="easeOutBounce">easeOutBounce</option>
                                         <option value="easeInOutBounce">easeInOutBounce</option>
                                 </field>
-                                <field name="camera_navigationHover" type="radio" default="1" label="navigationHover" description="when to show the navigation button (prev, next and play/stop buttons)">
-                                        <option value="0">Always</option>
-                                        <option value="1">On hover</option>
+                                <field name="camera_navigationHover" type="radio" default="true" label="navigationHover" description="when to show the navigation button (prev, next and play/stop buttons)">
+                                        <option value="false">Always</option>
+                                        <option value="true">On hover</option>
                                 </field>
                                 <field name="camera_pagination" type="radio" default="1" label="pagination" description="">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>
-                                <field name="camera_show_caption" type="radio" default="1" label="SHOW_CAPTION">
+                                <field name="camera_show_caption" type="radio" default="1" label="Show caption">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>

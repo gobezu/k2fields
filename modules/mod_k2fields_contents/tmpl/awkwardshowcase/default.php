@@ -18,14 +18,13 @@ endif;
                         </div>
                         <?php if ($settings->get('thumbnails')) : ?>
                         <div class="showcase-thumbnail">
-                                <?php require $thumbNailLayout; ?>
-                                <!-- <div class="showcase-thumbnail-caption">CAPTION</div> -->
+                                <?php echo K2FieldsModuleHelper::imageThumb($item, $params, $itemLayout); ?>
                                 <div class="showcase-thumbnail-cover"></div>
                         </div>
                         <?php endif; ?>
                         <?php if ($settings->get('show_caption')) : ?>
                         <div class="showcase-caption">
-                                <h2><?php require $captionLayout; ?></h2>
+                               <h4><?php echo K2FieldsModuleHelper::imageCaption($item, $params, $itemLayout); ?></h4>
                         </div>
                         <?php endif; ?>                        
                 </div>

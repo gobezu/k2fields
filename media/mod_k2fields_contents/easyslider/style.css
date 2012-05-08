@@ -21,12 +21,12 @@
         width:30px;
         height:77px;
         position:absolute;
-        left:-30px;
         top:71px;
         z-index:1000;
-}	
+}
+#prevBtn { left:-30px;}
 #nextBtn{ 
-        left:696px;
+        right:-30px;
 }														
 #prevBtn a, #nextBtn a{  
         display:block;

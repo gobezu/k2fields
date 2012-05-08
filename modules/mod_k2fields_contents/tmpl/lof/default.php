@@ -14,7 +14,7 @@ else $mainWidth = $partition_mainWidth - $navItemWidth;
                                 <div class="lof-main-item<?php echo(isset($customSliderClass[$no]) ? " " . $customSliderClass[$no] : "" ); ?>">
                                         <div class="<?php echo 'item' . $item->id . ' moditem' . $item->id . ' cat' . $item->catid; ?>">
                                                 <div class="lof-description">
-                                                        <?php require($itemLayout); ?>
+                                                        <?php require $itemLayout; ?>
                                                 </div>
                                         </div>
                                 </div> 
@@ -38,8 +38,8 @@ else $mainWidth = $partition_mainWidth - $navItemWidth;
                                                 ?>
                                                 <li class="lof-navigator-item-<?php echo $i . ($i == 0 ? ' lof-navigator-item-first' : '') . ($i == $n - 1 ? ' lof-navigator-item-last' : '') ?>">
                                                         <div>
-                                                                <?php if ($navEnableThumbnail && isset($item->thumbnail)): ?>
-                                                                        <?php echo $item->thumbnail; ?> 
+                                                                <?php if ($navEnableThumbnail && isset($item->imageThumb)): ?>
+                                                                        <?php echo $item->imageThumb; ?> 
                                                                 <?php endif; ?> 
                                                                 <?php if ($navEnableTitle): ?>
                                                                         <h4><?php echo $item->title; ?></h4>
