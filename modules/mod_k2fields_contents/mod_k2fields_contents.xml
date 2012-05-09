@@ -683,14 +683,14 @@ Default value is empty.-->
                                         <option value="false">No</option>
                                 </field> 
                                 <field name="galleria_carouselSpeed" type="text" default="200" label="slide speed of the carousel (milliseconds)" description="" />
-                                <field name="galleria_carouselSteps" type="text" default="auto" label="carouselSteps" description="(a number or auto = will move the carousel as many steps as there are visible thumbnails) The number of “steps” the carousel will advance when navigating between available thumbnails. You can control the animation speed using the carouselSpeed option." />
+                                <field name="galleria_carouselSteps" type="text" default="auto" label="carouselSteps" description="(a number or auto = will move the carousel as many steps as there are visible thumbnails) The number of steps the carousel will advance when navigating between available thumbnails. You can control the animation speed using the carouselSpeed option." />
                                 <field name="galleria_clicknext" type="radio" default="false" label="clicknext" description="This options adds a click event over the stage that navigates to the next image in the gallery. Useful for mobile browsers and other simpler applications. Note that setting this to true will disable any other links that you might have in the data object.">
                                         <option value="true">Yes</option>
                                         <option value="false">No</option>
                                 </field>
                                 <field name="galleria_dataConfig" type="textarea" default="" label="dataConfig (tbi)" description="This very useful function configures how the data should be extracted from the source. It should return an object that will blend in with the default extractions." />
                                 <field name="galleria_dataSelector" type="text" default="img" label="dataSelector" description="The selector Galleria should look for in the HTML source. If you are using other elements than images to store data in the HTML, you can set this option to configure Galleria to look for the right elements. You can use any jQuery selector." />
-                                <field name="galleria_dummy" type="text" default="" label="dummy" description="This option allows you to define an image that should be shown if Galleria can’t find the original image. Think of it as a 404 for Galleria." />
+                                <field name="galleria_dummy" type="text" default="" label="dummy" description="This option allows you to define an image that should be shown if Galleria can not find the original image. Think of it as a 404 for Galleria." />
                                 <field name="galleria_easing" type="list" default="galleria" label="easing" description="If you use any easing other than those prefixed with galleria please make sure to include the jQuery easing plugin found in the advanced section.">
                                         <option value="galleria">galleria</option>
                                         <option value="galleriaIn">galleriaIn</option>
@@ -770,9 +770,9 @@ Default value is empty.-->
                                         <option value="false">No</option>
                                 </field>
                                 <field name="galleria_imagePanSmoothness" type="text" default="12" label="imagePanSmoothness" description="This value sets how smooth the image pan movement should be when setting image_pan to true. The higher value, the smoother effect but also CPU consuming." />
-                                <field name="galleria_imagePosition" type="text" default="center" label="imagePosition" description="Positions the main image inside the stage container. Works like the CSS background-position property, f.ex ‘top right’ or ‘20% 100%’. You can use keywords, percents or pixels. The first value is the horizontal position and the second is the vertical." />
+                                <field name="galleria_imagePosition" type="text" default="center" label="imagePosition" description="Positions the main image inside the stage container. Works like the CSS background-position property, f.ex top right or 20% 100%. You can use keywords, percents or pixels. The first value is the horizontal position and the second is the vertical." />
                                 <field name="galleria_imageTimeout" type="text" default="30000" label="imageTimeout (milliseconds)" description="This option defines how long Galleria will try to fetch the images (unless it returns 404) before an exception is thrown." />
-                                <field name="galleria_initialTransition" type="list" default="" label="initialTransition" description="Defines a different transition to show on the first image. F.ex, if you are using a slide transition, you might want the first image to fade. You can then set this option to ‘fade’.">
+                                <field name="galleria_initialTransition" type="list" default="" label="initialTransition" description="Defines a different transition to show on the first image. F.ex, if you are using a slide transition, you might want the first image to fade. You can then set this option to fade.">
                                         <option value="fade">fade</option>
                                         <option value="flash">flash</option>
                                         <option value="pulse">pulse</option>
@@ -793,8 +793,8 @@ Default value is empty.-->
                                 </field>
                                 <field name="galleria_lightboxFadeSpeed" type="text" default="200" label="lightboxFadeSpeed (milliseconds)" description="The lightbox will animate and fade the images and captions. This value controls how fast they should fade." />
                                 <field name="galleria_lightboxTransitionSpeed" type="text" default="300" label="lightboxTransitionSpeed (milliseconds)" description="The lightbox will animate the white square before displaying the image. This value controls how fast it should animate." />
-                                <field name="galleria_maxScaleRatio" type="text" default="" label="maxScaleRatio" description="Sets the maximum scale ratio for images. F.ex, if you don’t want Galleria to upscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
-                                <field name="galleria_minScaleRatio" type="text" default="" label="minScaleRatio" description="Sets the minimum scale ratio for images. F.ex, if you don’t want Galleria to downscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
+                                <field name="galleria_maxScaleRatio" type="text" default="" label="maxScaleRatio" description="Sets the maximum scale ratio for images. F.ex, if you do not want Galleria to upscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
+                                <field name="galleria_minScaleRatio" type="text" default="" label="minScaleRatio" description="Sets the minimum scale ratio for images. F.ex, if you do not want Galleria to downscale any images, set this to 1. Leave this empty to allow any scaling of the images." />
                                 <field name="galleria_overlayBackground" type="text" default="#0b0b0b" label="overlayBackground" description="Overlay background color in lightbox." />
                                 <field name="galleria_overlayOpacity" type="text" default="0.85" label="overlayOpacity" description="Overlay opacity in lightbox." />
                                 <field name="galleria_pauseOnInteraction" type="radio" default="true" label="pauseOnInteraction" description="During playback, Galleria will stop the playback if the user presses thumbnails or any other navigational links. If you dont want this behaviour, set this option to false.">
@@ -806,7 +806,7 @@ Default value is empty.-->
                                         <option value="false">No</option>
                                 </field>
                                 <field name="galleria_preload" type="text" default="2" label="preload" description="Defines how many images Galleria should preload in advance. Please note that this only applies when you are using separate thumbnail files. Galleria always cache all preloaded images. &lt;br/&gt;2 preloads the next 2 images in line&lt;br/&gt;all forces Galleria to start preloading all images. This may slow down client.&lt;br/&gt;0 will not preload any images" />
-                                <field name="galleria_queue" type="radio" default="true" label="queue" description="Galleria queues all activation clicks: next, prev and thumbnails. You can see this effect when f.ex clicking “next” fast many times. If you do not want Galleria to queue, set this to false. This will make Galleria stall during animations.">
+                                <field name="galleria_queue" type="radio" default="true" label="queue" description="Galleria queues all activation clicks: next, prev and thumbnails. You can see this effect when f.ex clicking next fast many times. If you do not want Galleria to queue, set this to false. This will make Galleria stall during animations.">
                                         <option value="true">Yes</option>
                                         <option value="false">No</option>
                                 </field>
