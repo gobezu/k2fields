@@ -697,6 +697,24 @@ var k2fieldseditor = new Class({
                                 'tip':'Value of this field will be appended to title with the glue character defined in k2fields plugin setting between the title and the value.',
                                 'section':'SEO'
                         },
+                        '32':{
+                                'name':'Pre',
+                                'optName':'pre',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':'100',
+                                'tip':'Fixed text to prepend value with',
+                                'section':'Layout'
+                        },
+                        '33':{
+                                'name':'Post',
+                                'optName':'post',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':'100',
+                                'tip':'Fixed text to trail value with',
+                                'section':'Layout'
+                        },
                         '51':{
                                 'name':'Search',
                                 'optName':'search',

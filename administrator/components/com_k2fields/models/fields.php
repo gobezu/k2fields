@@ -1538,7 +1538,7 @@ class K2FieldsModelFields extends JModel {
                                         $ui .= '&Itemid='.$itemId;
                                 
                                 $ui = JUri::root().'index.php?option=com_k2fields&view=itemlist&task=search&'.$ui;
-                                $ui = '<a href="'.$ui.'" title="'.htmlentities($label).'">'.$labelUI.'</a>';
+                                $ui = '<a href="'.$ui.'" title="'.JprovenUtility::html($label).'">'.$labelUI.'</a>';
                         }
                 } else if ($as == 'list') {
                         $module = 0;
@@ -1848,7 +1848,8 @@ class K2FieldsModelFields extends JModel {
                                                 }
                                         }
                                         
-                                        $rendered = $this->renderFieldValues($renderedValues, $fld, $fieldRule);
+                                        $rendered = $this->renderFieldValues($renderedValues, $fld, $fieldRule, is_array($renderer) && $renderer[1] == 'renderGeneric');
+                                        //jdbg::pe($rendered, $fieldId, 84);
                                 }
                                 
                                 $fieldRule['rendered'] = $rendered;
@@ -2102,7 +2103,7 @@ class K2FieldsModelFields extends JModel {
                 return implode(', ', $rendered);
         }
         
-        public function renderFieldValues($values, $field, $fieldRule) {
+        public function renderFieldValues($values, $field, $fieldRule, $isFormatted = false) {
                 if (empty($values)) return '';
                 
                 $valid = self::value($field, 'valid');
@@ -2176,6 +2177,8 @@ class K2FieldsModelFields extends JModel {
                 $ui .= ($isPart ? '<div class="'.$id.'">' : '<div class="fvc '.$id.'">');
                 
                 if (empty($lbl)) $ui .= '<div class="nolbl">';
+                
+                if (!$isFormatted) $rendered = self::formatValue($rendered, $fieldRule, $field);
                 
                 $ui .= $lbl . '<div class="fv">'.$rendered.'</div>';
                 
@@ -2454,54 +2457,69 @@ class K2FieldsModelFields extends JModel {
                 ;
         }
         
-        public function renderingValue($value, $rule, $field = null) {
-                $format = self::value($field, 'format', (isset($rule['format']) ? $rule['format'] : ''));
-                $val = self::value($value, 'value');
-                $txt = self::value($value, 'txt', $val);
+        protected static function formatValue($value, $rule, $field = null) {
+                $isValueRow = is_object($value);
+                
+                if (is_string($value)) {
+                        $val = $txt = $value;
+                        $img = '';
+                        $value = new stdClass();
+                        $value->val = $val;
+                } else {
+                        $val = self::value($value, 'value');
+                        $txt = self::value($value, 'txt', $val);
+                        $img = self::value($value, 'img');
+                }
+                
                 $_txt = $txt;
+                $rendered = '';
                 
                 $pre = self::value($field, 'pre', '');
                 
                 if (!empty($pre)) {
                         $_txt = $pre . $_txt;
-                        $txt = '<span class="pre">'.$pre.'</span>'.$txt;
+                        $rendered .= '<span class="pre">'.$pre.'</span>';
                 }
                 
                 $post = self::value($field, 'post', '');
                 
                 if (!empty($post)) {
                         $_txt .= $post;
-                        $txt = '<span class="post">'.$post.'</span>';
                 }
                 
-                $img = '';
-                
-                if (!empty($value->img)) {
+                if (!empty($img)) {
                         // corresponding adjustment is made in jputility.js::loadImage
-                        $img = JURI::root().JprovenUtility::loc().'icons/'.$value->img;
-                        
-                        $img = 
-                                '<img src="' . $img . 
-                                '" alt="' . htmlentities($_txt) . 
-                                '" title="' . htmlentities($_txt) . '" />';
+                        $img = JURI::root().JprovenUtility::loc().'icons/'.$img;
+                        $alt = JprovenUtility::html($_txt);
+                        $img = JHTML::_('image', $img, $alt, array('title'=>$alt));
                 }
+                
+                $format = self::value($field, 'format', (isset($rule['format']) ? $rule['format'] : ''));
                 
                 if (empty($format)) {
                         if (!empty($img)) {
-                                $txt = $img;
-                                $img = '';
+                                if ($isValueRow) {
+                                        $txt = $img;
+                                        $img = '';
+                                } else {
+                                        $txt .= $img;
+                                }
                         }
                         
                         $format = '%text%';
                 }
                 
-                $rendered =  str_ireplace(
+                $rendered .=  str_ireplace(
                         array('%value%', '%img%', '%text%'), 
                         array($val, $img, $txt), 
                         $format
                 );
                 
-                return $rendered;
+                if (!empty($post)) {
+                        $rendered .= '<span class="post">'.$post.'</span>';
+                }
+                
+                return $rendered;                
         }
         
         public function renderGeneric($item, $values, $field, $helper, $rule = null, $isRendered = false) {
@@ -2525,7 +2543,7 @@ class K2FieldsModelFields extends JModel {
                                         continue;
                                 }
                                 
-                                $val[] = $this->renderingValue($value, $rule, $field);
+                                $val[] = self::formatValue($value, $rule, $field);
                         }
                 }
                 
@@ -2643,7 +2661,7 @@ class K2FieldsModelFields extends JModel {
                 $val = self::value($field, 'target', false);
                 if ($val) $attrs = 'class="'.$val.'" ';
                 
-                $title = htmlentities($title, ENT_QUOTES, 'UTF-8');
+                $title = JprovenUtility::html($title);
                 
                 $renderedValues = '<a '.$attrs.'href="'.$url.'" title="'.$title.'">'.$title.'</a>';
                 
