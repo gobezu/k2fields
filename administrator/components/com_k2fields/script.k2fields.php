@@ -12,6 +12,8 @@ class Com_K2fieldsInstallerScript {
         public function update($adapter) { $this->install($adapter, true); }
 
 	public function install($adapter, $isUpdate = false) {
+                $installer  = $adapter->getParent();
+                
                 if (!$isUpdate) {
                         // Create stored procedures if any available
                         jimport('joomla.filesystem.file');
@@ -33,7 +35,7 @@ class Com_K2fieldsInstallerScript {
                         }
                 }
 
-                $extensions = $this->getExtensions($adapter);
+                $extensions = $this->getExtensions($installer);
                 $aerror = array();
                 $error = false;
                 $db = JFactory::getDbo();
@@ -60,7 +62,7 @@ class Com_K2fieldsInstallerScript {
 
                 // rollback on installation errors
                 if ($error) {
-                        $adapter->parent->abort(JText::_('Component').' '.JText::_('Install').': '.JText::_('Error'), 'component');
+                        $installer->abort(JText::_('Component').' '.JText::_('Install').': '.JText::_('Error'), 'component');
 
                         for ($i = 0; $i < count($extensions); $i++) {
                                 if ($extensions[$i]['status']) {
@@ -155,7 +157,6 @@ class Com_K2fieldsInstallerScript {
         }
         
         function getExtensions($adapter) {
-                $installer  = $adapter->getParent();
                 $add = $installer->manifest->xpath('additional');
                 
                 if ($add) $add = $add[0];
