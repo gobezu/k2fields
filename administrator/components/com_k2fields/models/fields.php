@@ -3222,7 +3222,7 @@ class K2FieldsModelFields extends JModel {
          * currently supported are sql and url
          * such sources are specified as follows replacing the explicit value list above:
          *      sourcetype:(source)
-         *      sourcetype=[sql|url|php]
+         *      sourcetype=[sql|url|php|file]
          *      source=
          *      IF sourcetype == sql THEN 
          *       sql query where result columns are labeled as value, text and img
@@ -3333,7 +3333,7 @@ class K2FieldsModelFields extends JModel {
                                         $options['list'] = 'conditional';
                                 }
                         } else if ($key == 'values') {
-                                if (preg_match('#(sql|php|url):\(([^\)]+)\)#iU', $val, $m)) {
+                                if (preg_match('#(sql|php|url|file):\(([^\)]+)\)#iU', $val, $m)) {
                                         $type = $m[1];
                                         $src = $m[2];
                                         
@@ -3348,6 +3348,14 @@ class K2FieldsModelFields extends JModel {
                                                         if (function_exists('eval')) $values = eval($src);
                                                 } catch (JException $ex) {
                                                         $values = null;
+                                                }
+                                        } else if ($type == 'file') {
+                                                $file = JPATH_SITE.'/'.$src;
+                                                $values = JFile::read($file);
+                                                $values = explode("\n", $values);
+                                                foreach ($values as &$value) {
+                                                        $value = trim($value);
+                                                        $value = explode(self::VALUE_COMP_SEPARATOR, $value);
                                                 }
                                         }
                                         

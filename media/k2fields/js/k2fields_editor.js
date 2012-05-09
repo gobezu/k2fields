@@ -78,6 +78,11 @@ var k2fieldseditor = new Class({
                         if (vals.length == 0) return;
                         
                         switch (optName) {
+                                case 'values':
+                                        if (skipped['source'] != 'specify') {
+                                                val = skipped['source']+':('+val[0]+')';
+                                        }
+                                        break;
                                 case 'access':
                                         val = vals[0];
                                         if (val == k2fs.options.valueSeparator) val = '';
@@ -523,24 +528,13 @@ var k2fieldseditor = new Class({
                                 'list':'normal',
                                 'section':'Basic'
                         },
-                        '7':{
-                                'name':'Values',
-                                'optName':'values',
-                                'valid':'complex',
-                                'list':'normal',
-                                'subfields':[
-                                        {'name':'Value','valid':'text'},
-                                        {'name':'Text','valid':'text'},
-                                        {'name':'Image','valid':'text','tip':'File name of image located in media/k2fields/images'},
-                                ]
-                        },
                         '10':{
                                 'name':'Default',
                                 'optName':'default',
                                 'valid':'text',
                                 'ph':'Provide suitable default value',
                                 'size':'60',
-                                'section':'Basic'
+                                'section':'Values'
                         },
                         '11':{
                                 'name':'Autocompletion<br />(user provided string is searched in)',
@@ -570,13 +564,15 @@ var k2fieldseditor = new Class({
                                 'name':'Save value as',
                                 'optName':'savevalues',
                                 'valid':'text',
-                                'tip':'Fields following within this group can reuse the values by referring to the name you provide here'
+                                'tip':'Fields following within this group can reuse the values by referring to the name you provide here',
+                                'section':'Values'
                         },
                         '15':{
                                 'name':'Use saved value',
                                 'optName':'values:',
                                 'valid':'text',
-                                'tip':'Reuse values of earlier created fields by referring to given name'
+                                'tip':'Reuse values of earlier created fields by referring to given name',
+                                'section':'Values'
                         },
                         '16':{
                                 'name':'Section',
@@ -674,7 +670,8 @@ var k2fieldseditor = new Class({
                                 'values':[
                                         {'value':'value'},
                                         {'value':'text'}
-                                ]
+                                ],
+                                'section':'Values'
                         },
                         '29':{
                                 'name':'Content tooltip text',
@@ -1344,6 +1341,64 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'section':'Type specific',
                                 'tip':'You can provide a simple function name or a call of an existing objects method'
+                        },
+                        '1401':{
+                                'name':'Source',
+                                'optName':'source',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':['specify', 'sql', 'php', 'url', 'file'],
+                                'section':'Values',
+                                'deps':{
+                                        'specify':['id:1406'],
+                                        'sql':['id:1402'],
+                                        'php':['id:1403'],
+                                        'url':['id:1404'],
+                                        'file':['id:1405']
+                                },
+                                'skip':true
+                        },
+                        '1402':{
+                                'name':'SQL',
+                                'optName':'values',
+                                'ui':'textarea',
+                                'section':'Values',
+                                'valid':'text'
+                        },
+                        '1403':{
+                                'name':'PHP',
+                                'optName':'values',
+                                'ui':'textarea',
+                                'section':'Values',
+                                'valid':'text'
+                        },
+                        '1404':{
+                                'name':'URL',
+                                'optName':'values',
+                                'ui':'text',
+                                'section':'Values',
+                                'valid':'text',
+                                'size':100
+                        },
+                        '1405':{
+                                'name':'File',
+                                'optName':'values',
+                                'ui':'text',
+                                'section':'Values',
+                                'valid':'text',
+                                'size':100
+                        },
+                        '1406':{
+                                'name':'Specify values',
+                                'optName':'values',
+                                'valid':'complex',
+                                'list':'normal',
+                                'subfields':[
+                                        {'name':'Value','valid':'text'},
+                                        {'name':'Text','valid':'text'},
+                                        {'name':'Image','valid':'text','tip':'File name of image located in media/k2fields/images'},
+                                ],
+                                'section':'Values'
                         }
                 };
         }
