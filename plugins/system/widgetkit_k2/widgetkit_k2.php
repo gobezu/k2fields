@@ -26,7 +26,7 @@ class plgSystemWidgetkit_K2 extends JPlugin {
 		require_once JPATH_ADMINISTRATOR.'/components/com_widgetkit/classes/widgetkit.php';
 
 		$this->widgetkit = Widgetkit::getInstance();
-
+                
 		$path = JPATH_ROOT.'/plugins/system/widgetkit_k2/';
 		$this->widgetkit['path']->register($path, 'widgetkit_k2.root');
 		$this->widgetkit['path']->register($path.'widgets', 'widgetkit_k2.widgets');
@@ -114,9 +114,8 @@ class K2Widget {
                 
                 $inclFldSets = array(
                         'mod_k2_content'=>'basic',
-                        'mod_k2fields_contents'=>'itemsoptions'
+                        'mod_k2fields_contents'=>array('basic', 'itemdisplay')
                 );
-                
                 
                 $exclFlds = (array) $exclFlds[$module];
                 $inclFldSets = (array) $inclFldSets[$module];

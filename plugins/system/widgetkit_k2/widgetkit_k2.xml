@@ -14,8 +14,8 @@
                 <p>Pulls together K2 and Widgetkit displaying K2 content with Widgetkit anywhere on your site. Inspired by widgetkit_joomla plugin developed by YOOtheme and module_k2_content developed by JoomlaWorks.</p>
                 <p>Requirements:
                 <ul>
-                        <li>K2 module K2 Content (mod_k2_content) must be installed but not necessarily activated</li>
-                        <li>widgetkit - either lite version or common one</li>
+                        <li>One of the compatible modules k2fields content or K2 Content must be installed but not necessarily activated</li>
+                        <li>widgetkit - either lite or full version installed and widgetkits content and system plugin activated</li>
                 </ul></p>
                 ]]>
         </description>

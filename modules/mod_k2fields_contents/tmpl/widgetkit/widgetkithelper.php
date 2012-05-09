@@ -68,8 +68,6 @@ class K2fieldsModuleWidgetkitHelper {
                         if (!empty($settings)) $settings = (array) $settings;
                         else $settings = array();
                         
-                        $k2 = array();
-                        
                         foreach ($defaultSettings as $key => $defaultSetting) {
                                 if (!isset($settings[$key])) $settings[$key] = $defaultSetting;
                         }
