@@ -619,6 +619,7 @@ var k2fieldseditor = new Class({
                                 'optName':'format',
                                 'valid':'text',
                                 'ui':'text',
+                                'size':'100',
                                 'tip':'Placeholders %value%, %txt% and %img% are available.',
                                 'section':'Layout'
                         },

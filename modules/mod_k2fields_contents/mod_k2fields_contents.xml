@@ -901,8 +901,10 @@ Default value is empty.-->
                                         <option value="nextprev">Next/Prev buttons</option>
                                 </field>
                         </fieldset>
+                        <fieldset name="cycleoptions">
+                                
+                        </fieldset>
                         <fieldset name="cameraoptions">
-                                <field name="camera_height" default="50%" label="height" description="here you can type pixels (for instance '300px'), a percentage (relative to the width of the slideshow, for instance '50%') or 'auto'" />
                                 <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
                                         <option value="camera_amber_skin">amber</option>
                                         <option value="camera_ash_skin">ash</option>

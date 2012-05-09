@@ -3318,6 +3318,8 @@ class K2FieldsModelFields extends JModel {
                                 if (preg_match('#(sql|php|url):\(([^\)]+)\)#iU', $val, $m)) {
                                         $type = $m[1];
                                         $src = $m[2];
+                                        
+                                        $values = null;
 
                                         if ($type == 'sql') {
                                                 $db = JFactory::getDBO();
