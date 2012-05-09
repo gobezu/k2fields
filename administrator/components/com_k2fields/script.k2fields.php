@@ -123,7 +123,8 @@ class Com_K2fieldsInstallerScript {
         
         function uninstall($adapter) {
                 $extensions = array();
-                $exts = $this->getExtensions($adapter);
+                $installer = $adapter->getParent();
+                $exts = $this->getExtensions($installer);
                 
                 foreach ($exts as $ext) 
                         $extensions[] = $this->uninstallExt($ext);
@@ -156,7 +157,7 @@ class Com_K2fieldsInstallerScript {
 <?php
         }
         
-        function getExtensions($adapter) {
+        function getExtensions($installer) {
                 $add = $installer->manifest->xpath('additional');
                 
                 if ($add) $add = $add[0];
