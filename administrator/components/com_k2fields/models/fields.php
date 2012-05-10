@@ -3333,7 +3333,7 @@ class K2FieldsModelFields extends JModel {
                                         $options['list'] = 'conditional';
                                 }
                         } else if ($key == 'values') {
-                                if (preg_match('#(sql|php|url|file):\(([^\)]+)\)#iU', $val, $m)) {
+                                if (preg_match('#^(sql|php|url|file)\:(.+)#i', $val, $m)) {
                                         $type = $m[1];
                                         $src = $m[2];
                                         
