@@ -47,6 +47,10 @@ var k2fieldseditor = new Class({
                 new Hash(specification).each (function(ps, id) {
                         optName = this.optName(ps);
                         
+                        if (optName == 'values' && skipped['source'] == 'specify') {
+                                ps = this.getProperties(optName, 4);
+                        }                        
+                        
                         id = k2fs.options.pre + id;
                         val = $(id).get('value');
                         
@@ -80,7 +84,18 @@ var k2fieldseditor = new Class({
                         switch (optName) {
                                 case 'values':
                                         if (skipped['source'] != 'specify') {
-                                                val = skipped['source']+':('+val[0]+')';
+                                                val = skipped['source']+':'+val[0][0];
+                                        } else {
+                                                val = [];
+                                                var j;
+                                                for (i = 0; i < vals.length; i++) {
+                                                        for (j = 0; j < vals[i].length; j++)
+                                                                if (!vals[i][j]) 
+                                                                        vals[i][j] = undefined;
+                                                        vals[i] = vals[i].clean();
+                                                        if (vals[i].length) val.push(vals[i].join('=='));
+                                                }
+                                                val = val.join(ps.sep ? ps.sep : k2fs.options.valueSeparator);                                                
                                         }
                                         break;
                                 case 'access':
@@ -103,10 +118,6 @@ var k2fieldseditor = new Class({
                                         val = 'values:'+val;
                                         optName = 'values';
                                         break;
-//                                case 'access':
-//                                        if (def['access']) def['access'] += k2fs.options.valueSeparator;
-//                                        def['access'] += ps.subOptName + '==' + vals[0]; 
-//                                        break;
                                 case 'custom':
                                         val = [];
                                         for (i = 0; i < vals.length; i++) {
@@ -175,14 +186,9 @@ var k2fieldseditor = new Class({
         createUIWithSections: function() {
                 if ($('extraFields')) $('extraFields').dispose();
                 
-                // var ui = new Element('ul', {'id':'extraFields', 'class':'admintable extraFields'}).inject($('extraFieldsContainer')), uip;
-                
-                var uis = {};
                 new Element('div', {'class':'clr'}).inject($('extraFieldsContainer'));
                 
-                var specification = Object.clone(this.specification), _id;
-                
-                var vals = this.parseValues(), val, optName, css, sectionName, ui, sectionID, uip;
+                var uis = {}, specification = Object.clone(this.specification), _id, vals = this.parseValues(), val, optName, css, sectionName, ui, sectionID, uip;
                 
                 new Hash(specification).each(function(ps, id) {
                         optName = this.optName(ps);
@@ -278,7 +284,6 @@ var k2fieldseditor = new Class({
                 }
                 
                 var optName, val, i, n, j, m, v, re;
-
                 
                 def = def.split(':::');
                 
@@ -292,9 +297,21 @@ var k2fieldseditor = new Class({
                         if (!props.contains(optName)) {
                                 custom.push(optName+k2fs.options.valueSeparator+val);
                                 continue;
+                        } else if (optName == 'values') {
+                                var _val;
+                                if (_val = val.match(/^(file|php|url|sql)\:/i)) {
+                                        _defs['source'] = _val[1];
+                                        val = val.replace(_val[1]+':', '');
+                                } else {
+                                        _defs['source'] = 'specify';
+                                }
                         }
                         
-                        _def = this.getProperties(optName);
+                        if (optName == 'values' && _defs['source'] == 'specify') {
+                                _def = this.getProperties(optName, 4);
+                        } else {
+                                _def = this.getProperties(optName);
+                        }
                         
                         if (_def.list || _def.ui == 'checkbox' || _def.ui == 'select' && _def.multiple) {
                                 val = val.split(k2fs.options.valueSeparator);
@@ -1386,7 +1403,8 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'section':'Values',
                                 'valid':'text',
-                                'size':100
+                                'size':100,
+                                'tip':'File need to be located on site and given relative to site root. Each row in file need to adhere to the following format where only value column is mandatory: value==text==img'
                         },
                         '1406':{
                                 'name':'Specify values',
