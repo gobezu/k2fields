@@ -46,26 +46,38 @@ defined('_JEXEC') or die('Restricted access');
                         <div class="box">
                                 <h3>About...</h3>
                                 <div class="content">
+                                <?php if (!empty($modID) && is_numeric($modID)) : ?>
+                                <p style="color:#fff; background:#c61f29; padding:20px;">
+                                        Please don't change the name above which is auto generated.
+                                </p>
+                                <?php endif; ?>
                                 <p>
                                         This is part of the <a target="_blank" href="http://jproven.com/k2fields">k2fields</a> effort to be released soon, where we are trying to pull together the best of available extensions to a whole.
                                 </p>
                                 <p>
                                         Each item rendering is based on overridable template located at plugins/system/widget_k2/layouts/item.php. This layout is based on mod_k2_content's where we have fleshed out item specific parts. 
-                                        Override templates can be placed at yourtemplatefolder/html/plg_widgetkit_k2. Note: you will most probably need to create the folder yourself.</p>
+                                        Override templates can be placed at yourtemplatefolder/html/plg_widgetkit_k2. Note: you will most probably need to create the folder yourself.
+                                </p>
                                 <p>
                                         Templates can be item or category specific or global with the following priortity order and naming convention applying:
-                                        <ul>
-                                                <li>item specific layout - file named as i&lt;itemid&gt;.php</li>
-                                                <li>category specific layout - file named as c&lt;categoryid&gt;.php</li>
-                                                <li>generic layout - file named as item.php</li>
-                                        </ul>
                                 </p>
+                                <ul>
+                                        <li>item specific layout - file named as i&lt;itemid&gt;.php</li>
+                                        <li>category specific layout - file named as c&lt;categoryid&gt;.php</li>
+                                        <li>generic layout - file named as item.php</li>
+                                </ul>
                                 </div>
                         </div>                        
                         <div class="k2 box">
                                 <h3>K2 items settings</h3>
                                 <div class="content">
-                                <?php echo $modHTML; ?>				
+                                <?php
+                                if (!empty($modID) && is_numeric($modID)) { 
+                                        ?>Please refer to <a href="index.php?option=com_modules&view=module&layout=edit&id=<?php echo $modID;?>">module</a> for item settings.<?php
+                                } else { 
+                                        echo $modHTML; 
+                                } 
+                                ?>
                                 </div>
                         </div>
                         <p class="actions">

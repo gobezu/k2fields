@@ -8,8 +8,6 @@ $document->addScript(JURI::base().$mediaFolder.'jquery.aw-showcase.js');
 $document->addStyleSheet(JURI::base().$mediaFolder.'css/style.css');
 
 $theme = $settings->get('theme');
-$moduleWidth = $settings->get('content_width');
-$padding = '';
 $css = '';
 
 if ($settings->get('arrows')) {

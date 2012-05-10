@@ -1285,6 +1285,7 @@ group by vvv.itemid
                                 $client = (int) $client;
                         }
                 }
+                
 		$user = JFactory::getUser();
 		$db = JFactory::getDBO();
                 $access = JprovenUtility::isJ16() ? 

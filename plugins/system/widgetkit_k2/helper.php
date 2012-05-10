@@ -142,10 +142,7 @@ class WidgetkitK2WidgetkitHelper extends WidgetkitHelper {
                 } else {
                         $componentParams = JComponentHelper::getParams('com_k2');
                         JLoader::register('K2FieldsModuleHelper', JPATH_SITE.'/components/com_k2fields/helpers/modulehelper.php');
-                        $items = K2FieldsModuleHelper::getList($params, $componentParams, 'html', 'category', 'widgetkit_k2');
-                        if ($params->get('partby') && $params->get('partid')) {
-                                $items = $items[$params->get('partid')];
-                        }
+                        $items = K2FieldsModuleHelper::getList($params, $componentParams, 'html', null, 'widgetkit_k2');
                         return $items;
                 }
         }

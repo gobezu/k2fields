@@ -16,18 +16,16 @@ class K2fieldsModuleWidgetkitHelper {
                 $wh = $widgetkit->getHelper('widget');
                 $widgetId = $widget->id;
                 
-                if (!$widgetId || $settings['keepsynch']) {
-                        $widgetDefinition = array(
-                                'type' => $settings['type'], 
-                                'id' => $widget->id,
-                                'name' => $widget->name, 
-                                'settings' => $widget->settings,
-                                'style' => $settings['style'],
-                                'k2' => $widget->k2
-                        );
-
-                        $widgetId = $wh->save($widgetDefinition);
-                }
+                $widgetDefinition = array(
+                        'type' => $settings['type'], 
+                        'id' => $widget->id,
+                        'name' => $widget->name, 
+                        'settings' => $widget->settings,
+                        'style' => $settings['style'],
+                        'k2' => $widget->k2
+                );
+                
+                $widgetId = $wh->save($widgetDefinition);
                 
                 $ui = $wh->render($widgetId);
                 

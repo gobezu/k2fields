@@ -3,13 +3,8 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
-
-if ($moduleWidth !== false) :
 ?>
-<div style="width:<?php echo $moduleWidth; ?>px;<?php echo $padding; ?>" class="<?php echo $css; ?>">
-<?php 
-endif; 
-?>
+<div style="<?php echo $_moduleSize; ?>" class="<?php echo $css; ?>">
         <div id="<?php echo $showcaseId; ?>" class="showcase">
                 <?php foreach ($list as $no => $item) { ?>
                 <div class="showcase-slide">
@@ -30,10 +25,4 @@ endif;
                 </div>
                 <?php } ?>
         </div>
-<?php 
-if ($moduleWidth !== false) : 
-?>
 </div>
-<?php 
-endif; 
-?> 
