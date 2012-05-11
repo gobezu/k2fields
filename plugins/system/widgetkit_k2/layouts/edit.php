@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
                                                         $settings = array_merge($settings, $setting);
                                                 }
                                         }
-
+                                        
                                         foreach ($settings as $setting) {
                                                 $name = (string) $setting->attributes()->name;
                                                 $type = (string) $setting->attributes()->type;
@@ -73,7 +73,11 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="content">
                                 <?php
                                 if (!empty($modID) && is_numeric($modID)) { 
-                                        ?>Please refer to <a href="index.php?option=com_modules&view=module&layout=edit&id=<?php echo $modID;?>">module</a> for item settings.<?php
+                                        ?>
+                                        Please refer to <a href="index.php?option=com_modules&view=module&layout=edit&id=<?php echo $modID;?>">module</a> for item settings.
+                                        <script type="text/javascript">window.addEvent('domready', function() { $$('select[name=settings[style]]')[0].set('disabled', true) });</script>        
+                                                
+                                        <?php
                                 } else { 
                                         echo $modHTML; 
                                 } 

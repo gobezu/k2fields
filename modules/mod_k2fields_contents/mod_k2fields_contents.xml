@@ -392,17 +392,10 @@
                                         <option value="4">4</option>
                                 </field>                                
                         </fieldset>
-                        <fieldset name="widgetkitoptions">
+                        <fieldset name="widgetkitoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
                                 <field name="widgetkit_type" type="folderlist" default="slideshow" hide_none="true" label="Widget type" directory="plugins/system/widgetkit_k2/widgets" filter="" exclude="" stripext="" />
                                 <field name="widgetkit_theme" type="dependentfolderlist" missing="Widgetkit not installed" default="default" hide_none="true" label="Style" directory="media/widgetkit/widgets/%replace%/styles" dependson="widgetkit_type" reg="" filter="" exclude="" stripext="" />
-                                <field type="spacer" name="widgetkitsettingnotice" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_widgetkitsettingnotice-lbl {width:100% !important; color:#fff; background:#c61f29; }&lt;/style&gt;The following are only basic and common settings for all widgets. If you want to fine tune widgets styling please refer to the auto created widget." />
-                                <field name="widgetkit_autoplay" label="Autoplay" type="radio" default="1">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                </field>
-                                <field name="widgetkit_interval" label="Autoplay Interval (ms)" type="text" default="5000" />
-                                <field name="widgetkit_width" label="Width" type="text" default="auto" />
-                                <field name="widgetkit_height" label="Height" type="text" default="auto" />
+                                <field name="widgetkit_settings" label="Widget style settings" type="widgetkitsettings" default="" />
                         </fieldset>
                         <fieldset name="rpflorence-SlideShowoptions">
                                 <field name="rpflorence-SlideShow_transition" type="list" default="slideDown" label="transition">

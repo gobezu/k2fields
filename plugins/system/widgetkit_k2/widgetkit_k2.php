@@ -42,7 +42,7 @@ class plgSystemWidgetkit_K2 extends JPlugin {
 	public function init() {
 		foreach ($this->widgetkit['path']->dirs('widgetkit_k2.widgets:') as $widget) {
 			if ($file = $this->widgetkit['path']->path("widgetkit_k2.widgets:{$widget}/{$widget}.php")) {
-				require_once($file);
+				require_once $file;
 			}
 		}
 	}
@@ -62,7 +62,7 @@ class K2Widget {
 		$this->widgetkit = Widgetkit::getInstance();
 		$this->type    = strtolower(str_replace('K2', '', get_class($this)));
 		$this->options = $this->widgetkit['system']->options;
-
+                
 		$this->widgetkit['event']->bind('dashboard', array($this, 'dashboard'));
 		$this->widgetkit['event']->bind("render", array($this, 'render'));
 		$this->widgetkit['event']->bind("task:edit_{$this->type}_k2", array($this, 'edit'));
@@ -93,100 +93,109 @@ class K2Widget {
         
 	public function edit($id = null) {
                 $xml    = simplexml_load_file($this->widgetkit['path']->path("{$this->type}:{$this->type}.xml"));
+                $type = $this->type;
 		$widget = $this->widgetkit[$this->type]->get($id ? $id : $this->widgetkit['request']->get('id', 'int'));
-		$style = isset($widget->settings['style']) ? $widget->settings['style'] : 'default';
-		$style_xml = simplexml_load_file($this->widgetkit['path']->path("{$this->type}:styles/{$style}/config.xml"));
+                $this->widgetkit['path']->register($this->widgetkit['path']->path('widgetkit_k2.root:layouts'), 'layouts');
                 
-                $modID = $modHTML = '';
-                
-                if (!isset($widget->k2['synchronize']) || !$widget->k2['synchronize']) {
-                        // reuse of module settings
-                        $module = $this->params->get('based_on', 'mod_k2_content');
-
-                        $lang = JFactory::getLanguage();
-                        $lang->load('com_modules');
-                        $lang->load($module, JPATH_SITE);
-
-                        $grp = 'params';
-
-                        $exclFlds = array(
-                                'mod_k2_content'=>array('moduleclass_sfx', 'getTemplate'),
-                                'mod_k2fields_contents'=>array()
-                        );
-
-                        $inclFldSets = array(
-                                'mod_k2_content'=>'basic',
-                                'mod_k2fields_contents'=>array('basic', 'itemdisplay')
-                        );
-
-                        $exclFlds = (array) $exclFlds[$module];
-                        $inclFldSets = (array) $inclFldSets[$module];
-
-                        $frm = JForm::getInstance(
-                                'k2widget', 
-                                JPATH_SITE.'/modules/'.$module.'/'.$module.'.xml', 
-                                array(), 
-                                true, 
-                                '//config'
-                        );
-
-                        $fss = $frm->getFieldsets();
-                        $modHTML = array(JHtml::_('sliders.start', 'module-sliders'));
-                        $addedModule = false;
-
-                        foreach ($fss as $fsName => $fs) {
-                                if (!in_array($fsName, $inclFldSets)) continue;
-
-                                $label = JText::_(!empty($fs->label) ? $fs->label : 'COM_MODULES_'.$fsName.'_FIELDSET_LABEL');
-                                $modHTML[] = JHtml::_('sliders.panel', $label, $fsName.'-options');
-
-                                if (isset($fs->description) && trim($fs->description)) {
-                                        $modHTML[] = '<p class="tip">'.htmlspecialchars(JText::_($fs->description), ENT_COMPAT, 'UTF-8').'</p>';
-                                }
-
-                                $flds = $frm->getFieldset($fsName);
-
-                                $modHTML[] = '<fieldset class="panelform">';
-                                $hiddenFlds = array();
-
-                                foreach ($flds as $fldName => $fld) {
-                                        $fldName = str_replace($grp.'_', '', $fldName);
-
-                                        if (in_array($fldName, $exclFlds)) continue;
-
-                                        $value = isset($widget->k2[$fldName]) ? $widget->k2[$fldName] : null;
-                                        $input = $frm->getInput($fldName, $grp, $value);
-
-                                        if (!$fld->hidden) {
-                                                $modHTML[] = $fld->label.$input;
-                                        } else {
-                                                $hiddenFlds[] = $input;
-                                        }
-                                }
-
-                                if (!$addedModule) {
-                                        $hiddenFlds[] = '<input type="hidden" name="params[module]" value="'.$module.'" />';
-                                        $moduleId = isset($widget->k2['module_id']) ? $widget->k2['module_id'] : '';
-                                        $hiddenFlds[] = '<input type="hidden" name="params[module_id]" value="'.$moduleId.'" />';
-                                        $addedModule = true;
-                                }
-
-                                if (!empty($hiddenFlds)) $modHTML[] = implode('', $hiddenFlds);
-
-                                $modHTML[] = '</fieldset>';
+                if (isset($widget->k2['synchronize']) && $widget->k2['synchronize']) {
+                        $msg = JText::sprintf('Please refer to widgetkit section of the k2fields content module setting. Click <a href="index.php?option=com_modules&task=module.edit&id=%d">here</a> to go to module.', $widget->k2['module_id']);
+                        
+                        if (!empty($_SERVER['HTTP_REFERER'])) {
+                                JFactory::getApplication()->redirect($_SERVER['HTTP_REFERER'], $msg, 'notice');
+                                return;
                         }
-
-                        $modHTML[] = JHtml::_('sliders.end');
-                        $modHTML = implode('', $modHTML);
-                } else {
-                        $modID = $widget->k2['module_id'];
+                        
+                        $doc = JFactory::getDocument();
+                        $doc->addScriptDeclaration('alert("'.$msg.'"); history.go(-1);');
+                        JFactory::getApplication()->close();
                 }
                 
-		$type = $this->type;
-
-		$this->widgetkit['path']->register($this->widgetkit['path']->path('widgetkit_k2.root:layouts'), 'layouts');
+                $style = isset($widget->settings['style']) ? $widget->settings['style'] : '';
                 
-		echo $this->widgetkit['template']->render("edit", compact('widget', 'xml', 'style_xml', 'type', 'modHTML', 'modID'));
+                if (empty($style)) $style = 'default';
+                
+		$style_xml = simplexml_load_file($this->widgetkit['path']->path("{$this->type}:styles/{$style}/config.xml"));
+                
+                // reuse of module settings
+                $module = $this->params->get('based_on', 'mod_k2_content');
+
+                $lang = JFactory::getLanguage();
+                $lang->load('com_modules');
+                $lang->load($module, JPATH_SITE);
+
+                $grp = 'params';
+
+                $exclFlds = array(
+                        'mod_k2_content'=>array('moduleclass_sfx', 'getTemplate'),
+                        'mod_k2fields_contents'=>array()
+                );
+
+                $inclFldSets = array(
+                        'mod_k2_content'=>'basic',
+                        'mod_k2fields_contents'=>array('basic', 'itemdisplay')
+                );
+
+                $exclFlds = (array) $exclFlds[$module];
+                $inclFldSets = (array) $inclFldSets[$module];
+
+                $frm = JForm::getInstance(
+                        'k2widget', 
+                        JPATH_SITE.'/modules/'.$module.'/'.$module.'.xml', 
+                        array(), 
+                        true, 
+                        '//config'
+                );
+
+                $fss = $frm->getFieldsets();
+                $modHTML = array(JHtml::_('sliders.start', 'module-sliders'));
+                $addedModule = false;
+
+                foreach ($fss as $fsName => $fs) {
+                        if (!in_array($fsName, $inclFldSets)) continue;
+
+                        $label = JText::_(!empty($fs->label) ? $fs->label : 'COM_MODULES_'.$fsName.'_FIELDSET_LABEL');
+                        $modHTML[] = JHtml::_('sliders.panel', $label, $fsName.'-options');
+
+                        if (isset($fs->description) && trim($fs->description)) {
+                                $modHTML[] = '<p class="tip">'.htmlspecialchars(JText::_($fs->description), ENT_COMPAT, 'UTF-8').'</p>';
+                        }
+
+                        $flds = $frm->getFieldset($fsName);
+
+                        $modHTML[] = '<fieldset class="panelform">';
+                        $hiddenFlds = array();
+
+                        foreach ($flds as $fldName => $fld) {
+                                $fldName = str_replace($grp.'_', '', $fldName);
+
+                                if (in_array($fldName, $exclFlds)) continue;
+
+                                $value = isset($widget->k2[$fldName]) ? $widget->k2[$fldName] : null;
+                                $input = $frm->getInput($fldName, $grp, $value);
+
+                                if (!$fld->hidden) {
+                                        $modHTML[] = $fld->label.$input;
+                                } else {
+                                        $hiddenFlds[] = $input;
+                                }
+                        }
+
+                        if (!$addedModule) {
+                                $hiddenFlds[] = '<input type="hidden" name="params[module]" value="'.$module.'" />';
+                                $moduleId = isset($widget->k2['module_id']) ? $widget->k2['module_id'] : '';
+                                $hiddenFlds[] = '<input type="hidden" name="params[module_id]" value="'.$moduleId.'" />';
+                                $addedModule = true;
+                        }
+
+                        if (!empty($hiddenFlds)) $modHTML[] = implode('', $hiddenFlds);
+
+                        $modHTML[] = '</fieldset>';
+                }
+
+                $modHTML[] = JHtml::_('sliders.end');
+                $modHTML = implode('', $modHTML);
+
+		echo $this->widgetkit['template']->render("edit", compact('widget', 'xml', 'style_xml', 'type', 'modHTML'));
 	}
 
 	public function render($widget) {
@@ -198,10 +207,13 @@ class K2Widget {
                                 $module = JprovenUtility::getModule($module);
                                 $params = $module->params;
                                 $params->set('partby', '');
+                                $params->set('items', $widget->k2['items']);
+                                $params->set('module_id', $widget->k2['module_id']);
                         } else {
                                 $params = $this->widgetkit['data']->create($widget->k2);
                         }
                         
+                        // in case of k2fields content module item is already prepared and supplied => we should reuse it?
                         $items = $this->widgetkit['widgetkitk2']->getList($params);
                         $widgetItems = self::renderItems($items, $params, $this->widgetkit);
                         $widget->items = $widgetItems;         
