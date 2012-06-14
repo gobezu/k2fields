@@ -8,7 +8,7 @@ var JPProcessor = new Class({
                 modal: {selector:'.jpmodal', handler:'iframe', size:{x:990, y:650}},
                 pageClass:'jppage',
                 accordion: {
-                        selector:{togglers:'.jpcollapse', elements:'', sets:'.itemList', done:'.jpcollapsed'}, 
+                        selector:{togglers:'.jpcollapse', elements:'', sets:'.itemList', done:'jpcollapsed'}, 
                         alwaysHide:true,
                         show:-1, 
                         display:-1,
@@ -101,6 +101,9 @@ var JPProcessor = new Class({
                         }
 
                         if (found) {
+                                // Group of several accordion elements playing together
+                                // and might also appear during different time of the life 
+                                // span of the page and therefore persisted in the class state
                                 if (JPProcessor.accordionSets[j]) {
                                         JPProcessor.accordionSets[j][1].push(set[0][i][0]);
                                         JPProcessor.accordionSets[j][2].push(set[1][i][0]);
@@ -111,25 +114,44 @@ var JPProcessor = new Class({
                                         JPProcessor.accordionSets[j][2] = [set[1][i][0]];
                                 }
                         } else {
-                                if (!document.id(set[0][i][0]).hasClass(this.options.accordion.done)) {
+                                // Individual accordions
+                                if (!document.id(set[0][i][0]).hasClass(this.options.accordion.selector.done)) {
                                         new JPAccordion(set[3][i], set[0][i], set[1][i], Object.clone(set[2]), this.options.accordion.preventLinkClicks);
-                                        document.id(set[0][i][0]).addClass(this.options.accordion.done);
+                                        document.id(set[0][i][0]).addClass(this.options.accordion.selector.done);
                                 }
                         }
                 }
                 
-                n = JPProcessor.accordionSets.length;
+                m = JPProcessor.accordionSets.length;
                 
-                for (i = 0; i < n; i++) {
-                        if (!document.id(JPProcessor.accordionSets[i][1][0]).hasClass(this.options.accordion.done)) {
-                                new JPAccordion(
-                                        JPProcessor.accordionSets[i][0], 
-                                        JPProcessor.accordionSets[i][1], 
-                                        JPProcessor.accordionSets[i][2],
-                                        Object.clone(set[2]),
-                                        this.options.accordion.preventLinkClicks
-                                );
-                                document.id(JPProcessor.accordionSets[i][1][0]).addClass(this.options.accordion.done);
+                var ts, es;
+                
+                for (j = 0; j < m; j++) {
+                        ts = [];
+                        es = [];
+                        
+                        n = JPProcessor.accordionSets[j][1].length;
+
+                        for (i = 0; i < n; i++) {
+                                if (!document.id(JPProcessor.accordionSets[j][1][i]).hasClass(this.options.accordion.selector.done)) {
+                                        ts.push(JPProcessor.accordionSets[j][1][i]);
+                                        es.push(JPProcessor.accordionSets[j][2][i]);
+                                        document.id(JPProcessor.accordionSets[j][1][i]).addClass(this.options.accordion.selector.done);
+                                }
+                        }
+                        
+                        if (ts.length > 0) {
+                                if (!JPProcessor.accordionSets[j][3]) {
+                                        JPProcessor.accordionSets[j][3] = new JPAccordion(
+                                                JPProcessor.accordionSets[j][0], 
+                                                ts, 
+                                                es,
+                                                Object.clone(set[2]),
+                                                this.options.accordion.preventLinkClicks
+                                        );
+                                } else {
+                                        JPProcessor.accordionSets[j][3].addSections(ts, es);
+                                }
                         }
                 }
         },
@@ -572,6 +594,10 @@ var JPAccordion = new Class({
                 this.preventClicks(toggler);
                 this.preventClicks(element);
                 return this.parent(toggler, element);
+        },
+        addSections: function(togglers, elements) {
+                for (var i = 0; i < togglers.length; i++) this.addSection(togglers[i], elements[i]);
+                return this;
         },
         display: function(index, useFx) {
                 var update = this.elements[index];
