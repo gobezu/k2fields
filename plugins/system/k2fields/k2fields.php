@@ -182,6 +182,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 $model = JModel::getInstance('fields', 'K2FieldsModel');
                 $model->reinstateReadOnlyFields();
+                $model->adjustUnpublishDates();
         }
         
         private static function saveFieldDefinition($task, $step) {
@@ -504,6 +505,7 @@ class plgSystemk2fields extends JPlugin {
         
         function onAfterDispatch() {
 //                JprovenUtility::reverseFromValues(95, 12);
+                
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
                 
                 self::upgradeMootools();

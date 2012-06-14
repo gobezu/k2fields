@@ -15,7 +15,7 @@ class plgJcommentsRate extends JPlugin {
 	public function __construct(&$subject, $config = array()) {
                 parent::__construct($subject, $config);
                 
-                $input = JFactory::getApplication()->input; 
+                $input = JFactory::getApplication()->input;
                 $extensionName = $input->get('option');
                 
                 self::$rater = new JcommentsRate();
@@ -40,7 +40,10 @@ class plgJcommentsRate extends JPlugin {
                         'com_content' => array('content', 'jcomments')
                 );
                 
-                if (!JPluginHelper::importPlugin($comp[$extensionName][0], $comp[$extensionName][1])) return;
+                if (
+                        !isset($comp[$extensionName]) ||
+                        !JPluginHelper::importPlugin($comp[$extensionName][0], $comp[$extensionName][1])
+                ) return;
                 
                 $task = $input->get('task', '', 'cmd');
                 $view = $input->get('view', '', 'cmd');

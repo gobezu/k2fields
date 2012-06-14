@@ -88,7 +88,6 @@ class K2fieldsContentsSettings extends JObject {
                         $res[$key] = $val;
                 }
                 
-                jdbg::pf($res, 'file reset');
                 return json_encode($res);
         }
 }

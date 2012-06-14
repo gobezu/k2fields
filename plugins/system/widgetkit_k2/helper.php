@@ -124,6 +124,8 @@ class WidgetkitK2WidgetkitHelper extends WidgetkitHelper {
                 if (!isset($item->event->BeforeDisplayContent)) $item->event->BeforeDisplayContent = '';
                 if (!isset($item->event->AfterDisplayContent)) $item->event->AfterDisplayContent = '';
                 if (!isset($item->event->AfterDisplay)) $item->event->AfterDisplay = '';
+                
+                JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2/helpers/utilities.php');                
 
                 ob_start();
                 require $tmpl;

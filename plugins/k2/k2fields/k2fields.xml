@@ -712,6 +712,7 @@
                                         label="Category based expiration records (currently only unpublishing action implemented and no notifications are dispatched)" 
                                         description="catid%%excluded child catids%%value%%unit(d=day|m=month|y=year|a=absolute and value need to be provided in the eligible format)%%action(t=trash|u=unpublish)%%notification=[all|admin|user|add]"
                                 />
+                                <field name="checkandexpire" type="k2fmulticategories" default="" label="Check and expire items in the following categories based on either field settings or the setting above." />
                         </fieldset>
                 </fields>
         </config>

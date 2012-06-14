@@ -144,8 +144,37 @@ class K2FieldsModelFields extends JModel {
                 $result = $item->store();
         }
         
+        public function adjustUnpublishDates($on = 'notunpublished') {
+                $categories = self::setting('checkandexpire');
+                
+                if (empty($categories)) return false;
+                
+                $categories = JprovenUtility::toIntArray($categories, true);
+                
+                $query = 'SELECT id, catid, publish_up, publish_down FROM #__k2_items WHERE catid IN ('.$categories.')';
+                
+                //$on = self::setting('checkandexpireon');
+                
+                $db = JFactory::getDbo();
+                
+                if ($on == 'notunpublished') {
+                        $query .= ' AND publish_down = '.$db->quote($db->getNullDate());
+                }
+                
+                $db->setQuery($query);
+                $items = $db->loadObjectList();
+                
+                foreach ($items as $id => $item) {
+                        if ($d = $this->adjustUnpublishDate($item)) {
+                                $query = 'UPDATE #__k2_items SET publish_down = '.$db->quote($d).' WHERE id = '.$item->id;
+                                $db->setQuery($query);
+                                $db->query();
+                        }
+                }
+        }
+        
         private function adjustUnpublishDate(&$item) {
-                $db = JFactory::getDBO();
+                $db = JFactory::getDbo();
                 $nullDate = $db->getNullDate();
                 $itemId = $item->id;
                 $publishUp = $item->publish_up != $nullDate ? JprovenUtility::createDate($item->publish_up) : null;
@@ -201,7 +230,10 @@ class K2FieldsModelFields extends JModel {
                 if ($limit) {
                         //$limit->add(new DateInterval('PT5M'));
                         $item->publish_down = $limit->toMySQL();
+                        return $item->publish_down;
                 }
+                
+                return false;
         }
         
         private static function expire($item, $isNew) {
