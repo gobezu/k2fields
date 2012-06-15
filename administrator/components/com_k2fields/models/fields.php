@@ -3308,6 +3308,7 @@ class K2FieldsModelFields extends JModel {
                         $this->_db->setQuery($query);
                         $defs = $this->_db->loadObjectList('id');
                         $ids = array_keys($defs);
+
                         foreach ($defs as $id => &$def) {
                                 if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#', $def->def, $mm)) {
                                         $deps = explode(self::VALUE_SEPARATOR, $mm[1]);
@@ -3467,7 +3468,22 @@ class K2FieldsModelFields extends JModel {
                 
                 if (!isset($options['valid'])) $options['valid'] = 'alphanum';
                 
-                if (count($sopts)) $options['subfields'] = $sopts;
+                jdbg::p($sopts);
+                
+                if (count($sopts)) {
+                        if (isset($options['overridesubfieldsprops'])) {
+                                $overs = explode(self::VALUE_SEPARATOR, $options['overridesubfieldsprops']);
+                                
+                                foreach ($sopts as &$sopt) {
+                                        foreach ($overs as $over) {
+                                                if (isset($options[$over])) 
+                                                        $sopt[$over] = $options[$over];
+                                        }
+                                }
+                        }
+                        
+                        $options['subfields'] = $sopts;
+                }
                 
                 if (isset($options['value'])) {
                         $vals = json_decode($options['value']);

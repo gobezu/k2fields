@@ -487,7 +487,7 @@ var k2fieldseditor = new Class({
                                         'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1255', 'id:1256', 'id:1257', 'id:1258'],
                                         'title':['id:1301', 'id:1302'],
                                         'rate':['id:1301'],
-                                        'complex':['id:1051'],
+                                        'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355']
                                 },
                                 'required':'1',
@@ -915,6 +915,15 @@ var k2fieldseditor = new Class({
                                 list:'normal',
                                 ui:'select',
                                 values:this.options.options['fields'],
+                                sorted:true,
+                                'section':'Type specific'
+                        },
+                        '1052':{
+                                name:'Override properties',
+                                optName:'overrideSubfieldsProps',
+                                valid:'int',
+                                ui:'checkbox',
+                                values:['view'],
                                 sorted:true,
                                 'section':'Type specific'
                         },
