@@ -60,6 +60,9 @@ class K2FieldsMedia {
                                                         $files[$fieldId] = array();   
                                                 }
                                                 
+                                                if (!isset($thumbFound))
+                                                        $thumbFound = preg_match($patThumb, $fieldName);
+                                                
                                                 $files[$fieldId][] = array(
                                                     'index'=>$i, 
                                                     'thumb'=>$thumbFound?true:false, 

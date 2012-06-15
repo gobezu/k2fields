@@ -46,7 +46,7 @@ if ($params->get('itemTitle')):
 <?php echo $item->event->K2BeforeDisplayContent; ?>
 <?php if ($params->get('itemImage') || $params->get('itemIntroText')): ?>
 <div class="moduleItemIntrotext">
-        <?php if ($params->get('itemImage') && isset($item->image)): ?>
+        <?php if ($params->get('itemImage') && isset($item->image) && $item->image): ?>
         <a class="moduleItemImage" href="<?php echo $item->link; ?>" title="<?php echo JText::_('Continue reading'); ?> &quot;<?php echo K2HelperUtilities::cleanHtml($item->title); ?>&quot;">
                 <img src="<?php echo $item->image; ?>" alt="<?php echo $item->title; ?>"/>
         </a>

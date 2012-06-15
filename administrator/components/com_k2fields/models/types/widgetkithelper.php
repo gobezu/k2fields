@@ -70,15 +70,20 @@ class K2fieldsWidgetkitHelper {
                 }
 
                 $srcs = JprovenUtility::getColumn($medias, K2FieldsMedia::SRCPOS);
-                $isConvert = is_object($srcs[0]);
+                $srcs = (array) $srcs;
                 
+                $isConvert = is_object($srcs[0]);
+
                 foreach ($srcs as &$src) {
                         if ($isConvert) $src = $src->value;
                         $src = preg_replace('/^(\/|)images/', '', $src);
                 }
                 
                 $captions = JprovenUtility::getColumn($medias, K2FieldsMedia::CAPTIONPOS);
+                $captions = (array) $captions;
+                
                 if ($isConvert) foreach ($captions as &$caption) $caption = $caption->value;
+                
                 $captions = array_combine($srcs, $captions);
 
                 $links = array_fill(0, count($medias), '');

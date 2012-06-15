@@ -4,10 +4,8 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-$partition_tmp = $params->get( 'partition_module_height', 'auto' );
-$partition_moduleHeight = ( $partition_tmp=='auto' ) ? 'auto' : (int)$partition_tmp.'px';
-$partition_tmp = $params->get( 'partition_module_width', 'auto' );
-$partition_moduleWidth = ( $partition_tmp=='auto') ? 'auto': (int)$partition_tmp.'px';
+$partition_moduleHeight = $moduleHeight;
+$partition_moduleWidth = $moduleWidth;
 $partition_themeClass = $params->get( 'partition_loftheme' , '');
 $partition_openTarget = $params->get( 'partition_open_target', 'parent' );
 $partition_class = $params->get( 'partition_navigator_pos', 'right' ) == "0" ? '':'lof-sn'.$params->get( 'partition_navigator_pos', 'right' );
@@ -20,13 +18,14 @@ $partition_navEnableTitle = $params->get( 'partition_enable_navtitle', 1 );
 $partition_navEnableDate = $params->get( 'partition_enable_navdate', 1 );
 $partition_navEnableCate = $params->get( 'partition_enable_navcate', 1 );
 $partition_enableImageLink = $params->get( 'partition_enable_image_link', 1 );
-$partition_mainWidth = (int) $params->get('partition_main_width', 650);
+$partition_mainWidth = (int) $partition_moduleWidth - (int) $params->get('partition_navitem_width', 650);
+$moduleWidth = $partition_mainWidth.'px';
 ?>
 <div id="lofass-<?php echo $module->id; ?>" class="lof-ass<?php echo $params->get('partition_moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $partition_moduleHeight; ?>; width:<?php echo $partition_moduleWidth; ?>">
         <div class="lofass-container <?php echo $partition_css3; ?> <?php echo $partition_themeClass; ?> <?php echo $partition_class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
-                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('partition_main_height', 300); ?>px;width:<?php echo $partition_mainWidth; ?>px;">
+                <div class="lof-main-wapper" style="height:<?php echo $partition_moduleHeight; ?>;width:<?php echo $partition_mainWidth; ?>px;">
                         <?php 
                                 $partitionI = 0;
                                 foreach ($itemList as $catId => $list) {
@@ -86,7 +85,7 @@ $document->addScriptDeclaration(
                         direction :'" . $params->get('partition_layout_style','opacity') . "', 
                         navItemHeight:" . $params->get('partition_navitem_height', 100) . ",
                         navItemWidth:" . $params->get('partition_navitem_width', 310) . ",
-                        navItemsDisplay:" . $params->get('partition_max_items_display', 3) . "
+                        navItemsDisplay:" . floor((int)$moduleHeight/$params->get('partition_navitem_height', 100)) . "
                 },
                 {
                         displayButton:" . $params->get('partition_display_button', 'true') . ",

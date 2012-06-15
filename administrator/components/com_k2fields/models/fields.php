@@ -659,10 +659,15 @@ class K2FieldsModelFields extends JModel {
                                                         
                                                         if ($isList && $r->partindex >= 0 && !empty($r->value)) {
                                                                 $_v = $list->getValue($r->value);
-                                                                $r->lat = $_v->lat;
-                                                                $r->lng = $_v->lng;
-                                                                $r->txt = $_v->value;
-                                                                $r->img = $_v->img;
+                                                                
+                                                                if ($_v) {
+                                                                        $r->lat = $_v->lat;
+                                                                        $r->lng = $_v->lng;
+                                                                        $r->txt = $_v->value;
+                                                                        $r->img = $_v->img;
+                                                                } else {
+                                                                        $r->lat = $r->lng = $r->txt = $r->img = null;
+                                                                }
                                                         } else {
                                                                 $_v = $this->lookUp($r->value, 'value', $fieldData, $r->partindex);
                                                                 $r->txt = $_v !== false && $_v['text'] ? $_v['text'] : null;

@@ -377,9 +377,12 @@ class K2FieldsModuleHelper {
                 if ($params->get('FeaturedItems') == '2')
                         $queryWhere .= " AND i.featured = 1";
 
-                if ($params->get('videosOnly'))
-                        $queryWhere .= " AND (i.video IS NOT NULL AND i.video!='')";
-
+                if ($params->get('imagesOnly') && ($imageFields = $params->get('imagefield'))) {
+                        $imageFields = JprovenUtility::toIntArray((array) $imageFields, true);
+                        
+                        $queryFrom .= ' INNER JOIN #__k2_extra_fields_values AS efvimgs ON i.id = efvimgs.itemid AND efvimgs.fieldid IN ('.$imageFields.') AND efvimgs.partindex = '.(K2FieldsMedia::SRCPOS-1).' AND efvimgs.value <> "" AND efvimgs.value IS NOT NULL';
+                }
+                
                 if ($ordering == 'comments')
                         $queryWhere .= " AND comments.published = 1";
 
@@ -465,13 +468,13 @@ class K2FieldsModuleHelper {
                         $time = K2FieldsModelSearchterms::convertDates($timeRange, $field);
                         
                         if (!empty($time['start']) || !empty($time['end']))
-                                $queryFrom .= ' INNER JOIN #__k2_extra_fields_values AS efv ON i.id = efv.itemid AND efv.fieldid = '.K2FieldsModelFields::value($field, 'id');
+                                $queryFrom .= ' INNER JOIN #__k2_extra_fields_values AS efvtrf ON i.id = efvtrf.itemid AND efvtrf.fieldid = '.K2FieldsModelFields::value($field, 'id');
 
                         if (!empty($time['start']))
-                                $queryWhere .= ' AND efv.datum >= '.$db->Quote($time['start']);
+                                $queryWhere .= ' AND efvtrf.datum >= '.$db->Quote($time['start']);
 
                         if (!empty($time['end']))
-                                $queryWhere .= ' AND efv.datum <= '.$db->Quote($time['end']);
+                                $queryWhere .= ' AND efvtrf.datum <= '.$db->Quote($time['end']);
                 }
                 
                 $query .= $queryFrom . $queryWhere;
@@ -613,10 +616,12 @@ class K2FieldsModuleHelper {
         }
         
         public static function image($item, $params, $itemLayout = '', $attribs = array()) {
+                if (!$item->image) return '';
                 return JHTML::_('image', $item->image, $item->imageCaption, $attribs);
         }
         
         public static function imageThumb($item, $params, $itemLayout = '') {
+                if (!$item->imageThumb) return '';
                 return JHTML::_('image', $item->imageThumb, $item->imageCaption);
         }
         
@@ -781,21 +786,25 @@ class K2FieldsModuleHelper {
                                         }
                                         
                                         if ($params->get('itemImage') && empty($item->image)) {
-                                                if ($params->get('defaultimage') && $params->get('defaultimage') != -1) {
-                                                        $image = JURI::base().'media/mod_k2fields_contents/defaultimage/'.$params->get('defaultimage');
+                                                if ($params->get('defaultimage')) {
+                                                        if ($params->get('defaultimage') != -1) {
+                                                                $image = JURI::base().'media/mod_k2fields_contents/defaultimage/'.$params->get('defaultimage');
 
-                                                        if (!$params->get('defaultimagethumb')) {
-                                                                $imageThumb = preg_replace('#\d+$#', '', $image);
-                                                                $imageThumb = str_replace('/defaultimage/', '/defaultimagethumb/', $imageThumb);
+                                                                if (!$params->get('defaultimagethumb')) {
+                                                                        $imageThumb = preg_replace('#\d+$#', '', $image);
+                                                                        $imageThumb = str_replace('/defaultimage/', '/defaultimagethumb/', $imageThumb);
+                                                                } else {
+                                                                        $imageThumb = JURI::base().'media/mod_k2fields_contents/defaultimagethumb/'.$params->get('defaultimagethumb');
+                                                                }
+
+                                                                $item->image = $image.'.png';
+                                                                $item->imageThumb = $imageThumb.'.png';
                                                         } else {
-                                                                $imageThumb = JURI::base().'media/mod_k2fields_contents/defaultimagethumb/'.$params->get('defaultimagethumb');
+                                                                $item->image = JURI::base().'media/mod_k2fields_contents/noimage.png';
+                                                                $item->imageThumb = $item->image;
                                                         }
-                                                        
-                                                        $item->image = $image.'.png';
-                                                        $item->imageThumb = $imageThumb.'.png';
                                                 } else {
-                                                        $item->image = JURI::base().'media/mod_k2fields_contents/noimage.png';
-                                                        $item->imageThumb = $item->image;
+                                                        $item->image = $item->imageThumb = '';
                                                 }
                                         }
                                         

@@ -125,7 +125,11 @@
                                         <option value="30">1 month</option>
                                         <option value="180">6 months</option>
                                 </field>
-                                <field name="videosOnly" type="radio" default="0" label="Fetch only items with videos" description="">
+                                <!--<field name="videosOnly" type="radio" default="0" label="Fetch only items with videos" description="">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>-->
+                                <field name="imagesOnly" type="radio" default="0" label="Fetch only items with image files present" description="Make sure to select applicable fields in the [Item display settings/Image field] option below">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>
@@ -187,9 +191,9 @@
                                         <option value="layout">Layout</option>
                                 </field>
                                 <field name="wordlimitcaption" type="text" size="4" default="" label="Word limit for caption" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
-                                <field name="defaultimage" type="filelist" default="black" label="Default image" stripext="true" directory="media/mod_k2fields_contents/defaultimage"
+                                <field name="defaultimage" type="filelist" default="" label="Default image" stripext="true" directory="media/mod_k2fields_contents/defaultimage"
                                 description="If image was not found as per selection above we can set a default image. The trailing figure indicates level of transparency. You can use your own images by placing them in media/mod_k2fields_contents/defaultimage as defaultimagethumb"/>
-                                <field name="defaultimagethumb" type="filelist" default="black" label="Default image thumb" stripext="true" directory="media/mod_k2fields_contents/defaultimagethumb"
+                                <field name="defaultimagethumb" type="filelist" default="" label="Default image thumb" stripext="true" directory="media/mod_k2fields_contents/defaultimagethumb"
                                 description="If default image is not set above this will not apply."/>
                                 <field name="itemVideo" type="radio" default="1" label="Video" description="">
                                         <option value="0">Hide</option>
@@ -1077,14 +1081,13 @@ Default value is empty.-->
                                         <option value="1">YES</option>
                                 </field>
                                 
-                                <field type="spacer" name="lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
+                                <!-- <field type="spacer" name="lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
                                 <field name="main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
-                                <field name="main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>
+                                <field name="main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>-->
                                 
                                 <field type="spacer" name="lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
                                 <field name="navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
                                 <field name="navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
-                                <field name="max_items_display" type="text" default="4" label="MAX ITEMS DISPLAY" description="MAX ITEMS DISPLAY DESC"></field>	
                                 <field name="display_button" type="radio" default="1" label="DISPLAY BUTTON" description="DISPLAY BUTTON DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
@@ -1167,21 +1170,14 @@ Default value is empty.-->
                         </fieldset>
                         <fieldset name="partition_lofoptions">
                                 <field name="partition_loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
-                                <field name="partition_module_height" type="text" default="auto" label="MODULE HEIGHT" description="MODULE HEIGHT DESC"></field>
-                                <field name="partition_module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
                                 <field name="partition_enable_css3" type="radio" default="1" label="ENABLE CSS3" description="ENABLE CSS3 DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
                                 
-                                <field type="spacer" name="partition_lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
-                                <field name="partition_main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
-                                <field name="partition_main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>
-                                
                                 <field type="spacer" name="partition_lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
                                 <field name="partition_navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
                                 <field name="partition_navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
-                                <field name="partition_max_items_display" type="text" default="4" label="MAX ITEMS DISPLAY" description="MAX ITEMS DISPLAY DESC"></field>	
                                 <field name="partition_display_button" type="radio" default="1" label="DISPLAY BUTTON" description="DISPLAY BUTTON DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>

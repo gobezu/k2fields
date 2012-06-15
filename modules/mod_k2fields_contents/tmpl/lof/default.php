@@ -4,12 +4,13 @@
 defined('_JEXEC') or die('Restricted access');
 if (!$isPartitioned) $catId = 0;
 else $mainWidth = $partition_mainWidth - $navItemWidth;
+$params->set('max_items_display', floor((int)$moduleHeight/$params->get('navitem_height', 100)));
 ?>
-<div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="<?php echo $moduleSize; ?>">
+<div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>';width:'<?php echo $moduleWidth; ?>;">
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
-                <div class="lof-main-wapper" style="height:<?php echo (int) $params->get('main_height', 300); ?>px;width:<?php echo (int) $mainWidth; ?>px;">
+                <div class="lof-main-wapper" style="height:<?php echo $moduleHeight; ?>;width:<?php echo (int) $mainWidth; ?>px;">
                         <?php foreach ($list as $no => $item): ?>
                                 <div class="lof-main-item<?php echo(isset($customSliderClass[$no]) ? " " . $customSliderClass[$no] : "" ); ?>">
                                         <div class="<?php echo 'item' . $item->id . ' moditem' . $item->id . ' cat' . $item->catid; ?>">
@@ -38,8 +39,8 @@ else $mainWidth = $partition_mainWidth - $navItemWidth;
                                                 ?>
                                                 <li class="lof-navigator-item-<?php echo $i . ($i == 0 ? ' lof-navigator-item-first' : '') . ($i == $n - 1 ? ' lof-navigator-item-last' : '') ?>">
                                                         <div>
-                                                                <?php if ($navEnableThumbnail && isset($item->imageThumb)): ?>
-                                                                        <?php echo $item->imageThumb; ?> 
+                                                                <?php if ($navEnableThumbnail && isset($item->imageThumb) && $item->imageThumb): ?>
+                                                                        <?php echo K2FieldsModuleHelper::imageThumb($item, $params); ?> 
                                                                 <?php endif; ?> 
                                                                 <?php if ($navEnableTitle): ?>
                                                                         <h4><?php echo $item->title; ?></h4>
