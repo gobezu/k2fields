@@ -3468,8 +3468,6 @@ class K2FieldsModelFields extends JModel {
                 
                 if (!isset($options['valid'])) $options['valid'] = 'alphanum';
                 
-                jdbg::p($sopts);
-                
                 if (count($sopts)) {
                         if (isset($options['overridesubfieldsprops'])) {
                                 $overs = explode(self::VALUE_SEPARATOR, $options['overridesubfieldsprops']);

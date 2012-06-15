@@ -852,7 +852,7 @@ var k2fieldseditor = new Class({
                                 'optName':'view',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'values':[{'value':'itemlist'}, {'value':'module'}],
+                                'values':['itemlist', 'module'],
                                 'section':'Layout'
                                 // TODO: consistency in value separators
                         },
@@ -923,7 +923,7 @@ var k2fieldseditor = new Class({
                                 optName:'overrideSubfieldsProps',
                                 valid:'int',
                                 ui:'checkbox',
-                                values:['view'],
+                                values:['view', 'folded'],
                                 sorted:true,
                                 'section':'Type specific'
                         },
