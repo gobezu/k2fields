@@ -2,8 +2,13 @@
 //$Copyright$
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-if (!$isPartitioned) $catId = 0;
-else $mainWidth = $partition_mainWidth - $navItemWidth;
+if (!$isPartitioned) {
+        $catId = 0;
+        $mainWidth = $moduleWidth - $navItemWidth;
+} else {
+        $mainWidth = $partition_mainWidth - $navItemWidth;
+}
+$mainWidth -= 19; // Taking height for the button width
 $params->set('max_items_display', floor((int)$moduleHeight/$params->get('navitem_height', 100)));
 ?>
 <div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>';width:'<?php echo $moduleWidth; ?>;">
