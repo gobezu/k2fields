@@ -52,6 +52,18 @@ class plgJcommentsRate extends JPlugin {
                 
                 $document = JFactory::getDocument();
                 $document->addStylesheet(JURI::root().'media/plg_jcomments_rate/rate.css');
+                $document->addScriptDeclaration('
+window.addEvent("domready", function(){ 
+        function isContentLoaded() {
+                if ($$("#comments-list ul.jpcollapsed").length > 0) {
+                        window.setTimeout(isContentLoaded, 1000);
+                } else {
+                        new JPProcessor().accordion("comments-list");
+                }
+        }
+        $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
+});
+');
                 
                 if (!(
                         ($extensionName == 'com_k2' && $view == 'item') 
@@ -110,7 +122,7 @@ class plgJcommentsRate extends JPlugin {
                         } else $rate = '';
                         
                         $comment->author = JComments::getCommentAuthorName($comment);
-                        $comment->comment = '<div class="areview"><div class="arate">'.$rate.'</div><div class="acomment">'.$comment->comment.'</div></div>';
+                        $comment->comment = $rate.'<div class="comment-body" itemprop="description">'.$comment->comment.'</div>';
                         $comment->_skip_prepare = true;
                 }
                 
@@ -166,7 +178,7 @@ class plgJcommentsRate extends JPlugin {
                 $prefix = $isContent ? 's' : '';
                 $title = $isContent ? '<h5>'.JText::sprintf('Average user rating from: %d users', $rate->count).'</h5>' : '';
                 
-                if (!$rate) return '<div class="ratingInfo'.($isContent ? 'Content' : '').'">'.JText::_('Not rated').'</div>';
+                if (!$rate) return JText::_('Not rated');
                 
                 $r = $rate->rate_grade;
                 
@@ -193,9 +205,8 @@ class plgJcommentsRate extends JPlugin {
 </div>
        ';
                         
-                $ui .= '
-<div class="ratingInfo'.($isContent ? 'Content' : '').'">'.$title.'
-        <ul class="rating_table">
+                $ui .= $title.'
+        <ul class="rating_table rateoverall jpcollapse">
                 <li>
                         <span class="rating_label">'. JText::_('Overall rating') .'&nbsp;</span>
                         <span class="rating_value">'. $rr.
@@ -206,6 +217,8 @@ class plgJcommentsRate extends JPlugin {
                                 </div>
                         </span>
                 </li>
+        </ul>
+        <ul class="rating_table">
                 ';
                 
                 foreach (self::$criterias as $i => $criteria) {
@@ -230,8 +243,8 @@ class plgJcommentsRate extends JPlugin {
                 }
                 
                 $ui .= '        </ul>
-        <div class="clr"></div>	
-</div>';
+                <div class="clr">&nbsp;</div>
+';
                 
                 return $ui;
         }

@@ -12,12 +12,17 @@ ul.rating_table li { clear:both; }
 ul.rating_table li span { display:block; padding:2px; }
 ul.rating_table span.rating_label { width:450px; float:left; }
 ul.rating_table span.rating_starc { width:85px; float:right; }
+ul.rating_table .rating_star_user, ul.rating_table .rating_star_editor { cursor: pointer; }
 ul.rating_table span.rating_value { width:55px; float:right; white-space:nowrap; }
 
 .aggrrate { background-color:#eee; }
-
+.aggrrate h5 { margin-top:0px; float:left; width:60%; }
 .ratingDetails { }
 
 .ratelbl { padding-right:20px; }
 
 .acomment {background:#f7f7f7;margin:10px;padding:10px;}
+
+ul.rateoverall { float:right; width:165px; }
+.rateoverall .rating_label { display:none; }
+.rating_table { width:100%; }
