@@ -14,15 +14,8 @@ ul.rating_table span.rating_label { width:450px; float:left; }
 ul.rating_table span.rating_starc { width:85px; float:right; }
 ul.rating_table span.rating_value { width:55px; float:right; white-space:nowrap; }
 
-#comment-item--1 a.comment-anchor,
-#comment-item--1 span.comment-author,
-#comment-item--1 span.comment-date,
-#comment-item--1 span.comments-buttons,
-#comment-item--1 .comments-vote,
-#comment-item--1 .toolbar
-{ display:none; visibility:hidden; width:0px; height:0px; }
+.aggrrate { background-color:#eee; }
 
-.ratingInfoContent { background-color:#eee; padding:5px; }
 .ratingDetails { }
 
 .ratelbl { padding-right:20px; }

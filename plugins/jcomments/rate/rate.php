@@ -109,6 +109,7 @@ class plgJcommentsRate extends JPlugin {
                                 $rate = self::_tmpl($rate);
                         } else $rate = '';
                         
+                        $comment->author = JComments::getCommentAuthorName($comment);
                         $comment->comment = '<div class="areview"><div class="arate">'.$rate.'</div><div class="acomment">'.$comment->comment.'</div></div>';
                         $comment->_skip_prepare = true;
                 }
@@ -174,7 +175,25 @@ class plgJcommentsRate extends JPlugin {
                         $rr = '0';
                 } else $rr = round($r, 1);
                 
-                $ui = '
+                $ui = '';
+                
+                if (!$isContent)                
+                        $ui .= '
+<div style="display:none;" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+        <span itemprop="ratingValue">'.$rr.'</span>
+        <span itemprop="bestRating">100</span>
+</div>
+       ';
+                else 
+                        $ui .= '
+<div style="display:none;" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
+        <span itemprop="ratingValue">'.$rr.'</span>
+        <span itemprop="bestRating">100</span>
+        <span itemprop="ratingCount">'.$rate->count.'</span>
+</div>
+       ';
+                        
+                $ui .= '
 <div class="ratingInfo'.($isContent ? 'Content' : '').'">'.$title.'
         <ul class="rating_table">
                 <li>

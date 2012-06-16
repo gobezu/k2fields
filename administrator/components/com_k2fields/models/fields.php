@@ -1886,13 +1886,12 @@ class K2FieldsModelFields extends JModel {
                                         }
                                         
                                         $rendered = $this->renderFieldValues($renderedValues, $fld, $fieldRule, is_array($renderer) && $renderer[1] == 'renderGeneric');
-                                        //jdbg::pe($rendered, $fieldId, 84);
                                 }
                                 
                                 $fieldRule['rendered'] = $rendered;
                                 
-                                if (self::value($fld, 'schematype') && !$schemaType) {
-                                        $schemaType = self::value($fld, 'schematype');
+                                if (!$schemaType && ($schemaType = self::value($fld, 'schematype'))) {
+                                        $item->schemaType = $schemaType;
                                 }
                                 
                                 if (isset($fieldRule['_all_']) && $fieldRule['_all_']) {
@@ -1969,6 +1968,18 @@ class K2FieldsModelFields extends JModel {
                 }
                 
                 $_plgSettings = array('merge'=>'', 'mergesection'=>'', 'sectiontitle'=>'');
+                
+                $review = '';
+                if ($item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
+                        $dispatcher = JDispatcher::getInstance();
+                        JPluginHelper::importPlugin ('k2');
+                        $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
+                        $item->event->K2CommentsCounter = trim(implode("\n", $results));
+                        $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
+                        $item->event->K2CommentsBlock = '';
+                        $review = trim(implode("\n", $results));
+                        $item->params->set('itemComments', false);
+                }
 
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
@@ -2043,6 +2054,7 @@ class K2FieldsModelFields extends JModel {
                                                 $title.
                                                 $rendered.
                                                 $absoluteRendered.
+                                                $review.
                                         '</div>'
                                         ;
                                 
