@@ -53,12 +53,13 @@ class plgJcommentsRate extends JPlugin {
                 $document = JFactory::getDocument();
                 $document->addStylesheet(JURI::root().'media/plg_jcomments_rate/rate.css');
                 $document->addScriptDeclaration('
-window.addEvent("domready", function(){ 
+window.addEvent("domready", function(){
         function isContentLoaded() {
                 if ($$("#comments-list ul.jpcollapsed").length > 0) {
-                        window.setTimeout(isContentLoaded, 1000);
+                        timer = window.setTimeout(isContentLoaded, 500);
                 } else {
                         new JPProcessor().accordion("comments-list");
+                        $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
                 }
         }
         $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));

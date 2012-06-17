@@ -1973,6 +1973,7 @@ class K2FieldsModelFields extends JModel {
                 if ($item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
                         $dispatcher = JDispatcher::getInstance();
                         JPluginHelper::importPlugin ('k2');
+                        $limitstart = JRequest::getInt('limitstart', 0);
                         $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
                         $item->event->K2CommentsCounter = trim(implode("\n", $results));
                         $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
