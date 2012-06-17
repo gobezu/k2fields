@@ -1120,7 +1120,7 @@ var k2fieldseditor = new Class({
                                         {'value':'10', 'text':'10'}
                                 ],
                                 'section':'Type specific',
-                                'tip':'Particularly useful if you want to dictate image to represent item in modules...'
+                                'tip':'If you want to dictate image to be shown in modules and itemlist view...'
                         },
                         // Type::Date
                         '1201':{
