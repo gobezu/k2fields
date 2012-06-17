@@ -479,13 +479,13 @@ var k2fieldseditor = new Class({
                                 'deps': {
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:11', 'id:1001', 'id:1002', 'id:1003'],
-                                        'media':['id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159'],
+                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'duration':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1255', 'id:1256', 'id:1257', 'id:1258'],
-                                        'title':['id:1301', 'id:1302'],
+                                        'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355']
@@ -558,6 +558,7 @@ var k2fieldseditor = new Class({
                                 'optName':'autocomplete',
                                 'valid':'radio',
                                 'values':[
+                                        {'value':'m','text':'None'},
                                         {'value':'m','text':'Anywhere In string'},
                                         {'value':'s','text':'Start of string'},
                                         {'value':'e','text':'End of string'},
@@ -729,6 +730,20 @@ var k2fieldseditor = new Class({
                                 'tip':'Fixed text to trail value with',
                                 'section':'Layout'
                         },
+                        '34':{
+                                'name':'Layout',
+                                'optName':'layout',
+                                'valid':'text',
+                                'ui':'text',
+                                'section':'Layout'
+                        },
+                        '35':{
+                                'name':'Layout (list)',
+                                'optName':'listlayout',
+                                'valid':'text',
+                                'ui':'text',
+                                'section':'Layout'
+                        },
                         '51':{
                                 'name':'Search',
                                 'optName':'search',
@@ -826,24 +841,24 @@ var k2fieldseditor = new Class({
                         '103':{
                                 'name':'Minimum value',
                                 'optName':'min',
-                                'valid':'integer',
+                                'valid':'text',
                                 'section':'Validation'
                         },
                         '104':{
                                 'name':'Maximum value',
                                 'optName':'max',
-                                'valid':'integer',
+                                'valid':'text',
                                 'section':'Validation'
                         },
                         '105':{
                                 'name':'Minimum length',
-                                'optName':'minLength',
+                                'optName':'minlen',
                                 'valid':'integer',
                                 'section':'Validation'
                         },
                         '106':{
                                 'name':'Maximum length',
-                                'optName':'maxLength',
+                                'optName':'maxlen',
                                 'valid':'integer',
                                 'section':'Validation'
                         },
@@ -1316,6 +1331,13 @@ var k2fieldseditor = new Class({
                                 'optName':'schematype',
                                 'valid':'text',
                                 'tip':'refer to http://schema.org/docs/full.html',
+                                'section':'Type specific'
+                        },
+                        '1303':{
+                                'name':'Generate field',
+                                'optName':'generatefield',
+                                'valid':'yesno',
+                                'default':0,
                                 'section':'Type specific'
                         },
                         '1351':{
