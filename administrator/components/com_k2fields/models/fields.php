@@ -1976,10 +1976,12 @@ class K2FieldsModelFields extends JModel {
                         $limitstart = JRequest::getInt('limitstart', 0);
                         $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
                         $item->event->K2CommentsCounter = trim(implode("\n", $results));
-                        $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
-                        $item->event->K2CommentsBlock = '';
-                        $review = trim(implode("\n", $results));
-                        $item->params->set('itemComments', false);
+                        if ($view == 'item') {
+                                $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
+                                $item->event->K2CommentsBlock = '';
+                                $review = trim(implode("\n", $results));
+                                $item->params->set('itemComments', false);
+                        }
                 }
 
                 foreach ($rules as $fieldId => &$_rules) {
