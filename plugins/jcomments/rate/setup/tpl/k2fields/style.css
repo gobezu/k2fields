@@ -181,6 +181,16 @@ body #jc #nav-bottom, body #jc #nav-top {line-height: 19px !important;line-heigh
 #jc .custombbcode {width: 23px;height: 23px;float: left;margin: 0 2px 0 0;display: block;text-decoration:none;cursor: pointer}
 
 /* Rounded comments */
+/*#jc .rbox {margin: 0;width:auto;overflow: hidden}
+#jc .rbox div {text-align: left;margin: 0}
+#jc .rbox_t {margin: 0;border-top: 1px solid #ccc;background-color: #FFF}
+#jc .rbox_tl {background: url(images/jc_rb_tl.gif) 0 0 no-repeat;padding-left: 13px}
+#jc .rbox_tr {height: 10px;overflow: hidden;background: url(images/jc_rb_tr.gif) 100% 0 no-repeat;padding-right: 13px}
+#jc .rbox_m {border-left: 1px solid #ccc;border-right: 1px solid #ccc;width: auto;padding: 0 8px; background-color:#fff;line-height: 100%}
+#jc .rbox_b {margin-top: -5px;border-bottom: 1px solid #ccc;background-color: #FFF;height: 12px;line-height: 12px}
+#jc .rbox_bl {background: url(images/jc_rb_bl.gif) 0 100% no-repeat;padding-left: 13px}
+#jc .rbox_br {height: 13px;background: url(images/jc_rb_br.gif) 100% 100% no-repeat;padding-right: 13px}
+*/
 #comments-list > div {
         margin-bottom: 10px;
         padding:10px;
