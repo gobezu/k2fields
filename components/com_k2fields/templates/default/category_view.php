@@ -176,7 +176,7 @@ $isComponentOnly = $tmpl == 'component';
 		</div>
 		<?php endif; ?>
 
-		<?php if(isset($this->primary) && count($this->primary)): ?>
+		<?php if (isset($this->primary) && count($this->primary)): ?>
 		<!-- Primary items -->
 		<div id="itemListPrimary">
 			<?php foreach($this->primary as $key=>$item): ?>
@@ -196,7 +196,7 @@ $isComponentOnly = $tmpl == 'component';
 					echo $this->loadTemplate('item');
 				?>
 			</div>
-			<?php if(($key+1)%($this->params->get('num_primary_columns'))==0): ?>
+			<?php if (($key+1)%($this->params->get('num_primary_columns'))==0): ?>
 			<div class="clr"></div>
 			<?php endif; ?>
 			<?php endforeach; ?>

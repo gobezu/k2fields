@@ -449,8 +449,8 @@ class K2FieldsMedia {
                 
                 self::postProcessGalleryOptions($item, $postProcess, $fields);
                 
+                $fieldsValues = array_values($fieldsValues);
                 $fieldsValues = json_encode($fieldsValues);
-                
                 $item->extra_fields = $fieldsValues;
                 
                 JFolder::delete($uploadDir);
@@ -708,6 +708,8 @@ class K2FieldsMedia {
                 
                 $thumb = false;
                 
+                self::watermark($item, $dstFile, $options);
+                
                 if ($createThumb && !$isThumb) {
                         $thumb = self::createThumb($dstFile, $options);
                         
@@ -717,13 +719,117 @@ class K2FieldsMedia {
                 $fileNameCaption = self::getFileNameBasedCaption($dstFile);
                 
                 return array(
-                    'file' => $dstFile, 
-                    'mediatype' => $mt, 
-                    'filename' => $fileName, 
-                    'originalfilename' => $originalFileName,
-                    'filenamecaption' => $fileNameCaption, 
-                    'thumbcreated' => $thumb !== false
+                        'file' => $dstFile, 
+                        'mediatype' => $mt, 
+                        'filename' => $fileName, 
+                        'originalfilename' => $originalFileName,
+                        'filenamecaption' => $fileNameCaption, 
+                        'thumbcreated' => $thumb !== false
                 );
+        }
+        
+        protected static function watermark($item, $file, $options) {
+                $fields = K2FieldsModelFields::value($options, 'watermark_fields');
+                $values = array();
+                
+                if ($fields) {
+                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $itemId = K2FieldsModelFields::value($item, 'id');
+                        $fieldsValues = $model->itemValues($itemId, $fields);
+                        
+                        foreach ($fieldsValues as $fieldValues) {
+                                foreach ($fieldValues as $fieldValue) {
+                                        if (!empty($fieldValue->txt)) $values[] = $fieldValue->txt;
+                                        else if (!empty($fieldValue->value)) $values[] = $fieldValue->value;
+                                }
+                        }
+                        
+                        $values = implode(' - ', $values);
+                        $values = preg_replace("#\<span class=[\"\']lbl[\"\']>(.+)\<\/span\>#U", "$1 - ", $values);
+                        $values = trim(html_entity_decode(htmlspecialchars_decode(strip_tags($values))));
+                }
+                
+                $watermark = K2FieldsModelFields::value($options, 'watermark');
+                
+                if (!$watermark && !$values || !JFile::exists($file)) return;
+                
+                require_once JPATH_SITE."/media/k2fields/lib/wideimage-11.02.19-full/lib/WideImage.php";
+                
+                $img = WideImage::load($file);
+                
+                if ($watermark) $watermark = JPath::clean(JPATH_SITE . '/' . $watermark, '/');
+                
+                $watermarks = $lefts = $tops = array();
+                
+                if (JFile::exists($watermark)) {
+                        $watermarks[] = WideImage::load($watermark);
+                        $left = K2FieldsModelFields::value($options, 'watermark_left', 'left+10');
+                        $top = K2FieldsModelFields::value($options, 'watermark_top', 'top+10');                        
+                        $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
+                        $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
+                }
+                
+                if ($values) {
+                        $fontSize = 10;
+                        $font = JPATH_SITE."/media/k2fields/fonts/Existence-Light.ttf";
+                        
+                        $oFont = K2FieldsModelFields::value($options, 'id');
+                        
+                        if ($oFont = JFolder::files(JPATH_SITE."/media/k2fields/fonts/", $oFont."\.[ttf|otf]", false, true)) {
+                                $font = current($oFont);
+                        }
+                        
+                        if (K2FieldsModelFields::value($options, 'watermark_copy')) $values = '(c) '.$values;
+                        
+                        $size = imagettfbbox($fontSize, 0, $font, $values);
+                        $w = abs($size[2]) + abs($size[0]);
+                        $h = abs($size[7]) + abs($size[1]);
+                        $image = imagecreatetruecolor($w, $h);
+                        imagesavealpha($image, true);
+                        imagealphablending($image, false);
+                        
+                        $colors = K2FieldsModelFields::value($options, 'watermark_colors', '200,200,200');
+                        $colors = explode(',', $colors);
+
+                        $transparentColor = imagecolorallocatealpha($image, $colors[0], $colors[1], $colors[2], 127);
+                        imagefill($image, 0, 0, $transparentColor);
+
+                        $textColor = imagecolorallocate($image, $colors[0], $colors[1], $colors[2]);
+                        imagettftext($image, $fontSize, 0, 0, abs($size[5]), $textColor, $font, $values);
+                        
+                        $watermarks[] = WideImage::load($image);
+                        // 'right-'.($w+10), 'bottom-'.($h+10)
+                        $left = K2FieldsModelFields::value($options, 'watermark_field_left', 'right-10');
+                        $top = K2FieldsModelFields::value($options, 'watermark_field_top', 'bottom-10');
+                        $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
+                        $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
+                }
+                
+                foreach ($watermarks as $w => $watermark) {
+                        foreach ($tops[$w] as $top) {
+                                foreach ($lefts[$w] as $left) {
+                                        $img = $img->merge($watermark, $left, $top, 100);
+                                        $img->saveToFile($file);
+                                }
+                        }
+                }
+                
+                if (isset($image) && is_resource($image)) imagedestroy($image);
+                
+                return true;
+
+//                require_once JPATH_SITE."/media/k2fields/lib/class.rwatermark.php";
+//                
+//                $handle = new RWatermark(FILE_JPEG, "./original.jpg");
+//
+//                $handle->SetPosition("RND");
+//                $handle->SetTransparentColor(255, 0, 255);
+//                $handle->SetTransparency(60);
+//                $handle->AddWatermark(FILE_PNG, "./watermark.png");
+//
+//                Header("Content-type: image/png");
+//                $handle->GetMarkedImage(IMG_PNG);
+//                $handle->Destroy();                
         }
         
         protected static function saveUploadedFile(

@@ -479,7 +479,7 @@ var k2fieldseditor = new Class({
                                 'deps': {
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:11', 'id:1001', 'id:1002', 'id:1003'],
-                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159'],
+                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
@@ -1137,6 +1137,67 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'tip':'If you want to dictate image to be shown in modules and itemlist view...'
                         },
+                        '1160':{
+                                name:'Watermark fields',
+                                optName:'watermark_fields',
+                                valid:'int',
+                                list:'normal',
+                                ui:'select',
+                                values:this.options.options['fields'],
+                                sorted:true,
+                                section:'Type specific',
+                                tip:'Provide fields of which values to be used as watermark text.'
+                        },                       
+                        '1161':{
+                                'name':'Watermark left position (horizontal)',
+                                'optName':'watermark_field_left',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'tip':'Pixel value, %, center, right, left. If you want to apply the same watermark on different locations please provide a comma separated list of positions. Extensive explanation about how to position is provided in http://wideimage.sourceforge.net/documentation/smart-coordinates/'
+                        },
+                        '1162':{
+                                'name':'Watermark top position (vertical)',
+                                'optName':'watermark_field_top',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'tip':'Pixel value, %, center, top, bottom. If you want to apply the same watermark on different locations please provide a comma separated list of positions. Extensive explanation about how to position is provided in http://wideimage.sourceforge.net/documentation/smart-coordinates/'
+                        },
+                        '1163':{
+                                'name':'Watermark image',
+                                'optName':'watermark',
+                                'valid':'text',
+                                'size':100,
+                                'section':'Type specific',
+                                'tip':'Provide file location relative to site root to image to be used as watermark'
+                        },                       
+                        '1164':{
+                                'name':'Watermark left position (horizontal)',
+                                'optName':'watermark_left',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'tip':'Pixel value, %, center, right, left. If you want to apply the same watermark on different locations please provide a comma separated list of positions. Extensive explanation about how to position is provided in http://wideimage.sourceforge.net/documentation/smart-coordinates/'
+                        },
+                        '1165':{
+                                'name':'Watermark top position (vertical)',
+                                'optName':'watermark_top',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'tip':'Pixel value, %, center, top, bottom. If you want to apply the same watermark on different locations please provide a comma separated list of positions. Extensive explanation about how to position is provided in http://wideimage.sourceforge.net/documentation/smart-coordinates/'
+                        },
+                        '1166':{
+                                'name':'Add &copy; in watermark',
+                                'optName':'watermark_copy',
+                                'valid':'verifybox',
+                                'section':'Type specific'
+                        },
+                        '1167':{
+                                'name':'Watermark colors',
+                                'optName':'watermark_colors',
+                                'valid':'text',
+                                'tip':'Comma separated list of red, green, blue values. Ex. 0,0,0 or 255,255,255',
+                                'section':'Type specific'
+                        },
+                        
                         // Type::Date
                         '1201':{
                                 'name':'Picker theme',
