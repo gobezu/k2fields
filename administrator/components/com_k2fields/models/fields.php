@@ -753,6 +753,15 @@ class K2FieldsModelFields extends JModel {
                                                                 if ($caption) {
                                                                         $condition = $caption;
                                                                 }
+                                                        } else if ($fieldData['valid'] == 'k2item' && !empty($r->value)) {
+                                                                $cls = $this->loadType('k2item');
+                                                                $v = new stdClass();
+                                                                $v->value = $r->value;
+                                                                $v->partindex = 0;
+                                                                $v->listindex = 0;
+                                                                $v->itemid = $item->id;
+                                                                $vals = array(0 => array($v));
+                                                                $r->txt = call_user_func(array($cls, 'render'), $item, $vals, $fieldData, $this, array());
                                                         }
                                                         
                                                         if ((!empty($r->value) || $r->value === 0 || $r->value === '0' || $fieldData['isMedia']) && !$r->store()) {
@@ -1024,7 +1033,7 @@ class K2FieldsModelFields extends JModel {
                 } else {
                         $query = "SELECT DISTINCT v.val AS val FROM #__k2_extra_fields_list_values v INNER JOIN #__k2_extra_fields f ON v.fieldid = f.id AND f.published = 1 WHERE v.fieldid = {$id} AND v.value LIKE {$value}"; 
                 }
-
+                
                 if (empty($completions)) {
                         $db->setQuery($query);
                         $completions = $db->loadObjectList();
@@ -1970,7 +1979,7 @@ class K2FieldsModelFields extends JModel {
                 $_plgSettings = array('merge'=>'', 'mergesection'=>'', 'sectiontitle'=>'');
                 
                 $review = '';
-                if ($item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
+                if (!$isK2item && $item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
                         $dispatcher = JDispatcher::getInstance();
                         JPluginHelper::importPlugin ('k2');
                         $limitstart = JRequest::getInt('limitstart', 0);
