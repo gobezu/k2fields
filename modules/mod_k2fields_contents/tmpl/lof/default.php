@@ -11,7 +11,7 @@ if (!$isPartitioned) {
 $mainWidth -= 19; // Taking height for the button width
 $params->set('max_items_display', floor((int)$moduleHeight/$params->get('navitem_height', 100)));
 ?>
-<div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>';width:'<?php echo $moduleWidth; ?>;">
+<div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>;width:<?php echo $moduleWidth; ?>;">
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
                 <div class="preload"><div></div></div>
                 <!-- MAIN CONTENT --> 
