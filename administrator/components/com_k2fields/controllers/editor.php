@@ -215,7 +215,7 @@ from (
                 $id = JRequest::getInt('cid');
                 $id = $id ? ' and e.id <> '.$id : '';
                 $query = "
-select eg.id as groupid, eg.name as groupname, e.id as value, trim(substr(definition, length(definition) - instr(reverse(definition), '---') + 2)) as `text`
+select eg.id as groupid, eg.name as groupname, e.id as value, concat('(', e.id, ') ', trim(substr(definition, length(definition) - instr(reverse(definition), '---') + 2))) as `text`
 from #__k2_extra_fields e, #__k2_extra_fields_groups eg, #__k2_extra_fields_definition d
 where e.id = d.id and e.`group` = eg.id {$id} 
 order by groupid, `text`
