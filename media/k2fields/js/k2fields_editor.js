@@ -744,6 +744,20 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'section':'Layout'
                         },
+                        '36':{
+                                'name':'Append to metatag keywords',
+                                'optName':'appendtokeywords',
+                                'valid':'verifybox',
+                                'tip':'Value of this field will be appended to metatag keywords which is used for known SEO purpose as well as search capability among others by the k2fields content module.',
+                                'section':'SEO'
+                        },
+                        '37':{
+                                'name':'Append to metatag description',
+                                'optName':'appendtodescription',
+                                'valid':'verifybox',
+                                'tip':'Value of this field will be appended to the metatag description',
+                                'section':'SEO'
+                        },
                         '51':{
                                 'name':'Search',
                                 'optName':'search',

@@ -43,7 +43,7 @@ class plgSystemk2fields extends JPlugin {
         
         function plgSystemk2fields(&$subject, $params) {
                 parent::__construct($subject, $params);
-                JPlugin::loadLanguage('plg_system_k2fields', JPATH_ADMINISTRATOR);
+                $this->loadLanguage('', JPATH_ADMINISTRATOR);
         }
         
         public static function param($name, $value = '', $dir = 'get') {
@@ -353,7 +353,7 @@ class plgSystemk2fields extends JPlugin {
          * Adds (loads) K2 stylesheet file (k2.css) for current theme by looking for it
          * in each possible template override folder
          */
-        private static function addResources() {
+        private function addResources() {
                 if (plgk2k2fields::param('specificCSS', 'no') == 'yes')  JprovenUtility::loadK2SpecificResources();
         }
         
@@ -366,14 +366,16 @@ class plgSystemk2fields extends JPlugin {
          * 
          * Note: Make sure to set the order of this plugin after K2s system plugin
          */
-        private static function extendUserForm() {
+        private function extendUserForm() {
 		$mainframe = &JFactory::getApplication();
 
 		if($mainframe->isAdmin()) return;
-
-		JPlugin::loadLanguage('com_k2');
+                
+                $this->loadLanguage('com_k2');
+                
 		$params = &JComponentHelper::getParams('com_k2');
 		$option = JRequest::getCmd('option');
+                
 		if(!$params->get('K2UserProfile') || $option != 'com_user') return;
                 
 		$view = JRequest::getCmd('view');
@@ -513,8 +515,8 @@ class plgSystemk2fields extends JPlugin {
                 $option = JRequest::getCmd('option');
                 $view = JRequest::getCmd('view');
                 
-                self::extendUserForm();
-                self::addResources();
+                $this->extendUserForm();
+                $this->addResources();
                 
                 $app = JFactory::getApplication();
                 

@@ -1631,28 +1631,49 @@ class K2FieldsModelFields extends JModel {
                 return $itemRules;
         }
         
+        public function generateDescription($item) {
+                return $this->generateMeta($item, 'appendtodescription', ',');
+        }
+        
+        public function generateKeywords($item) {
+                return $this->generateMeta($item, 'appendtokeywords', ',');
+        }
+        
         public function generateTitle($item, $glue) {
+                return $this->generateMeta($item, 'appendtotitle', $glue);
+        }
+        
+        public function generateMeta($item, $property, $glue) {
                 $fields = $this->getFieldsByItem($item->id);
-                $titleFields = array();
+                $mFields = array();
                 
                 foreach ($fields as $field) {
-                        if (K2FieldsModelFields::isTrue($field, 'appendtotitle')) {
-                                $titleFields[] = $field;
+                        if (K2FieldsModelFields::isTrue($field, $property)) {
+                                $mFields[] = $field;
                         }
                 }
                 
-                if (!empty($titleFields)) {
-                        $title = array();
-                        $values = $this->itemValues($item->id, JprovenUtility::getColumn($titleFields, 'id'));
+                if (!empty($mFields)) {
+                        $meta = array();
+                        $values = $this->itemValues($item->id, JprovenUtility::getColumn($mFields, 'id'));
                         
                         if ($values) {
-                                foreach ($titleFields as $field) {
-                                        $value = $values[K2FieldsModelFields::value($field, 'id')];
-                                        $value = $this->renderFieldValuesRaw($value, $field, null);
-                                        $title[] = $value;
+                                foreach ($mFields as $field) {
+                                        $_values = $values[K2FieldsModelFields::value($field, 'id')];
+                                        $value = array();
+                                        foreach ($_values as $_value) {
+                                                $v = !empty($_value->txt) ? $_value->txt : $_value->value;
+                                                $value[] = $v;
+                                        }
+                                        //$value = $this->renderFieldValuesRaw($value, $field, null);
+                                        //$values = implode(' - ', $values);
+                                        $value = implode('', $value);
+                                        $value = preg_replace("#\<span class=[\"\']lbl[\"\']>(.+)\<\/span\>#U", '', $value);
+                                        $value = trim(html_entity_decode(htmlspecialchars_decode(strip_tags($value))));
+                                        $meta[] = $value;
                                 }
                                 
-                                return implode($glue, $title);
+                                return implode($glue, $meta);
                         }
                 }
                 

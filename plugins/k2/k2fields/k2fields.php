@@ -15,13 +15,19 @@ class plgk2k2fields extends K2Plugin {
         var $pluginName = 'k2fields';
         var $pluginNameHumanReadable = 'Extending K2';
         
+        const AUTO_METATAG_SEPARATOR = 'K2FIELDSAUTOGEN:';
+        
         function plgk2k2fields(&$subject, $params) {
                 parent::__construct($subject, $params);
+//                JPlugin::loadLanguage('plg_k2_k2fields', JPATH_ADMINISTRATOR);
                 $this->loadLanguage('', JPATH_ADMINISTRATOR);
         }
 
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
+                $this->normalizeMetatag($item, 'metadesc');
+                $this->normalizeMetatag($item, 'metakey');
+                
                 if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1')
                         JprovenUtility::normalizeK2Parameters($item);
 
@@ -105,23 +111,45 @@ class plgk2k2fields extends K2Plugin {
                 $row->load($item->id);
                 
                 $app = JFactory::getApplication();
-                $glue = self::param('appendtitleglue', ' / ');
-                $title = $model->generateTitle($item, $glue);
+                $isSave = false;
                 
-                if ($title) {
+                $glue = self::param('appendtitleglue', ' / ');
+                $meta = $model->generateTitle($item, $glue);
+                
+                if ($meta) {
                         $t = explode($glue, $row->title);
-                        $row->title = $t[0] . $glue . $title;
+                        $meta = $t[0] . $glue . $meta;
                         $row->alias = '';
-                        
+                        $isSave = true;
+                        $row->title = $item->title = $meta;
+                }
+                
+                $meta = $model->generateKeywords($item);
+                
+                if ($meta) {
+                        $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
+                        $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
+                        $isSave = true;
+                        $row->metakey = $item->metakey = $meta;
+                }
+                
+                $meta = $model->generateDescription($item);
+                
+                if ($meta) {
+                        $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
+                        $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
+                        $isSave = true;
+                        $row->metakey = $item->metakey = $meta;
+                }
+                
+                if ($isSave) {
                         if (!$row->check()) {
                                 $app->redirect('index.php?option=com_k2&view=item&cid='.$row->id, $row->getError(), 'error');
                         }
 
                         if (!$row->store()) {
                                 $app->redirect('index.php?option=com_k2&view=items', $row->getError(), 'error');
-                        }
-                        
-                        $item->title = $title;
+                        }                        
                 }
                 
                 if ($app->isAdmin()) return;
@@ -170,6 +198,19 @@ class plgk2k2fields extends K2Plugin {
                 } else if ($type == 'user') {
                         // return self::adjustUserFormLayout($item);
                 }
+        }
+        
+        /*** Utility functions ***/
+        function normalizeMetatag(&$item, $prop, $replacement = ',') {
+                $rep = strpos($item->$prop, self::AUTO_METATAG_SEPARATOR);
+                if ($rep === false) {
+                        return;
+                } else if ($rep === 0) {
+                        $rep = '';
+                } else {
+                        $rep = $replacement;
+                }
+                $item->$prop = str_replace(self::AUTO_METATAG_SEPARATOR, $rep, $item->$prop);
         }
         
         function _v($arr, $ind, $def='') {
