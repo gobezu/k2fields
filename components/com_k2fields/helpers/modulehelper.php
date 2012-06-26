@@ -241,26 +241,32 @@ class K2FieldsModuleHelper {
                                 $query .= ' AND i.trash = 0';
                                 $query .= ' AND '.$keys;
                         } else if ($stickTo == 'field') {
-                                
                                 $fields = $params->get('sticktofields', '');
-
+                                
                                 if (!is_array($fields)) $fields = explode(',', $fields);
 
                                 $complexFields = array();
+                                $aliasFields = array();
                                 $subFields = array();
 
                                 foreach ($fields as $i => $field) {
                                         if (strpos($field, ',')) {
+                                                // complex
                                                 list($sf,$f) = explode(',', $field);
                                                 if (!in_array($f, $complexFields)) $complexFields[] = $f;
                                                 if (!isset($subFields[$f])) $subFields[$f] = array();
                                                 $subFields[$f][] = $sf;
                                                 unset($fields[$i]);
+                                        } else if (strpos($field, '.')) {
+                                                // aliased
+                                                $field = explode('.', $field);
+                                                $fields[$i] = array($field[0], 0);
+                                                $aliasFields[$field[0]] = $field[1];
                                         } else {
                                                 $fields[$i] = array($field, 0);
                                         }
                                 }
-
+                                
                                 if (!empty($complexFields)) {
                                         $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
                                         $complexFields = $fieldsModel->getFieldsById($complexFields);
@@ -294,11 +300,14 @@ class K2FieldsModuleHelper {
                                 $valuesByField = JprovenUtility::indexBy($values, array('fieldid', 'partindex'));
                                 $fields = array_keys($valuesByField);
                                 
-                                
                                 $tbl = 'SELECT itemid, fieldid, listindex, partindex, GROUP_CONCAT(value SEPARATOR "%%") AS value FROM #__k2_extra_fields_values WHERE itemid <> '.$itemId.' AND (';
                                 
                                 $i = 0;
                                 foreach ($valuesByField as $fieldId => $valuesByParts) {
+                                        if (isset($aliasFields[$fieldId])) {
+                                                $fieldId = $aliasFields[$fieldId];
+                                        }
+                                        
                                         foreach ($valuesByParts as $partIndex => $valuesByList) {
                                                 if ($i > 0) $tbl .= ' OR ';
                                                 $tbl .= '(fieldid = '.$fieldId.' AND partindex = '.$partIndex.')';
@@ -312,6 +321,10 @@ class K2FieldsModuleHelper {
 
                                 $j = 0;
                                 foreach ($valuesByField as $fieldId => $valuesByParts) {
+                                        if (isset($aliasFields[$fieldId])) {
+                                                $fieldId = $aliasFields[$fieldId];
+                                        }
+                                        
                                         foreach ($valuesByParts as $partIndex => $valuesByList) {
                                                 if ($j > 0) $query .= ' AND ';
                                                 $query .= 'fieldid = ' . $fieldId . ' AND partindex = ' . $partIndex . ' AND value IN (';
@@ -329,9 +342,9 @@ class K2FieldsModuleHelper {
                         
                         if ($query) {
                                 if ($stickToCategory == 'same') {
-                                        $query .= ' AND i.id in (SELECT id FROM #__k2_items WHERE catid IN (SELECT catid FROM #__k2_items WHERE id = '.$itemId.'))';
+                                        $query .= ' AND i.itemid in (SELECT id FROM #__k2_items WHERE catid IN (SELECT catid FROM #__k2_items WHERE id = '.$itemId.'))';
                                 } else if ($stickToCategory == 'cats' && !empty($categories)) {
-                                        $query .= ' AND i.id in (SELECT id FROM #__k2_items WHERE catid IN ('.implode(',', $categories).'))';
+                                        $query .= ' AND i.itemid in (SELECT id FROM #__k2_items WHERE catid IN ('.implode(',', $categories).'))';
                                 }  
                                 
                                 $lim = $stickToCategory != 'none' && isset($limitPerCat) ? $limitPerCat : $limit;
@@ -970,12 +983,7 @@ class K2FieldsModuleHelper {
                                                                 $tmp = new JObject();
                                                                 $tmp->text = $extraField->value;
                                                                 if($params->get('JPlugins',1)){
-                                                                        if(K2_JVERSION == '16') {
-                                                                                $dispatcher->trigger('onContentPrepare', array ('mod_k2_content', &$tmp, &$params, $limitstart));
-                                                                        }
-                                                                        else {
-                                                                                $dispatcher->trigger('onPrepareContent', array ( & $tmp, &$params, $limitstart));
-                                                                        }
+                                                                        $dispatcher->trigger('onContentPrepare', array ('mod_k2_content', &$tmp, &$params, $limitstart));
                                                                 }
                                                                 if($params->get('K2Plugins',1)){
                                                                         $dispatcher->trigger('onK2PrepareContent', array ( & $tmp, &$params, $limitstart));
