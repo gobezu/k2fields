@@ -8,6 +8,10 @@ class JFormFieldWidgetkitsettings extends JFormField {
 	protected $type = 'widgetkitsettings';
         
 	function getInput() {
+		if (!JFile::exists(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.php')) {
+			return 'Widgtekit not installed';
+		}
+                
                 $type = $this->form->getValue('widgetkit_type', 'params');
                 $path = JPATH_SITE.'/media/widgetkit/widgets/'.$type.'/'.$type.'.xml';
                 $type_xml = simplexml_load_file($path);
