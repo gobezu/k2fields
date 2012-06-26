@@ -77,6 +77,8 @@ class K2FieldsHelper {
                         $cclient = JFactory::getApplication()->isSite() ? 'site' : 'admin';
                         
                         if ($cclient == $client || $client == 'all') {
+                                $tabs = array_shift($tabs);
+                                $tabs = explode(',', $tabs);
                                 $tabs = array('excludes'=>$excludes, 'tabs'=>$tabs);
                         } else {
                                 $tabs = null;
