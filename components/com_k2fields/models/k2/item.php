@@ -306,7 +306,7 @@ class K2ModelItem extends JModel
 		//Item image
 		if ($params->get('feedItemImage') && JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_'.$params->get('feedImgSize').'.jpg'))
 		{
-			$item->description .= '<div class="K2FeedImage"><img src="'.JURI::base(true).'/media/k2/items/cache/'.md5('Image'.$item->id).'_'.$params->get('feedImgSize').'.jpg" alt="'.$item->title.'" /></div>';
+            $item->description .= '<div class="K2FeedImage"><img src="'.JURI::root().'media/k2/items/cache/'.md5('Image'.$item->id).'_'.$params->get('feedImgSize').'.jpg" alt="'.$item->title.'" /></div>';
 		}
 
 		//Item Introtext
@@ -410,6 +410,71 @@ class K2ModelItem extends JModel
 		return $item;
 	}
 
+    function prepareJSONItem($item)
+    {
+        $row = new JObject();
+        unset($row->_errors);
+        $row->id = $item->id;
+        $row->title = $item->title;
+        $row->alias = $item->alias;
+        $row->link = $item->link;
+        $row->catid = $item->catid;
+        $row->introtext = $item->introtext;
+        $row->fulltext = $item->fulltext;
+        $row->extra_fields = $item->extra_fields;
+        $row->created = $item->created;
+        //$row->created_by = $item->created_by;
+        $row->created_by_alias = $item->created_by_alias;
+        $row->modified = $item->modified;
+        //$row->modified_by = $item->modified_by;
+        $row->featured = $item->featured;
+        //$row->ordering = $item->ordering;
+        //$row->featured_ordering = $item->featured_ordering;
+        $row->image = isset($item->image) ? $item->image : '';
+        $row->imageWidth = isset($item->imageWidth) ? $item->imageWidth : '';
+        $row->image_caption = $item->image_caption;
+        $row->image_credits = $item->image_credits;
+        $row->imageXSmall = $item->imageXSmall;
+        $row->imageSmall = $item->imageSmall;
+        $row->imageMedium = $item->imageMedium;
+        $row->imageLarge = $item->imageLarge;
+        $row->imageXLarge = $item->imageXLarge;
+        $row->video = $item->video;
+        $row->video_caption = $item->video_caption;
+        $row->video_credits = $item->video_credits;
+        $row->gallery = $item->gallery;
+        $row->hits = $item->hits;
+        //$row->plugins = $item->plugins;
+        $row->category->id = $item->category->id;
+        $row->category->name = $item->category->name;
+        $row->category->alias = $item->category->alias;
+        $row->category->link = $item->category->link;
+        $row->category->description = $item->category->description;
+        $row->category->image = $item->category->image;
+        $row->category->ordering = $item->category->ordering;
+        //$row->category->plugins = $item->category->plugins;
+        $row->tags = isset($item->tags) ? $item->tags : array();
+        $row->attachments = isset($item->attachments) ? $item->attachments : array();
+        $row->votingPercentage = isset($item->votingPercentage) ? $item->votingPercentage : '';
+        $row->numOfvotes = isset($item->numOfvotes) ? $item->numOfvotes : '';
+        if (isset($item->author))
+        {
+            //$row->author->id = $item->author->id;
+            $row->author->name = $item->author->name;
+            //$row->author->username = $item->author->username;
+            $row->author->link = $item->author->link;
+            $row->author->avatar = $item->author->avatar;
+            if(isset($item->author->profile))
+            {
+                unset($item->author->profile->plugins);
+            }
+            $row->author->profile = $item->author->profile;
+        }
+        $row->numOfComments = $item->numOfComments;
+        $row->events = $item->event;
+        return $row;
+    }
+
 	function execPlugins($item, $view, $task)
 	{
 
@@ -425,21 +490,18 @@ class K2ModelItem extends JModel
 		{
 			if ($item->gallery)
 			{
-				if (JString::strpos($item->gallery, 'flickr.com') === false)
-				{
-					$item->gallery = "{gallery}{$item->id}{/gallery}";
-				}
-				if (JFolder::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'galleries'.DS.$item->id))
-				{
-					$params->set('galleries_rootfolder', 'media/k2/galleries');
-					$item->text = $item->gallery;
-					$dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
-					$item->gallery = $item->text;
-				}
-				else
-				{
-					$item->gallery = null;
-				}
+                                if (JString::strpos($item->gallery, 'flickr.com') === false)
+                                {
+                                $item->gallery = "{gallery}{$item->id}{/gallery}";
+                                if (!JFolder::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'galleries'.DS.$item->id))
+                                {
+                                        $item->gallery = null;
+                                }
+                                }
+                                $params->set('galleries_rootfolder', 'media/k2/galleries');
+                                $item->text = $item->gallery;
+                                $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+                                $item->gallery = $item->text;				
 			}
 		}
 
@@ -1004,7 +1066,7 @@ class K2ModelItem extends JModel
 
 			if ($row->published)
 			{
-				if ($config->getValue('config.caching'))
+                                if ($config->getValue('config.caching') && $user->guest)
 				{
 					$response->message = JText::_('K2_THANK_YOU_YOUR_COMMENT_WILL_BE_PUBLISHED_SHORTLY', true);
 					echo json_encode($response);
