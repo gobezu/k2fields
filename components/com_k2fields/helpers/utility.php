@@ -1791,6 +1791,12 @@ group by vvv.itemid
                 return $result;                
         }
         
+        public static function getK2Params($option = 'com_k2') {
+                $app = JApplication::getInstance('site');
+                $params = &$app->getParams($option);
+                return $params;
+        }
+        
         public static function makeOptions($array, $sepCol, $sepLblCol = '', $lblName = 'label', $append = '') {
                 $isArray = is_array($array[0]);
                 $options = array();
@@ -2194,14 +2200,9 @@ group by vvv.itemid
                 if ($checkAccess) {
                         $user = JFactory::getUser();
                         
-                        if (K2_JVERSION == '16') {
-                                $aid = $user->authorisedLevels();
-                                $aid = '('.implode(',', $aid).')';
-                                $criterias['access'] = array('IN', $aid);
-                        } else {
-                                $aid = (int) $user->get('aid');
-                                $criterias['access'] = array('<=', $aid);
-                        }                        
+                        $aid = $user->authorisedLevels();
+                        $aid = '('.implode(',', $aid).')';
+                        $criterias['access'] = array('IN', $aid);
                 }
                 
                 return self::getPath($needle, 'id', 'parent', '#__k2_categories', $criterias);
