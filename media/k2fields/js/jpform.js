@@ -269,6 +269,11 @@ var JPForm = new Class({
                                 var valid = this.getOpt(el, 'valid'), mtd = valid ? 'set'+valid.capitalize()+'Value' : false;
                                 if (mtd && this[mtd]) this[mtd](el);
                         }
+                        
+                        if (el.retrieve('autocompleterdone')) {
+                                el.retrieve('_ac_').isReverse = true;
+                                el.fireEvent('keyup', [el]);
+                        }
                 }
                 
                 el.fireEvent('change', [el]);
@@ -810,12 +815,10 @@ var JPForm = new Class({
                 
                 if ((tag != 'input' ||  fld.get('type') != 'text') && tag != 'textarea')  return false;
                 
-                var 
-                        mode = this.isMode('search') ? 'search' : 'edit', 
-                        acMode = this.getOpt(
-                                this.isType(proxyField, ['map', 'list', 'basic']) ? proxyField : fld, 
-                                'autocomplete'
-                        );
+                var acMode = this.getOpt(
+                        this.isType(proxyField, ['map', 'list', 'basic']) ? proxyField : fld, 
+                        'autocomplete'
+                );
                          
                 if (!['m', 's', 'e'].contains(acMode)) return false;
                 
@@ -865,6 +868,7 @@ var JPCompleter = new Class({
         currChoice:{value:'',ovalue:''},
         propagate:undefined,
         valid:'',
+        isReverse:undefined,
         initialize: function(el, url, k2f, propagate, options) {
                 options = Object.merge(options, {injectChoice:this._injector,ajaxOptions:{async:k2f.options.async}});
                 this.fld = el;
@@ -875,6 +879,7 @@ var JPCompleter = new Class({
                 document.id(this.fld).addEvents({
                         'blur' : function() {this.removeNonMatching();}.bind(this)
                 });
+                this.fld.store('_ac_', this);
         },
         query:function() {
                 var af = this.k2f.getOpt(this.fld, 'autofield');
@@ -894,6 +899,8 @@ var JPCompleter = new Class({
                                 
                                 if (id) params.id = id;
                         }
+                        
+                        params['reverse'] = this.isReverse ? 1 : 0;
                         
                         this.request.options.url = this.request.options.url.applyParams(params);
                 }
@@ -936,6 +943,11 @@ var JPCompleter = new Class({
                                         }
                                 }
                                 break;
+                        default:
+                                if (this.isReverse) {
+                                        this.fld.set('value', value.value);
+                                }
+                                break;
                 }
 
                 if (this.propagate) {
@@ -948,6 +960,8 @@ var JPCompleter = new Class({
                                         [document.id(this.propagate['to'])]
                                 );
                 }
+                
+                this.isReverse = false;
                 
                 return this.parent(el);
         },

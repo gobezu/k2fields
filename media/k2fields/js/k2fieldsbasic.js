@@ -574,12 +574,16 @@ var k2fields_type_basic = {
 //                this.setOpt(field, 'depson', depson);
         },
         
+        _initiateFieldDependency: function(field, forSybs) {
+                if (this.initiateFieldDependency(field, forSybs)) this.handleFieldDependency(field);
+        },
+        
         initiateFieldDependency: function(field, forSybs) {
                 field.addEvent('change', function() {
                         this.handleFieldDependency(field); 
                 }.bind(this));
 
-                var k, i, n, t, deps, dep, depees = [];
+                var k, i, n, t, deps, dep, depees = this.getOpt(field, 'depees', null, []);
                 
                 deps = this.getOpt(field, 'deps');
                 
@@ -589,15 +593,29 @@ var k2fields_type_basic = {
                                 
                                 for (i = 0, n = dep.length; i < n; i++) {
                                         t = typeof dep[i] == 'number' ? dep[i] - 1 : dep[i];
-
+                                        
+                                        if (depees.contains(t)) {
+                                                this.addDependsOn(t, field, k);
+                                                continue;
+                                        }
+                                        
                                         if (typeof dep[i] != 'number') {
                                                 var tt = this.options.pre+t.replace('id:', '');
-                                                if (!this.isFieldAvailable(tt)) continue;
+                                                
+                                                if (!this.isFieldAvailable(tt)) {
+                                                        this.addFormElementComplete(
+                                                                '_initiateFieldDependency', 
+                                                                tt, 
+                                                                [field, false], 
+                                                                tt
+                                                        );                                                                
+                                                        continue;
+                                                }
                                         }
                                         
                                         this.addDependsOn(t, field, k);
                                         
-                                        if (!depees.contains(t)) depees.push(t);
+                                        depees.push(t);
                                 }
                         }
                         
@@ -640,7 +658,7 @@ var k2fields_type_basic = {
         
         handleFieldDependency: function(field) {
                 var deps = this.getOpt(field, 'deps');
-                
+               
                 if (!deps) return;
                 
                 var 
@@ -649,8 +667,6 @@ var k2fields_type_basic = {
                         vals = Array.from(this.getValue(field)),
                         depeesAvailable = [],
                         dep, i, n, j, m, t;
-                
-                var fid = field.get('id');
                 
                 for (i = 0, n = depees.length; i < n; i++) {
                         if (t = this.isDependent(depees[i], depeeFields, 0)) {

@@ -754,14 +754,14 @@ class K2FieldsModelFields extends JModel {
                                                                         $condition = $caption;
                                                                 }
                                                         } else if ($fieldData['valid'] == 'k2item' && !empty($r->value)) {
-                                                                $cls = $this->loadType('k2item');
-                                                                $v = new stdClass();
-                                                                $v->value = $r->value;
-                                                                $v->partindex = 0;
-                                                                $v->listindex = 0;
-                                                                $v->itemid = $item->id;
-                                                                $vals = array(0 => array($v));
-                                                                $r->txt = call_user_func(array($cls, 'render'), $item, $vals, $fieldData, $this, array());
+//                                                                $cls = $this->loadType('k2item');
+//                                                                $v = new stdClass();
+//                                                                $v->value = $r->value;
+//                                                                $v->partindex = 0;
+//                                                                $v->listindex = 0;
+//                                                                $v->itemid = $item->id;
+//                                                                $vals = array(0 => array($v));
+//                                                                $r->txt = call_user_func(array($cls, 'render'), $item, $vals, $fieldData, $this, array());
                                                         }
                                                         
                                                         if ((!empty($r->value) || $r->value === 0 || $r->value === '0' || $fieldData['isMedia']) && !$r->store()) {
@@ -1001,7 +1001,14 @@ class K2FieldsModelFields extends JModel {
                         if ($type == 'list') {
                                 $list = new K2FieldsList();
                                 $listId = self::value($field, 'source');
-                                $query = $list->completePath($value, $listId, true, true);
+                                
+                                if ($isReverse) {
+                                        $completions = $list->getValue($value);
+                                        $completions->ovalue = $value;
+                                        $completions = array($completions);
+                                } else {
+                                        $query = $list->completePath($value, $listId, true, true);
+                                }
                         } else if ($type == 'k2item') {
                                 $query = $isReverse ? 
                                         K2fieldsK2Item::reverseComplete($value) : 
@@ -1039,7 +1046,7 @@ class K2FieldsModelFields extends JModel {
                         $completions = $db->loadObjectList();
                 }
                 
-                if ($isReverse && !empty($completions)) $completions = $completions[0];
+                if ($type == 'k2item' && $isReverse && !empty($completions)) $completions = $completions[0];
                 
                 return $completions;
         }
@@ -1178,7 +1185,12 @@ class K2FieldsModelFields extends JModel {
         
         public static function isType($options, $assertedType) {
                 return self::isValue($options, 'valid', $assertedType);
-        }        
+        }   
+        
+        public static function isAlias($options) {
+                $aliasFieldId = self::value($options, 'alias');
+                return !empty($aliasFieldId);
+        }
                 
         public static function isContainsType($assertedType, $catId = null, $mode = null) {
                 if (!empty($catId)) {
@@ -1319,6 +1331,7 @@ class K2FieldsModelFields extends JModel {
                 if (!$preserveOrder) $query .= " ORDER BY ef.`ordering`";
                 
                 $this->_db->setQuery($query);
+                
                 $fields = $this->_db->loadObjectList('id');
                 
                 if ($onlyDefinitions) return $fields;
@@ -1661,13 +1674,15 @@ class K2FieldsModelFields extends JModel {
                                 foreach ($mFields as $field) {
                                         $_values = $values[K2FieldsModelFields::value($field, 'id')];
                                         $value = array();
+                                        // TODO: k2item need to be rendered but has some difficulties related to K2ItemModel provided
+                                        // being the backend one thus not having prepareItem and execplugin methods required
                                         foreach ($_values as $_value) {
                                                 $v = !empty($_value->txt) ? $_value->txt : $_value->value;
                                                 $value[] = $v;
                                         }
                                         //$value = $this->renderFieldValuesRaw($value, $field, null);
                                         //$values = implode(' - ', $values);
-                                        $value = implode('', $value);
+                                        $value = implode($glue, $value);
                                         $value = preg_replace("#\<span class=[\"\']lbl[\"\']>(.+)\<\/span\>#U", '', $value);
                                         $value = trim(html_entity_decode(htmlspecialchars_decode(strip_tags($value))));
                                         $meta[] = $value;
@@ -1705,10 +1720,10 @@ class K2FieldsModelFields extends JModel {
                         $item = $this->_db->loadObject();
                         $item->k2item = $isK2item;
                         if ($isK2item) $item->k2cat = $itemRules['all'][0]['k2cat'];
-                        if (!class_exists('K2HelperPermissions')) {
-                                JLoader::register('K2HelperPermissions', JPATH_SITE.'/components/com_k2/helpers/permissions.php');
-                        }                        
-                        JModel::addIncludePath('item', JPATH_SITE . '/components/com_k2/models');
+                        if (!class_exists('K2HelperUtilities')) {
+                                JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2/helpers/utilities.php');
+                        }
+                        JModel::addIncludePath(JPATH_SITE . '/components/com_k2/models');
                         $itemModel = JModel::getInstance('item', 'K2Model');
                         $item = $itemModel->prepareItem($item, $view, $task);
                         $item = $itemModel->execPlugins($item, $view, $task);
@@ -1845,7 +1860,7 @@ class K2FieldsModelFields extends JModel {
                 $fieldsValues = $this->itemValues($itemId, $fieldIds);
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
                 $schemaType = false;
-
+                
                 foreach ($itemRules as $fieldId => &$fieldRules) {
                         $fld = $fields[$fieldId];
                         
@@ -1859,6 +1874,10 @@ class K2FieldsModelFields extends JModel {
                                         $position['rendered'][] = $fieldRule;
                                 }
                                 
+                                continue;
+                        }
+                        
+                        if (self::isAlias($fld) && !self::isTrue($fld, 'render')) {
                                 continue;
                         }
                         
@@ -1999,20 +2018,20 @@ class K2FieldsModelFields extends JModel {
                 
                 $_plgSettings = array('merge'=>'', 'mergesection'=>'', 'sectiontitle'=>'');
                 
-                $review = '';
-                if (!$isK2item && $item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
-                        $dispatcher = JDispatcher::getInstance();
-                        JPluginHelper::importPlugin ('k2');
-                        $limitstart = JRequest::getInt('limitstart', 0);
-                        $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
-                        $item->event->K2CommentsCounter = trim(implode("\n", $results));
-                        if ($view == 'item') {
-                                $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
-                                $item->event->K2CommentsBlock = '';
-                                $review = trim(implode("\n", $results));
-                                $item->params->set('itemComments', false);
-                        }
-                }
+//                $review = '';
+//                if (false && !$isK2item && $item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
+//                        $dispatcher = JDispatcher::getInstance();
+//                        JPluginHelper::importPlugin ('k2');
+//                        $limitstart = JRequest::getInt('limitstart', 0);
+//                        $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
+//                        $item->event->K2CommentsCounter = trim(implode("\n", $results));
+//                        if ($view == 'item') {
+//                                $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
+//                                $item->event->K2CommentsBlock = '';
+//                                $review = trim(implode("\n", $results));
+//                                $item->params->set('itemComments', false);
+//                        }
+//                }
 
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
@@ -2087,7 +2106,6 @@ class K2FieldsModelFields extends JModel {
                                                 $title.
                                                 $rendered.
                                                 $absoluteRendered.
-                                                $review.
                                         '</div>'
                                         ;
                                 
@@ -2850,13 +2868,23 @@ class K2FieldsModelFields extends JModel {
 
                                         if ($loc['file'] !== $email) {
                                                 if ($loc['file'] !== true) {
-                                                        $width = (strlen($email) * 6) + 1;
+                                                        $fontSize = 10;
+                                                        $font = JPATH_SITE."/media/k2fields/fonts/Existence-Light.ttf";
 
-                                                        $im = imagecreate($width, 14);
+                                                        $oFont = self::value($field, 'id');
+
+                                                        if ($oFont = JFolder::files(JPATH_SITE."/media/k2fields/fonts/", $oFont."\.[ttf|otf]", false, true)) {
+                                                                $font = current($oFont);
+                                                        }
+
+                                                        $size = imagettfbbox($fontSize, 0, $font, $email);
+                                                        $w = abs($size[2]) + abs($size[0]);
+                                                        $h = abs($size[7]) + abs($size[1]);
+                                                        
+                                                        $im = imagecreate($w, $h);
                                                         $white = imagecolorallocate($im, 255, 255, 255);
                                                         $black = imagecolorallocate($im, 0, 0, 0);
                                                         imagestring($im, 2, 1, 0, $email, $black);
-
                                                         imagepng($im, $loc['file']);
                                                         imagedestroy($im);
                                                 }
@@ -3371,11 +3399,12 @@ class K2FieldsModelFields extends JModel {
                                         $def->def = str_replace('deps='.$mm[1], 'deps='.$_deps, $def->def);
                                 }
                         }
-                        $defs = JprovenUtility::getColumn($defs, 'def');
+                        $defs = (array) JprovenUtility::getColumn($defs, 'def');
                         $defs = implode(':::', $defs);
                         $optStr = $defs.':::'.str_replace(':::'.$m[0], '', $optStr);
                         $sub = true;
-                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
+//                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
+                } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#', $optStr, $m)) {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
@@ -3564,6 +3593,27 @@ class K2FieldsModelFields extends JModel {
                 }
                 
                 self::initializeOptions($options, $useFilter);
+                
+                if (self::isType($options, 'alias')) {
+                        $v = self::value($options, 'alias');
+                        $aliasedOptions = $this->getFieldsById($v);
+                        $aliased = array('valid');
+                        
+                        foreach ($options as $key => $option) {
+                                if (!in_array($key, $aliased)) {
+                                        if ($option !== '' && $option !== null)
+                                                $aliasedOptions[$key] = $option;
+                                } else {
+                                        $aliasedOptions['alias_'.$key] = $option;
+                                }
+                                        
+                        }
+                        
+                        if (!isset($options['filters']) || empty($options['filters'])) 
+                                unset($aliasedOptions['filters']);
+                        
+                        return $aliasedOptions;
+                }
                 
                 return $options;
         }

@@ -51,6 +51,8 @@ var k2fields_type_complex = {
                                 }
                         }
                         
+                        this.createFieldConditions(proxyField);
+                        
                         if (fields = this.createFieldSub(proxyProxyField, aggr ? value[pos] : v, condition, holder)) {
                                 elId = this.getProxyFieldId(proxyProxyField);
                                 

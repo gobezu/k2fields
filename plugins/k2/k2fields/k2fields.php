@@ -565,7 +565,7 @@ fjs.parentNode.insertBefore(js, fjs);
                 $layout = self::param('specificLayout', 'yes');
                 
                 if ($layout == 'yes') {
-                        $params = K2HelperUtilities::getParams('com_k2');
+                        $params = JprovenUtility::getK2Params();
                         
                         if (!empty($item) && empty($cparams)) {
                                 if (isset($item->categoryparams)) {
@@ -695,7 +695,7 @@ fjs.parentNode.insertBefore(js, fjs);
                                  $where = " WHERE permissions LIKE '%editAll=0%'";
                         }
 
-                        $k2Params = JComponentHelper::getParams('com_k2');
+                        $k2Params = JprovenUtility::getK2Params();
                         $groupDefault = $k2Params->get('K2UserGroup', 1);
                         $xml = '<param name="userprovidedgroup" type="sql" default="'.$groupDefault.'" query="SELECT id AS value, name AS k2fieldsuserprovidedgroup FROM #__k2_user_groups'.$where.'" label="Profile"></param>'.$xml;
                 }

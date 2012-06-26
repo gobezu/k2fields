@@ -453,7 +453,7 @@ var k2fieldseditor = new Class({
                                 'values':[
                                         {'value':'k2item','text':'k2item'},
                                         {'value':'list','text':'list'},
-                                        {'value':'media','text':'media'}, // might need additional settings
+                                        {'value':'media','text':'media'},
                                         {'value':'map','text':'map'},
                                         {'value':'datetime','text':'datetime'},
                                         {'value':'date','text':'date'},
@@ -461,7 +461,8 @@ var k2fieldseditor = new Class({
                                         {'value':'rate','text':'rate'},
                                         {'value':'time','text':'time'},
                                         {'value':'duration','text':'duration'},
-                                        {'value':'complex','text':'complex'}, // define better and test
+                                        {'value':'complex','text':'complex'},
+                                        {'value':'alias','text':'alias'},
                                         {'value':'email','text':'email'},
                                         {'value':'numeric','text':'numeric'}, // from here and below check in basic module for parameters to be supported
                                         {'value':'text','text':'text'},
@@ -488,7 +489,8 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355']
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355'],
+                                        'alias':['id:1451', 'id:1452']
                                 },
                                 'required':'1',
                                 'savevalues':'validtypes',
@@ -936,6 +938,16 @@ var k2fieldseditor = new Class({
                                 'tip':'View formats in item and itemlist modes. If nothing is provided it will be displayed with all parent elements. Available values are leaf, parent, root.',
                                 'section':'Type specific'
                         },
+                        '1004':{
+                                'name':'Max list level',
+                                'optName':'maxlevel',
+                                'valid':'range',
+                                'tip':'Maximum list depth',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':10,
+                                'sorted':true
+                        },
                         // Type::Complex
                         '1051':{
                                 name:'Subfields',
@@ -974,6 +986,8 @@ var k2fieldseditor = new Class({
                                 'subfields':[
                                         {'name':'Field id', 'optName':'fieldid', 'valid':'integer', 'ui':'select', 'values':this.options.options['fields']},
                                         {'name':'Field value(s)', 'optName':'values', 'valid':'text', 'autocomplete':'m', 'autofield':function(){
+                                                        var id = k2fs.getProxyFieldId(this.get('id'));
+                                                        this.retrieve('_ac_').propagate = {'to':id, 'attr':'ovalue', 'event':'change'};
                                                         return {
                                                                 'id':this.getParent('.k2fcontainer').getElement('select').get('value'),
                                                                 'search':1
@@ -1439,8 +1453,7 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'low':1,
                                 'high':20,
-                                'sorted':true,
-                                'section':'Type specific'
+                                'sorted':true
                         },
                         '1354':{
                                 'name':'Location provider',
@@ -1523,7 +1536,23 @@ var k2fieldseditor = new Class({
                                         {'name':'Image','valid':'text','tip':'File name of image located in media/k2fields/images'},
                                 ],
                                 'section':'Values'
+                        },
+                        '1451':{
+                                name:'Alias of field',
+                                optName:'alias',
+                                valid:'int',
+                                ui:'select',
+                                values:this.options.options['fields'],
+                                sorted:true,
+                                section:'Type specific'
+                        },
+                        '1452':{
+                                name:'Render',
+                                optName:'render',
+                                valid:'verifybox',
+                                section:'Type specific',
+                                tip:'If not explicitly requested alias fields are not rendered in views'
                         }
-                };
+             };
         }
 });

@@ -575,8 +575,8 @@ var k2fields = new Class({
                 return false;
         },
 
-        createField: function(proxyField) {
-                if (this.chkOpt(proxyField, 'list', 'conditional')) {
+        createFieldConditions: function(proxyField) {
+                if (this.chkOpt(proxyField, 'list', 'conditional') && !this.conditions[proxyField.get('name')] && !this.conditions[proxyField.get('name')]) {
                         var condition;
 
                         if (this.getOpt(proxyField, 'conditions')) {
@@ -596,9 +596,11 @@ var k2fields = new Class({
                                 });
                         }
 
-                        this.conditions[proxyField.get('name')] = condition;
+                        this.conditions[proxyField.get('name')||proxyField.get('id')] = condition;
                 }
-
+        },
+        
+        createField: function(proxyField) {
                 proxyField.set('id', proxyField.get('name'));
 
                 var list, item;
@@ -618,6 +620,8 @@ var k2fields = new Class({
 
         createFieldSub: function(proxyField, value, condition, holder) {
                 if (this.isExceeded(proxyField)) return [];
+                
+                this.createFieldConditions(proxyField);
                 
                 if (!value) value = '';
                 
@@ -855,7 +859,7 @@ var k2fields = new Class({
                 
                 if (mFn) fn = mFn;
                 
-                var q, id, holder, placement, status, proxyField, value, condition, isSimple;
+                var q, id, holder, placement, status, proxyField, value, condition, isSimple, isSubfield;
                 
                 for (i = 0, n = queue.length; i < n; i++) {
                         q = queue[i];
@@ -872,19 +876,24 @@ var k2fields = new Class({
                                 }
                                 
                                 proxyField = q[0];
-                                
                                 holder = value = condition = null;
                                 
                                 if (q.length > 0 && proxyField) {
                                         value = q[1];
                                         condition = q[2];
+                                        isSubfield = q.length > 3 && q[3];
                                         
-                                        if (q.length > 3 && q[3]) {
-                                                holder = q[3];
+                                        if (isSubfield) {
                                                 id = this.getProxyFieldId(proxyField);
-                                        } else {
-                                                id = this.generateId(proxyField);
-                                                holder = new Element('span', {id:id, valueholder:'true'});
+                                                holder = q[3];
+                                        }
+                                        //  || this.getOpt(proxyField, 'list')
+                                        if (!isSubfield) {
+                                                if (!isSubfield) {
+                                                        id = this.generateId(proxyField);
+                                                        holder = new Element('span', {id:id, valueholder:'true'});
+                                                }
+                                                
                                                 placement = this.place(holder, proxyField, condition, false, true);
                                         }
                                 }
@@ -1143,7 +1152,9 @@ var k2fields = new Class({
                 
                 if (hidden) this.toggleCustomField(field);
                 
-                if (value) this.setValue(field[0], value, undefined, undefined, undefined, true);
+                if (value) {
+                        this.setValue(field[0], value, undefined, undefined, undefined, true);
+                }
                 
                 return field;
         },
@@ -1358,10 +1369,10 @@ var k2fields = new Class({
                 }
 
                 if (this.getOpt(proxyField, 'list') == 'conditional') {
-                        var condition = this.conditions[proxyField.get('id')];
+                        var condition = this.conditions[proxyField.get('id')], cEl = this.containerEl();
 
                         condition = condition.clone();
-                        condition.inject(this.containerEl());
+                        condition.inject(cEl);
                         
                         this.autoGrow(condition, true, condition.get('rows'));
                         this.placeHold(condition, true);

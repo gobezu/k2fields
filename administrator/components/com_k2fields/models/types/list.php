@@ -386,12 +386,21 @@ class K2FieldsList {
                 $value = $this->_quoteIdentifier($this->_value);
                 
                 $query = '
-                        SELECT node.fullpath AS value, GROUP_CONCAT(parent.'.$primary.' SEPARATOR "'. K2FieldsModelFields::VALUE_SEPARATOR.'") AS ovalue
+                        SELECT DISTINCT node.fullpath AS value, MAX(parent.'.$primary.') AS ovalue
                         FROM '.$name.' AS node, '.$name.' AS parent
                         WHERE node.'.$left.' BETWEEN parent.'.$left.' AND parent.'.$right.' AND node.list = '.(int) $field .' AND node.'.$value.' LIKE '.$key.'
+                        GROUP BY node.fullpath
                         ORDER BY node.'.$primary.', parent.'.$left.'
                         '
                         ;  
+                
+//                $query = '
+//                        SELECT node.fullpath AS value, GROUP_CONCAT(parent.'.$primary.' SEPARATOR "'. K2FieldsModelFields::VALUE_SEPARATOR.'") AS ovalue
+//                        FROM '.$name.' AS node, '.$name.' AS parent
+//                        WHERE node.'.$left.' BETWEEN parent.'.$left.' AND parent.'.$right.' AND node.list = '.(int) $field .' AND node.'.$value.' LIKE '.$key.'
+//                        ORDER BY node.'.$primary.', parent.'.$left.'
+//                        '
+//                        ;  
                 
                 if ($result == 'query') {
                         return $query;
