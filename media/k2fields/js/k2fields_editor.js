@@ -1492,21 +1492,24 @@ var k2fieldseditor = new Class({
                                         'url':['id:1404'],
                                         'file':['id:1405']
                                 },
-                                'skip':true
+                                'skip':true,
+                                tip:'Each source need to avail its values in suitable format as specified along with each source type, where value is the least possible and can also include text and image.'
                         },
                         '1402':{
                                 'name':'SQL',
                                 'optName':'values',
                                 'ui':'textarea',
                                 'section':'Values',
-                                'valid':'text'
+                                'valid':'text',
+                                'tip':'SQL query rendering rows with columns labeled as value, text and img'
                         },
                         '1403':{
                                 'name':'PHP',
                                 'optName':'values',
                                 'ui':'textarea',
                                 'section':'Values',
-                                'valid':'text'
+                                'valid':'text',
+                                'tip':'Array with objects which has the members value, text and img'
                         },
                         '1404':{
                                 'name':'URL',
@@ -1514,7 +1517,8 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'section':'Values',
                                 'valid':'text',
-                                'size':100
+                                'size':100,
+                                'tip':'JSON encoded array with objects which has the members value, text and img'
                         },
                         '1405':{
                                 'name':'File',
