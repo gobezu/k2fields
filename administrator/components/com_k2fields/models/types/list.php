@@ -24,10 +24,10 @@ class K2FieldsList {
         
         public function render($item, $values, $field, $helper, $rule) {
                 $view = JRequest::getCmd('view') == 'itemlist' ? 'list' : '';
-                $show = $helper->value($field, $view.'listformat');
+                $show = K2FieldsModelFields::value($field, $view.'listformat');
                 
                 if (empty($show) && $view == 'list') 
-                        $show = $helper->value($field, 'listformat');
+                        $show = K2FieldsModelFields::value($field, 'listformat');
                 
                 if (!empty($show)) {
                         $leaf = count($values);

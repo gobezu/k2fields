@@ -479,7 +479,7 @@ var k2fieldseditor = new Class({
                                 ],
                                 'deps': {
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
-                                        'list':['id:11', 'id:1001', 'id:1002', 'id:1003'],
+                                        'list':['id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
                                         'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
@@ -935,10 +935,27 @@ var k2fieldseditor = new Class({
                                 'name':'List format',
                                 'optName':'listformat',
                                 'valid':'text',
+                                'ui':'select',
+                                'values':[
+                                        {value:'root',text:'root'},
+                                        {value:'parent',text:'parent (of leaf)'},
+                                        {value:'leaf',text:'leaf'},
+                                        {value:'parent,leaft',text:'parent and leaf'}
+                                ],
                                 'tip':'View formats in item and itemlist modes. If nothing is provided it will be displayed with all parent elements. Available values are leaf, parent, root.',
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'savevalues':'listformats'
                         },
                         '1004':{
+                                'name':'List format (item view)',
+                                'optName':'itemlistformat',
+                                'valid':'text',
+                                'ui':'select',
+                                'tip':'View formats in item modes. If nothing is provided it will be displayed with all parent elements. Available values are leaf, parent, root.',
+                                'section':'Type specific',
+                                'values':'values:listformats'
+                        },
+                        '1005':{
                                 'name':'Max list level',
                                 'optName':'maxlevel',
                                 'valid':'range',
