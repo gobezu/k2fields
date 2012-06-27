@@ -156,7 +156,7 @@ var k2fields_type_media = {
                         
                         if (!isDefined) {
                                 if (src == 'upload' || src == 'remote') {
-                                        result.push(this.ccf(proxyField, '', pos, false, 'Thumbnail', holder, 'input', {type:'file', thumb:true}, undefined, undefined, undefined, false));
+                                        result.push(this.ccf(proxyField, '', pos, false, 'Thumbnail', holder, 'input', {type:'file', thumb:true, norequired:true}, undefined, undefined, undefined, false));
                                 } else {
                                         result.push(this.ccf(proxyField, '', pos, false, '', holder, 'input', 'hidden', true, undefined, true));
                                 }
