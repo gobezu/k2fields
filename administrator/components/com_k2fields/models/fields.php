@@ -2162,17 +2162,17 @@ class K2FieldsModelFields extends JModel {
                                 $subfields = self::value($field, 'subfields');
 
                                 foreach ($filters as $i => $filter) {
-                                        if ($filterView == 'item') {
-                                                if (isset($filter['view']) && !isset($filter['view'][$filterView])) {
-                                                        unset($subfields[$i]);
-                                                        unset($filters[$i]);                                                        
-                                                }
-                                        } else {
+//                                        if ($filterView == 'item') {
+//                                                if (isset($filter['view']) && !isset($filter['view'][$filterView])) {
+//                                                        unset($subfields[$i]);
+//                                                        unset($filters[$i]);                                                        
+//                                                }
+//                                        } else {
                                                 if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
                                                         unset($subfields[$i]);
                                                         unset($filters[$i]);
                                                 }
-                                        }                                        
+//                                        }                                        
                                 }
                                 
                                 if (empty($subfields)) {
@@ -2184,13 +2184,13 @@ class K2FieldsModelFields extends JModel {
                         } else {
                                 $filter = self::value($field, 'filters');
 
-                                if ($filterView == 'item') {
-                                        if (isset($filter['view']) && !isset($filter['view'][$filterView])) 
-                                                unset($fields[$f]);
-                                } else {
+//                                if ($filterView == 'item') {
+//                                        if (isset($filter['view']) && !isset($filter['view'][$filterView])) 
+//                                                unset($fields[$f]);
+//                                } else {
                                         if (!isset($filter['view']) || !isset($filter['view'][$filterView])) 
                                                 unset($fields[$f]);
-                                }
+//                                }
                         }
                 }
         }
@@ -3237,7 +3237,8 @@ class K2FieldsModelFields extends JModel {
 
 		switch ($extraField->type){
 			case 'textfield':
-			$output='<input type="text" name="'.$pre.$extraField->id.'" value="'.$active.'"/>';
+                        $output='<textarea name="'.$pre.$extraField->id.'" id="'.$pre.$extraField->id.'" rows="10" cols="40" class="k2ExtraFieldEditor">'.$active.'</textarea>';
+			//$output='<input type="text" name="'.$pre.$extraField->id.'" value="'.$active.'"/>';
 			break;
 
 			case 'labels':
@@ -3408,9 +3409,9 @@ class K2FieldsModelFields extends JModel {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
-                                list($val, $fld) = explode('==', $dep);
+                                list($val, $fld, $negate) = explode('==', $dep);
                                 if (!isset($_deps[$val])) $_deps[$val] = array();
-                                $_deps[$val][] = 'id:'.$fld;
+                                $_deps[$val][] = 'id:'.$fld.($negate?':1':'');
                         }
                         $_deps = json_encode($_deps);
                         $optStr = str_replace('deps='.$m[1], 'deps='.$_deps, $optStr);

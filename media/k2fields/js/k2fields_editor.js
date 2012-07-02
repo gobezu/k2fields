@@ -677,7 +677,8 @@ var k2fieldseditor = new Class({
                                 'list':'normal',
                                 'subfields':[
                                         {'name':'Value','valid':'text'},
-                                        {'name':'Field','valid':'text','ui':'select','values':this.options.options['fields']}
+                                        {'name':'Field','valid':'text','ui':'select','values':this.options.options['fields']},
+                                        {'name':'Negate','valid':'verifybox','tip':'If the above given value is not provided then field is toggled in.'}
                                 ],
                                 'tip':'Fields that depend on (toggled based on) the values of this field. For each value provided the corresponding selected field will be shown. Note that upon toggle assigned values of dependent fields are reset.',
                                 'section':'Additional'
@@ -883,8 +884,9 @@ var k2fieldseditor = new Class({
                                 'optName':'view',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'values':['itemlist', 'module'],
-                                'section':'Layout'
+                                'values':['item', 'itemlist', 'module'],
+                                'section':'Layout',
+                                'default':['item']
                                 // TODO: consistency in value separators
                         },
                         // TODO: fetch these groups from php or provided to editor when initiated
