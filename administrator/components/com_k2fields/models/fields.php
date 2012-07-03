@@ -3237,7 +3237,7 @@ class K2FieldsModelFields extends JModel {
 
 		switch ($extraField->type){
 			case 'textfield':
-                        $output='<textarea name="'.$pre.$extraField->id.'" id="'.$pre.$extraField->id.'" rows="10" cols="40" class="k2ExtraFieldEditor">'.$active.'</textarea>';
+                        $output='<textarea name="'.$pre.$extraField->id.'" id="'.$pre.$extraField->id.'" rows="10" cols="40">'.$active.'</textarea>';
 			//$output='<input type="text" name="'.$pre.$extraField->id.'" value="'.$active.'"/>';
 			break;
 
@@ -3405,7 +3405,7 @@ class K2FieldsModelFields extends JModel {
                         $optStr = $defs.':::'.str_replace(':::'.$m[0], '', $optStr);
                         $sub = true;
 //                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
-                } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#', $optStr, $m)) {
+                } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#U', $optStr, $m)) {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
