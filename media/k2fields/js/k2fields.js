@@ -1156,6 +1156,14 @@ var k2fields = new Class({
                         this.setValue(field[0], value, undefined, undefined, undefined, true);
                 }
                 
+//                if (type == 'textarea') {
+//			new nicEditor({
+//				fullPanel : true,
+//				maxHeight : 180,
+//				iconsPath : K2SitePath + 'media/k2/assets/images/system/nicEditorIcons.gif'
+//			}).panelInstance(field[0].get('id'));                        
+//                }
+                
                 return field;
         },
         
@@ -1205,9 +1213,9 @@ var k2fields = new Class({
         },
         
         toggleCustomField: function(field, mode) {
-                var container, m;
+                var container, m, isNegative;
                 
-                if (typeof field == 'string' && (m = field.match(/^id\:(\d+)$/))) {
+                if (typeof field == 'string' && (m = field.match(/^id\:(\d+)(|\:1)$/))) {
                         container = this.getValueRow(this.options.pre+m[1]);
                         
                         if (!container) {
@@ -1220,7 +1228,9 @@ var k2fields = new Class({
                                 
                                 return;
                         }
+                        
                         field = this.options.pre+m[1];
+                        isNegative = m[2] == "1";
                 } else {
                         container = this.getContainer(field);
                 }
@@ -1233,25 +1243,40 @@ var k2fields = new Class({
 
                 if (displayer != 'none') {
                         if (typeof field != 'string') field = this.getProxyFieldId(field);
-                        var depson = this._depsOn[field], el, val, dontTog = false, i, af;
-                        for (el in depson) {
-                                val = this.getValue(el);
+                        var depson = this._depsOn[field], dependeeField, val, dontTog = false, af, vals;
+                        
+                        for (dependeeField in depson) {
+                                val = this.getValue(dependeeField);
+                                vals = depson[dependeeField]['values'];
+                                isNegative = depson[dependeeField]['isnegative'];
                                 
                                 if (typeOf(val) == 'array') {
                                         af = false;
-                                        val.each(function(e) {if(depson[el].contains(e)){af=true;}}.bind(this));
-                                        if (!af) {
+                                        
+                                        val.each(function(e) {
+                                                if (vals.contains(e)) {
+                                                        af = true;
+                                                }
+                                        }.bind(this));
+                                        
+                                        if (!isNegative && !af) {
                                                 dontTog = true;
                                                 break;
                                         }
-                                } else if (!depson[el].contains(val)) {
+                                } else if (!isNegative && !vals.contains(val)) {
                                         dontTog = true;
                                         break;
                                 }
+                                
+                                if (dontTog) break;
                         }
+                        
                         if (dontTog) return;
                 }
                 
+//                if (isNegative && displayer == 'none') 
+//                        displayer = container.get('tag').toLowerCase() == 'tr' ? 'table-row' : 'block';
+//                
                 container.setStyle('display', displayer);
         },
 

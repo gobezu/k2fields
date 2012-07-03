@@ -534,12 +534,13 @@ var k2fields_type_basic = {
         _depsOn:{},
         
         addDependsOn: function(field, dependsOnField, dependsOnValue) {
-                var m;
+                var m, isNegative = false;
                 
-                if (typeof field == 'string' && (m = field.match(/^id\:(\d+)$/))) {
+                if (typeof field == 'string' && (m = field.match(/^id\:(\d+)(|\:1)$/))) {
                         if (!this.isFieldAvailable(this.options.pre+m[1])) return;
                         
                         field = this.options.pre+m[1];
+                        isNegative = m[2] != '';
                 } else {
                         var depeeFields = dependsOnField.getParent('[valueholder=true]').getElements('[customvalueholder=true]'), found = false;
                         
@@ -558,8 +559,10 @@ var k2fields_type_basic = {
                 dependsOnField = dependsOnField.get('id');
                 
                 if (!this._depsOn[field]) this._depsOn[field] = {};
-                if (!this._depsOn[field][dependsOnField]) this._depsOn[field][dependsOnField] = [];
-                if (!this._depsOn[field][dependsOnField].contains(dependsOnValue)) this._depsOn[field][dependsOnField].push(dependsOnValue);
+                if (!this._depsOn[field][dependsOnField]) this._depsOn[field][dependsOnField] = {'isnegative':isNegative,'values':[]};
+                if (!this._depsOn[field][dependsOnField]['values'].contains(dependsOnValue)) {
+                        this._depsOn[field][dependsOnField]['values'].push(dependsOnValue);
+                }
                 
 //                var depson = this.getOpt(field, 'depson');
 //                
@@ -592,6 +595,7 @@ var k2fields_type_basic = {
                                 dep = Array.from(deps[k]);
                                 
                                 for (i = 0, n = dep.length; i < n; i++) {
+                                        
                                         t = typeof dep[i] == 'number' ? dep[i] - 1 : dep[i];
                                         
                                         if (depees.contains(t)) {
@@ -600,7 +604,13 @@ var k2fields_type_basic = {
                                         }
                                         
                                         if (typeof dep[i] != 'number') {
-                                                var tt = this.options.pre+t.replace('id:', '');
+                                                var tt = t.replace('id:', '');
+                                                
+                                                if (tt.test(/\:1$/)) {
+                                                        tt = tt.replace(/\:1$/, '');
+                                                }
+                                                
+                                                tt = this.options.pre+tt;
                                                 
                                                 if (!this.isFieldAvailable(tt)) {
                                                         this.addFormElementComplete(
@@ -637,7 +647,7 @@ var k2fields_type_basic = {
         isDependent: function(id, fields, offSet) {
                 var m;
                 
-                if (typeof id == 'string' && (m = id.match(/^id\:(\d+)$/))) {
+                if (typeof id == 'string' && (m = id.match(/^id\:(\d+)(|\:1)$/))) {
                         if (!this.isFieldAvailable(this.options.pre+m[1])) return false;
                         
                         return id;
@@ -670,9 +680,11 @@ var k2fields_type_basic = {
                 
                 for (i = 0, n = depees.length; i < n; i++) {
                         if (t = this.isDependent(depees[i], depeeFields, 0)) {
-                                this.toggleCustomField(t, 'none');
+                                this.toggleCustomField(t, t.match(/^id\:\d+\:1$/) ? 'block' : 'none');
                         }
                 }
+                
+                var d;
                 
                 for (i = 0, n = vals.length; i < n; i++) {
                         if (deps.hasOwnProperty(vals[i])) {
@@ -680,7 +692,10 @@ var k2fields_type_basic = {
                                 
                                 for (j = 0, m = dep.length; j < m; j++) {
                                         if (t = this.isDependent(dep[j], depeeFields, 1)) {
-                                                this.toggleCustomField(t, 'block');
+                                                this.toggleCustomField(
+                                                        t, 
+                                                        t.match(/^id\:\d+\:1$/) ? 'none' : 'block'
+                                                );
                                                 if (typeOf(t) == 'element') t = this.getOpt(t, 'position');
                                                 depeesAvailable.push(t);
                                         }
