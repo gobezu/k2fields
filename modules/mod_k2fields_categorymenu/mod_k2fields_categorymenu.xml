@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="2.5" type="module" method="upgrade" client="site"> 
+        <name>k2fields category menu</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>category menu</description>
+        <files>
+                <filename module="mod_k2fields_categorymenu">mod_k2fields_categorymenu.php</filename>
+                <filename>index.html</filename>
+                <filename>helper.php</filename>
+                <folder>tmpl</folder>
+        </files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_k2fields/elements/">
+				<field name="root_id" type="k2fcategories" default="" label="Select root category" description="Select the root category for which you want to create a category list. Select none to fetch a list of all categories."/>
+				<field name="depth" type="list" default="-1" label="Levels to render" description="Select the number of levels you wish to render.">
+                                        <option value="-1">All levels</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">7</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                </field>
+				<field name="categoriesListOrdering" type="list" default="" label="Order by" description="">
+					<option value="">Default (by ID - ascending)</option>
+					<option value="reversedefault">Reverse default (by ID - descending)</option>
+					<option value="alpha">Name alphabetical</option>
+					<option value="ralpha">Name reverse alphabetical</option>
+					<option value="order">Ordering</option>
+				</field>
+				<field name="categoriesListItemsCounter" type="radio" default="1" label="Items counter" description="">
+					<option value="0">Hide</option>
+					<option value="1">Show</option>
+				</field>                                
+                        </fieldset>
+			<fieldset name="advanced">
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />                                            
+                        </fieldset>
+		</fields>
+	</config>
+</extension>
