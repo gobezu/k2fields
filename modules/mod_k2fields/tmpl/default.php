@@ -24,7 +24,9 @@ defined('_JEXEC') or die('Restricted access');
         
         <? if ($showsearchfields): ?>
         <li id="ascontainer">
+                <? if ($showfreetextsearch): ?>
                 <div id="jpsearchtoggler" class="jpcollapse jppersist jpdefault<?= $defaultmode ?>"><?= JText::_('Advanced search') ?></div>
+                <? endif; ?>
                 <div class="element">
                         <div id="extraFieldsContainer">
                                 <?php echo $renderedFields; ?>

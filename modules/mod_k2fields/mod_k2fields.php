@@ -61,6 +61,8 @@ $categories = modK2FieldsHelper::getCategoriesSelector(
         $categoryselectortext
 );
 
+$singleCategory = strpos($categories, '<input ') !== false;
+
 jimport('joomla.plugin.plugin');
 
 $placeholder = JText::_("search")."...";

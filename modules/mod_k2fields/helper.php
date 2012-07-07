@@ -21,7 +21,8 @@ class modK2FieldsHelper {
                         false,
                         JText::_($text),
                         false,
-                        false
+                        false,
+                        true
                 );
         }
         
