@@ -560,12 +560,13 @@ var k2fieldseditor = new Class({
                                 'optName':'autocomplete',
                                 'valid':'radio',
                                 'values':[
-                                        {'value':'m','text':'None'},
+                                        {'value':'','text':'None'},
                                         {'value':'m','text':'Anywhere In string'},
                                         {'value':'s','text':'Start of string'},
                                         {'value':'e','text':'End of string'},
                                 ],
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'sorted':true
                         },
                         '12':{
                                 'name':'Multiple select',
