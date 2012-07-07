@@ -31,6 +31,10 @@
                                         <option value="1">JYES</option>
                                         <option value="0">JNO</option>
                                 </field>                                
+                                <field name="inherit_extrafields" type="radio" default="0" label="Inherit extra fields" description="Allow categories to inherit extra fields group from the category they inherit other parameters from">
+                                        <option value="1">JYES</option>
+                                        <option value="0">JNO</option>
+                                </field>                                
                                 <field name="inheritfromcategory" type="k2fcategories" default="" label="Inherit from this category for all other categories" description="Parameters from this category will override parameters in all other categories except categories excluded below. For all categories excluded parameters will not be overriden." />
                                 <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Exclude to inherit the above categorys parameters for the following categories" />
                                 <field name="dontinheritparams" type="k2fparams" default="" label="Exclude to inherit the following parameters" />
