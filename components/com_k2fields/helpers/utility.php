@@ -148,7 +148,7 @@ group by vvv.itemid
         public static function getK2CurrentCategory($defaultCategory, $isBasedOnMenu = true, $includeDefaultMenuItem = false) {
                 $option = JRequest::getCmd('option');
                 
-                if ($option == 'com_k2') {
+                if ($isBasedOnMenu && $option == 'com_k2') {
                         $view = JRequest::getCmd('view');
                         $task = JRequest::getCmd('task');
                         
@@ -278,7 +278,8 @@ group by vvv.itemid
                 $checkPermission = false,
                 $firstElement = '',
                 $onlyValues = false,
-                $overrideSelector = true
+                $overrideSelector = true,
+                $hiddenIfOne = false
         ) {
                 if ($categoriesId == 'cid' || $categoriesId == 'catid') 
                         $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem);
@@ -347,11 +348,6 @@ group by vvv.itemid
                         $categories = $categoriesModel->categoriesTree(null, true);
                 }
                 
-                if ($firstElement) {
-                        $firstElement = JHTML::_('select.option', 0, JText::_($firstElement));
-                        array_unshift($categories, $firstElement);
-                }
-                
                 $foundExcluded = false;
                 $parentDepth = -1;
                 $remove = '&nbsp;&nbsp;&nbsp;';
@@ -374,7 +370,16 @@ group by vvv.itemid
                 
                 if ($onlyValues) return $cats;
                 
-                $categories = JHTML::_('select.genericlist', $cats, $categoriesId, '', 'value', 'text', $currentCatid);
+                if ($hiddenIfOne && count($cats) == 1) {
+                        $categories = '<input type="hidden" name="'.$categoriesId.'" id="'.$categoriesId.'" value="'.$cats[0]->value.'" />';
+                } else {
+                        if ($firstElement) {
+                                $firstElement = JHTML::_('select.option', 0, JText::_($firstElement));
+                                array_unshift($cats, $firstElement);
+                        }
+
+                        $categories = JHTML::_('select.genericlist', $cats, $categoriesId, '', 'value', 'text', $currentCatid);
+                }
                 
                 return $categories;
         }        
@@ -880,7 +885,7 @@ group by vvv.itemid
                 $template = JFactory::getApplication()->getTemplate();
                 
                 $dirs = array(
-                    JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/'.$theme.'/',
+                    JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/templates/'.$theme.'/',
                     JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/'
                 );
                 
@@ -2238,7 +2243,7 @@ group by vvv.itemid
                 
                 $app = &JFactory::getApplication();
                 
-                if ($app->getLanguageFilter()) {
+                if ($app->isSite() && $app->getLanguageFilter()) {
                         $languageTag = JFactory::getLanguage()->getTag();
                         $query .= " AND language IN (".$db->Quote($languageTag).", ".$db->Quote('*').") ";
                 }

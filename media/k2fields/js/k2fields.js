@@ -189,22 +189,35 @@ var k2fields = new Class({
         
         categoryInitState: function() {
                 var c = this.categoryEl();
-                if (c.selectedIndex == -1) return false;
-                c = document.id(c.options[c.selectedIndex]).get('init-state');
+                if (c.get('tag') == 'select') {
+                        if (c.selectedIndex == -1) return false;
+                        c = document.id(c.options[c.selectedIndex]).get('init-state');
+                } else {
+                        c = c.get('init-state');
+                }
                 return c;
         },
         
         categorySetItemid: function() {
                 var c = this.categoryEl();
-                if (c.selectedIndex == -1) return;
-                c = c.options[c.selectedIndex].get('init-itemid');
+                if (c.get('tag') == 'select') {
+                        if (c.selectedIndex == -1) return;
+                        c = c.options[c.selectedIndex].get('init-itemid');
+                } else {
+                        if (c.get('value') == '') return;
+                        c = c.get('init-itemid');
+                }
                 this.form().getElement('[name=Itemid]').set('value', c);
         },        
         
         categoryId: function() {
                 var c = this.categoryEl();
-                if (c.selectedIndex == -1) return false;
-                c = c.options[c.selectedIndex].value;
+                if (c.get('tag') == 'select') {
+                        if (c.selectedIndex == -1) return false;
+                        c = c.options[c.selectedIndex].value;
+                } else {
+                        c = c.get('value');
+                }
                 c = parseInt(c);
                 return c;
         },
