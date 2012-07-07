@@ -714,15 +714,16 @@ group by vvv.itemid
                         foreach ($disableParams as $p) $result->set($p, 0);
                 }
                 
-                static $inheritFrom, $excludeInheritance;
+                static $inheritFromCategory, $inheritFrom, $excludeInheritance;
                 
                 if (!isset($inheritFrom)) {
                         $cat = self::setting('inheritfromcategory', 'k2fields', 'k2');
                         
                         if (!empty($cat)) {
                                 $db = JFactory::getDBO();
-                                $db->setQuery('SELECT params FROM #__k2_categories WHERE id = '.(int)$cat);
-                                $inheritFrom = $db->loadResult(); 
+                                $db->setQuery('SELECT params, extraFieldsGroup FROM #__k2_categories WHERE id = '.(int)$cat);
+                                $inheritFromCategory = $db->loadObject();
+                                $inheritFrom = $inheritFromCategory->params; 
                         }
                         
                         if (!empty($inheritFrom)) {
@@ -756,6 +757,10 @@ group by vvv.itemid
                 else $item->params = $result->toString ('INI');
                 
                 if ($params) $params = $result;
+                
+                if ($inheritFromCategory && self::setting('inherit_extrafields', 'k2fields', 'k2', null, false)) {
+                        $params->extraFieldsGroup = $inheritFromCategory->extraFieldsGroup;
+                }
         }
         
         public static function setLayout($theme = '', $file = null, $view = null, $type = null, $addId = -1) {
@@ -1288,9 +1293,7 @@ group by vvv.itemid
                 
 		$user = JFactory::getUser();
 		$db = JFactory::getDBO();
-                $access = JprovenUtility::isJ16() ? 
-                        'IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')' :
-                        '<= '. (int) $user->get('aid', 0);
+                $access = 'IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
                 
                 $mod = (int) $module;
                 
@@ -2208,7 +2211,7 @@ group by vvv.itemid
                 return self::getPath($needle, 'id', 'parent', '#__k2_categories', $criterias);
         }
         
-        public static function getK2CategoryChildren($ids, $depth = -1, $clear = false, $onlyIds = true) {
+        public static function getK2CategoryChildren($ids, $depth = -1, $clear = false, $onlyIds = true, $orderby = 'id ASC', $includeItemCounts = false) {
                 static $currDepth = 0, $categories = array(), $categoryTree = array(), $categoryParents = array();
                 
                 if ($clear) {
@@ -2222,15 +2225,27 @@ group by vvv.itemid
                 
                 $ids = (array) $ids;
                 $user = JFactory::getUser();
-                $aid = (int) $user->get('aid');
+                $auth = ".access IN (" . implode(',', $user->getAuthorisedViewLevels()) . ")";
                 $db = JFactory::getDBO();
                 $ids = array_unique($ids);
                 $cols = $onlyIds ? 'id, parent' : '*';
                 
-                $query = "SELECT {$cols}, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc.access<={$aid}) AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c.access<={$aid} ORDER BY c.ordering";
+                if ($includeItemCounts) {
+                        $cols .= ", (SELECT COUNT(id) FROM #__k2_items i WHERE i.catid = c.id AND i{$auth} AND i.published = 1 AND i.trash = 0) AS itemsCnt";
+                }
+                
+                $query = "SELECT {$cols}, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc{$auth}) AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c{$auth}";
+                
+                $app = &JFactory::getApplication();
+                
+                if ($app->getLanguageFilter()) {
+                        $languageTag = JFactory::getLanguage()->getTag();
+                        $query .= " AND language IN (".$db->Quote($languageTag).", ".$db->Quote('*').") ";
+                }
+
+                $query .= " ORDER BY c." .(!empty($orderby) ? $orderby : "ordering");
                 
                 $db->setQuery($query);
-                
                 $rows = $db->loadObjectList();
                 $catsWithChildren = array();
                 
