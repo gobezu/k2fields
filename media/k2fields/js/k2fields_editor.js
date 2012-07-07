@@ -506,6 +506,7 @@ var k2fieldseditor = new Class({
                                         {'value':'checkbox'},
                                         {'value':'text'},
                                         {'value':'textarea'},
+                                        {'value':'editor'},
                                         {'value':'select'}
                                 ],
                                 'deps':{

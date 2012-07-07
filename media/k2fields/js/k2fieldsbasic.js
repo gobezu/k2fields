@@ -440,6 +440,11 @@ var k2fields_type_basic = {
                         if (position === false) position = 0;
                 }
                 
+                if (field['ui'] && field['ui'] == 'editor') {
+                        field['ui'] = 'textarea';
+                        this.setOpt(proxyField, 'show_editor', 1);
+                }
+                
                 fieldType = (preferredType || field['ui'] || field['valid']).toLowerCase();
                 type = fieldType;
                 values = field['values'];

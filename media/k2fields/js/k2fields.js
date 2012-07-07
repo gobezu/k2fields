@@ -1169,13 +1169,9 @@ var k2fields = new Class({
                         this.setValue(field[0], value, undefined, undefined, undefined, true);
                 }
                 
-//                if (type == 'textarea') {
-//			new nicEditor({
-//				fullPanel : true,
-//				maxHeight : 180,
-//				iconsPath : K2SitePath + 'media/k2/assets/images/system/nicEditorIcons.gif'
-//			}).panelInstance(field[0].get('id'));                        
-//                }
+                if (type == 'textarea' && this.getOpt(proxyField, 'show_editor')) {
+                        jQuery('#'+field[0].get('id')).markItUp(mySettings);
+                }
                 
                 return field;
         },
