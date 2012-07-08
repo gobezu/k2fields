@@ -35,7 +35,7 @@ var k2fields_type_map = {
         },
         
         createMap: function(holder, proxyField, value, condition) {
-                var defs, method = this.getOpt(proxyField, 'method', null, 'coord');
+                var defs, method = this.getOpt(proxyField, 'mapinputmethod', null, 'coord');
                 
                 if (method == 'coord') {
                         defs = [
@@ -74,7 +74,7 @@ var k2fields_type_map = {
                 geo[0] = document.id(geo[0]);
                 geo[1] = document.id(geo[1]);
                 
-                var latVal = geo[0].getProperty('value'), lonVal = geo[1].getProperty('value');
+                var latVal = geo[0].get('value'), lonVal = geo[1].get('value');
                 var map = this.getEditorMap(proxyField);
                 
                 if (latVal == '' || lonVal == '') {
@@ -102,7 +102,7 @@ var k2fields_type_map = {
                         draggable: true
                 });
                 
-                this.options.mapEditorMarkers.push([marker, geo[0].getProperty('id'), geo[1].getProperty('id')]);
+                this.options.mapEditorMarkers.push([marker, geo[0].get('id'), geo[1].get('id')]);
                 
                 // Propagate drag results to fields
                 google.maps.event.addListener(marker, 'drag', function(e) {
@@ -132,15 +132,15 @@ var k2fields_type_map = {
                                 e = this._tgt(e);
                         }
                         var ms = this.options.mapEditorMarkers, m, p, v;
-                        var fldId = e.getProperty('id');
+                        var fldId = e.get('id');
                         for (var i = 0, n = ms.length; i < n; i++) {
                                 m = ms[i];
                                 if (!m || !m[0]) continue;                                
                                 if (m[pos == 'lat' ? 0 : 1] == fldId) {
                                         p = m[0].getPosition();
                                         v = [
-                                                pos == 'lat' ? parseFloat(e.getProperty('value')) : p.lat(), 
-                                                pos == 'lon' ? parseFloat(e.getProperty('value')) : p.lng()
+                                                pos == 'lat' ? parseFloat(e.get('value')) : p.lat(), 
+                                                pos == 'lon' ? parseFloat(e.get('value')) : p.lng()
                                         ];
                                         p = new google.maps.LatLng(v[0], v[1]);
                                         m[0].setPosition(p);
@@ -232,8 +232,10 @@ var k2fields_type_map = {
                 }.bind(this));
         },
         
-        getMapId: function(proxyField){
-                return 'mapEditor_'+document.id(proxyField).getProperty('id');
+        getMapId: function(proxyField) {
+                var id = document.id(proxyField).get('id');
+                if (this.getOpt(id, 'subfieldof')) id = this.getOpt(id, 'subfieldof');
+                return 'mapEditor_'+id;
         },
         
         getMapInitialPoint: function() {
@@ -281,19 +283,6 @@ var k2fields_type_map = {
                         
                         if (api == 'maxmind' && typeof geoip_latitude == 'function' && typeof geoip_longitude == 'function') {  
                                 return [geoip_latitude(), geoip_longitude()];
-                        } else if (api == 'simplegeo' && simplegeo != undefined) {
-                                // TODO: under development
-                                var token = this.getOpt(proxyField, 'simplegeojsonptoken', null, 'maxmind');
-                                var client = new simplegeo.PlacesClient(token);
-                                
-                                client.getLocationFromIP(function(err, position) {
-                                        if (!err) {
-                                                return [position.coords.latitude, position.coords.longitude];
-                                        } else {
-                                                return client.getLocationFromBrowser({enableHighAccuracy: true}, function(err, position) {
-                                                }.bind(this));
-                                        }
-                                }.bind(this));
                         } else if (api == 'function') {
                                 var fn = this.getOpt(proxyField, 'locationproviderfunction');
                                 
@@ -307,6 +296,14 @@ var k2fields_type_map = {
                                         
                                         return fn;
                                 }
+                        } else if (api == 'browser') {
+                                navigator.geolocation.getCurrentPosition(
+                                        function(data){ console.log('success:', data.coords.latitude, data.coords.longitude);},
+                                        function(error) { console.log('error:', error); },
+                                        {timeout:5000}
+                                );                                
+                        } else if (api == 'server') {
+                                // data sent in a json package along with k2fs
                         }
                 } catch (exception) { }            
                 
@@ -324,11 +321,10 @@ var k2fields_type_map = {
                 
                 var td = container.getParent('.k2fcontainer').getParent();
                 
-                if (mode == undefined) mode = '';
-                else mode = mode.capitalize();
+                mode = mode == undefined ? '' : mode.capitalize();
                 
                 container = new Element('div', {id:mapId, 'class':'mapContainer'+mode});
-                container.injectTop(td);
+                container.inject(td, 'top');
                 
                 var point = this.getMapInitialPoint();
                 this.options.initialMapZoom = 13;

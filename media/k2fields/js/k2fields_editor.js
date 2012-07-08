@@ -489,7 +489,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359'],
                                         'alias':['id:1451', 'id:1452']
                                 },
                                 'required':'1',
@@ -1452,7 +1452,7 @@ var k2fieldseditor = new Class({
                         },
                         '1351':{
                                 'name':'Method',
-                                'optName':'method',
+                                'optName':'mapinputmethod',
                                 'valid':'text',
                                 'ui':'radio',
                                 'values':[
@@ -1483,7 +1483,7 @@ var k2fieldseditor = new Class({
                                 'ui':'select',
                                 'values':[
                                         {'value':'maxmind', 'text':'maxmind'},
-                                        {'value':'simplegeo', 'text':'simplegeo (not available any longer)'},
+                                        {'value':'browser', 'text':'browser (tbi)'},
                                         {'value':'function', 'text':'function'}
                                 ],
                                 'deps':{
@@ -1498,6 +1498,39 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'section':'Type specific',
                                 'tip':'You can provide a simple function name or a call of an existing objects method'
+                        },
+                        '1356':{
+                                'name':'Map provider (edit)',
+                                'optName':'mapprovideredit',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':['cloudmade', 'googlemaps', 'leaflet', 'mapquest', 'microsoft', 'maplayers', 'yandex'],
+                                'savevalues':'mapproviders',
+                                'section':'Type specific'
+                        },
+                        '1357':{
+                                'name':'Map provider (item)',
+                                'optName':'mapprovideritemlist',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':'values:mapproviders',
+                                'section':'Type specific'
+                        },
+                        '1358':{
+                                'name':'Map provider (edit)',
+                                'optName':'mapprovideritem',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':'values:mapproviders',
+                                'section':'Type specific'
+                        },
+                        '1359':{
+                                'name':'Map type (item)',
+                                'optName':'maptypeitem',
+                                'valid':'text',
+                                'values':['static', 'normal'],
+                                'ui':'radio',
+                                'section':'Type specific'
                         },
                         '1401':{
                                 'name':'Source',

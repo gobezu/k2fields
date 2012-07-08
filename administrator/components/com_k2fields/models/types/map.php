@@ -116,7 +116,7 @@ class K2FieldsMap {
                 $options['mapapikey'] = K2FieldsModelFields::setting('mapapikey', $options);
                 $options['mapcenter'] = K2FieldsModelFields::setting('mapcenter', $options);
                 $options['mapzoom'] = K2FieldsModelFields::setting('mapzoom', $options, K2FieldsMap::MAP_DEFAULT_ZOOM);
-                $options['geocodingmethod'] = K2FieldsModelFields::setting('geocodingmethod', $options, K2FieldsMap::MAP_DEFAULT_METHOD);
+                $options['mapinputmethod'] = K2FieldsModelFields::setting('mapinputmethod', $options, K2FieldsMap::MAP_DEFAULT_METHOD);
                 $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options);
                 $options['locationproviderfunction'] = K2FieldsModelFields::setting('locationproviderfunction', $options);
                 $options['simplegeojsonptoken'] = K2FieldsModelFields::setting('simplegeojsonptoken', $options);
