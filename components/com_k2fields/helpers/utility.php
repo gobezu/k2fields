@@ -1657,8 +1657,8 @@ group by vvv.itemid
                 }
                 
                 if (!$groupBy) return $values;
-
-                return self::indexBy($values, (array) $groupBy, 'all', $groupByAllKeySubstitute);
+                $values = self::indexBy($values, (array) $groupBy, 'all', $groupByAllKeySubstitute);
+                return $values;
         }
 
         /**
@@ -1686,13 +1686,13 @@ group by vvv.itemid
                                 $item = JRequest::getInt('id');
                 
                 $item = empty($item) ? null : $item;
-                $rules = self::parsePluginValues($text, $plgName, array('item', 'field'), array($item));
+                $rules = self::parsePluginValues($text, $plgName, array('item', 'fields'), array($item));
                 
                 if (empty($rules)) return false;
                 
                 if ($provided && empty($item)) {
                         $item = key($rules);
-                        $rules = self::parsePluginValues($text, $plgName, array('item', 'field'), array($item));
+                        $rules = self::parsePluginValues($text, $plgName, array('item', 'fields'), array($item));
                 }
                 
                 // rules with no applicable itemid are removed
