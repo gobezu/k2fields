@@ -49,7 +49,7 @@ var k2fieldsoptions = new Class({
                 return this.fieldsOptions[id];
         },
         
-        getOpt: function(field, key, opts, def) {
+        getOpt: function(field, key, opts, def, defEmpty) {
                 key = Array.from(key);
                 
                 var aKey = key[0];
@@ -59,6 +59,8 @@ var k2fieldsoptions = new Class({
                 if (!opts || !opts.hasOwnProperty(aKey)) return arguments.length > 3 ? def : '';
                 
                 var val = opts[aKey];
+                
+                if (defEmpty && (val === undefined || val == '')) return defEmpty;
                 
                 if (key.length > 1) {
                         key.remove(key[0]);

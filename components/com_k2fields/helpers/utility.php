@@ -1437,7 +1437,8 @@ group by vvv.itemid
                 $default = null,
                 $assertedKeys = null, 
                 $sep = '::',
-                $allKey = 'all') {
+                $allKey = 'all',
+                $alternativeName = '') {
                 
                 $val = self::value($options, $name);
                 
@@ -1446,7 +1447,13 @@ group by vvv.itemid
                 $val = self::plgParam($plgName, $folder, $name);
                 $val = self::_setting($val, $assertedKeys, $sep, $allKey, $name);                
                 
-                if (empty($val)) $val = $default;
+                if (empty($val)) {
+                        if ($alternativeName) {
+                                $val = self::setting($alternativeName, $plgName, $folder, $options, $default, $assertedKeys, $sep, $allKey);
+                        } else {
+                                $val = $default;
+                        }
+                }
                 
                 return $val;
         }        
