@@ -1099,8 +1099,8 @@ class K2FieldsModelFields extends JModel {
                 return $this->isK2NativeList($field) && self::value($field, 'editable');
         }
         
-        public static function setting($name, $options = null, $default = '', $assertedKeys = null, $sep = '::', $allKey = 'all') {
-                return JprovenUtility::setting($name, 'k2fields', 'k2', $options, $default, $assertedKeys, $sep, $allKey);
+        public static function setting($name, $options = null, $default = '', $assertedKeys = null, $sep = '::', $allKey = 'all', $alternativeName = '') {
+                return JprovenUtility::setting($name, 'k2fields', 'k2', $options, $default, $assertedKeys, $sep, $allKey, $alternativeName);
         }        
         
         public static function categorySetting($catId, $name, $sep = K2FieldsModelFields::VALUE_SEPARATOR, $allKey = 'all') {
@@ -1110,7 +1110,7 @@ class K2FieldsModelFields extends JModel {
         }
         
         public static function isAutoFieldPresent($fieldType, $catId) {
-                return self::isContainsType($fieldType, $catId);
+                return self::isContainsType($fieldType, $catId) !== false;
         }
         
         public static function isAutoField($field) {
@@ -1200,7 +1200,7 @@ class K2FieldsModelFields extends JModel {
                 
                 foreach ($fieldsOptions as $options) {
                         if (self::isType($options, $assertedType)) {
-                                return true;
+                                return $options;
                                 break;
                         }                        
                 }
@@ -3689,13 +3689,10 @@ class K2FieldsModelFields extends JModel {
                                 }
                         }
                         
-//                        if (!isset($options['subfields'])) jdbg::pex($options);
-                        
                         return $options['subfields'];
                 }
                 
-                if (!is_array($filters)) $filters = array($filters);
-                
+                $filters = (array) $filters;
                 $filterNames = array_keys($filters);
                 
                 if (is_numeric($filterNames[0])) {
