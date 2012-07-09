@@ -5,14 +5,17 @@
 defined('_JEXEC') or die('Restricted access');
 
 class K2FieldsMap {
-        const MAP_MAPSTRACTION_FOLDER = 'mxn-2.0.15';
+        const MAP_MAPSTRACTION_FOLDER = 'lib/mxn2.0.0';
         const MAP_MAPSTRACTION_DEV = ''; // Add -min for production run
         const MAP_CONTAINER_ID = 'mapContainer';
         const MAP_JS_VARNAME = '_k2fs_map';
-        const MAP_DEFAULT_PROVIDER = 'google';
+        const MAP_DEFAULT_PROVIDER = 'googlev3';
         const MAP_DEFAULT_METHOD = 'coord';
         const MAP_DEFAULT_CENTER = '';
         const MAP_DEFAULT_ZOOM = 15;
+        const MAP_TYPE = 1;     // road
+        const MAP_CONTAINER_CLASS = 'mapContainer';
+        const MAP_ICON_COLOR = 'orange';
         
         private static $renderedProviders = array(), $isCoreLoaded = false, $isJSCreated = false;
         
@@ -38,35 +41,41 @@ class K2FieldsMap {
          * 4. interactive map based editing for both methods (in particular coord)
          */
         public static function render($item, $values, $field, $helper, $rule = null) {
-                $mapType = $helper->value($field, 'itemmaptype');
                 $ui = '';
-                $proxyFieldId = 'mapview'.$helper->value($item, 'id').'_'.$helper->value($field, 'id');
+                $uiId = self::v($field, 'mapcontainerid');
+                $uiId = str_replace(
+                        array('%item%', '%id%'), 
+                        array(K2FieldsModelFields::value($item, 'id'), K2FieldsModelFields::value($field, 'id')), 
+                        $uiId
+                );
                 
-                if ($mapType == 'static') {
+                if (K2FieldsModelFields::isTrue($field, 'mapstatic')) {
                         $data = array();
                         
                         foreach ($values as $i => $value) {
                                 $data[] = array('lat'=>$value[0]->lat, 'lon'=>$value[0]->lng, 'label'=>$value[1]->value);
                         }
                         
+                        $mapType = self::v($field, 'maptype');
+                        $zoom = self::v($field, 'mapzoom');
+                        $color = self::v($field, 'mapiconcolor');
+                        
+                        $data = array('points'=>$data, 'container'=>$uiId, 'maptype'=>$mapType, 'zoom'=>$zoom, 'color'=>$color);
                         $data = json_encode($data);
                         
-                        $mapType = $helper->value($field, 'staticmapmaptype');
-                        $zoom = $helper->value($field, 'staticmapzoom');
-                        
                         $ui = '
-                                <div id="'.$proxyFieldId.'" class="mapContainerItem"></div>
-                                <script type="text/javascript">
-                                window.addEvent("load", function() {
-                                        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
-                                                "map",
-                                                null, null, null, null,
-                                                function() {
-                                                        '.K2FieldsModelFields::JS_VAR_NAME.'.getMapViewer($("'.$proxyFieldId.'"), '.$data.', "'.$mapType.'", '.$zoom.', "'.$helper->value($field, 'markercolor').'");
-                                                }
-                                        );
-                                });
-                                </script>
+<div id="'.$uiId.'" class="staticMapContainerItem"></div>
+<script type="text/javascript">
+window.addEvent("load", function() {
+        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
+                "map",
+                null, null, null, null,
+                function() {
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.drawStaticMap('.$data.');
+                }
+        );
+});
+</script>
                                 ';
                 } else {
                         $ui = '
@@ -108,23 +117,121 @@ class K2FieldsMap {
                 // infowindow
         }
         
+        public static function v($field, $name) {
+                $params = self::getParameters($field);
+                return $params[$name];
+        }
+        
         public static function getParameters($field = null, $options = null) {
+                $fieldId = $field ? K2FieldsModelFields::value($field, 'id') : 'default';
+                
+                static $_options = array();
+                
+                if (isset($_options[$fieldId])) return $_options[$fieldId];
+                
                 if (empty($options)) $options = $field;
                 
-                $options['mapprovider'] = K2FieldsModelFields::setting('mapprovider', $options, 'google');
-                $options['mapcontainerid'] = K2FieldsModelFields::setting('mapcontainerid', $options, K2FieldsMap::MAP_CONTAINER_ID.'_'.$options['mapprovider']);
-                $options['mapapikey'] = K2FieldsModelFields::setting('mapapikey', $options);
-                $options['mapcenter'] = K2FieldsModelFields::setting('mapcenter', $options);
-                $options['mapzoom'] = K2FieldsModelFields::setting('mapzoom', $options, K2FieldsMap::MAP_DEFAULT_ZOOM);
                 $options['mapinputmethod'] = K2FieldsModelFields::setting('mapinputmethod', $options, K2FieldsMap::MAP_DEFAULT_METHOD);
-                $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options);
+                $options['showmapeditor'] = K2FieldsModelFields::setting('showmapeditor', $options);
+                $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options, 'browser');
                 $options['locationproviderfunction'] = K2FieldsModelFields::setting('locationproviderfunction', $options);
-                $options['simplegeojsonptoken'] = K2FieldsModelFields::setting('simplegeojsonptoken', $options);
-                $options['itemmaptype'] = K2FieldsModelFields::setting('itemmaptype', $options);
-                $options['staticmapmaptype'] = K2FieldsModelFields::setting('staticmapmaptype', $options);
-                $options['staticmapzoom'] = K2FieldsModelFields::setting('staticmapzoom', $options);
+                $options['mapstatic'] = K2FieldsModelFields::setting('mapstatic', $options);
+                $options['mapiconcolor'] = K2FieldsModelFields::setting('mapiconcolor', $options, K2FieldsMap::MAP_ICON_COLOR);
+                
+                $option = JRequest::getCmd('option');
+                $view = $option == 'com_k2' ? JRequest::getCmd('view') : '';
+                $app = JFactory::getApplication();
+                
+                if ($view == 'item') {
+                        if ($app->isAdmin()) {
+                                $view = 'edit';
+                        } else {
+                                $layout = JRequest::getCmd('layout', false);
+                                $task = JRequest::getCmd('task', false);
+                                $view = $task == 'add' || $task == 'edit' ? 'edit' : 'item';
+                                //$view = $layout && $layout != 'item' || $task ? 'edit' : 'item';
+                        }
+                } else {
+                        $view = 'itemlist';
+                }
+                
+                $options['view'] = $view;
+                
+                // TODO: use $view when extracting values
+                
+                $options['maxzoom'] = K2FieldsModelFields::setting('maxzoom'.$view, $options, 20, null, '::', 'all', 'maxzoom');
+                $options['mapprovider'] = K2FieldsModelFields::setting('mapprovider'.$view, $options, K2FieldsMap::MAP_DEFAULT_PROVIDER, null, '::', 'all', 'mapprovider');
+                $options['mapapikey'] = K2FieldsModelFields::setting('mapapikey'.$view, $options, '', null, '::', 'all', 'mapapikey');
+                $options['mapcenter'] = K2FieldsModelFields::setting('mapcenter'.$view, $options, '', null, '::', 'all', 'mapcenter');
+                $options['mapzoom'] = K2FieldsModelFields::setting('mapzoom'.$view, $options, K2FieldsMap::MAP_DEFAULT_ZOOM, null, '::', 'all', 'mapzoom');
+                $options['mapcontainerid'] = K2FieldsModelFields::setting('mapcontainerid'.$view, $options, K2FieldsMap::MAP_CONTAINER_ID.'_'.$options['mapprovider'], null, '::', 'all', 'mapcontainerid');
+                $options['maptype'] = K2FieldsModelFields::setting('maptype'.$view, $options, K2FieldsMap::MAP_TYPE, null, '::', 'all', 'maptype');
+                $options['mapcontainerclass'] = K2FieldsModelFields::setting('mapcontainerclass'.$view, $options, K2FieldsMap::MAP_CONTAINER_CLASS, null, '::', 'all', 'mapcontainerclass');
+                
+                $_options[$fieldId] = $options;
                 
                 return $options;
+        }
+        
+        public static function loadResources($item = null) {
+                $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
+                
+                //$provider = self::v($field, 'mapprovider'.$view);
+                
+                // TODO: depends on view when fully implemented
+                $provider = self::v($field, 'mapprovider');
+                $apiKey = self::v($field, 'mapapikey');
+                $providerSrcs = array('js'=>array(), 'css'=>array());
+                
+                switch ($provider) {
+                        case 'google':
+                                $providerSrcs['js'][] = 'http://maps.google.com/maps?file=api&v=2&key=' . $apiKey;
+                                break;
+                        case 'yahoo':
+                                $providerSrcs['js'][]  = 'http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=' . $apiKey;
+                                break;
+                        case 'microsoft':
+                                $providerSrcs['js'][]  = 'http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6';
+                                break;
+                        case 'mapquest':
+                                $providerSrcs['js'][]  = 'http://btilelog.beta.mapquest.com/tilelog/transaction?transaction=script&key='.$apiKey.'&itk=true&v=5.3.0_RC5&ipkg=controls1';
+                        case 'leaflet':
+                                $providerSrcs['js'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.js';
+                                $providerSrcs['css'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.css';
+                                break;
+                        case 'cloudmade':
+                        case 'openlayers':
+                                $providerSrcs['js'][]  = 'http://openlayers.org/api/OpenLayers.js';
+                                break;
+                        case 'googlev3':
+                        default:
+                                $providerSrcs['js'][]  = 'http://maps.google.com/maps/api/js?sensor=false';
+                                break;
+                }
+                
+                $document = JFactory::getDocument();
+                
+                static $isCoreLoaded = array();
+
+                if (!empty($providerSrcs)) {
+                        foreach ($providerSrcs as $type => $_providerSrcs) {
+                                foreach ($_providerSrcs as $providerSrc) {
+                                        if ($type == 'css') {
+                                                $document->addStyleSheet($providerSrc);
+                                        } else if ($type == 'js') {
+                                                $document->addScript($providerSrc);
+                                        }
+                                }
+                        }
+                        
+                        if (!isset($isCoreLoaded[$provider]) || !$isCoreLoaded[$provider]) {
+                                $method = K2FieldsModelFields::value($field, 'mapinputmethod', K2FieldsMap::MAP_DEFAULT_METHOD);
+                                $params = array($provider);
+                                if ($method == 'geo') $params[] = '[geocoder]';
+                                self::add('mxn', $params);
+                                $isCoreLoaded[$provider] = true;
+                        }
+                }
         }
         
         public static function _render($item, $values, $field, $helper, $rule = null) {
@@ -212,8 +319,12 @@ class K2FieldsMap {
                 return $ui;
         }
         
-        private static function add($script) {
-                JprovenUtility::loc(true, true, K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/'.$script.K2FieldsMap::MAP_MAPSTRACTION_DEV.'.js', true);
+        private static function add($script, $params = null) {
+                $script = K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/'.$script.K2FieldsMap::MAP_MAPSTRACTION_DEV.'.js';
+                
+                if ($params) $script .= '?('.implode(',', $params).')';
+                
+                JprovenUtility::loc(true, true, $script, true);
         }
 
         static function providers($provider, $attr) {

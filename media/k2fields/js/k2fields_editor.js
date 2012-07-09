@@ -19,7 +19,7 @@ var k2fieldseditor = new Class({
                         new Element('div', {'id':'extraFieldsContainer'}).inject($$('form')[0], 'top');
                         this.createSpecification();
                         this.createUIWithSections();
-                        $('type').set('value', 'textfield');
+                        document.id('type').set('value', 'textfield');
                         document.id('type').fireEvent('change', [document.id('type')]);
                 }.bind(this));
                 
@@ -52,7 +52,7 @@ var k2fieldseditor = new Class({
                         }                        
                         
                         id = k2fs.options.pre + id;
-                        val = $(id).get('value');
+                        val = document.id(id).get('value');
                         
                         if (!val) return;
                         
@@ -179,14 +179,14 @@ var k2fieldseditor = new Class({
                 
                 if (def['search']) search = search == '1' ? 'SEARCH' : 'SEARCH:'+search;
                 
-                $('name').set('value', skipped['name']+sec+' / TYPE:'+def['valid']+' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST'));
-                $(this.options.defFldId).set('value', 'k2f---' + subfields + _def + '---' + skipped['name']);
+                document.id('name').set('value', skipped['name']+sec+' / TYPE:'+def['valid']+' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST'));
+                document.id(this.options.defFldId).set('value', 'k2f---' + subfields + _def + '---' + skipped['name']);
         },
         
         createUIWithSections: function() {
-                if ($('extraFields')) $('extraFields').dispose();
+                if (document.id('extraFields')) document.id('extraFields').dispose();
                 
-                new Element('div', {'class':'clr'}).inject($('extraFieldsContainer'));
+                new Element('div', {'class':'clr'}).inject(document.id('extraFieldsContainer'));
                 
                 var uis = {}, specification = Object.clone(this.specification), _id, vals = this.parseValues(), val, optName, css, sectionName, ui, sectionID, uip;
                 
@@ -196,7 +196,7 @@ var k2fieldseditor = new Class({
                         sectionID = this.sectionId(ps, 'section_');
                         ui = uis[sectionID];
                         if (!ui) {
-                                uis[sectionID] = new Element('ul', {'id':sectionID, 'class':'admintable extraFields', 'section':sectionName}).inject($('extraFieldsContainer'));
+                                uis[sectionID] = new Element('ul', {'id':sectionID, 'class':'admintable extraFields', 'section':sectionName}).inject(document.id('extraFieldsContainer'));
                                 ui = uis[sectionID];
                         }
                         css = 'prop'+id + ' ' +this.propCSS(id, optName);
@@ -219,17 +219,17 @@ var k2fieldseditor = new Class({
                 k2fs.wireForm($$('form')[0]);
                 k2fs.createFields();
                 
-                $('type').getParent('tr').setStyle('display', 'none');
-                $('name').getParent('tr').setStyle('display', 'none');
-                $('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
+                document.id('type').getParent('tr').setStyle('display', 'none');
+                document.id('name').getParent('tr').setStyle('display', 'none');
+                document.id('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
         },
         
         createUI: function() {
-                if ($('extraFields')) $('extraFields').dispose();
+                if (document.id('extraFields')) document.id('extraFields').dispose();
                 
-                var ui = new Element('ul', {'id':'extraFields', 'class':'admintable extraFields'}).inject($('extraFieldsContainer')), uip;
+                var ui = new Element('ul', {'id':'extraFields', 'class':'admintable extraFields'}).inject(document.id('extraFieldsContainer')), uip;
                 
-                new Element('div', {'class':'clr'}).inject($('extraFieldsContainer'));
+                new Element('div', {'class':'clr'}).inject(document.id('extraFieldsContainer'));
                 
                 var specification = Object.clone(this.specification), _id;
                 
@@ -254,16 +254,16 @@ var k2fieldseditor = new Class({
                 k2fs.options.fieldsOptions = specification;
                 k2fs.options.isNew = this.isNew;
                 k2fs.utility = new JPUtility({base:k2fs.options.base,k2fbase:k2fs.options.k2fbase});
-                k2fs.wireForm($$('form')[0]);
+                k2fs.wireForm($document.id('form')[0]);
                 k2fs.createFields();
                 
-                $('type').getParent('tr').setStyle('display', 'none');
-                $('name').getParent('tr').setStyle('display', 'none');
-                $('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
+                document.id('type').getParent('tr').setStyle('display', 'none');
+                document.id('name').getParent('tr').setStyle('display', 'none');
+                document.id('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
         },
         
         parseValues:function(def) {
-                def = def || this.options.def || $('name').get('value');
+                def = def || this.options.def || document.id('name').get('value');
                 
                 def = def.split("\n");
                 def.each(function(s, i){ def[i] = s.trim(); }.bind(this));
@@ -399,7 +399,7 @@ var k2fieldseditor = new Class({
                 this.nameFld.set('value', val[0]+this.options.fieldSeparator+val[val.length-1]);
                 var os = document.id('type').options;
                 for (var i = 0; i < os.length; i++) if (os[i].value == 'textfield') os[i].selected = true;
-                document.id('type').fireEvent('change', [$('type')]);
+                document.id('type').fireEvent('change', [document.id('type')]);
         },
         
         params:function(from) { return (from || document.location.href).fromQueryString(); },
@@ -489,7 +489,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388'],
                                         'alias':['id:1451', 'id:1452']
                                 },
                                 'required':'1',
@@ -1468,15 +1468,6 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '1353':{
-                                'name':'Maxzoom',
-                                'optName':'maxzoom',
-                                'valid':'range',
-                                'section':'Type specific',
-                                'low':1,
-                                'high':20,
-                                'sorted':true
-                        },
-                        '1354':{
                                 'name':'Location provider',
                                 'optName':'locationprovider',
                                 'valid':'text',
@@ -1487,11 +1478,11 @@ var k2fieldseditor = new Class({
                                         {'value':'function', 'text':'function'}
                                 ],
                                 'deps':{
-                                        'function':['id:1355']
+                                        'function':['id:1354']
                                 },
                                 'section':'Type specific'
                         },
-                        '1355':{
+                        '1354':{
                                 'name':'Location provider function name',
                                 'optName':'locationproviderfunction',
                                 'valid':'text',
@@ -1499,16 +1490,75 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'tip':'You can provide a simple function name or a call of an existing objects method'
                         },
+                        '1355':{
+                                'name':'Static map? (item)',
+                                'optName':'mapstatic',
+                                'valid':'verifybox',
+                                'section':'Type specific'
+                        },
                         '1356':{
+                                'name':'Maxzoom (default)',
+                                'optName':'maxzoom',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1357':{
+                                'name':'Maxzoom (edit)',
+                                'optName':'maxzoomedit',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1358':{
+                                'name':'Maxzoom (item)',
+                                'optName':'maxzoomitem',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1359':{
+                                'name':'Maxzoom (itemlist)',
+                                'optName':'maxzoomitemlist',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1360':{
+                                'name':'Map provider (default)',
+                                'optName':'mapprovider',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':[
+                                        {value:'cloudmade',text:'cloudmade'}, 
+                                        {value:'google',text:'google'}, 
+                                        {value:'googlev3',text:'google v3 (draggable)'}, 
+                                        {value:'leaflet',text:'leaflet (draggable)'}, 
+                                        {value:'mapquest',text:'mapquest'}, 
+                                        {value:'cloudmade',text:'cloudmade'}, 
+                                        {value:'microsoft',text:'microsoft'},
+                                        {value:'yandex',text:'yandex'}
+                                ],
+                                'savevalues':'mapproviders',
+                                'section':'Type specific'
+                        },
+                        '1361':{
                                 'name':'Map provider (edit)',
                                 'optName':'mapprovideredit',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':['cloudmade', 'googlemaps', 'leaflet', 'mapquest', 'microsoft', 'maplayers', 'yandex'],
-                                'savevalues':'mapproviders',
+                                'values':'values:mapproviders',
                                 'section':'Type specific'
                         },
-                        '1357':{
+                        '1362':{
                                 'name':'Map provider (item)',
                                 'optName':'mapprovideritemlist',
                                 'valid':'text',
@@ -1516,22 +1566,242 @@ var k2fieldseditor = new Class({
                                 'values':'values:mapproviders',
                                 'section':'Type specific'
                         },
-                        '1358':{
-                                'name':'Map provider (edit)',
+                        '1363':{
+                                'name':'Map provider (item)',
                                 'optName':'mapprovideritem',
                                 'valid':'text',
                                 'ui':'select',
                                 'values':'values:mapproviders',
                                 'section':'Type specific'
                         },
-                        '1359':{
-                                'name':'Map type (item)',
-                                'optName':'maptypeitem',
+                        '1364':{
+                                'name':'Map API key (default)',
+                                'optName':'mapapikey',
                                 'valid':'text',
-                                'values':['static', 'normal'],
-                                'ui':'radio',
+                                'ui':'text',
+                                'size':'100',
                                 'section':'Type specific'
                         },
+                        '1365':{
+                                'name':'Map API key (edit)',
+                                'optName':'mapapikeyedit',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':'100',
+                                'section':'Type specific'
+                        },
+                        '1366':{
+                                'name':'Map API key (item)',
+                                'optName':'mapapikeyitem',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':'100',
+                                'section':'Type specific'
+                        },
+                        '1367':{
+                                'name':'Map API key (itemlist)',
+                                'optName':'mapapikeyitemlist',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':'100',
+                                'section':'Type specific'
+                        },
+                        '1368':{
+                                'name':'Map center (default)',
+                                'optName':'mapcenter',
+                                'valid':'complex',
+                                'subfields':[
+                                        {'name':'Lat','valid':'text'},
+                                        {'name':'Lon','valid':'text'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '1369':{
+                                'name':'Map center (edit)',
+                                'optName':'mapcenteredit',
+                                'valid':'complex',
+                                'subfields':[
+                                        {'name':'Lat','valid':'text'},
+                                        {'name':'Lon','valid':'text'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '1370':{
+                                'name':'Map center (item)',
+                                'optName':'mapcenteritem',
+                                'valid':'complex',
+                                'subfields':[
+                                        {'name':'Lat','valid':'text'},
+                                        {'name':'Lon','valid':'text'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '1371':{
+                                'name':'Map center (itemlist)',
+                                'optName':'mapcenteritemlist',
+                                'valid':'complex',
+                                'subfields':[
+                                        {'name':'Lat','valid':'text'},
+                                        {'name':'Lon','valid':'text'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '1372':{
+                                'name':'Map zoom (default)',
+                                'optName':'mapzoom',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1373':{
+                                'name':'Map zoom (edit)',
+                                'optName':'mapzoomedit',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1374':{
+                                'name':'Map zoom (item)',
+                                'optName':'mapzoomitem',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1375':{
+                                'name':'Map zoom (itemlist)',
+                                'optName':'mapzoomitemlist',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':1,
+                                'high':20,
+                                'sorted':true
+                        },
+                        '1376':{
+                                'name':'Map container ID (default)',
+                                'optName':'mapcontainerid',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1377':{
+                                'name':'Map container ID (edit)',
+                                'optName':'mapcontaineridedit',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1378':{
+                                'name':'Map container ID (item)',
+                                'optName':'mapcontaineriditem',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1379':{
+                                'name':'Map container ID (itemlist)',
+                                'optName':'mapcontaineriditemlist',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1380':{
+                                'name':'Map type (default)',
+                                'optName':'maptype',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':[
+                                        {'value':1, text:'roadmap'}, 
+                                        {'value':2, text:'satellite'}, 
+                                        {'value':3, text:'hybrid'}, 
+                                        {'value':4, text:'physical'}
+                                ],
+                                'savevalues':'maptypes',
+                                'default':1,
+                                'section':'Type specific',
+                                'sorted':true
+                        },
+                        '1381':{
+                                'name':'Map type (item)',
+                                'optName':'maptypeitem',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':'values:maptypes',
+                                'default':1,
+                                'section':'Type specific',
+                                'sorted':true
+                        },
+                        '1382':{
+                                'name':'Map type (editor)',
+                                'optName':'maptypeedit',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':'values:maptypes',
+                                'default':1,
+                                'section':'Type specific',
+                                'sorted':true
+                        },
+                        '1383':{
+                                'name':'Map type (itemlist)',
+                                'optName':'maptypeitemlist',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':'values:maptypes',
+                                'default':1,
+                                'section':'Type specific',
+                                'sorted':true
+                        },
+                        '1384':{
+                                'name':'Map container class (default)',
+                                'optName':'mapcontainerclass',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'default':'mapContainer',
+                                'section':'Type specific'
+                        },
+                        '1385':{
+                                'name':'Map container class (edit)',
+                                'optName':'mapcontainerclassedit',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1386':{
+                                'name':'Map container class (item)',
+                                'optName':'mapcontainerclassitem',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1387':{
+                                'name':'Map container class (itemlist)',
+                                'optName':'mapcontainerclassitemlist',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':50,
+                                'section':'Type specific'
+                        },
+                        '1388':{
+                                'name':'Map icon color',
+                                'optName':'mapiconcolor',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':['orange'],
+                                'section':'Type specific'
+                        },
+                        
                         '1401':{
                                 'name':'Source',
                                 'optName':'source',

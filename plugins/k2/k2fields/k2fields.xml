@@ -334,22 +334,58 @@
                                         <option value="first">First</option>
                                 </field>                                
                         </fieldset>
-                        <!--
                         <fieldset name="PLG_K2FIELDS_MAP">
-                                <field name="mapprovider" type="list" default="google" label="Provider" description="Select map provider">
+                                <!--
+                                <field name="mapprovider" type="list" default="google" label="Provider (default)" description="Select map provider">
                                         <option value="yahoo">yahoo</option>
-                                        <option value="yandex">yandex</option>
-                                        <option value="googlev2">google v2</option>
+                                        <option value="yandex">yandex (tbi)</option>
+                                        <option value="googlev3">google v3</option>
                                         <option value="google">google</option>
                                         <option value="microsoft">microsoft</option>
                                         <option value="mapquest">mapquest</option>
                                         <option value="cloudmade">cloudmade</option>
                                         <option value="openlayers">openlayers</option>
+                                        <option value="leaflet">leaflet</option>
                                 </field>
-                                <field name="mapcontainerid" type="text" default="" label="Container ID" description="Provide map container ID" />
-                                <field name="mapapikey" type="text" default="" label="API Key" description="Provide map api key, if applicable" />
+                                <field name="mapprovideredit" type="list" default="" label="Provider (edit)" description="Select map provider">
+                                        <option value="">default</option>
+                                        <option value="yahoo">yahoo</option>
+                                        <option value="yandex">yandex (tbi)</option>
+                                        <option value="google">google v3</option>
+                                        <option value="googleold">google</option>
+                                        <option value="microsoft">microsoft</option>
+                                        <option value="mapquest">mapquest</option>
+                                        <option value="cloudmade">cloudmade</option>
+                                        <option value="openlayers">openlayers</option>
+                                        <option value="leaflet">leaflet</option>
+                                </field>
+                                <field name="mapprovideritem" type="list" default="" label="Provider (item)" description="Select map provider">
+                                        <option value="">default</option>
+                                        <option value="yahoo">yahoo</option>
+                                        <option value="yandex">yandex (tbi)</option>
+                                        <option value="google">google v3</option>
+                                        <option value="googleold">google</option>
+                                        <option value="microsoft">microsoft</option>
+                                        <option value="mapquest">mapquest</option>
+                                        <option value="cloudmade">cloudmade</option>
+                                        <option value="openlayers">openlayers</option>
+                                        <option value="leaflet">leaflet</option>
+                                </field>
+                                <field name="mapprovideritemlist" type="list" default="" label="Provider (itemlist)" description="Select map provider">
+                                        <option value="">default</option>
+                                        <option value="yahoo">yahoo</option>
+                                        <option value="yandex">yandex (tbi)</option>
+                                        <option value="google">google v3</option>
+                                        <option value="googleold">google</option>
+                                        <option value="microsoft">microsoft</option>
+                                        <option value="mapquest">mapquest</option>
+                                        <option value="cloudmade">cloudmade</option>
+                                        <option value="openlayers">openlayers</option>
+                                        <option value="leaflet">leaflet</option>
+                                </field>
+                                <field name="mapapikey" type="text" size="40" default="" label="API Key" description="Provide map api key, if applicable" />
                                 <field name="mapcenter" type="text" default="" label="Center coordinate: lat,lon" description="Provide map default center coordinate" />
-                                <field name="mapzoom" type="list" default="10" label="Zoom" description="Select zoom level">
+                                <field name="mapzoom" type="list" default="10" label="Default zoom level" description="">
                                         <option value="6">6</option>
                                         <option value="7">7</option>
                                         <option value="8">8</option>
@@ -364,34 +400,36 @@
                                         <option value="17">17</option>
                                         <option value="18">18</option>
                                 </field>
-                                <field name="geocodingmethod" type="list" default="coord" label="Method" description="Select map method">
+                                <field name="maxzoom" type="list" default="10" label="Max zoom level" description="">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                </field>
+                                <field name="mapinputmethod" type="list" default="coord" label="Method" description="Select map method">
                                         <option value="coord">coordinates</option>
                                         <option value="geo">geocoding</option>
                                 </field>
                                 <field name="locationprovider" type="list" default="maxmind" label="Current location provider" description="Select current location provider. Please note each API providers usage license and terms and conditions">
                                         <option value="maxmind">Maxmind</option>
-                                        <option value="simplegeo">Simplegeo(provide JSONP-token below)</option>
+                                        <option value="browser">Browser</option>
                                         <option value="function">Custom function(provide below)</option>
                                 </field>
                                 <field name="locationproviderfunction" type="textarea" default="currentLocation()" cols="40" rows="4" label="Current location provider(function)" description="Provide current location provider(function)" />
-                                <field name="simplegeojsonptoken" type="text" default="" label="SimpleGeo JSONP token" description="Provide SimpleGeo JSONP token" />
-                                <field name="mapclusteringtreshold" type="text" default="300" label="Clustering treshold # of POI" description="Provide clustering treshold # of POI" />
-                                <field name="mapclusteringtresholdzoom" type="list" default="10" label="Clustering treshold zoom level" description="Provide clustering treshold zoom level to be used in conjunction with # of POI treshold">
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                </field>
-                                <field name="itemmaptype" type="list" default="static" label="Map type in item view">
+                                <field name="showmapeditor" type="radio" default="0" label="Show map editor" description="...with draggable markers">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>                                
+                                <field name="maptypeitem" type="list" default="static" label="Map type in item view">
                                         <option value="static">Static</option>
                                         <option value="normal">Normal</option>
                                 </field>
@@ -410,14 +448,32 @@
                                         <option value="17">17</option>
                                         <option value="18">18</option>
                                 </field>
-                                <field name="staticmapmaptype" type="list" default="roadmap" label="Map type in static view">
+                                <field name="mapstatictype" type="list" default="roadmap" label="Map type in static view">
                                         <option value="roadmap">Roadmap</option>
                                         <option value="satellite">Satellite</option>
                                         <option value="hybrid">Hybrid</option>
                                         <option value="terrain">Terrain</option>
                                 </field>
+                                <field name="mapcontainerid" type="text" default="mapContainer" label="Container ID" description="Provide map container ID" />
+                                -->
+                                <!-- <field name="mapclusteringtreshold" type="text" default="300" label="Clustering treshold # of POI" description="Provide clustering treshold # of POI" />
+                                <field name="mapclusteringtresholdzoom" type="list" default="10" label="Clustering treshold zoom level" description="Provide clustering treshold zoom level to be used in conjunction with # of POI treshold">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                </field>-->
                         </fieldset>
-                        
+                        <!--
                         <fieldset name="PLG_K2FIELDS_RELATED_LISTS_WITHIN_ITEMS">
                                 <field name="defaultrelatedas" type="list" default="url" label="Generate by default as">
                                         <option value="list">List (search result)</option>

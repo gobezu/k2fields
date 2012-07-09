@@ -792,15 +792,11 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 $document = JFactory::getDocument();
                 
-                if ($item && !$itemDone) {
+                if (!$itemDone) {
                         // TODO: fields are available only when category is known in 
                         // advance which in case of backend new content creation is not 
                         // known. Need to be loaded clientside synchronously by each type
-                        
-                        if (K2FieldsModelFields::isContainsType('map', $item->catid, $tab == 'search' || $tab == 'menu' ? 'search' : null) && $tab != 'search') {
-                                $document->addScript('http://maps.google.com/maps/api/js?sensor=false');
-                        }
-                        
+                        K2FieldsMap::loadResources($item);
                         $itemDone = true;
                 }
                 
