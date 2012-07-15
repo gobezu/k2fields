@@ -325,7 +325,8 @@ var k2fields_type_map = {
                         map = new mxn.Mapstraction(container, provider),
                         maptype = this.getOpt(proxyField, 'maptype'),
                         itemPoints, m, el, items = this.mapItems[proxyField], i, n, itemId, item, a,
-                        ips = new Element('ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs
+                        ips = new Element('ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs,
+                        createIPs = this.getOpt(proxyField, 'mapcreateips')
                         ;
                         
                 map.setMapType(maptype);
@@ -340,47 +341,52 @@ var k2fields_type_map = {
                         item = items[itemId];
                         itemPoints = item['points'];
                         n = itemPoints.length;
-                        ipsItem = new Element('li').inject(ips);
-                        
-                        agoto  = this.getOpt(proxyField, 'mapgoto', null, ' » Go to %category%').
-                                replace('%category%', item.category).
-                                replace('%categoryid%', item.categoryid).
-                                replace('%item%', item.title).
-                                replace('%category%', item.id)
-                        ;
-                        
-                        preIp = n > 1 ? '' : item.title;
-                        
-                        if (n > 1) {
-                                new Element('span', {'text':item.title}).inject(ipsItem);
-                                new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItem);
-                                ipsItem = new Element('ul').inject(ipsItem);
+                        if (createIPs) {
+                                ipsItem = new Element('li').inject(ips);
+
+                                agoto  = this.getOpt(proxyField, 'mapgoto', null, ' » Go to %category%').
+                                        replace('%category%', item.category).
+                                        replace('%categoryid%', item.categoryid).
+                                        replace('%item%', item.title).
+                                        replace('%category%', item.id)
+                                ;
+
+                                preIp = n > 1 ? '' : item.title;
+
+                                if (n > 1) {
+                                        new Element('span', {'text':item.title}).inject(ipsItem);
+                                        new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItem);
+                                        ipsItem = new Element('ul').inject(ipsItem);
+                                }
                         }
                         
                         for (i = 0; i < n; i++) {
                                 m = new mxn.Marker(new mxn.LatLonPoint(itemPoints[i].lat, itemPoints[i].lon));
                                 el = new Element('div', {'html':item.rendered});
-                                ipsItemC = n == 1 ? ipsItem : new Element('li').inject(ipsItem);
                                 
                                 attrs = {
                                         'href':'#', 
                                         'text':preIp + (itemPoints[i].lbl && preIp ? ' - '  : '') + itemPoints[i].lbl
                                 };
                                 
-                                if (this.chkOpt(proxyField, 'mappanevents', 'click')) {
-                                        if (!attrs['events']) attrs['events'] = {};
-                                        attrs['events']['click'] = function(a){this.openIP(a);return false;}.bind(this);
-                                }
+                                if (createIPs) {
+                                        ipsItemC = n == 1 ? ipsItem : new Element('li').inject(ipsItem);
                                 
-                                if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
-                                        if (!attrs['events']) attrs['events'] = {};
-                                        attrs['events']['mouseover'] = function(a){this.openIP(a);return false;}.bind(this);
-                                }
-                                
-                                new Element('a', attrs).inject(ipsItemC).store('ip', [proxyField, itemId, i]);
-                                
-                                if (n == 1) {
-                                        new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItemC);
+                                        if (this.chkOpt(proxyField, 'mappanevents', 'click')) {
+                                                if (!attrs['events']) attrs['events'] = {};
+                                                attrs['events']['click'] = function(a){this.openIP(a);return false;}.bind(this);
+                                        }
+
+                                        if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
+                                                if (!attrs['events']) attrs['events'] = {};
+                                                attrs['events']['mouseover'] = function(a){this.openIP(a);return false;}.bind(this);
+                                        }
+
+                                        new Element('a', attrs).inject(ipsItemC).store('ip', [proxyField, itemId, i]);
+
+                                        if (n == 1) {
+                                                new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItemC);
+                                        }
                                 }
                 
                                 a = new Element('a', {'href':item.link, 'text':itemPoints[i].lbl}).inject(el, 'top');
@@ -405,7 +411,8 @@ var k2fields_type_map = {
                 }
                 
                 map.autoCenterAndZoom();
-                ips.inject(container, 'after');
+                
+                if (createIPs) ips.inject(container, 'after');
         },
         
         currentIp:null,

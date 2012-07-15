@@ -227,6 +227,13 @@ window.addEvent("load", function() {
                 
                 if (isset($_options[$fieldId])) return $_options[$fieldId];
                 
+                if ($fieldId == 'default' && !isset($_options[$fieldId])) {
+                        reset($_options);
+                        $fieldId = key($_options);
+                }
+                
+                if (isset($_options[$fieldId])) return $_options[$fieldId];
+                
                 if (empty($options)) $options = $field;
                 
                 $options['mapinputmethod'] = K2FieldsModelFields::setting('mapinputmethod', $options, K2FieldsMap::MAP_DEFAULT_METHOD);
@@ -237,6 +244,7 @@ window.addEvent("load", function() {
                 $options['mapiconlocation'] = K2FieldsModelFields::setting('mapiconlocation', $options);
                 $options['mapiconlocationhover'] = K2FieldsModelFields::setting('mapiconhover', $options);
                 $options['mapgoto'] = K2FieldsModelFields::setting('mapgoto', $options);
+                $options['mapshowitemlist'] = K2FieldsModelFields::setting('mapshowitemlist', $options, 0);
                 
                 $root = JPath::clean(JPATH_SITE, '/') . '/';
                 

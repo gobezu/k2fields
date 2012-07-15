@@ -12,7 +12,8 @@ defined('_JEXEC') or die('Restricted access');
 
 if (plgk2k2fields::catState('isItemlistMap')) {
         echo $this->loadTemplate('map');
-        return;
+        
+        if (!K2FieldsMap::v(null, 'mapshowitemlist')) return;
 }
 
 $tmpl = JRequest::getCmd('tmpl');
