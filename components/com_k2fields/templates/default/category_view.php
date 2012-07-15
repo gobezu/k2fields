@@ -9,6 +9,12 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
+
+if (plgk2k2fields::catState('isItemlistMap')) {
+        echo $this->loadTemplate('map');
+        return;
+}
+
 $tmpl = JRequest::getCmd('tmpl');
 $isComponentOnly = $tmpl == 'component';
 ?>
@@ -133,21 +139,11 @@ $isComponentOnly = $tmpl == 'component';
 <?php endif; ?>
 
 <?php 
-        $isLeading = isset($this->leading) && count($this->leading);
-        $isPrimary = isset($this->primary) && count($this->primary);
-        $isSecondary = isset($this->secondary) && count($this->secondary);
-        $isLinks = isset($this->links) && count($this->links);
-        
-        if ($isLeading || $isPrimary || $isSecondary || $isLinks): 
-                $isTabular = '';
-                if ($isLeading) $isTabular = $this->leading[0]->isItemlistTabular ? ' itemListTabular' : '';
-                else if ($isPrimary) $isTabular = $this->primary[0]->isItemlistTabular ? ' itemListTabular' : '';
-                else if ($isSecondary) $isTabular = $this->secondary[0]->isItemlistTabular ? ' itemListTabular' : '';
-                else if ($isLinks) $isTabular = $this->links[0]->isItemlistTabular ? ' itemListTabular' : '';
+        if (plgk2k2fields::catState('id') != null):
+                $itemlistCSS = plgk2k2fields::catState('itemlistCSS');
         ?>
 	<!-- Item list -->
-        <div class="cat<?php echo $this->category->id ?>"><div class="itemList<?php echo $isTabular; ?>">
-
+        <div class="cat<?php echo $this->category->id ?>"><div class="itemList<?php echo $itemlistCSS; ?>">
 		<?php if(isset($this->leading) && count($this->leading)): ?>
 		<!-- Leading items -->
 		<div id="itemListLeading">
@@ -269,10 +265,7 @@ $isComponentOnly = $tmpl == 'component';
 <?php 
 if(count($this->pagination->getPagesLinks()) && !$isComponentOnly) {
         if ($cid = JRequest::getInt('id', JRequest::getInt('cid', false))) {
-                if ($isLeading) $catTitle = $this->leading[0]->categoryname;
-                else if ($isPrimary) $catTitle = $this->primary[0]->categoryname;
-                else if ($isSecondary) $catTitle = $this->secondary[0]->categoryname;
-                else if ($isLinks) $catTitle = $this->links[0]->categoryname;
+                $catTitle = plgk2k2fields::catState('categoryname');
                 $catTitle = JprovenUtility::nize($catTitle, 1);
         } else {
                 $catTitle = ' '.JText::_('search results');
@@ -297,18 +290,15 @@ if(count($this->pagination->getPagesLinks()) && !$isComponentOnly) {
         <div class="clr"></div>
 </div>
 <?php } else { ?>
-	<?php if (count($this->pagination->getPagesLinks())) { ?>
+	<?php 
+        if (count($this->pagination->getPagesLinks())) { ?>
 	<div class="k2Pagination">
 		<?php if ($this->params->get('catPagination')) echo $this->pagination->getPagesLinks(); ?>
 		<div class="clr"></div>
 		<?php if ($this->params->get('catPaginationResults')) echo $this->pagination->getPagesCounter(); ?>
 	</div>
-	<?php } ?>        
-
-<?php 
+	<?php } 
         } 
-?>
-<?php 
-} 
+}
 ?>
 <!-- End K2 Category Layout -->

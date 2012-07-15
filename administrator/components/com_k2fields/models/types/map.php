@@ -40,31 +40,54 @@ class K2FieldsMap {
          * 3. varying marker icons
          * 4. interactive map based editing for both methods (in particular coord)
          */
+        
+        // TODO: clarify that only one field / category is assumed to be of type map
+        private static $containerId = null;
+        
+        public static function containerId($field = null, $item = null) {
+                if (self::$containerId) return self::$containerId;
+                
+                $uiId = self::v($field, 'mapcontainerid');
+                $item = $item ? K2FieldsModelFields::value($item, 'id') : '';
+                $field = K2FieldsModelFields::value($field, 'id');
+                $uiId = str_replace(array('%item%', '%id%'), array($item, $field), $uiId);
+                
+                return $uiId;
+        }
+        
         public static function render($item, $values, $field, $helper, $rule = null) {
                 $ui = '';
-                $uiId = self::v($field, 'mapcontainerid');
-                $uiId = str_replace(
-                        array('%item%', '%id%'), 
-                        array(K2FieldsModelFields::value($item, 'id'), K2FieldsModelFields::value($field, 'id')), 
-                        $uiId
-                );
                 
-                if (K2FieldsModelFields::isTrue($field, 'mapstatic')) {
-                        $data = array();
-                        
-                        foreach ($values as $i => $value) {
-                                $data[] = array('lat'=>$value[0]->lat, 'lon'=>$value[0]->lng, 'label'=>$value[1]->value);
-                        }
-                        
-                        $mapType = self::v($field, 'maptype');
-                        $zoom = self::v($field, 'mapzoom');
-                        $color = self::v($field, 'mapiconcolor');
-                        
-                        $data = array('points'=>$data, 'container'=>$uiId, 'maptype'=>$mapType, 'zoom'=>$zoom, 'color'=>$color);
-                        $data = json_encode($data);
-                        
-                        $ui = '
-<div id="'.$uiId.'" class="staticMapContainerItem"></div>
+                $view = JRequest::getCmd('view', 'itemlist');
+                
+                if ($view == 'item' && K2FieldsModelFields::value($field, 'mapstatic')) {
+                        $ui = self::renderStaticMap($field, $values, $item);
+                } else {
+                        self::renderDynamicMap($field, $values, $item);
+                        if ($view == 'item') $ui = self::finalizeMap();
+                }
+                
+                return $ui;
+        }
+        
+        private static function renderStaticMap($field, $values, $item) {
+                $uiId = self::containerId($field, $item);
+                $data = array();
+
+                foreach ($values as $i => $value) {
+                        $data[] = array('lat'=>$value[0]->lat, 'lon'=>$value[0]->lng, 'label'=>$value[1]->value);
+                }
+
+                $mapType = self::v($field, 'maptype');
+                $zoom = self::v($field, 'mapzoom');
+                $color = self::v($field, 'mapiconcolor');
+
+                $data = array('points'=>$data, 'container'=>$uiId, 'maptype'=>$mapType, 'zoom'=>$zoom, 'color'=>$color);
+                $data = json_encode($data);
+
+                return 
+'
+<div id="'.$uiId.'" class="staticMapContainer"></div>
 <script type="text/javascript">
 window.addEvent("load", function() {
         '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
@@ -76,45 +99,117 @@ window.addEvent("load", function() {
         );
 });
 </script>
-                                ';
-                } else {
-                        $ui = '
-                                <table><tr><td>
-                                <div><input type="hidden" id="'.$proxyFieldId.'" />';
-
-                        $id = '';
-
-                        // TODO: support geoencoding as well
-                        foreach ($values as $i => $value) {
-                                $id = $proxyFieldId.'_'.$i;
-
-                                $ui .= '
-                                        <span class="k2fcontainer">
-                                        <span id="'.$id.'"></span>
-                                        <input type="hidden" value="'.$value[0]->lat.'" id="'.$id.'0" customvalueholder="true" />
-                                        <input type="hidden" value="'.$value[0]->lng.'" id="'.$id.'1" customvalueholder="true" />
-                                        </span>';
-                        }
-
-                        $ui .= '
-                                </div></td></tr></table>
-                                <script type="text/javascript">
-                                window.addEvent("load", function() {
-                                        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
-                                                "map",
-                                                null, null, null, null,
-                                                function() {
-                                                        var map = '.K2FieldsModelFields::JS_VAR_NAME.'.getEditorMap($("'.$proxyFieldId.'"), $("'.$id.'"), "item");
-                                                        '.K2FieldsModelFields::JS_VAR_NAME.'.redrawMapEditor(map);
-                                                }
-                                        );
-                                });
-                                </script>
-                                ';
+';                
+        }
+        
+        static $ui = array('pre'=>'', 'post'=>'', 'data'=>array()), $map = array();
+        
+        private static function renderDynamicMap($field, $values, $item) {
+                $proxyFieldId = K2FieldsModelFields::pre() . K2FieldsModelFields::value($field, 'id');
+                
+                if (!isset(self::$map[$proxyFieldId])) 
+                        self::$map[$proxyFieldId] = array('params' => self::getParameters($field), 'items' => array());
+                
+                if (!isset(self::$map[$proxyFieldId]['items'][$item->id])) 
+                        self::$map[$proxyFieldId]['items'][$item->id] = array(
+                                'points' => array(),
+                                'title' => $item->title,
+                                'rendered' => $item->rendered,
+                                'link' => $item->link
+                        );
+                
+                foreach ($values as $i => $value) {
+                        self::$map[$proxyFieldId]['items'][$item->id]['points'][] = array(
+                            'lat' => $value[0]->lat,
+                            'lon' => $value[0]->lng,
+                            'lbl' => $value[1]->value
+                        );
                 }
                 
-                return $ui;
-                // infowindow
+                return;
+                
+                if (!isset(self::$ui['data'][$item->id])) 
+                        self::$ui['data'][$item->id] = array('item'=>$item, 'points'=>array());
+                
+                $id = $anchorId = '';
+                
+                // TODO: support geoencoding as well
+                
+                foreach ($values as $i => $value) {
+                        $id = $proxyFieldId.'_'.$i;
+                        
+                        if (empty($anchorId)) $anchorId = $id;
+
+                        self::$ui['data'][$item->id]['points'][] = 
+                                '
+                                <span class="k2fcontainer">
+                                <span id="'.$id.'"></span>
+                                <input type="hidden" value="'.$value[0]->lat.'" id="'.$id.'0" customvalueholder="true" />
+                                <input type="hidden" value="'.$value[0]->lng.'" id="'.$id.'1" customvalueholder="true" />
+                                </span>
+                                ';
+                }
+
+                if (empty(self::$ui['post'])) {
+                        self::$ui['pre'] = 
+'
+<table><tr><td>
+<div style="display:none;">
+<input type="hidden" id="'.$proxyFieldId.'" />
+<input type="hidden" id="'.$proxyFieldId.'" />        
+'
+                                ;
+
+                        $params = self::getParameters($field);
+                        $params = json_encode($params);
+
+                        self::$ui['post'] = 
+'
+</div></td></tr></table>
+<script type="text/javascript">
+window.addEvent("load", function() {
+        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
+                "map",
+                null, null, null, null,
+                function() {
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.fieldsOptions["'.$proxyFieldId.'"] = '.$params.';
+                        var map = '.K2FieldsModelFields::JS_VAR_NAME.'.getEditorMap(document.id("'.$proxyFieldId.'"), document.id("'.$anchorId.'"), "item");
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.redrawMapEditor("'.$proxyFieldId.'");
+                }
+        );
+});
+</script>
+';               
+                }
+        }
+        
+        public static function finalizeMap() {
+                $ui = '';
+                
+                foreach (self::$map as $proxyFieldId => $m) {
+                        $params = json_encode($m['params']);
+                        $items = json_encode($m['items']);
+                        
+                        $ui .= '
+<div id="'.$m['params']['mapcontainerid'].'" class="'.$m['params']['mapcontainerclass'].'"></div>
+<input type="hidden" id="'.$proxyFieldId.'" name="'.$proxyFieldId.'" />
+<script type="text/javascript">
+window.addEvent("load", function() {
+        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
+                "map",
+                null, null, null, null,
+                function() {
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.fieldsOptions["'.$proxyFieldId.'"] = '.$params.';
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.mapItems["'.$proxyFieldId.'"] = '.$items.';
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.drawMap("'.$proxyFieldId.'");
+                }
+        );
+});
+</script>
+';
+                }
+                
+                return $ui; 
         }
         
         public static function v($field, $name) {
@@ -135,27 +230,34 @@ window.addEvent("load", function() {
                 $options['showmapeditor'] = K2FieldsModelFields::setting('showmapeditor', $options);
                 $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options, 'browser');
                 $options['locationproviderfunction'] = K2FieldsModelFields::setting('locationproviderfunction', $options);
-                $options['mapstatic'] = K2FieldsModelFields::setting('mapstatic', $options);
                 $options['mapiconcolor'] = K2FieldsModelFields::setting('mapiconcolor', $options, K2FieldsMap::MAP_ICON_COLOR);
                 
                 $option = JRequest::getCmd('option');
                 $view = $option == 'com_k2' ? JRequest::getCmd('view') : '';
                 $app = JFactory::getApplication();
                 
-                if ($view == 'item') {
+                $options['markerfixed'] = 1;
+                
+                if ($app->isAdmin() || $view == 'item') {
                         if ($app->isAdmin()) {
                                 $view = 'edit';
+                                $options['markerfixed'] = 0;
                         } else {
-                                $layout = JRequest::getCmd('layout', false);
                                 $task = JRequest::getCmd('task', false);
                                 $view = $task == 'add' || $task == 'edit' ? 'edit' : 'item';
-                                //$view = $layout && $layout != 'item' || $task ? 'edit' : 'item';
+                                
+                                if ($view == 'item') {
+                                        $options['mapstatic'] = K2FieldsModelFields::setting('mapstatic', $options);
+                                } else {
+                                        $options['markerfixed'] = 0;
+                                }
                         }
                 } else {
                         $view = 'itemlist';
+                        $options['mapstatic'] = 0;
                 }
                 
-                $options['view'] = $view;
+                $options['view'] = $view . K2FieldsModelFields::VALUE_SEPARATOR . 'map';
                 
                 // TODO: use $view when extracting values
                 

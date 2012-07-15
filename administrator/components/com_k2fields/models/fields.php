@@ -1798,10 +1798,14 @@ class K2FieldsModelFields extends JModel {
                 $option = JRequest::getCmd('option');
                 $inModule = $item->params->get('parsedInModule') || 
                         isset($additionalRules['parsedInModule']) && $additionalRules['parsedInModule'];
+                $inMap = $view == 'itemlist' && $item->isItemlistMap;
                 
                 if ($inModule) {
                         $filterView = 'module';
                         $modeFilter = array('view' => 'module');
+                } else if ($inMap) {
+                        $filterView = 'map';
+                        $modeFilter = array('view' => 'map');
                 } else {
                         $filterView = strpos($option, 'com_k2') !== false ? $view : null;
                         $modeFilter = $filterView ? 'view' : null;
@@ -1827,7 +1831,15 @@ class K2FieldsModelFields extends JModel {
                 
                 self::filterBasedOnView($fields, $filterView);
                 
+//                $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
+//                $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
+//                if (!empty($mapFields)) {
+//                        $fields = array_merge($fields, $mapFields);
+//                        $fields = JprovenUtility::indexBy($fields, 'id', 'all', null, true, true);
+//                }
+                
                 $fieldIds = (array) JprovenUtility::getColumn($fields, 'id', true);
+//                $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
                 
                 // all rules is merged to all other non-excluding fields
                 // newly fetched fields are placed with all rules
@@ -1856,6 +1868,11 @@ class K2FieldsModelFields extends JModel {
                                 }
                         }
                 }
+                
+                $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
+                $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
+                $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
+                $mapItemRules = JprovenUtility::removeValuesFromArray($itemRules, $mapFieldIds, false, true, true);
                 
                 $fieldsValues = $this->itemValues($itemId, $fieldIds);
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
@@ -1886,8 +1903,6 @@ class K2FieldsModelFields extends JModel {
                         
                         if (self::isFormField($fld) && !self::isAutoField($fld) && empty($fieldValues)) continue;
                         
-                        $valid = self::value($fld, 'valid');
-                        
                         $section = self::value($fld, 'section', false);
                         
                         if ($filterView == 'itemlist' || $filterView == 'module') 
@@ -1910,7 +1925,6 @@ class K2FieldsModelFields extends JModel {
                                 }
                                 
                                 $rendered = '';
-                                $isList = false;
 
                                 if ($this->isAggregateType($fld)) {
                                         $rendered = call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
@@ -2035,6 +2049,7 @@ class K2FieldsModelFields extends JModel {
 
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
+                        
                         if ($fieldId == 'all') {
                                 if (!isset($position['rendered'])) {
                                         foreach ($_rules as $i => &$rule) $rule['rendered'] = '';
@@ -2109,9 +2124,24 @@ class K2FieldsModelFields extends JModel {
                                         '</div>'
                                         ;
                                 
+                                if (!empty($mapFields)) {
+                                        $item->rendered = $rendered;
+foreach ($mapItemRules as $fieldId => &$fieldRules) {
+        $fld = $mapFields[$fieldId];
+        
+        foreach ($fieldRules as $frCount => &$fieldRule) {
+                $renderer = $this->getRenderer($fld);
+                if (isset($fieldsValues[$fieldId])) $fieldValues = JprovenUtility::chunkArray($fieldsValues[$fieldId], 'listindex');
+                else $fieldValues = array();                
+                call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
+        }
+}                                        
+                                }
+                                
                                 foreach ($_rules as $i => &$rule) {
                                         if ($position['_plg_'] == $rule['_plg_']) {
                                                 $rule['rendered'] = $rendered;
+                                                
                                                 if ($isItemObj) {
                                                         $fieldsRendered = JprovenUtility::indexBy($position['rendered'], 'field', 'all', null, true, true);
                                                         
@@ -3409,9 +3439,9 @@ class K2FieldsModelFields extends JModel {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
-                                list($val, $fld, $negate) = explode('==', $dep);
-                                if (!isset($_deps[$val])) $_deps[$val] = array();
-                                $_deps[$val][] = 'id:'.$fld.($negate?':1':'');
+                                $dep = explode('==', $dep);
+                                if (!isset($_deps[$dep[0]])) $_deps[$dep[0]] = array();
+                                $_deps[$dep[0]][] = 'id:'.$dep[1].(count($dep) > 2 ?':1':'');
                         }
                         $_deps = json_encode($_deps);
                         $optStr = str_replace('deps='.$m[1], 'deps='.$_deps, $optStr);

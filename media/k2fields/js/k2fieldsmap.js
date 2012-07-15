@@ -54,8 +54,8 @@ var k2fields_type_map = {
                                 {'valid':'text', 'name':'Label', 'position':1, 'autocomplete':this.getOpt(proxyField, 'autocomplete')}
                         ];
                         if (!value) {
-                                value = this.getOpt(proxyField, 'mapcenter', null, null, [9.022736,38.746799,'']);
-                                if (typeof value == 'string') value = value.split(this.options.valueSeparator);
+                                value = this.getOpt(proxyField, 'mapcenter', null, null, '9.022736,38.746799,');
+                                if (typeof value != 'string') value = value.join(this.options.valueSeparator);
                         }
                 } else if (method == 'geo') {
                         defs = [
@@ -109,7 +109,7 @@ var k2fields_type_map = {
                 }
                 
 		map.addMarkerWithData(marker, {
-                        'draggable':true,
+                        'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
                         'icon':icon,
                         'iconSize':this.mapIconSize,
                         'editor':[geo[0], geo[1]]
@@ -253,7 +253,7 @@ var k2fields_type_map = {
                 if (map != undefined) return map;
                 
                 var 
-                        td = container.getParent('.k2fcontainer').getParent(),
+                        td = container.getParent('td') || container.getParent('.k2fmapcontainer'),
                         css = this.getMapClass(proxyField),
                         point = this.getMapInitialPoint(proxyField), 
                         zoom = this.getOpt(proxyField, 'mapzoom', null, 13).toInt(),
@@ -261,7 +261,8 @@ var k2fields_type_map = {
                         maptype = this.getOpt(proxyField, 'maptype')
                         ;
                         
-                container = new Element('div', {id:mapId, 'class':css, 'style':{'width':'500px','height':'500px'}});
+                css += css != 'mapContainer' ? ' mapContainer' : '';
+                container = new Element('div', {id:mapId, 'class':css});
                 container.inject(td, 'top');
                 
                 map = new mxn.Mapstraction(mapId, provider);
@@ -300,5 +301,85 @@ var k2fields_type_map = {
                 
                 new Element('image', {src:url}).inject(container);
                 lbls.inject(container.getParent());
+        },
+        
+        mapItems: {},
+        drawMap: function(proxyField) {
+                var 
+                        container = this.getOpt(proxyField, 'mapcontainerid'), 
+                        provider = this.getOpt(proxyField, 'mapprovider'),
+                        map = new mxn.Mapstraction(container, provider),
+                        maptype = this.getOpt(proxyField, 'maptype'),
+                        itemPoints, m, el, items = this.mapItems[proxyField], i, n, itemId, item, lbl,
+                        ips = new Element('ul', {'class':'mapips'}), preIp, ipsItem
+                        ;
+                        
+                map.setMapType(maptype);
+                
+		map.addControls({
+			pan: true,
+			zoom: 'small',
+			map_type: true
+		});
+                
+                for (itemId in items) {
+                        item = items[itemId];
+                        itemPoints = item['points'];
+                        n = itemPoints.length;
+                        ipsItem = new Element('li').inject(ips);
+                        
+                        preIp = n > 1 ? '' : item.title;
+                        
+                        if (n > 1) {
+                                new Element('span', {'text':item.title}).inject(ipsItem);
+                                ipsItem = new Element('ul').inject(ipsItem);
+                        }
+                        
+                        for (i = 0; i < n; i++) {
+                                m = new mxn.Marker(new mxn.LatLonPoint(itemPoints[i].lat, itemPoints[i].lon));
+                                el = new Element('div', {'html':item.rendered});
+                                
+                                new Element('a', {
+                                        'href':'#', 
+                                        'text':preIp + (itemPoints[i].lbl && preIp ? ' - '  : '') + itemPoints[i].lbl, 
+                                        'events':{
+                                                'click':function(a){this.openIP(a); return false;}.bind(this),
+                                                'mouseover':function(a){this.openIP(a);}.bind(this)
+                                        }
+                                }).inject(n == 1 ? ipsItem : new Element('li').inject(ipsItem)).store('ip', [proxyField, itemId, i]);
+
+                                new Element('a', {'href':item.link, 'text':itemPoints[i].lbl}).inject(el, 'top');
+                                m.setInfoBubble(el);
+                                map.addMarker(m);
+                                this.mapItems[proxyField][itemId]['points'][i]['marker'] = m;
+                        }
+                }
+                
+                map.autoCenterAndZoom();
+                ips.inject(container, 'after');
+        },
+        
+        currentIp:null,
+        
+        openIP:function(a) {
+                this.closeIP(a);
+                
+                var ip = this.getIP(a);
+                ip.openBubble();
+                this.currentIp = ip;
+        },
+        
+        closeIP: function(a) {
+                if (this.currentIp) {
+                        this.currentIp.closeBubble();
+                        this.currentIp = null;
+                }
+        },
+        
+        getIP: function(a) {
+                var ip = this._tgt(a);
+                ip = ip.retrieve('ip');
+                ip = this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
+                return ip;
         }
 };
