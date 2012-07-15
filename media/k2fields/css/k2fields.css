@@ -2,7 +2,7 @@
 $Copyrightcss$
 */
 
-.mapContainer { width:500px; height:500px; }
+.mapContainer { width:100%; height:500px; }
 .staticMapContainerItem { width:100%; height:250px; }
 
 /* 
