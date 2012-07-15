@@ -68,7 +68,7 @@ var k2fieldseditor = new Class({
                                 val[i] = val[i].split(k2fs.options.listConditionSeparator);
                                 
                                 if (val[i][0]) {
-                                        if (ps.list && optName != 'subfields') {
+                                        if (ps.list && optName != 'subfields' || ps.valid == 'complex') {
                                                 val[i][0] = val[i][0].split(k2fs.options.valueSeparator);
                                                 _vals = this._filter(val[i][0]);
                                                 
@@ -886,7 +886,7 @@ var k2fieldseditor = new Class({
                                 'optName':'view',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'values':['item', 'itemlist', 'module'],
+                                'values':['item', 'itemlist', 'module', 'map'],
                                 'section':'Layout',
                                 'default':['item']
                                 // TODO: consistency in value separators
