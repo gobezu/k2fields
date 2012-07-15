@@ -57,7 +57,7 @@ $parameterNames = array(
 
 $tabsCnt = '';
 
-if (!empty($tabs)) {
+if (!empty($tabs) && !empty($catId)) {
         $excludes = $tabs['excludes'];
         $tabs = $tabs['tabs'];
         $tabsCnt = ' class="tabscnt'.count($tabs).'"';
