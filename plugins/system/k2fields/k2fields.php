@@ -8,27 +8,29 @@ require_once JPATH_SITE.'/components/com_k2fields/helpers/utility.php';
 
 if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         $app = JFactory::getApplication();
-        $input = $app->input;
-        
-        $opt = $input->get('option');
-        $task = $input->get('task');
-        
-        if (empty($opt)) {
-                $uri = clone JURI::getInstance();
-                $router = $app->getRouter();
-                $req = $router->parse($uri);
-                $task = isset($req['task']) ? $req['task'] : '';
-                $opt = isset($req['option']) ? $req['option'] : '';
-        }
         
         JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
         JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
         
         jimport('joomla.application.component.model');
         
-        if ($app->isSite() && JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') == '1' && !in_array($task, array('edit', 'add', 'save'))) {
-                JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
-                JModel::getInstance('item', 'K2Model');
+        if ($app->isSite() && JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') == '1') {
+                $input = $app->input;
+                $option = $input->get('option');
+                $task = $input->get('task');
+
+                if (empty($task)) {
+                        $uri = clone JURI::getInstance();
+                        $router = $app->getRouter();
+                        $req = $router->parse($uri);
+                        $task = isset($req['task']) ? $req['task'] : '';
+                        $option = isset($req['option']) ? $req['option'] : '';
+                }
+                
+                if (($option == 'com_k2' || $option == 'com_k2fields') && !in_array($task, array('edit', 'add', 'save'))) {
+                        JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
+                        JModel::getInstance('item', 'K2Model');
+                }
         }
         
         JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models');
