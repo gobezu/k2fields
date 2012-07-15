@@ -119,9 +119,15 @@ var k2fieldsoptions = new Class({
                 
                 chkValues = Array.from(chkValues);
                 
+                var values = this.getOpt(proxyField, optionKey);
+                
+                values = Array.from(values);
+                
                 for (var i = 0; i < chkValues.length; i++) {
-                        if (this.getOpt(proxyField, optionKey) === chkValues[i]) {
-                                return true;
+                        for (var j = 0; j < values.length; j++) {
+                                if (values[j] === chkValues[i]) {
+                                        return true;
+                                }
                         }
                 }
                 

@@ -115,7 +115,10 @@ window.addEvent("load", function() {
                                 'points' => array(),
                                 'title' => $item->title,
                                 'rendered' => $item->rendered,
-                                'link' => $item->link
+                                'link' => $item->link,
+                                'category' => $item->categoryname,
+                                'categoryid' => $item->categoryid,
+                                'id' => $item->id
                         );
                 
                 foreach ($values as $i => $value) {
@@ -231,6 +234,57 @@ window.addEvent("load", function() {
                 $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options, 'browser');
                 $options['locationproviderfunction'] = K2FieldsModelFields::setting('locationproviderfunction', $options);
                 $options['mapiconcolor'] = K2FieldsModelFields::setting('mapiconcolor', $options, K2FieldsMap::MAP_ICON_COLOR);
+                $options['mapiconlocation'] = K2FieldsModelFields::setting('mapiconlocation', $options);
+                $options['mapiconlocationhover'] = K2FieldsModelFields::setting('mapiconhover', $options);
+                $options['mapgoto'] = K2FieldsModelFields::setting('mapgoto', $options);
+                
+                $root = JPath::clean(JPATH_SITE, '/') . '/';
+                
+                if ($options['mapiconcolor']) {
+                        jimport('joomla.filesystem.folder');
+                        
+                        $icon = JFolder::files($root.JprovenUtility::loc().'icons/numbers/', $options['mapiconcolor'].'.png', false, true);
+                        
+                        if (!empty($icon)) {
+                                $icon = JPath::clean($icon[0], '/');
+                                $iconSize = getimagesize($icon);
+                                $options['mapiconcolorsize'] = array($iconSize[0], $iconSize[1]);
+                                $options['mapiconcolor'] = str_replace($root, JURI::root(), $icon);
+                        } else {
+                                unset($options['mapiconcolor']);
+                        }
+                }
+                
+                if (!$options['mapiconlocation']) {
+                        $options['mapiconlocation'] = $options['mapiconcolor'];
+                        $options['mapiconlocationsize'] = $options['mapiconcolorsize'];
+                } else {
+                        $icon = JPath::clean($root . $options['mapiconlocation'], '/');
+                        
+                        if (JFile::exists($icon)) {
+                                $iconSize = getimagesize($icon);
+                                $options['mapiconlocationsize'] = array($iconSize[0], $iconSize[1]);
+                                if ($options['mapiconlocationhover']) {
+                                        $options['mapiconlocationhover'] = preg_replace("#(\.\w+)$#", "-active$1", $options['mapiconlocation']);
+                                }
+
+                                $options['mapiconlocation'] = str_replace($root, JURI::root(), $icon);
+                        } else {
+                                unset($options['mapiconlocation']);
+                        }
+                }
+                
+                if ($options['mapiconlocationhover']) {
+                        $icon = JPath::clean($root . $options['mapiconlocationhover'], '/');
+                        
+                        if (JFile::exists($icon)) {
+                                $iconSize = getimagesize($icon);
+                                $options['mapiconlocationhoversize'] = array($iconSize[0], $iconSize[1]);
+                                $options['mapiconlocationhover'] = str_replace($root, JURI::root(), $icon);
+                        } else {
+                                unset($options['mapiconlocationhover']);
+                        }
+                }
                 
                 $option = JRequest::getCmd('option');
                 $view = $option == 'com_k2' ? JRequest::getCmd('view') : '';
@@ -271,7 +325,7 @@ window.addEvent("load", function() {
                 $options['mapcontainerclass'] = K2FieldsModelFields::setting('mapcontainerclass'.$view, $options, K2FieldsMap::MAP_CONTAINER_CLASS, null, '::', 'all', 'mapcontainerclass');
                 
                 $_options[$fieldId] = $options;
-                
+                                
                 return $options;
         }
         

@@ -1542,6 +1542,8 @@ class K2FieldsMedia {
         protected static function renderImg($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
                 
+                self::normalizeLocation($medias);
+                
                 $src = JRequest::getCmd('view', 'itemlist') == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
                 
                 foreach ($medias as $media) {

@@ -489,7 +489,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392'],
                                         'alias':['id:1451', 'id:1452']
                                 },
                                 'required':'1',
@@ -1794,12 +1794,47 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '1388':{
-                                'name':'Map icon color',
+                                'name':'Map icon color (editor)',
                                 'optName':'mapiconcolor',
                                 'valid':'text',
                                 'ui':'select',
                                 'values':['orange'],
+                                'section':'Type specific',
+                                'tip':'Draggable numerical icons'
+                        },
+                        
+                        '1389':{
+                                'name':'Map icon location',
+                                'optName':'mapiconlocation',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':100,
+                                'section':'Type specific',
+                                'tip':'Relative to site root. Used to designate items as interest points on map. If none is provided then based on mapiconcolor a default icon is used.'
+                        },
+                        '1390':{
+                                'name':'Map icon use hover',
+                                'optName':'mapiconlocationhover',
+                                'valid':'verifybox',
                                 'section':'Type specific'
+                        },
+                        '1391':{
+                                'name':'Go to link title',
+                                'optName':'mapgoto',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'default':'Go to %category%',
+                                'tip':'Available placeholders are %category%, %item%, %categoryid%, %itemid%'
+                        },
+                        '1392':{
+                                'name':'Pan events (to interest point)',
+                                'optName':'mappanevents',
+                                'valid':'text',
+                                'ui':'checkbox',
+                                'section':'Type specific',
+                                'values':['click', 'mouseover'],
+                                'default':'click',
+                                'tip':'Events upon which map is to be moved to target interest point'
                         },
                         
                         '1401':{
