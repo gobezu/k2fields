@@ -1121,20 +1121,23 @@ group by vvv.itemid
                 return true;
         }
         
-        public static function removeValuesFromArray(&$arr, $valuesToRemove, $basedOnKey = false) {
-                if (empty($arr) || empty($valuesToRemove)) return $arr;
+        public static function removeValuesFromArray(&$arr, $valuesToRemove, $basedOnKey = false, $basedOnValuesAsKeys = false, $returnDiff = false) {
+                $diff = array();
+                
+                if (empty($arr) || empty($valuesToRemove)) return $returnDiff ? $diff : $arr;
                 
                 $valuesToRemove = (array) $valuesToRemove;
                 
                 foreach ($valuesToRemove as $valKey => $removeVal) {
                         foreach ($arr as $key => $val) {
-                                if ($basedOnKey && $key == $valKey || !$basedOnKey && $val == $removeVal) {
+                                if ($basedOnKey && $key == $valKey || !$basedOnKey && !$basedOnValuesAsKeys && $val == $removeVal || $basedOnValuesAsKeys && $removeVal == $key) {
+                                        $diff[$key] = $val;
                                         unset($arr[$key]);
                                 }
                         }
                 }
                 
-                return $arr;
+                return $returnDiff ? $diff : $arr;
         }
 
         public static function removeProperties(&$arr, $toRemove) {
@@ -1397,26 +1400,32 @@ group by vvv.itemid
                 
                 $isAllKeyValue = false;
                 
-                if (!empty($assertedKeys) && is_string($val)) {
-                        $result = array();
-                        $vals = explode("\n", $val);
-                        $keys = $assertedKeys;
-                        
-                        if (!empty($allKey)) $keys[] = $allKey;
-                        
-                        foreach ($vals as $_val) {
-                                $_val = explode($sep, $_val);
-                                $_val[0] = trim($_val[0]);
-                                
-                                if (in_array($_val[0], $keys)) {
-                                        $__val = $_val[0];
-                                        array_shift($_val);
-                                        
-                                        if (!isset($result[$__val])) {
-                                                $result[$__val] = array();
+                if (!empty($assertedKeys)) {
+                        if (is_string($val)) {
+                                $result = array();
+                                $vals = explode("\n", $val);
+                                $keys = $assertedKeys;
+
+                                if (!empty($allKey)) $keys[] = $allKey;
+
+                                foreach ($vals as $_val) {
+                                        $_val = explode($sep, $_val);
+                                        $_val[0] = trim($_val[0]);
+
+                                        if (in_array($_val[0], $keys)) {
+                                                $__val = $_val[0];
+                                                array_shift($_val);
+
+                                                if (!isset($result[$__val])) {
+                                                        $result[$__val] = array();
+                                                }
+
+                                                $result[$__val][] = $_val;
                                         }
-                                        
-                                        $result[$__val][] = $_val;
+                                }
+                        } else if (is_array($val)) {
+                                foreach ($assertedKeys as $assertedKey) {
+                                        if (in_array($assertedKey, $val)) $result[] = $assertedKey;
                                 }
                         }
                 }
@@ -1773,13 +1782,13 @@ group by vvv.itemid
                 return $result;
         }
         
-        public static function getRow($array, $criterias = array()) {
+        public static function getRow(&$array, $criterias = array(), $leave = true) {
                 if (empty($criterias)) return $array;
                 
                 $result = array();
                 
                 if (is_array($array)) {
-                        foreach ($array as $item) {
+                        foreach ($array as $k => $item) {
                                 $passed = true;
                                 if (is_array($item)) {
                                         if (!empty($criterias)) {
@@ -1789,7 +1798,10 @@ group by vvv.itemid
                                                         }
                                                 }
                                         }
-                                        if ($passed) $result[] = $item;
+                                        if ($passed) {
+                                                $result[] = $item;
+                                                if (!$leave) unset($array[$k]);
+                                        }
                                 } elseif (is_object($item)) {
                                         if (!empty($criterias)) {
                                                 foreach ($criterias as $criteriaCol => $criteria) {
@@ -1798,7 +1810,10 @@ group by vvv.itemid
                                                         }
                                                 }
                                         }
-                                        if ($passed) $result[] = $item;
+                                        if ($passed) {
+                                                $result[] = $item;
+                                                if (!$leave) unset($array[$k]);
+                                        }
                                 }
                         }
                 }
