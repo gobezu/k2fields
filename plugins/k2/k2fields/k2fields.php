@@ -547,6 +547,14 @@ fjs.parentNode.insertBefore(js, fjs);
                 return $inText ? '' : $result;
         }
         
+        private static $catState;
+        
+        public static function catState($name = '') {
+                if (isset(self::$catState) && !empty($name)) return K2FieldsModelFields::value(self::$catState, $name);
+                
+                return null;
+        }
+        
         // TODO: what happens when we have items from various categories, as in search results?
         private static function setLayout(&$item = null, $cparams = null) {
                 $view = JFactory::getApplication()->input->get('view');
@@ -554,8 +562,21 @@ fjs.parentNode.insertBefore(js, fjs);
                 if ($item) {
                         if ($item->params->get('parsedInModule')) return;
                         
-                        $tabular = (array) self::param('tabularlayout');
-                        $item->isItemlistTabular = $view == 'itemlist' && !empty($tabular) && in_array($item->catid, $tabular);
+                        $item->itemlistCSS = '';
+                        
+                        $tabular = K2FieldsModelFields::categorySetting($item->catid, 'tabularlayout');
+                        $item->isItemlistTabular = $view == 'itemlist' && !empty($tabular);
+                        $item->itemlistCSS = $item->isItemlistTabular ? ' itemListTabular' : '';
+                        
+                        if ($item->isItemlistTabular) $item->itemlistCSS = ' itemListTabular';
+                        
+                        $map = K2FieldsModelFields::categorySetting($item->catid, 'maplayout');
+                        // TODO: we would need to know that all items available are to be included in map
+                        $item->isItemlistMap = $view == 'itemlist' && !empty($map);
+                        
+                        if ($item->isItemlistMap) $item->itemlistCSS = ' itemListMap';
+                        
+                        if (empty(self::$catState)) self::$catState = clone $item;
                 }
                 
                 static $isLayoutSet = false;
