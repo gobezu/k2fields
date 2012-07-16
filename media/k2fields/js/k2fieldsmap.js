@@ -133,7 +133,8 @@ var k2fields_type_map = {
                         var geo = source.getAttribute('editor');
                         geo[0].set('value', args.latLng.lat());
                         geo[1].set('value', args.latLng.lng());
-		});
+                        this.setProxyFieldValue(geo[1]);
+		}.bind(this));
                 
                 geo[0].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
                 geo[1].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
@@ -146,17 +147,23 @@ var k2fields_type_map = {
                         map = this.getEditorMap(proxyField), 
                         container = map.currentElement.getParent('td'), 
                         els = container.getElements('.k2fcontainer'), 
+                        n = els.length,
                         geo
                         ;
                         
                 map.removeAllMarkers();
                 
-                for (var i = 0, n = els.length; i < n; i++) {
+                for (var i = 0; i < n; i++) {
                         geo = els[i].getElements('[customvalueholder=true]');
                         this.createMarker(proxyField, [geo[0], geo[1]], map);
-                }                
+                }
                 
-                map.autoCenterAndZoom();
+                if (n == 1) {
+                        var zoom = this.getOpt(proxyField, 'mapzoom', null, 13).toInt();
+                        map.setZoom(zoom);
+                } else {
+                        map.autoCenterAndZoom();
+                }
         },
         
         getMapClass: function(proxyField) {return this.getMapAttr(proxyField, 'class');},
