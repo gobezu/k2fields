@@ -330,7 +330,8 @@ var k2fields_type_basic = {
                         s = this.getOpt(proxyField, 'step', undefined, 1), 
                         va = this.getOpt(proxyField, 'show', false),
                         shift = this.getOpt(proxyField, 'shift', 0),
-                        values = [];
+                        values = []
+                        ;
                 
                 h -= shift;
                 

@@ -480,7 +480,7 @@ var k2fieldseditor = new Class({
                                 'deps': {
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
-                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167'],
+                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
@@ -490,7 +490,8 @@ var k2fieldseditor = new Class({
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394'],
-                                        'alias':['id:1451', 'id:1452']
+                                        'alias':['id:1451', 'id:1452'],
+                                        'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505']
                                 },
                                 'required':'1',
                                 'savevalues':'validtypes',
@@ -2018,6 +2019,40 @@ var k2fieldseditor = new Class({
                                 valid:'verifybox',
                                 section:'Type specific',
                                 tip:'If not explicitly requested alias fields are not rendered in views'
+                        },
+                        '1501':{
+                                name:'Low',
+                                optName:'low',
+                                valid:'integer',
+                                section:'Type specific'
+                        },
+                        '1502':{
+                                name:'High',
+                                optName:'high',
+                                valid:'integer',
+                                section:'Type specific'
+                        },
+                        '1503':{
+                                name:'Step',
+                                optName:'step',
+                                valid:'integer',
+                                section:'Type specific'
+                        },
+                        '1504':{
+                                name:'Shift',
+                                optName:'shift',
+                                valid:'integer',
+                                section:'Type specific'
+                        },
+                        '1505':{
+                                name:'Show as',
+                                optName:'show',
+                                valid:'text',
+                                values:[{'text':'image', 'value':'img'}, 'text'],
+                                'default':'txt',
+                                ui:'radio',
+                                section:'Type specific',
+                                tip:'If image choosen: file needs to be located in media/k2fields/icon folder and named as follows: be of png type and have png as suffix and prefixed with "n" followed by the number it represents.'
                         }
              };
         }
