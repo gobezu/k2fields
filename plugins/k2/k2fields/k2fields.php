@@ -817,7 +817,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         // TODO: fields are available only when category is known in 
                         // advance which in case of backend new content creation is not 
                         // known. Need to be loaded clientside synchronously by each type
-                        K2FieldsMap::loadResources($item);
+//                        K2FieldsMap::loadResources($item);
                         $itemDone = true;
                 }
                 
