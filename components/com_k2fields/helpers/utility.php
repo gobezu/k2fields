@@ -188,6 +188,8 @@ group by vvv.itemid
                                 foreach ($menuItems as $menuItem) {
                                         if (!$includeDefaultMenuItem && $menuItem->id == $default->id) continue;
                                         
+                                        if (empty($menuItem->query)) continue;
+                                        
                                         if ($menuItem->component == 'com_k2' && $menuItem->query['view'] == 'itemlist') {
                                                 $c = $menuItem->query['id'];
                                         } else if ($menuItem->component == 'com_k2fields' && $menuItem->query['view'] == 'itemlist') {
