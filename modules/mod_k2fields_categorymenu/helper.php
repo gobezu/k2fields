@@ -33,7 +33,14 @@ class modK2fieldsCategoryMenuHelper {
                         $css = ' class="';
                         $isActive = false;
                         
-                        if (($option == 'com_k2') && ($view == 'itemlist')) {
+                        if ($option == 'com_k2') {
+                                if ($view == 'item') {
+                                        $query = 'SELECT catid FROM #__k2_items WHERE id = '.(int)$catid;
+                                        $db = JFactory::getDbo();
+                                        $db->setQuery($query);
+                                        $catid = $db->loadResult();
+                                }
+                                
                                 if ($catid == $cat->id) {
                                         $css .= 'active current ';
                                         $isActive = true;

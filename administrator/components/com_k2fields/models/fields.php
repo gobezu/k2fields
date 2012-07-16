@@ -1869,10 +1869,12 @@ class K2FieldsModelFields extends JModel {
                         }
                 }
                 
-                $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
-                $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
-                $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
-                $mapItemRules = JprovenUtility::removeValuesFromArray($itemRules, $mapFieldIds, false, true, true);
+                if ($inMap) {
+                        $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
+                        $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
+                        $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
+                        $mapItemRules = JprovenUtility::removeValuesFromArray($itemRules, $mapFieldIds, false, true, true);
+                }
                 
                 $fieldsValues = $this->itemValues($itemId, $fieldIds);
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
@@ -2124,18 +2126,19 @@ class K2FieldsModelFields extends JModel {
                                         '</div>'
                                         ;
                                 
-                                if (!empty($mapFields)) {
+                                if ($inMap && !empty($mapFields)) {
                                         $item->rendered = $rendered;
-foreach ($mapItemRules as $fieldId => &$fieldRules) {
-        $fld = $mapFields[$fieldId];
-        
-        foreach ($fieldRules as $frCount => &$fieldRule) {
-                $renderer = $this->getRenderer($fld);
-                if (isset($fieldsValues[$fieldId])) $fieldValues = JprovenUtility::chunkArray($fieldsValues[$fieldId], 'listindex');
-                else $fieldValues = array();                
-                call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
-        }
-}                                        
+                                        
+                                        foreach ($mapItemRules as $fieldId => &$fieldRules) {
+                                                $fld = $mapFields[$fieldId];
+
+                                                foreach ($fieldRules as $frCount => &$fieldRule) {
+                                                        $renderer = $this->getRenderer($fld);
+                                                        if (isset($fieldsValues[$fieldId])) $fieldValues = JprovenUtility::chunkArray($fieldsValues[$fieldId], 'listindex');
+                                                        else $fieldValues = array();                
+                                                        call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
+                                                }
+                                        }                                        
                                 }
                                 
                                 foreach ($_rules as $i => &$rule) {
