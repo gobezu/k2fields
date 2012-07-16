@@ -622,7 +622,8 @@ var k2fields = new Class({
                         list = [];
                         for (var i = 0, n = this.getOpt(proxyField, 'listdefault'); i < n; i++) list.push('');
                 } else {
-                        list = proxyField.get('value').split(this.options.listItemSeparator);
+                        list = proxyField.get('value') || proxyField.get('text');
+                        list = list.split(this.options.listItemSeparator);
                 }
                 
                 for (var i = 0; i < list.length; i++) {
