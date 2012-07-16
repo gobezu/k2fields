@@ -329,14 +329,26 @@ window.addEvent("load", function() {
                 $options['mapcontainerclass'] = K2FieldsModelFields::setting('mapcontainerclass'.$view, $options, K2FieldsMap::MAP_CONTAINER_CLASS, null, '::', 'all', 'mapcontainerclass');
                 
                 $_options[$fieldId] = $options;
-                                
+                
                 return $options;
         }
         
-        private static function loadResources($item) {
+        public static function loadResources($item = null, $field = null) {
+                // The most ideal way would be to load the required libraries on client side
+                
+                $app = JFactory::getApplication();
+                $view = $app->input->get('view');
+                $option = $app->input->get('option');
+                $task = $app->input->get('task');
+                
+                if ($option != 'com_k2') return;
+                
+                if (!(($app->isAdmin() && $view == 'item') || ($app->isSite() && in_array($task, array('add', 'edit'))))) return;
+                
                 static $isCoreLoaded = array();
                 
-                $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
+                if (!$field) 
+                        $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
                 
                 //$provider = self::v($field, 'mapprovider'.$view);
                 
