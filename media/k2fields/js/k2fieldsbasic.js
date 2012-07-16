@@ -332,6 +332,8 @@ var k2fields_type_basic = {
                         shift = this.getOpt(proxyField, 'shift', 0),
                         values = [];
                 
+                h -= shift;
+                
                 while (i <= h) {
                         values.push({value:i,img:va=='img'?'n'+i+'.png':'',text:i+shift});
                         i += s;
