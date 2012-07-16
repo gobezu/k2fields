@@ -1246,6 +1246,96 @@ var k2fieldseditor = new Class({
                                 'tip':'Comma separated list of red, green, blue values. Ex. 0,0,0 or 255,255,255',
                                 'section':'Type specific'
                         },
+                        '1168':{
+                                'name':'Image width (px)',
+                                'optName':'picwidth',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'default':500
+                        },
+                        '1169':{
+                                'name':'Image height (px)',
+                                'optName':'picheight',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'default':500
+                        },
+                        '1170':{
+                                'name':'Image quality (%)',
+                                'optName':'picquality',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':0,
+                                'high':100,
+                                'step':10,
+                                'shift':10,
+                                'default':70,
+                                'ui':'select'
+                        },
+                        '1171':{
+                                'name':'Thumb - Image width (px)',
+                                'optName':'picwidththumb',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'default':170
+                        },
+                        '1172':{
+                                'name':'Thumb - Image height (px)',
+                                'optName':'picheightthumb',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'default':170
+                        },
+                        '1173':{
+                                'name':'Thumb - Image quality (%)',
+                                'optName':'picqualitythumb',
+                                'valid':'range',
+                                'section':'Type specific',
+                                'low':0,
+                                'high':100,
+                                'step':10,
+                                'shift':10,
+                                'default':70,
+                                'ui':'select'
+                        },
+                        '1174':{
+                                'name':'Media limit',
+                                'optName':'medialimit',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'min':0,
+                                'max':100,
+                                'tip':'Maximum number of media items per K2 item (0 unlimited)',
+                                'default':10
+                        },
+                        '1175':{
+                                'name':'Image size (kb)',
+                                'optName':'picsize',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'min':1,
+                                'tip':'Maximum upload size for picture',
+                                'default':100,
+                                'required':0
+                        },
+                        '1176':{
+                                'name':'Video size (kb)',
+                                'optName':'videosize',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'min':1,
+                                'tip':'Maximum upload size for video files',
+                                'default':400
+                        },
+                        '1177':{
+                                'name':'Audio size (kb)',
+                                'optName':'audiosize',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'min':1,
+                                'tip':'Maximum upload size for audio files',
+                                'default':200
+                        },
                         
                         // Type::Date
                         '1201':{
