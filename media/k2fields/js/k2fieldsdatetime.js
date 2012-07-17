@@ -308,7 +308,12 @@ var k2fields_type_datetime = {
                 var dValue = value, repeat = this.getOpt(proxyField, 'repeat');
                 
                 if (!dValue) {
-                        dValue = valid == 'duration' ? '00:00' : now;
+//                        dValue = this.getDefaultValue(proxyField);
+//                        
+//                        if (!dValue) {
+//                                dValue = valid == 'duration' ? '00:00' : now;
+//                        }
+                        
                         isInitial = true;
                 } else {
                         dValue = value.split(this.options.valueSeparator);
@@ -330,6 +335,21 @@ var k2fields_type_datetime = {
 
                 el = el[0];
                 
+                if (holder.getParent().getElements('.resettimebtn').length == 0) {
+                        new Element('a', {
+                                'text':'Reset',
+                                'class':'resettimebtn',
+                                'href':'#',
+                                'events':{
+                                        'click':function(e) {
+                                                e = this._tgt(e);
+                                                this.resetElements(e.getParent());
+                                                return false;
+                                        }.bind(this)
+                                }
+                        }).inject(holder, 'after');
+                }
+                                
                 if (isInitial) this.setProxyFieldValue(el);
                 
                 if (theme.indexOf('datepicker_') != 0) theme = 'datepicker_'+theme;
@@ -389,7 +409,7 @@ var k2fields_type_datetime = {
                                 }.bind(this)
                         });
                 }
-                                
+                
                 return [el].combine(repeatUI);
         },
         
