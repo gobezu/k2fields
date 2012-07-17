@@ -712,10 +712,13 @@ var k2fields = new Class({
                         }
                 }
 
-                proxyField.set('value', value);
+                if (proxyField.get('tag') == 'textarea') {
+                        proxyField.set('text', value);
+                } else {
+                        proxyField.set('value', value);
+                }
                 
-                if (this.isIMode('menu')) 
-                        this.menuItemHandler.build();
+                if (this.isIMode('menu')) this.menuItemHandler.build();
         },
         
         /** type handling **/
@@ -998,9 +1001,9 @@ var k2fields = new Class({
                 return assertedType.contains(type);
         },
         
-        isBasic: function(field) { return this.isType(field, 'basic') || this.isDateTime(field); },
+        isBasic: function(field) {return this.isType(field, 'basic') || this.isDateTime(field);},
         
-        isAutoField: function(field) { return this.options.autoFields.contains(this.getOpt(field, 'valid')); },
+        isAutoField: function(field) {return this.options.autoFields.contains(this.getOpt(field, 'valid'));},
         
         isTitle: function(field) {return this.isType(field, 'title');},
 
@@ -1074,6 +1077,26 @@ var k2fields = new Class({
                         
                         opts['name'] = pId + '_' + position;
                         pEl.set('name', null);
+                }
+                
+                if (this.getOpt(proxyField, 'excludevalues'+this.options.mode) && values && values.length) {
+                        var dels = this.getOpt(proxyField, 'excludevalues'+this.options.mode);
+                        
+                        dels = dels.toLowerCase();
+                        dels = dels.split(this.options.valueSeparator);
+                        
+                        dels.each(function(d) {
+                                if (!d) return;
+                                
+                                for (var i = 0, n = values.length; i < n; i++) {
+                                        if (d == values[i].value.toLowerCase() || d == values[i].text.toLowerCase()) {
+                                                delete values[i];
+                                                break;
+                                        }
+                                } 
+                        }.bind(this));
+                        
+                        values = values.clean();
                 }
                 
                 if (type == 'select') {
@@ -1702,6 +1725,6 @@ var k2fields = new Class({
                 else return e;
         },
         
-        prt: function(val, varVal, varCond) { this.utility.dbg(val, varVal, varCond); }
+        prt: function(val, varVal, varCond) {this.utility.dbg(val, varVal, varCond);}
 });
 
