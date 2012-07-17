@@ -260,12 +260,23 @@ var k2fields_type_map = {
         redraw:function() {
                 for (var i = 0, n = this.redraws.length; i < n; i++) {
                        if (this.redraws[i][0].isVisible()) {
-                               this.redrawMapEditor(this.redraws[i][1]);
+                               this.refreshMap(this.redraws[i][1]);
                                clearInterval(this.redraws[i][2]);
                                delete this.redraws[i];
                        } 
                 }
                 this.redraws = this.redraws.clean();
+        },
+        
+        refreshMap:function(proxyField) {
+                var 
+                        map = this.getEditorMap(proxyField),
+                        w = map.currentElement.getStyle('width').toInt(),
+                        h = map.currentElement.getStyle('height').toInt()
+                        ;
+                        
+                map.resizeTo(w, h);
+                this.redrawMapEditor(proxyField);
         },
         
         getEditorMap: function(proxyField, container) {
@@ -285,6 +296,21 @@ var k2fields_type_map = {
                 css += css != 'mapContainer' ? ' mapContainer' : '';
                 container = new Element('div', {id:mapId, 'class':css});
                 container.inject(td, 'top');
+                
+                new Element('a', {
+                        'text':'Refresh',
+                        'class':'refreshmapbtn',
+                        'href':'#',
+                        'events':{
+                                'click':function(e) {
+                                        e = this._tgt(e);
+                                        e = this.getProxyFieldId(e.getParent('td').getElement('[customvalueholder=true]'));
+                                        e = this.getOpt(e, 'subfieldof');
+                                        this.refreshMap(e);
+                                        return false;
+                                }.bind(this)
+                        }
+                }).inject(container, 'after');
                 
                 map = new mxn.Mapstraction(mapId, provider);
                 
