@@ -769,7 +769,7 @@ var k2fieldseditor = new Class({
                                 'optName':'search',
                                 'valid':'verifybox',
                                 'deps':{
-                                        '1':['id:52','id:53','id:54','id:55', 'id:56', 'id:57', 'id:58', 'id:59', 'id:60']
+                                        '1':['id:52','id:53','id:54','id:55', 'id:56', 'id:57', 'id:58', 'id:59', 'id:60', 'id:61']
                                 },
                                 'section':'Search'
                         },
@@ -844,6 +844,14 @@ var k2fieldseditor = new Class({
                                 'optName':'nowtoleranceupper',
                                 'valid':'integer',
                                 'tip':'In seconds added to current time',
+                                'section':'Search'
+                        },
+                        '61':{
+                                'name':'Exclude from search values',
+                                'optName':'excludevaluessearch',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'%% separated list of values to be excluded',
                                 'section':'Search'
                         },
                         '101':{
@@ -1358,7 +1366,12 @@ var k2fieldseditor = new Class({
                                 'optName':'timeFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['time'],
+                                'values':[
+                                        {'value':'H:i:s', 'text':'18:11:59'},
+                                        {'value':'H:i', 'text':'18:11'},
+                                        {'value':'H.i.s', 'text':'18.11.59'},
+                                        {'value':'H.i', 'text':'18.11'}                                  
+                                ],
                                 'section':'Type specific'
                         },
                         '1203':{
@@ -1366,15 +1379,62 @@ var k2fieldseditor = new Class({
                                 'optName':'dateFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['date'],
+                                'values':[
+                                        {'value':'Y:m:d', 'text':'1998:08:27'},
+                                        {'value':'Y-m-d', 'text':'1998-08-27'},
+                                        {'value':'Y.m.d', 'text':'1998.08.27'},
+                                        {'value':'Y/m/d', 'text':'1998/08/27'},
+                                        {'value':'Y/M/d', 'text':'1998/Aug/27'},
+                                        {'value':'Y/F/d', 'text':'1998/August/27'},
+                                        {'value':'Ymd', 'text':'19980827'},
+                                        {'value':'ymd', 'text':'980827'},
+                                        {'value':'d/m/Y', 'text':'27/08/2008'},
+                                        {'value':'d/M/Y', 'text':'27/Aug/2008'},
+                                        {'value':'d/F/Y', 'text':'27/August/2008'},
+                                        {'value':'dmy', 'text':'270898'}                                 
+                                ],
                                 'section':'Type specific'
                         },
+/*
+ *                                 <field name="datetimeFormat" type="list" default="Y-m-d H:i:s" label="Date/time format" description="Provide date/time format">
+                                        <option value="Y:m:d H:i:s">2008:08:07 18:11:31</option>
+                                        <option value="Y-m-d H:i:s">2008-08-07 18:11:31</option>
+                                        <option value="Y.m.d H:i:s">2008.08.07 18:11:31</option>
+                                        <option value="d/m/Y H:i:s">07/08/2008 18:11:31</option>
+                                        <option value="d/M/Y H:i:s">07/Aug/2008 18:11:31</option>
+                                        <option value="d/j/Y H:i:s">07/August/2008 18:11:31</option>
+                                        <option value="F j, Y, g:i a">March 10, 2001, 5:16 pm</option>
+                                        <option value="h-i-s, j-m-y, it is w Day">05-16-18, 10-03-01, 1631 1618 6 Satpm01</option>
+                                        <option value="D M j G:i:s T Y">Sat Mar 10 17:16:18 MST 2001</option>
+                                        <option value="D, M j Y G:i:s T">Fri, 24 Dec 2010 06:56:39 PST</option>
+                                        <option value="D M j Y, G:i:s">Sat Mar 10 2001, 17:16:18</option>
+                                        <option value="D, d M Y H:i:s \G\M\T">Mon, 19 Nov 2007 23:47:33 GMT</option>
+                                        <option value="Y-m-d\TH:i:s\Z">2003-12-13T18:30:02Z</option>
+                                </field>
+
+ */                        
                         '1204':{
                                 'name':'Datetime format',
                                 'optName':'datetimeFormat',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':this.options.options['timeformats']['datetime'],
+                                'values':[
+                                        {'value':'Y:m:d H:i:s', 'text':'1998:08:27 18:11:31'},
+                                        {'value':'Y-m-d H:i:s', 'text':'1998-08-27 18:11:31'},
+                                        {'value':'Y.m.d H:i:s', 'text':'1998.08.27 18:11:31'},
+                                        {'value':'Y/m/d H:i:s', 'text':'1998/08/27 18:11:31'},
+                                        {'value':'Y/M/d H:i:s', 'text':'1998/Aug/27 18:11:31'},
+                                        {'value':'Y/F/d H:i:s', 'text':'1998/August/27 18:11:31'},
+                                        {'value':'d/m/Y H:i:s', 'text':'27/08/2008 18:11:31'},
+                                        {'value':'d/M/Y H:i:s', 'text':'27/Aug/2008 18:11:31'},
+                                        {'value':'d/F/Y H:i:s', 'text':'27/August/2008 18:11:31'},
+                                        {'value':'F j, Y, g:i a', 'text':'March 10, 2001, 5:16 pm'},
+                                        {'value':'D M j G:i:s T Y', 'text':'Sat Mar 10 17:16:18 MST 2001'},
+                                        {'value':'D, M j Y G:i:s T', 'text':'Fri, 24 Dec 2010 06:56:39 PST'},
+                                        {'value':'D M j Y, G:i:s', 'text':'Sat Mar 10 2001, 17:16:18'},
+                                        {'value':'D, d M Y H:i:s \G\M\T', 'text':'Mon, 19 Nov 2007 23:47:33 GMT'},
+                                        {'value':'Y-m-d\TH:i:s\Z', 'text':'2003-12-13T18:30:02Z'}
+                                ],
                                 'section':'Type specific'
                         },
                         // TODO: testa hur detta beroende håller än idag

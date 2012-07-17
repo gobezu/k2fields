@@ -14,7 +14,6 @@ class K2FieldsControllerEditor extends JController {
                 $pkg['categories'] = $this->categories();
                 $pkg['mediaplugins'] = $this->mediaplugins();
                 $pkg['fields'] = $this->fields();
-                $pkg['timeformats'] = $this->timeformats();
                 $pkg['aclviewgroups'] = $this->aclviewgroups();
                 // aclviewgroups
                 if (!$send) return $pkg;
@@ -78,21 +77,37 @@ from (
         
         // TODO: check availability
         function mediaplugins($send = false) {
-                $xml = simplexml_load_file(JPATH_PLUGINS.'/k2/k2fields/k2fields.xml');
+                $list = array(
+                    'pic' => array(
+                        "widgetkit_k2" => "Widgetkit",
+                        "jw_sigpro" => "Simple Image Gallery Pro (by JoomlaWorks)",
+                        "jw_simpleImageGallery" => "Simple Image Gallery (by JoomlaWorks)",
+                        "sige" => "SIGE",
+                        "sigplus" => "Image gallery - sigplus",
+                        "verysimpleimagegallery" => "Very Simple Image Gallery",
+                        "cssgallery" => "CSS Gallery",
+                        "cdwebgallery" => "Core Design Web Gallery plugin",
+                        "ppgallery" => "pPgallery",
+                        "jcemediabox" => "JCE Mediabox - thumb",
+                        "img" => "Image (HTML-tag)",
+                        "source" => "Source for consumption elsewhere"                        
+                    ), 
+                    'provider' => array(
+                        "jw_allvideos" => "AllVideos (by JoomlaWorks)"
+                    )
+                );
+                
                 $res = array('pic' => array(), 'provider' => array());
                 
                 $db = JFactory::getDBO();
                 $_plgs = array();
-                $_plgs_ind = array('pic' => array(), 'provider' => array());
                 
                 foreach ($res as $mt => &$plgs) {
-                        $xplgs = $xml->xpath('config/fields/fieldset/field[@name="'.$mt.'plg"]/option');
+                        $xplgs = $list[$mt];
                         
                         foreach ($xplgs as $i => $xplg) {
-                                $nm = (string) $xplg->attributes()->value;
-                                $plgs[] = array('value'=>$nm, 'text'=>(string) $xplg);
-                                $_plgs[] = $db->Quote($nm);
-                                $_plgs_ind[$mt][$nm] = $i;
+                                $plgs[] = array('value'=>$i, 'text'=>$xplg);
+                                $_plgs[] = $db->Quote($i);
                         }
                 }
                 
@@ -118,24 +133,6 @@ from (
                 
                 echo json_encode($res);
                 
-                JFactory::getApplication()->close();
-        }
-        
-        function timeformats($send = false) {
-                $xml = simplexml_load_file(JPATH_PLUGINS.'/k2/k2fields/k2fields.xml');
-                $res = array('time' => array(), 'date' => array(), 'datetime' => array());
-                
-                foreach ($res as $mt => &$fmts) {
-                        $xfmts = $xml->xpath('config/fields/fieldset/field[@name="'.$mt.'Format"]/option');
-                        
-                        foreach ($xfmts as $fmt) {
-                                $fmts[] = array('value'=>(string) $fmt->attributes()->value, 'text'=>(string) $fmt);
-                        }
-                }
-                
-                if (!$send) return $res;
-                
-                echo json_encode($res);
                 JFactory::getApplication()->close();
         }
         
