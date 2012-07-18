@@ -489,7 +489,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395'],
                                         'alias':['id:1451', 'id:1452'],
                                         'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505']
                                 },
@@ -1999,6 +1999,22 @@ var k2fieldseditor = new Class({
                                 'valid':'verifybox',
                                 'section':'Type specific',
                                 'tip':'Indicate if normal itemlist should be shown below map'
+                        },
+                        '1395':{
+                                'name':'Available actions in map itemlist view',
+                                'optName':'mapactions',
+                                'valid':'text',
+                                'ui':'checkbox',
+                                'values':['reset', 'nearby'],
+                                'deps':{'nearby':['id:1396']},
+                                'section':'Type specific'
+                        },
+                        '1396':{
+                                'name':'Nearby distances (km)',
+                                'optName':'nearbys',
+                                'list':'normal',
+                                'valid':'integer',
+                                'section':'Type specific'
                         },
                         
                         '1401':{

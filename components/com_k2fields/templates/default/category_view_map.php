@@ -4,5 +4,5 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-echo K2FieldsMap::finalizeMap();
+echo K2FieldsMap::finalizeMap('itemlist');
 ?>

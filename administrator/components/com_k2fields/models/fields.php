@@ -2126,6 +2126,7 @@ class K2FieldsModelFields extends JModel {
                                         '</div>'
                                         ;
                                 
+                                
                                 if ($inMap && !empty($mapFields)) {
                                         $item->rendered = $rendered;
                                         

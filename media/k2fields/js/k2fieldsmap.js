@@ -158,12 +158,16 @@ var k2fields_type_map = {
                         this.createMarker(proxyField, [geo[0], geo[1]], map);
                 }
                 
-                if (n == 1) {
+                this.autoCenterAndZoom(map, proxyField);
+        },
+        
+        autoCenterAndZoom:function(map, proxyField) {
+                if (map.markers.length == 1) {
                         var zoom = this.getOpt(proxyField, 'mapzoom', null, 13).toInt();
-                        map.setZoom(zoom);
+                        map.setCenterAndZoom(map.markers[0].location, zoom);
                 } else {
                         map.autoCenterAndZoom();
-                }
+                }                
         },
         
         getMapClass: function(proxyField) {return this.getMapAttr(proxyField, 'class');},
@@ -351,7 +355,7 @@ var k2fields_type_map = {
         },
         
         mapItems: {},
-        drawMap: function(proxyField) {
+        drawMap: function(proxyField, view) {
                 var 
                         container = this.getOpt(proxyField, 'mapcontainerid'), 
                         provider = this.getOpt(proxyField, 'mapprovider'),
@@ -370,25 +374,31 @@ var k2fields_type_map = {
 			map_type: true
 		});
                 
+                this.loadMapAPI(proxyField);
+                
                 for (itemId in items) {
                         item = items[itemId];
                         itemPoints = item['points'];
                         n = itemPoints.length;
+                        
                         if (createIPs) {
                                 ipsItem = new Element('li').inject(ips);
 
-                                agoto  = this.getOpt(proxyField, 'mapgoto', null, ' » Go to %category%').
+                                agoto  = this.getOpt(proxyField, 'mapgoto', null, '» Go to %category%').
                                         replace('%category%', item.category).
                                         replace('%categoryid%', item.categoryid).
                                         replace('%item%', item.title).
                                         replace('%category%', item.id)
                                 ;
 
-                                preIp = n > 1 ? '' : item.title;
+                                preIp = n > 1 || view == 'item' ? '' : item.title;
 
                                 if (n > 1) {
-                                        new Element('span', {'text':item.title}).inject(ipsItem);
-                                        new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItem);
+                                        if (view != 'item') {
+                                                new Element('span', {'text':item.title}).inject(ipsItem);
+                                                new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItem);
+                                        }
+                                        
                                         ipsItem = new Element('ul').inject(ipsItem);
                                 }
                         }
@@ -397,10 +407,11 @@ var k2fields_type_map = {
                                 m = new mxn.Marker(new mxn.LatLonPoint(itemPoints[i].lat, itemPoints[i].lon));
                                 el = new Element('div', {'html':item.rendered});
                                 
-                                attrs = {
-                                        'href':'#', 
-                                        'text':preIp + (itemPoints[i].lbl && preIp ? ' - '  : '') + itemPoints[i].lbl
-                                };
+                                attrs = {'href':'#', 'text':preIp};
+                                
+                                if (!itemPoints[i].lbl) itemPoints[i].lbl = 'Interest point '+(i+1);
+                                
+                                if (itemPoints[i].lbl) attrs['text'] += (preIp ? ' - ' : '') + itemPoints[i].lbl;
                                 
                                 if (createIPs) {
                                         ipsItemC = n == 1 ? ipsItem : new Element('li').inject(ipsItem);
@@ -412,17 +423,35 @@ var k2fields_type_map = {
 
                                         if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
                                                 if (!attrs['events']) attrs['events'] = {};
-                                                attrs['events']['mouseover'] = function(a){this.openIP(a);return false;}.bind(this);
+                                                
+                                                attrs['events']['mouseover'] = function(a){
+                                                        this.openIP(a);
+                                                        return false;
+                                                }.bind(this);
+                                        } else {
+                                                attrs['events']['mouseover'] = function(a){
+                                                        this.highlightIP(a, true);
+                                                        return false;
+                                                }.bind(this);
+                                                
+                                                attrs['events']['mouseout'] = function(a){
+                                                        this.highlightIP(a, false);
+                                                        return false;
+                                                }.bind(this);
                                         }
 
                                         new Element('a', attrs).inject(ipsItemC).store('ip', [proxyField, itemId, i]);
 
-                                        if (n == 1) {
+                                        if (view != 'item' && n == 1) {
                                                 new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItemC);
                                         }
                                 }
                 
-                                a = new Element('a', {'href':item.link, 'text':itemPoints[i].lbl}).inject(el, 'top');
+                                new Element(view != 'item'? 'a' : 'span', {
+                                        'href':item.link, 
+                                        'text':itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text']
+                                }).inject(view != 'item' ? el.getElement('.k2fmap') : el, 'top');
+                                
                                 m.setInfoBubble(el);
                                 m.click.addHandler(function(name, source, args) {
                                         if (this.currentIp) this.currentIp.closeBubble();
@@ -433,19 +462,71 @@ var k2fields_type_map = {
                                         m.setHoverIcon(this.getMapIcon(proxyField, 'locationhover'));
                                 }
                                 
+                                m.proxyField = proxyField;
+                                
                                 map.addMarkerWithData(m, {
                                         'icon':this.getMapIcon(proxyField, 'location'),
                                         'iconSize':this.getMapIconSize(proxyField, 'location')
                                 });
                                 
                                 this.mapItems[proxyField][itemId]['points'][i]['marker'] = m;
-                                
                         }
                 }
                 
-                map.autoCenterAndZoom();
+                this.autoCenterAndZoom(map, proxyField);
                 
                 if (createIPs) ips.inject(container, 'after');
+                
+                var actions = this.getOpt(proxyField, 'mapactions');
+                
+                if (actions) {
+                        var actionsC = new Element('ul', {'class':'k2fmapactions'}).inject(document.id(map.currentElement), 'after');
+
+                        if (actions.contains('reset')) {
+                                new Element('a', {
+                                        'href':'#',
+                                        'text':'Reset map',
+                                        'events':{
+                                                'click':function() {
+                                                        map.autoCenterAndZoom();
+                                                        return false;
+                                                }.bind(this)
+                                        }
+                                }).inject(new Element('li').inject(actionsC));
+                        }
+                        
+                        if (view != 'item' && actions.contains('nearby') && this.getOpt(proxyField, 'nearbys')) {
+                                new Element('span', {'text':'Show nearby me at:'}).inject(new Element('li').inject(actionsC));
+                                
+                                var nearbys = this.getOpt(proxyField, 'nearbys');
+                                nearbys = nearbys.split(this.options.valueSeparator);
+                                
+                                for (i = 0, n = nearbys.length; i < n; i++) {
+                                        new Element('a', {
+                                                'href':'#',
+                                                'text':nearbys[i]+'km'+(nearbys[i]>1?'s':''),
+                                                'events':{
+                                                        'click':function(e) {
+                                                                e = this._tgt(e);
+                                                                this.showNearbyMeIPs(proxyField, map, e);
+                                                                return false;
+                                                        }.bind(this)
+                                                }
+                                        }).store('distance', nearbys[i]).inject(new Element('li').inject(actionsC));
+                                }
+                                
+                                new Element('a', {
+                                        'href':'#',
+                                        'text':'All',
+                                        'events':{
+                                                'click':function() {
+                                                        this.showNearbyMeIPs(proxyField, map, 0);
+                                                        return false;
+                                                }.bind(this)
+                                        }
+                                }).inject(new Element('li').inject(actionsC));
+                        }
+                }
         },
         
         currentIp:null,
@@ -470,5 +551,50 @@ var k2fields_type_map = {
                 ip = ip.retrieve('ip');
                 ip = this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
                 return ip;
+        },
+        
+        highlightIP: function(a, isOn) {
+                var ip = this.getIP(a);
+                
+                if (ip.api != 'googlev3') return;
+                
+                var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
+                var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
+                
+                size = new google.maps.Size(size[0], size[1]);
+                var zerozero = new google.maps.Point(0,0);
+                
+                icon = new google.maps.MarkerImage(
+                        icon,
+                        size,
+                        zerozero,
+                        zerozero
+                );
+                 
+                ip.proprietary_marker.setIcon(icon); 
+        },
+        
+        showNearbyMeIPs: function(proxyField, map, distance) {
+                map.removeAllPolylines();
+                map.removeAllFilters();
+                
+                if (!distance) {
+                        this.autoCenterAndZoom(map, proxyField);
+                        return;
+                }
+
+                distance = distance.retrieve('distance').toInt();
+                
+                var loc = this.getCurrentGeoValues(proxyField);
+                
+                loc = new mxn.LatLonPoint(loc[0], loc[1]);
+                
+                map.setCenter(loc);
+                
+                var radius = new mxn.Radius(loc, distance);
+
+                map.addPolyline(radius.getPolyline(distance, '#00F'));
+                map.addFilter('distance', 'le', distance);
+                map.doFilter();                
         }
 };

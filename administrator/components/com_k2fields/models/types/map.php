@@ -57,8 +57,8 @@ class K2FieldsMap {
                 if ($view == 'item' && K2FieldsModelFields::value($field, 'mapstatic')) {
                         $ui = self::renderStaticMap($field, $values, $item);
                 } else {
-                        self::renderDynamicMap($field, $values, $item);
-                        if ($view == 'item') $ui = self::finalizeMap();
+                        self::renderDynamicMap($field, $values, $item, $view);
+                        if ($view == 'item') $ui = self::finalizeMap('item');
                 }
                 
                 self::loadResources($item);
@@ -100,28 +100,29 @@ window.addEvent("load", function() {
         
         static $ui = array('pre'=>'', 'post'=>'', 'data'=>array()), $map = array();
         
-        private static function renderDynamicMap($field, $values, $item) {
+        private static function renderDynamicMap($field, $values, $item, $view) {
                 $proxyFieldId = K2FieldsModelFields::pre() . K2FieldsModelFields::value($field, 'id');
                 
                 if (!isset(self::$map[$proxyFieldId])) 
                         self::$map[$proxyFieldId] = array('params' => self::getParameters($field), 'items' => array());
                 
-                if (!isset(self::$map[$proxyFieldId]['items'][$item->id])) 
+                if (!isset(self::$map[$proxyFieldId]['items'][$item->id])) {
                         self::$map[$proxyFieldId]['items'][$item->id] = array(
                                 'points' => array(),
                                 'title' => $item->title,
-                                'rendered' => $item->rendered,
+                                'rendered' => $view == 'item' ? '' : $item->rendered,
                                 'link' => $item->link,
-                                'category' => $item->categoryname,
-                                'categoryid' => $item->categoryid,
+                                'category' => $view == 'item' ? $item->category->name : $item->categoryname,
+                                'categoryid' => $view == 'item' ? $item->category->id : $item->categoryid,
                                 'id' => $item->id
                         );
+                }
                 
                 foreach ($values as $i => $value) {
                         self::$map[$proxyFieldId]['items'][$item->id]['points'][] = array(
                             'lat' => $value[0]->lat,
                             'lon' => $value[0]->lng,
-                            'lbl' => $value[1]->value
+                            'lbl' => count($value) > 1 ? $value[1]->value : ''
                         );
                 }
                 
@@ -182,7 +183,7 @@ window.addEvent("load", function() {
                 }
         }
         
-        public static function finalizeMap() {
+        public static function finalizeMap($view) {
                 $ui = '';
                 
                 foreach (self::$map as $proxyFieldId => $m) {
@@ -200,7 +201,7 @@ window.addEvent("load", function() {
                 function() {
                         '.K2FieldsModelFields::JS_VAR_NAME.'.fieldsOptions["'.$proxyFieldId.'"] = '.$params.';
                         '.K2FieldsModelFields::JS_VAR_NAME.'.mapItems["'.$proxyFieldId.'"] = '.$items.';
-                        '.K2FieldsModelFields::JS_VAR_NAME.'.drawMap("'.$proxyFieldId.'");
+                        '.K2FieldsModelFields::JS_VAR_NAME.'.drawMap("'.$proxyFieldId.'", "'.$view.'");
                 }
         );
 });
@@ -339,11 +340,16 @@ window.addEvent("load", function() {
                 $app = JFactory::getApplication();
                 $view = $app->input->get('view');
                 $option = $app->input->get('option');
-                $task = $app->input->get('task');
                 
                 if ($option != 'com_k2') return;
                 
-                if (!(($app->isAdmin() && $view == 'item') || ($app->isSite() && in_array($task, array('add', 'edit'))))) return;
+                if ($app->isAdmin()) {
+                        if ($view != 'item') return;
+                } else if ($app->isSite()) {
+                        $task = $app->input->get('task');
+                        
+                        if (in_array($task, array('add', 'edit'))) return;
+                }
                 
                 static $isCoreLoaded = array();
                 
