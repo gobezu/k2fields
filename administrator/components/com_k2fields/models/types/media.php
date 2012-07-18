@@ -1232,8 +1232,11 @@ class K2FieldsMedia {
         public static function getParameters($field = null, $options = null) {
                 if (empty($options)) $options = $field;
                 
-                self::setAllowedSettings($options, array('mediatypes', 'mediafileexts', 'mediasources'));
+//                self::setAllowedSettings($options, array('mediatypes', 'mediafileexts', 'mediasources'));
                 
+                $options['mediatypes'] = (array) $options['mediatypes'];
+                $options['mediafileexts'] = (array) K2FieldsModelFields::setting('mediafileexts', $options, true);
+                $options['mediasources'] = (array) $options['mediasources'];
                 $options['picresize'] = K2FieldsModelFields::setting('picresize', $options, true);
                 $options['picquality'] = K2FieldsModelFields::setting('picquality', $options, 70);
                 $options['picwidth'] = K2FieldsModelFields::setting('picwidth', $options);

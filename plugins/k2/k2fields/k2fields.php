@@ -571,7 +571,7 @@ fjs.parentNode.insertBefore(js, fjs);
                         if ($item->isItemlistTabular) $item->itemlistCSS = ' itemListTabular';
                         
                         $map = K2FieldsModelFields::categorySetting($item->catid, 'maplayout');
-                        // TODO: we would need to know that all items available are to be included in map
+                        
                         $item->isItemlistMap = $view == 'itemlist' && !empty($map);
                         
                         if ($item->isItemlistMap) $item->itemlistCSS = ' itemListMap';
@@ -822,7 +822,8 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 if (!$jsDone) {
                         JprovenUtility::loc(true, true, 'lib/datepicker.js', true);
-                        $theme = JprovenUtility::plgParam('k2fields', 'k2', 'datepickertheme', 'datepicker_dashboard');
+                        //$theme = JprovenUtility::plgParam('k2fields', 'k2', 'datepickertheme', 'datepicker_dashboard');
+                        $theme = 'datepicker_dashboard';
                         JprovenUtility::loc(true, true, 'lib/datepicker/'.$theme.'/'.$theme.'.css', true, 'css');
                         
                         // Loading order here is important as there is dependency
