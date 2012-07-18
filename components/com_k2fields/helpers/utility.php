@@ -2240,6 +2240,10 @@ group by vvv.itemid
                 return self::getPath($needle, 'id', 'parent', '#__k2_categories', $criterias);
         }
         
+        public static function isK2CategoryChild($category, $structure) {
+                $category = is_numeric($category) ? $category : $category->id;
+        }
+        
         public static function getK2CategoryChildren($ids, $depth = -1, $clear = false, $onlyIds = true, $orderby = 'id ASC', $includeItemCounts = false) {
                 static $currDepth = 0, $categories = array(), $categoryTree = array(), $categoryParents = array();
                 
@@ -2250,7 +2254,7 @@ group by vvv.itemid
                         $currDepth = 0;
                 }
                 
-                if (($depth != -1 && $currDepth > $depth) || empty($ids)) return $categories;
+                if (($depth != -1 && $currDepth > $depth) || $ids === null || $ids === '') return $categories;
                 
                 $ids = (array) $ids;
                 $user = JFactory::getUser();
