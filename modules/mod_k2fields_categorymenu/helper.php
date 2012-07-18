@@ -35,7 +35,8 @@ class modK2fieldsCategoryMenuHelper {
                         
                         if ($option == 'com_k2') {
                                 if ($view == 'item') {
-                                        $query = 'SELECT catid FROM #__k2_items WHERE id = '.(int)$catid;
+                                        $item = JFactory::getApplication()->input->getInt('id');
+                                        $query = 'SELECT catid FROM #__k2_items WHERE id = '.$item;
                                         $db = JFactory::getDbo();
                                         $db->setQuery($query);
                                         $catid = $db->loadResult();
@@ -74,9 +75,9 @@ class modK2fieldsCategoryMenuHelper {
                 $depth = $params->get('depth', -1);
                 $orderby = $params->get('categoriesListOrdering', 'id ASC');
                 $tree = JprovenUtility::getK2CategoryChildren($root_id, $depth, true, false, $orderby, (bool) $params->get('categoriesListItemsCounter'));
-		$catid = JRequest::getInt('id');
-		$option = JRequest::getCmd('option');
-		$view = JRequest::getCmd('view');
+		$catid = JFactory::getApplication()->input->getInt('id');
+		$option = JFactory::getApplication()->input->getCmd('option');
+		$view = JFactory::getApplication()->input->getCmd('view');
                 $ui = self::_rec($tree, $root_id, 1, $option, $view, $catid);
                 return $ui;
 	}
