@@ -13,6 +13,7 @@ class JFormFieldWidgetkitsettings extends JFormField {
 		}
                 
                 $type = $this->form->getValue('widgetkit_type', 'params');
+                if (!$type) return;
                 $path = JPATH_SITE.'/media/widgetkit/widgets/'.$type.'/'.$type.'.xml';
                 $type_xml = simplexml_load_file($path);
                 $type_settings = $type_xml->xpath('settings/setting');
