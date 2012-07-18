@@ -491,7 +491,9 @@ fjs.parentNode.insertBefore(js, fjs);
                 $pos = K2FieldsModelFields::categorySetting($item->catid, 'catextrafieldsposition');
                 
                 if (!$pos) $pos = self::param('extrafieldsposition', 'AfterDisplay');
-                
+                else {
+                        $pos = current(current(current($pos)));
+                }
                 if ($caller != $pos) return;
                 
                 $p = is_object($params) ? $params : $item->params;
