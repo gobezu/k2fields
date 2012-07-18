@@ -71,7 +71,11 @@ class K2FieldsMap {
                 $data = array();
 
                 foreach ($values as $i => $value) {
-                        $data[] = array('lat'=>$value[0]->lat, 'lon'=>$value[0]->lng, 'label'=>$value[1]->value);
+                        $data[] = array(
+                            'lat'=>$value[0]->lat, 
+                            'lon'=>$value[0]->lng, 
+                            'label'=>count($value) > 1 ? $value[1]->value : ''
+                        );
                 }
 
                 $mapType = self::v($field, 'maptype');
@@ -83,7 +87,7 @@ class K2FieldsMap {
 
                 return 
 '
-<div id="'.$uiId.'" class="staticMapContainer"></div>
+<div><div id="'.$uiId.'" class="staticMapContainer"></div></div>
 <script type="text/javascript">
 window.addEvent("load", function() {
         '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(

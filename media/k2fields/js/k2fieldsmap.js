@@ -337,6 +337,7 @@ var k2fields_type_map = {
         },
 
         drawStaticMap: function(data) {
+                // TODO: if field is in a tab and not in focus at page load the size provided is incorrect
                 var 
                         i, lbls = new Element('ol', {'class':'mapPointLabels'}),
                         container = document.id(data['container']),
@@ -347,7 +348,7 @@ var k2fields_type_map = {
                 for (i = 0; i < n; i++) {
                         url += '&markers=label:'+(i+1)+'%7C'+
                                 data['points'][i]['lat'] + ',' + data['points'][i]['lon'];
-                        new Element('li', {html:data['points'][i]['label']}).inject(lbls);
+                        new Element('li', {html:data['points'][i]['label']?data['points'][i]['label']:'Interest point '+(i+1)}).inject(lbls);
                 }
                 
                 new Element('image', {src:url}).inject(container);
@@ -409,7 +410,7 @@ var k2fields_type_map = {
                                 
                                 attrs = {'href':'#', 'text':preIp};
                                 
-                                if (!itemPoints[i].lbl) itemPoints[i].lbl = 'Interest point '+(i+1);
+                                if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = 'Interest point '+(i+1);
                                 
                                 if (itemPoints[i].lbl) attrs['text'] += (preIp ? ' - ' : '') + itemPoints[i].lbl;
                                 
