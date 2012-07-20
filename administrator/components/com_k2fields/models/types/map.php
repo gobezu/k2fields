@@ -237,6 +237,8 @@ window.addEvent("load", function() {
                 
                 if (empty($options)) $options = $field;
                 
+                if (is_object($options)) $options = get_object_vars ($options);
+                
                 $options['mapinputmethod'] = K2FieldsModelFields::setting('mapinputmethod', $options, K2FieldsMap::MAP_DEFAULT_METHOD);
                 $options['showmapeditor'] = K2FieldsModelFields::setting('showmapeditor', $options);
                 $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options, 'browser');

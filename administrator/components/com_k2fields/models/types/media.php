@@ -932,7 +932,7 @@ class K2FieldsMedia {
 
                 $maxWidth = K2FieldsModelFields::value($options, 'picwidth'.$type);
                 $maxHeight = K2FieldsModelFields::value($options, 'picheight'.$type);
-
+                
                 $width = $size[0];
                 $height = $size[1];
                 $tmp = JPATH_SITE . '/tmp/' . time() . basename($file);

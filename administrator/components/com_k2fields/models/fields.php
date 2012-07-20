@@ -674,19 +674,6 @@ class K2FieldsModelFields extends JModel {
                                                                 $r->img = $_v !== false && $_v['img'] ? $_v['img'] : null;
                                                         }
                                                         
-                                                        if (
-                                                                isset($earliers[$r->fieldid]) &&
-                                                                isset($earliers[$r->fieldid][$r->listindex]) &&
-                                                                isset($earliers[$r->fieldid][$r->listindex][$r->partindex]) &&
-                                                                isset($earliers[$r->fieldid][$r->listindex][$r->partindex][$r->index])
-                                                        ) {
-                                                                $r->id = $earliers[$r->fieldid][$r->listindex][$r->partindex][$r->index];
-
-                                                                unset($_earliers[$r->id]);
-                                                        } else {
-                                                                $r->id = null;
-                                                        }
-                                                        
                                                         if ($fieldData['isMedia'] && $r->index == 0) {
                                                                 if ($r->partindex == K2FieldsMedia::SRCTYPEPOS - 1) {
                                                                         $isUpload = $part == 'upload';
@@ -762,6 +749,16 @@ class K2FieldsModelFields extends JModel {
 //                                                                $v->itemid = $item->id;
 //                                                                $vals = array(0 => array($v));
 //                                                                $r->txt = call_user_func(array($cls, 'render'), $item, $vals, $fieldData, $this, array());
+                                                        }
+                                                        
+                                                        if (isset($earliers[$r->fieldid][$r->listindex][$r->partindex][$r->index])) {
+                                                                if (!empty($r->value) || $fieldData['isMedia']) {
+                                                                        $r->id = $earliers[$r->fieldid][$r->listindex][$r->partindex][$r->index];
+
+                                                                        unset($_earliers[$r->id]);
+                                                                }
+                                                        } else {
+                                                                $r->id = null;
                                                         }
                                                         
                                                         if ((!empty($r->value) || $r->value === 0 || $r->value === '0' || $fieldData['isMedia']) && !$r->store()) {
