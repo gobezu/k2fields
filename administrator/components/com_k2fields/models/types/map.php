@@ -341,8 +341,6 @@ window.addEvent("load", function() {
         }
         
         public static function loadResources($item = null, $field = null) {
-                // The most ideal way would be to load the required libraries on client side
-                
                 $app = JFactory::getApplication();
                 $view = $app->input->get('view');
                 $option = $app->input->get('option');

@@ -260,17 +260,17 @@ var k2fields_type_map = {
                 return false;
         },
         
-        redraws:[],
-        redraw:function() {
-                for (var i = 0, n = this.redraws.length; i < n; i++) {
-                       if (this.redraws[i][0].isVisible()) {
-                               this.refreshMap(this.redraws[i][1]);
-                               clearInterval(this.redraws[i][2]);
-                               delete this.redraws[i];
-                       } 
-                }
-                this.redraws = this.redraws.clean();
-        },
+//        redraws:[],
+//        redraw:function() {
+//                for (var i = 0, n = this.redraws.length; i < n; i++) {
+//                       if (this.redraws[i][0].isVisible()) {
+//                               this.refreshMap(this.redraws[i][1]);
+//                               clearInterval(this.redraws[i][2]);
+//                               delete this.redraws[i];
+//                       } 
+//                }
+//                this.redraws = this.redraws.clean();
+//        },
         
         refreshMap:function(proxyField) {
                 var 
@@ -329,9 +329,9 @@ var k2fields_type_map = {
                 
                 this.mapEditors[mapId] = map;
                 
-                if (!container.isVisible()) {
-                        this.redraws.push([container, proxyField, this.redraw.periodical(500, this)]);
-                }
+//                if (!container.isVisible()) {
+//                        this.redraws.push([container, proxyField, this.redraw.periodical(500, this)]);
+//                }
                 
                 return map;
         },
@@ -489,7 +489,7 @@ var k2fields_type_map = {
                                         'text':'Reset map',
                                         'events':{
                                                 'click':function() {
-                                                        map.autoCenterAndZoom();
+                                                        this.autoCenterAndZoom(map, proxyField);
                                                         return false;
                                                 }.bind(this)
                                         }
