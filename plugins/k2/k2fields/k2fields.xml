@@ -65,8 +65,8 @@
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
                                 <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories" />
-                                <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
-                                
+                        </fieldset>
+                        <fieldset name="PLG_K2FIELDS_SECTIONS">
 <!--                                <field name="uicounts" type="spacer" label="Layout item counts" />
                                 <field name="numLeadingItems" type="textarea" cols="40" rows="4" default="" label="Leading count (one row per layout as)" description="Number of items to display as leading. One per row as layout::count"/>
                                 <field name="numPrimaryItems" type="textarea" cols="40" rows="4" default="" label="Primary count" description="Number of items to display as primary. One per row as layout::count"/>
@@ -76,6 +76,7 @@
                                 <field name="uisection" type="spacer" label="Field section compartment UI" />
                                 <!--TODO: support for additional fancy options <option value="jkefeltab">jkefel powered tabs</option>
                                         <option value="jkefelaccordion">jkefel powered sliders</option> -->                                
+                                <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
                                 <field name="defaultui" type="list" default="tab" label="Default for item view">
                                         <option value="plain">Plain</option>
                                         <option value="headers">Sections with header</option>
@@ -121,7 +122,6 @@
                                         description="Here you can choose which K2 tabs to be included and the name each tab should have. For each category provide the following settings with %% between the settings and a new line for each category to reconfigure the set of tabs for:&lt;br/&gt;&lt;br/&gt;* category ID to which the setting should apply, or alternatively [all] to apply to all categories. If you provide category ID please note that it will be applied to all child categories as well&lt;br/&gt;* comma separated list of child categories that should be excluded from this setting or leave it empty if non&lt;br/&gt;* comma separated list of tabs to be included with the format: tab=newtabname. Available tab options are: content, image, gallery, video, extrafields, attachment, plugin&lt;br/&gt;* client this setting should be applied to. Applicable values are site, admin, all or simply leave it empty and it will be applied to all&lt;br/&gt;&lt;br/&gt;Example:all%%%%extrafields=Data%%all&lt;br/&gt;For all categories and in both admin and site clients only the extra fields tab is shown and the tab will be named Data"
                                 />                                
                         </fieldset>
-                        
                         <fieldset name="PLG_K2FIELDS_MEDIA">
                                 <field name="mediaroot" type="text" size="50" default="images/k2" label="Media root folder" description="Location where uploaded media files are stored. For Browse server mode please note that all media files in this folder which user have access to will be made available. Media files to which user have access to is defined as all media files found in K2 items which user is author of." />
                                 <field name="mediafolder" type="radio" default="item" label="Media folder (within the root folder)" description="Media files are uploaded to folders specific to each item or user, depending on your setting here.">

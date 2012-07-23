@@ -85,7 +85,7 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         require $path;
         
         if (JPluginHelper::importPlugin('k2', 'k2fields')) {
-                plgk2k2fields::loadResources(!isset($tab) ? 'search' : $tab, null, array('module'=>$module->id));
+                plgk2k2fields::loadResources('search', null, array('module'=>$module->id));
         }
         
         $document = JFactory::getDocument();

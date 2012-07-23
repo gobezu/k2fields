@@ -815,7 +815,7 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 $document = JFactory::getDocument();
                 
-                K2FieldsMap::loadResources($item);
+                if ($tab != 'search') K2FieldsMap::loadResources($item);
                 
                 if (!$includeDone) {
                         JprovenUtility::load('k2fields.css', 'css');
