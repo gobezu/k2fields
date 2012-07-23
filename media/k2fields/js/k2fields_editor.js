@@ -218,6 +218,7 @@ var k2fieldseditor = new Class({
                 k2fs.utility = new JPUtility({base:k2fs.options.base,k2fbase:k2fs.options.k2fbase});
                 k2fs.wireForm($$('form')[0]);
                 k2fs.createFields();
+                k2fs.containerEl(1);
                 
                 document.id('type').getParent('tr').setStyle('display', 'none');
                 document.id('name').getParent('tr').setStyle('display', 'none');
@@ -763,6 +764,12 @@ var k2fieldseditor = new Class({
                                 'valid':'verifybox',
                                 'tip':'Value of this field will be appended to the metatag description',
                                 'section':'SEO'
+                        },
+                        '38':{
+                                'name':'Tab index',
+                                'optName':'tabindex',
+                                'valid':'integer',
+                                'section':'Basic'
                         },
                         '51':{
                                 'name':'Search',

@@ -11,14 +11,16 @@ var k2fields = new Class({
                 pre: 'K2ExtraField_',
                 fieldsOptions: {},
                 layout: 'table',
-                async:true
+                async:true,
+                tabindexdelta:50,
+                tabindexstart:300
         },
         fields: [],
         conditions: [],
         validator: null,
         utility: null,
         lookup: [],
-        
+        currenttabindex:null,
         basicTypes: [
                 'select', 
                 'textarea', 
@@ -86,15 +88,10 @@ var k2fields = new Class({
                                 this.menuItemHandler = new JPMenuItemHandler(this);
                         }
                         
-                        this.containerEl().addEvent('processingStart', function(el) {
-                                var fx = new Fx.Tween(el, {'property':'visibility'});
-                                fx.start(0);
-                        });
-                        
-                        this.containerEl().addEvent('processingEnd', function(el) {
-                                var fx = new Fx.Tween(el, {'property':'visibility'});
-                                fx.start(1);
-                        });
+                        this.categoryEl().addEvent('processingStart', function() { this.containerEl(0); }.bind(this));
+                        this.categoryEl().addEvent('processingEnd', function() { this.containerEl(1); }.bind(this));
+                        this.containerEl().addEvent('processingStart', function() { this.containerEl(0); }.bind(this));
+                        this.containerEl().addEvent('processingEnd', function() { this.containerEl(1); }.bind(this));
                         
                         this.processingStart();
                         this.wireForm();
@@ -222,8 +219,12 @@ var k2fields = new Class({
                 return c;
         },
         
-        containerEl: function() {
-                return document.id('extraFieldsContainer');
+        containerEl: function(vis) {
+                var el = document.id('extraFieldsContainer');
+                
+                if (vis != undefined) el.morph({display:vis ? 'block' : 'none'});
+                        
+                return el;
         },
         
 //        prepareSubmission: function() {
@@ -1018,7 +1019,54 @@ var k2fields = new Class({
                 }
                 return types.contains(type);
         },
-        
+        setTabIndex:function(fld) {
+                var index = this.getOpt(fld, 'tabindex', null, null), currIndex = null, proxyField = null;
+                
+                if (index === null) {
+                        proxyField = this.getOpt(fld, 'subfieldof');
+                        
+                        if (proxyField) {
+                                index = this.getOpt(proxyField, 'tabindex');
+                                
+                                if (index === null) {
+                                        return this.setDefaultTabIndex(fld);
+                                }
+                                
+                                currIndex = this.getOpt(proxyField, 'currtabindex');
+                                
+                                if (currIndex === null) {
+                                        currIndex = index.toInt() * this.options.tabindexdelta;
+                                } else {
+                                        currIndex = currIndex.toInt() + 1;
+                                }
+                                
+                                this.setOpt(proxyField, 'currtabindex', currIndex);
+                        } else {
+                                return this.setDefaultTabIndex(fld);
+                        }
+                } else {
+                        index = index.toInt() * this.options.tabindexdelta;
+                }
+                index = currIndex || index || 0;
+                fld.setAttribute('tabIndex', index);
+                this.visOnTab(fld);
+                return index;
+        },
+        setDefaultTabIndex:function(fld) {
+                var index = this.currenttabindex != null ? this.currenttabindex + 1 : this.options.tabindexstart;
+                fld.setAttribute('tabIndex', index || 0);
+                this.currenttabindex = index;
+                this.visOnTab(fld);
+                return index;
+        },
+        visOnTab:function(fld) {
+                fld.addEvent('focus', function(e) {
+                        var containingTab = fld.getParent('.ui-tabs-panel');
+                        if (containingTab.hasClass('ui-tabs-hide')) {
+                                $K2('#k2fieldsTabs').tabs("option", "selected", containingTab.getAllPrevious('.ui-tabs-panel').length);
+                        }
+                }.bind(this));
+        },
         // TODO: argument as object, ref: http://blog.rebeccamurphey.com/objects-as-arguments-in-javascript-where-do-y
         ccf: function(
                 proxyField, 
@@ -1151,6 +1199,8 @@ var k2fields = new Class({
                 
                 // Calculate index:
                 var i = this.cInd(field[0]), n;
+                
+                this.setTabIndex(field[0]);
                 
                 this.setOpt(field[0], 'index', i);
                 
