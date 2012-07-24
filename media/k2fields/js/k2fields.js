@@ -1162,6 +1162,8 @@ var k2fields = new Class({
                         opts['id'] = id;
                         
                         if (rcb) {
+                                opts['clearopt'] = this.getOpt(proxyField, 'clearopt');
+                                
                                 field = this.createListInput(
                                         opts['type'], 
                                         values, 

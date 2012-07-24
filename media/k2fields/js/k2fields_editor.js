@@ -513,7 +513,7 @@ var k2fieldseditor = new Class({
                                 ],
                                 'deps':{
                                         'select':['id:7', 'id:12', 'id:14', 'id:15', 'id:28'],
-                                        'radio':['id:7', 'id:14', 'id:15'],
+                                        'radio':['id:7', 'id:14', 'id:15', 'id:39'],
                                         'checkbox':['id:7', 'id:14', 'id:15', 'id:28']
                                 },
                                 'savevalues':'uis',
@@ -524,7 +524,6 @@ var k2fieldseditor = new Class({
                                 'optName':'list',
                                 'valid':'radio',
                                 'values':[
-                                        {'value':'', 'text':'None'},
                                         {'value':'normal', 'text':'Normal'},
                                         {'value':'conditional', 'text':'Conditional'}
                                 ],
@@ -532,6 +531,7 @@ var k2fieldseditor = new Class({
                                         'normal':['id:5'],
                                         'conditional':['id:5','id:6','id:26']
                                 },
+                                'clearopt':'button',
                                 'sorted':true,
                                 'section':'Basic'
                         },
@@ -769,6 +769,14 @@ var k2fieldseditor = new Class({
                                 'name':'Tab index',
                                 'optName':'tabindex',
                                 'valid':'integer',
+                                'section':'Basic'
+                        },
+                        '39':{
+                                'name':'Clear option',
+                                'optName':'clearopt',
+                                'valid':'text',
+                                'values':['firstempty', 'lastempty', 'button'],
+                                'ui':'select',
                                 'section':'Basic'
                         },
                         '51':{
@@ -1617,6 +1625,7 @@ var k2fieldseditor = new Class({
                                         {'value':'coord', 'text':'coord'},
                                         {'value':'geo', 'text':'geo'}
                                 ],
+                                'default':'coord',
                                 'section':'Type specific'
                         },
                         '1352':{
