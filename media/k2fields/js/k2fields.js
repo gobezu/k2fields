@@ -1421,7 +1421,9 @@ var k2fields = new Class({
         },
         
         getValueRow: function(proxyField) {
-                return this.getProxyFieldContainer(proxyField).getNext();
+                var row = this.getProxyFieldContainer(proxyField).getNext();
+                
+                return row && row.getElements('[valueholder=true]').length > 0 ? row : null;
         },
         
         getCell: function(proxyField, filter, type) {
