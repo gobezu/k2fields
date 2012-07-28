@@ -1093,7 +1093,7 @@ var k2fields = new Class({
 
                 if (!value) {
                         if (this.options['isNew'] || this.isMode('search')) value = this.getDefaultValue(proxyField);
-                        if (!value) value = '';
+                        if (value === null || value === undefined) value = '';
                 }
                 
                 if (clearAfter == undefined) clearAfter = true;
