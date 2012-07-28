@@ -157,7 +157,7 @@ class K2FieldsModuleHelper {
                 } else if ($stickTo == 'item') {
                         $items = $option == 'com_k2' && $view == 'item' && $itemId ? array($itemId) : null;
                         
-                        if (empty($items)) return;
+                        if (empty($items)) return array();
                         
                         $itemsProvided = true;
                 }
@@ -166,9 +166,9 @@ class K2FieldsModuleHelper {
                 $limitPerCat = $params->get('itemCount', 0);
                 
                 if (!$itemsProvided) {
-                        if ($stickTo != 'none' && $stickTo != 'menu' && $option != 'com_k2' && $option != 'com_k2fields') return;
+                        if ($stickTo != 'none' && $stickTo != 'menu' && $option != 'com_k2' && $option != 'com_k2fields') return array();
                         
-                        if ($stickTo != 'none' && $stickTo != 'menu' && $stickTo != 'cat' && $view != 'item') return;
+                        if ($stickTo != 'none' && $stickTo != 'menu' && $stickTo != 'cat' && $view != 'item') return array();
                         
                         $stickToCategory = $params->get('sticktocategory');
                         $excludeCategories = $params->get('excludecats', array());
@@ -216,7 +216,7 @@ class K2FieldsModuleHelper {
                                         $itemId = null;
                                 }
                                 
-                                if (empty($categories) || in_array($categories, $excludeCategories)) return;
+                                if (empty($categories) || in_array($categories, $excludeCategories)) return array();
                                 
                                 $categories = (array) $categories;
                         } else if ($stickTo == 'tag') {
@@ -227,7 +227,7 @@ class K2FieldsModuleHelper {
                                 
                                 $keys = $db->loadResult();
 
-                                if (empty($keys)) return;
+                                if (empty($keys)) return array();
 
                                 $keys = explode(',', $keys);
                                 $keys = ' CONCAT(",", REPLACE(i.metakey, ", ", ","), ",") LIKE "%'.
@@ -353,7 +353,7 @@ class K2FieldsModuleHelper {
                                 $db->setQuery($query);
                                 $items = $db->loadResultArray();
                                 
-                                if (empty($items)) return;
+                                if (empty($items)) return array();
                                 
                                 $categories = null;
                         }

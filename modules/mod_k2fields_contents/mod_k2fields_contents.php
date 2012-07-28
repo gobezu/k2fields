@@ -30,7 +30,7 @@ $params->set('module_id', $module->id);
 
 $itemList = K2FieldsModuleHelper::getList($params, $componentParams, $document->getType(), $partBy);
 
-if (count($itemList)) {
+if (!empty($itemList) && count($itemList) > 0) {
         $isPartitioned = !empty($partBy);
 
         if (count($itemList) == 1) {
