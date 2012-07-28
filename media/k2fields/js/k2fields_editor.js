@@ -1126,6 +1126,10 @@ var k2fieldseditor = new Class({
                                         {'value':'embed', 'text':'Embed (TBI)'},
                                         {'value':'remote', 'text':'Remote file (TBI)'}
                                 ],
+                                'deps':{
+                                        'provider':['id:1157', 'id:1158']
+                                        
+                                },
                                 'sorted':true,
                                 'section':'Type specific'
                         },
@@ -2094,6 +2098,7 @@ var k2fieldseditor = new Class({
                                         {'name':'Text','valid':'text'},
                                         {'name':'Image','valid':'text','tip':'File name of image located in media/k2fields/images'},
                                 ],
+                                'listmax':'100',
                                 'section':'Values'
                         },
                         '1451':{
