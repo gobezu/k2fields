@@ -1076,7 +1076,7 @@ group by vvv.itemid
                 jimport('joomla.filesystem.path');
                 
                 $parts = (array) $parts;
-                
+
                 foreach ($parts as $part) {
                         if ($file = JPath::find($dirs, 'k2'.$part.'.css')) {
                                 return $file;

@@ -494,6 +494,7 @@ fjs.parentNode.insertBefore(js, fjs);
                 else {
                         $pos = current(current(current($pos)));
                 }
+                
                 if ($caller != $pos) return;
                 
                 $p = is_object($params) ? $params : $item->params;

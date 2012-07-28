@@ -541,7 +541,8 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'min':1,
                                 'max':300,
-                                'section':'Basic'
+                                'section':'Basic',
+                                'default':10
                         },
                         '6':{
                                 'name':'Conditions',

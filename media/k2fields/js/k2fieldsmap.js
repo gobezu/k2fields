@@ -89,8 +89,11 @@ var k2fields_type_map = {
                         this.loadMapAPI(proxyField);
                         
                         if (this.chkOpt(proxyField, 'showmapeditor', ['true', '1'])) {
-                                this.getEditorMap(proxyField, holder);
-                                this.redrawMapEditor(proxyField);
+                                try {
+                                        this.getEditorMap(proxyField, holder);
+                                        this.redrawMapEditor(proxyField);
+
+                                } catch (e) { }
                         }
                         
                         return ui;
