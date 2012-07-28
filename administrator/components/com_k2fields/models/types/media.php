@@ -1550,7 +1550,7 @@ class K2FieldsMedia {
                 $src = JRequest::getCmd('view', 'itemlist') == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
                 
                 foreach ($medias as $media) {
-                        $ui .= "<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" />";
+                        $ui .= "<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />";
                 }
                 
                 return $ui;
