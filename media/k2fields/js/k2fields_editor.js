@@ -300,7 +300,7 @@ var k2fieldseditor = new Class({
                                 continue;
                         } else if (optName == 'values') {
                                 var _val;
-                                if (_val = val.match(/^(file|php|url|sql)\:/i)) {
+                                if (_val = val.match(/^(file|function|php|url|sql)\:/i)) {
                                         _defs['source'] = _val[1];
                                         val = val.replace(_val[1]+':', '');
                                 } else {
@@ -2043,12 +2043,13 @@ var k2fieldseditor = new Class({
                                 'optName':'source',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':['specify', 'sql', 'php', 'url', 'file'],
+                                'values':['specify', 'sql', 'php', 'function', 'url', 'file'],
                                 'section':'Values',
                                 'deps':{
                                         'specify':['id:1406'],
                                         'sql':['id:1402'],
                                         'php':['id:1403'],
+                                        'function':['id:1407'],
                                         'url':['id:1404'],
                                         'file':['id:1405']
                                 },
@@ -2101,6 +2102,15 @@ var k2fieldseditor = new Class({
                                 ],
                                 'listmax':'100',
                                 'section':'Values'
+                        },
+                        '1407':{
+                                'name':'Function',
+                                'optName':'values',
+                                'ui':'text',
+                                'section':'Values',
+                                'valid':'text',
+                                'size':100,
+                                'tip':'Either a globally defined function name or a call to statically defined variable name as classname::functionname'
                         },
                         '1451':{
                                 name:'Alias of field',

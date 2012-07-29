@@ -2348,7 +2348,7 @@ class K2FieldsModelFields extends JModel {
         private function renderUIPlain($values, $fields, $item, $plgSettings = array(), $headerElement = 'span') {
                 $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, true);
                 $ui = '';
-                $noSectionTitle = isset($plgSettings['sectiontitle']) && in_array($plgSettings['sectiontitle'], array('false', '0')) || false;
+                $noSectionTitle = self::isFalse($plgSettings, 'sectiontitle', false);
                 
                 foreach ($uis as $section => $_uis) {
                         $id = self::generateUISectionId($section);
@@ -3477,19 +3477,25 @@ class K2FieldsModelFields extends JModel {
                                         $options['list'] = 'conditional';
                                 }
                         } else if ($key == 'values') {
-                                if (preg_match('#^(sql|php|url|file)\:(.+)#i', $val, $m)) {
+                                if (preg_match('#^(sql|php|url|function|file)\:(.+)#i', $val, $m)) {
                                         $type = $m[1];
                                         $src = $m[2];
                                         
                                         $values = null;
-
+                                        
                                         if ($type == 'sql') {
                                                 $db = JFactory::getDBO();
                                                 $db->setQuery($src);
                                                 $values = $db->loadObjectList();
+                                        } else if ($type == 'function') {
+                                                try {
+                                                        $values = call_user_func($src);
+                                                } catch (JException $ex) {
+                                                        $values = null;
+                                                }
                                         } else if ($type == 'php') {
                                                 try {
-                                                        if (function_exists('eval')) $values = eval($src);
+                                                        $values = eval($src);
                                                 } catch (JException $ex) {
                                                         $values = null;
                                                 }
