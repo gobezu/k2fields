@@ -347,12 +347,15 @@ window.addEvent("load", function() {
                 
                 if ($option != 'com_k2') return;
                 
+                $editorMode = false;
+                
                 if ($app->isAdmin()) {
                         if ($view != 'item') return;
+                        else $editorMode = true;
                 } else if ($app->isSite()) {
                         $task = $app->input->get('task');
                         
-                        if (in_array($task, array('add', 'edit'))) return;
+                        if (in_array($task, array('add', 'edit'))) $editorMode = true;
                 }
                 
                 static $isCoreLoaded = array();
@@ -360,7 +363,7 @@ window.addEvent("load", function() {
                 if (!$field) 
                         $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
                 
-                //$provider = self::v($field, 'mapprovider'.$view);
+                if ($editorMode && !K2FieldsModelFields::isTrue($field, 'showmapeditor')) return;
                 
                 // TODO: depends on view when fully implemented
                 $provider = self::v($field, 'mapprovider');
