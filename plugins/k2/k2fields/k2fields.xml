@@ -65,18 +65,6 @@
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
                                 <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories" />
-                        </fieldset>
-                        <fieldset name="PLG_K2FIELDS_SECTIONS">
-<!--                                <field name="uicounts" type="spacer" label="Layout item counts" />
-                                <field name="numLeadingItems" type="textarea" cols="40" rows="4" default="" label="Leading count (one row per layout as)" description="Number of items to display as leading. One per row as layout::count"/>
-                                <field name="numPrimaryItems" type="textarea" cols="40" rows="4" default="" label="Primary count" description="Number of items to display as primary. One per row as layout::count"/>
-                                <field name="numSecondaryItems" type="textarea" cols="40" rows="4" default="" label="Secondary count" description="Number of items to display as secondary. One per row as layout::count"/>
-                                <field name="numLinks" type="textarea" cols="40" rows="4" default="" label="Link count" description="Number of items to display as link. One per row as layout::count"/>-->
-                                
-                                <field name="uisection" type="spacer" label="Field section compartment UI" />
-                                <!--TODO: support for additional fancy options <option value="jkefeltab">jkefel powered tabs</option>
-                                        <option value="jkefelaccordion">jkefel powered sliders</option> -->                                
-                                <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
                                 <field name="defaultui" type="list" default="tab" label="Default for item view">
                                         <option value="plain">Plain</option>
                                         <option value="headers">Sections with header</option>
@@ -101,6 +89,18 @@
                                         <option value="accordion">Joomla! native sliders</option>
                                 </field>        
                                 <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for module view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                        </fieldset>
+                        <fieldset name="PLG_K2FIELDS_SECTIONS">
+<!--                                <field name="uicounts" type="spacer" label="Layout item counts" />
+                                <field name="numLeadingItems" type="textarea" cols="40" rows="4" default="" label="Leading count (one row per layout as)" description="Number of items to display as leading. One per row as layout::count"/>
+                                <field name="numPrimaryItems" type="textarea" cols="40" rows="4" default="" label="Primary count" description="Number of items to display as primary. One per row as layout::count"/>
+                                <field name="numSecondaryItems" type="textarea" cols="40" rows="4" default="" label="Secondary count" description="Number of items to display as secondary. One per row as layout::count"/>
+                                <field name="numLinks" type="textarea" cols="40" rows="4" default="" label="Link count" description="Number of items to display as link. One per row as layout::count"/>
+                                
+                                <field name="uisection" type="spacer" label="Field section compartment UI" />-->
+                                <!--TODO: support for additional fancy options <option value="jkefeltab">jkefel powered tabs</option>
+                                        <option value="jkefelaccordion">jkefel powered sliders</option> -->                                
+                                <field name="sectionsorder" type="textarea" cols="40" rows="10" default="" label="Sections order" description="On each row: category%%Section1%%Section2%%...%%SectionN"/>
                                 <!-- 
                                 <field name="defaultListLayout" type="list" default="generic" label="Default list layout" description="Select default list layout. Serves both as search and category listing layout, within the selected K2 theme.">
                                         <option value="">List (default)</option>

@@ -24,7 +24,6 @@ $moduleWidth = $partition_mainWidth.'px';
 <div id="lofass-<?php echo $module->id; ?>" class="lof-ass<?php echo $params->get('partition_moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $partition_moduleHeight; ?>; width:<?php echo $partition_moduleWidth; ?>">
         <div class="lofass-container <?php echo $partition_css3; ?> <?php echo $partition_themeClass; ?> <?php echo $partition_class; ?>">
                 <div class="preload"><div></div></div>
-                <!-- MAIN CONTENT --> 
                 <div class="lof-main-wapper" style="height:<?php echo $partition_moduleHeight; ?>;width:<?php echo $partition_mainWidth; ?>px;">
                         <?php 
                                 $partitionI = 0;
@@ -42,8 +41,6 @@ $moduleWidth = $partition_mainWidth.'px';
                         <?php } ?>
 
                 </div>
-                <!-- END MAIN CONTENT --> 
-                <!-- NAVIGATOR -->
                 <?php if ($params->get('partition_display_button', 1)) : ?>
                         <div class="lof-buttons-control">
                                 <a href="" onclick="return false;" class="lof-previous"><?php echo JText::_('Previous'); ?></a>

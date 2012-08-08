@@ -14,7 +14,6 @@ $params->set('max_items_display', floor((int)$moduleHeight/$params->get('navitem
 <div id="<?php echo $partitionId; ?>" class="lof-ass<?php echo $params->get('moduleclass_sfx', ''); ?> moduleItemView" style="height:<?php echo $moduleHeight; ?>;width:<?php echo $moduleWidth; ?>;">
         <div class="lofass-container <?php echo $css3; ?> <?php echo $themeClass; ?> <?php echo $class; ?>">
                 <div class="preload"><div></div></div>
-                <!-- MAIN CONTENT --> 
                 <div class="lof-main-wapper" style="height:<?php echo $moduleHeight; ?>;width:<?php echo (int) $mainWidth; ?>px;">
                         <?php foreach ($list as $no => $item): ?>
                                 <div class="lof-main-item<?php echo(isset($customSliderClass[$no]) ? " " . $customSliderClass[$no] : "" ); ?>">
@@ -27,8 +26,6 @@ $params->set('max_items_display', floor((int)$moduleHeight/$params->get('navitem
                         <?php endforeach; ?>
 
                 </div>
-                <!-- END MAIN CONTENT --> 
-                <!-- NAVIGATOR -->
                 <?php if ($params->get('display_button', 1)) : ?>
                         <div class="lof-buttons-control">
                                 <a href="" onclick="return false;" class="lof-previous"><?php echo JText::_('Previous'); ?></a>
