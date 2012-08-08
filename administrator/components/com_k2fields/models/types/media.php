@@ -1234,9 +1234,9 @@ class K2FieldsMedia {
                 
 //                self::setAllowedSettings($options, array('mediatypes', 'mediafileexts', 'mediasources'));
                 
-                $options['mediatypes'] = (array) $options['mediatypes'];
+                $options['mediatypes'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediatypes']);
                 $options['mediafileexts'] = (array) K2FieldsModelFields::setting('mediafileexts', $options, true);
-                $options['mediasources'] = (array) $options['mediasources'];
+                $options['mediasources'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediasources']);
                 $options['picresize'] = K2FieldsModelFields::setting('picresize', $options, true);
                 $options['picquality'] = K2FieldsModelFields::setting('picquality', $options, 70);
                 $options['picwidth'] = K2FieldsModelFields::setting('picwidth', $options);
@@ -1306,27 +1306,12 @@ class K2FieldsMedia {
                 $options['mediamergefields'] = K2FieldsModelFields::setting('mediamergefields', $options, false);
                 $options['checkmime'] = K2FieldsModelFields::setting('checkmime', $options, true);
                 
-//                $options['mediatypes'] = K2FieldsModelFields::setting('mediatypes', $options, array());
-//                if (!is_array($options['mediatypes'])) {
-//                        $options['mediatypes'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediatypes']);
-//                }
-//                
-//                $options['mediafileexts'] = K2FieldsModelFields::setting('mediafileexts', $options, array());
-//                if (!is_array($options['mediafileexts'])) {
-//                        $options['mediafileexts'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediafileexts']);
-//                }
-//                
-//                $options['mediasources'] = K2FieldsModelFields::setting('mediasources', $options, array());
-//                if (!is_array($options['mediasources'])) {
-//                        $options['mediasources'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediasources']);
-//                }
-                
                 if (
                         empty($options['avproviders']) &&
                         (in_array('video', $options['mediatypes']) || in_array('audio', $options['mediatypes'])) && 
-                        !empty($options['videoplg'])
+                        !empty($options['providerplg'])
                 ) {
-                        $options['avproviders'] = self::getVideoProviders($options['videoplg']);
+                        $options['avproviders'] = self::getVideoProviders($options['providerplg']);
                 }
                 
                 if (in_array('browse', $options['mediasources'])) {
@@ -2171,14 +2156,10 @@ class K2FieldsMedia {
                                 // Note: taken from k2: administrator/components/com_k2/models/item.php::getVideoProviders
                                 // and with slight customization
                                 
-                                if(K2_JVERSION == '16') {
-                                        $file = JPATH_PLUGINS.DS.'content'.DS.'jw_allvideos'.DS.'jw_allvideos'.DS.'includes'.DS.'sources.php';
-                                }
-                                else {
-                                        $file = JPATH_PLUGINS.DS.'content'.DS.'jw_allvideos'.DS.'includes'.DS.'sources.php';
-                                }
+                                $file = JPATH_PLUGINS.'/content/jw_allvideos/jw_allvideos/includes/sources.php';
 
                                 jimport('joomla.filesystem.file');
+                                
                                 if (JFile::exists($file)) {
                                         require $file;
                                         $thirdPartyProviders = array_slice($tagReplace, 40);
