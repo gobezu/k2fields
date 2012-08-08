@@ -212,12 +212,18 @@ var JPForm = new Class({
                 
                 var 
                         type = el.get('tag'), 
-                        proxyField = this.getProxyFieldId(el), 
-                        value = this.getDefaultValue(proxyField)
+                        proxyField = this.getProxyFieldId(el),
+                        cont = el.getParent('.k2fcontainer')
                         ;
-                        
-                if (value !== null && value !== undefined) {
-                        return this.setValue(el, value, undefined, undefined, undefined, true);
+                       
+                if (cont && (cont = cont.getParent().getParent())) {
+                        if (cont.getStyle('display') != 'none') {
+                                var value = this.getDefaultValue(proxyField)
+                                
+                                if (value !== null && value !== undefined) {
+                                        return this.setValue(el, value, undefined, undefined, undefined, true);
+                                }
+                        }
                 }
                 
                 if (type == 'select') {
