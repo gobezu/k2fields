@@ -1325,7 +1325,7 @@ var k2fields = new Class({
                 displayer = mode ? 
                         (mode == 'block' ? displayer : mode) : 
                         (container.getStyle('display') == 'none' ? displayer : 'none');
-
+                
                 if (displayer != 'none') {
                         if (typeof field != 'string') field = this.getProxyFieldId(field);
                         var depson = this._depsOn[field], dependeeField, val, dontTog = false, af, vals;
@@ -1363,6 +1363,8 @@ var k2fields = new Class({
 //                        displayer = container.get('tag').toLowerCase() == 'tr' ? 'table-row' : 'block';
 //                
                 container.setStyle('display', displayer);
+                
+                if (mode == 'block') this.resetElements(container);
         },
 
         isCustomField: function(field) {
