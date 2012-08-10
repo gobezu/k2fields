@@ -61,7 +61,15 @@
                                         <option value="BeforeDisplayContent">BeforeDisplayContent</option>
                                         <option value="AfterDisplayContent">AfterDisplayContent</option>
                                 </field>
+                                <field name="itemlistextrafieldsposition" type="list" default="AfterDisplay" label="Field insertion position (itemlist)">
+                                        <option value="BeforeDisplay">BeforeDisplay</option>
+                                        <option value="AfterDisplay">AfterDisplay</option>
+                                        <option value="AfterDisplayTitle">AfterDisplayTitle</option>
+                                        <option value="BeforeDisplayContent">BeforeDisplayContent</option>
+                                        <option value="AfterDisplayContent">AfterDisplayContent</option>
+                                </field>
                                 <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
+                                <field name="itemlistcatextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list, itemlist)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
                                 <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories" />

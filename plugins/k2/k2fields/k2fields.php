@@ -488,9 +488,13 @@ fjs.parentNode.insertBefore(js, fjs);
         private static function processExtrafields($caller, &$item, &$params, $limitstart) {
                 if (K2FieldsModelFields::value($item, 'k2item')) return;
                 
-                $pos = K2FieldsModelFields::categorySetting($item->catid, 'catextrafieldsposition');
+                $view = JFactory::getApplication()->input->get('view');
                 
-                if (!$pos) $pos = self::param('extrafieldsposition', 'AfterDisplay');
+                if ($view != 'itemlist') $view = '';
+                
+                $pos = K2FieldsModelFields::categorySetting($item->catid, $view.'catextrafieldsposition');
+                
+                if (!$pos) $pos = self::param($view.'extrafieldsposition', 'AfterDisplay');
                 else {
                         $pos = current(current(current($pos)));
                 }
@@ -504,8 +508,6 @@ fjs.parentNode.insertBefore(js, fjs);
                         $p = new JParameter($p);
                 }
                 
-                $view = JRequest::getCmd('view');
-                
                 $ef = is_array($item->extra_fields) && count($item->extra_fields) > 0 &&
                       (
                         $p->get('parsedInModule') || 
@@ -517,8 +519,9 @@ fjs.parentNode.insertBefore(js, fjs);
                 if (!$ef) return;
                 
                 $inText = false;
+                $tmp = $item->text;
                 
-                if (preg_match('#(\{k2f[^\}]*})#i', $item->text, $plg)) {
+                if (preg_match('#(\{k2f[^\}]*})#i', $tmp, $plg)) {
                         $plg = $plg[0];
                         $inText = true;
                 } else {
@@ -531,22 +534,33 @@ fjs.parentNode.insertBefore(js, fjs);
                         if ($file) {
                                 $plg = JFile::read($file);
                                 $plg = trim($plg);
+                                
+                                if (!$introPlchFound && preg_match('#(\{k2fintrotext\})#i', $plg, $m)) {
+                                        $plg = str_replace($m[1], $item->introtext, $plg);
+                                        $tmp = str_replace($item->introtext, '', $tmp);
+                                        $item->introtext = '';
+                                }
+
+                                if (!$fullPlchFound && preg_match('#(\{k2ffulltext\})#i', $plg, $m)) {
+                                        $plg = str_replace($m[1], $item->fulltext, $plg);
+                                        $tmp = str_replace($item->fulltext, '', $tmp);
+                                        $item->fulltext = '';
+                                }
                         }
                         
                         if (empty($plg)) $plg = '{k2f}';
                 }
                 
-                $tmp = $item->text;
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
-                // TOO obtrusive
+                // TODO: TOO obtrusive
                 $item->extra_fields = array();
                 $result = $item->text;
                 
                 $item->text = $inText ? str_replace($plg, $result, $tmp) : $tmp;
                 
                 if ($result) self::loadResources('item', $item);
-
+                
                 return $inText ? '' : $result;
         }
         
