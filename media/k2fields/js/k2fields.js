@@ -1364,7 +1364,14 @@ var k2fields = new Class({
 //                
                 container.setStyle('display', displayer);
                 
-                if (mode == 'block') this.resetElements(container);
+                var cnt;
+                
+                if (mode == 'block' && !this.isMode('search')) {
+                        cnt = (container.retrieve('toggledcnt') || 0) + 1;
+                        container.store('toggledcnt', cnt);
+                }
+                
+                if (mode == 'block' && (this.isMode('search') || cnt > 1)) this.resetElements(container);
         },
 
         isCustomField: function(field) {
