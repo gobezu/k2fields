@@ -1141,7 +1141,8 @@ class K2FieldsModelFields extends JModel {
                 return true;
         }
         
-        public static function value($options, $name, $default = '') {
+        public static function value($options, $name, $default = '', $view = '') {
+                if (!empty($view)) $name = $view . $name;
                 return JprovenUtility::value($options, $name, $default);
         }
         
@@ -1149,23 +1150,23 @@ class K2FieldsModelFields extends JModel {
                 return JprovenUtility::setValue($options, $name, $value);
         }
         
-        public static function isFalse($options, $name, $includeImplicit = true) {
+        public static function isFalse($options, $name, $includeImplicit = true, $view = '') {
                 $vals = array('false', '0');
                 $def = 'K2FieldsModelFields::isFalse::plch';
                 
                 if ($includeImplicit) $vals[] = $def;
                 
-                $val = self::value($options, $name, $def);
+                $val = self::value($options, $name, $def, $view);
                 
                 return in_array($val, $vals);
         }
         
-        public static function isTrue($options, $name) {
-                return self::isValue($options, $name, array('true', '1'));
+        public static function isTrue($options, $name, $view = '') {
+                return self::isValue($options, $name, array('true', '1'), $view);
         }
         
-        public static function isValue($options, $name, $assertedValues) {
-                return in_array(self::value($options, $name), (array) $assertedValues);
+        public static function isValue($options, $name, $assertedValues, $view = '') {
+                return in_array(self::value($options, $name, $view), (array) $assertedValues);
         }
         
         public static function isDatetimeType($options) {
@@ -2252,7 +2253,7 @@ class K2FieldsModelFields extends JModel {
                         $id = 'fv'.$id;
                 }
                 
-                if ($view != 'item') $lbl = self::value($field, 'listlabel', '');
+                if ($view != 'item') $lbl = self::value($field, 'itemlistlabel', '');
                 if (empty($lbl)) $lbl = self::value($field, 'label', '');
                 if (empty($lbl) && isset($fieldRule['label'])) $lbl = $fieldRule['label'];
 
@@ -2279,7 +2280,11 @@ class K2FieldsModelFields extends JModel {
                         $tips = ' jptips" jptips="'.htmlspecialchars($tips, ENT_COMPAT);
                 }
                 
-                if (!empty($lbl)) $lbl = '<span class="lbl'.$tips.'">'.$lbl.'</span>';
+                if (!empty($lbl) && self::isTrue($field, ($view != 'item' ? '' : '') . 'showlabel')) {
+                        $lbl = '<span class="lbl'.$tips.'">'.$lbl.'</span>';
+                } else {
+                        $lbl = '';
+                }
                 
                 $replace = self::value($field, 'replace');
                 
