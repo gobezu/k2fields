@@ -945,6 +945,11 @@ class K2FieldsMedia {
                 if ($width > $maxWidth) {
                         $width = $maxWidth;
                         $height *= $maxWidth / $size[0];
+                        
+                        if ($height > $maxHeight) {
+                                $width *= $maxHeight / $height;
+                                $height = $maxHeight;
+                        }
                 } else {
                         $height = $maxHeight;
                         $width *= $maxHeight / $size[1];
