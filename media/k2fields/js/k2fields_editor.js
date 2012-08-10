@@ -780,14 +780,36 @@ var k2fieldseditor = new Class({
                                 'ui':'select',
                                 'section':'Basic'
                         },
-                        '51':{
-                                'name':'Search',
-                                'optName':'search',
+                        '40':{
+                                'name':'Show label (item)',
+                                'optName':'showlabel',
                                 'valid':'verifybox',
-                                'deps':{
-                                        '1':['id:52','id:53','id:54','id:55', 'id:56', 'id:57', 'id:58', 'id:59', 'id:60', 'id:61']
-                                },
-                                'section':'Search'
+                                'section':'Basic',
+                                'deps':{1:['id:41']},
+                                'default':1
+                        },
+                        '41':{
+                                'name':'Label (item)',
+                                'optName':'label',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':60,
+                                'section':'Basic'
+                        },
+                        '42':{
+                                'name':'Show label (itemlist)',
+                                'optName':'itemlistshowlabel',
+                                'valid':'verifybox',
+                                'section':'Basic',
+                                'deps':{1:['id:43']}
+                        },
+                        '43':{
+                                'name':'Label (itemlist)',
+                                'optName':'itemlistlabel',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':60,
+                                'section':'Basic'
                         },
                         '52':{
                                 'name':'Search operator',
