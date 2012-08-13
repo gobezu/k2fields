@@ -219,6 +219,15 @@ class K2FieldsModuleHelper {
                                 if (empty($categories) || in_array($categories, $excludeCategories)) return array();
                                 
                                 $categories = (array) $categories;
+                                
+                                if ($childrenMode != 0) {
+                                        $depth = $childrenMode == 2 ? 1 : -1;
+                                        $childrenCategories = self::getCategoryChildren($categories, $excludeCategories, $depth, true);
+                                        $childrenCategories = array_keys($childrenCategories);
+                                        $categories = array_merge($categories, $childrenCategories);
+                                }
+                                
+                                $categories = JprovenUtility::toIntArray($categories);
                         } else if ($stickTo == 'tag') {
                                 $query = "SELECT DISTINCT itemID FROM #__k2_tags_xref WHERE tagID IN (SELECT tagID FROM #__k2_tags_xref WHERE itemId = ".$itemId.") AND itemID <> ".$itemId;
                         } else if ($stickTo == 'key') {
@@ -708,6 +717,7 @@ class K2FieldsModuleHelper {
                                                 $imageFields = $params->get('imagefield');
                                                         
                                                 if ($imageFields) {
+                                                        $imageFields = array_unique($imageFields);
                                                         $imageFields = (array) $imageFields;
                                                         $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
                                                         $imageFields = $fieldsModel->getFieldsById($imageFields, array('view' => 'module'));
@@ -739,6 +749,11 @@ class K2FieldsModuleHelper {
                                                                         $item->image = JURI::base().$medias['src'];
                                                                         $item->imageThumb = JURI::base().$medias['thumb'];
                                                                         $item->imageCaption = $medias['caption'];
+                                                                        $item->noMediaFields = true;
+                                                                        
+                                                                        if ($params->get('imagefieldshow', 'thumb') == 'thumb') {
+                                                                                $item->image = $item->imageThumb;
+                                                                        }
                                                                 }
                                                                 
                                                                 K2FieldsModelFields::setValue($theImageField, 'picplg', $picplg);
