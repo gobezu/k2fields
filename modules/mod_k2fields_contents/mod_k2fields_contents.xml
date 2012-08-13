@@ -89,7 +89,7 @@
                                         <option value="180%days">6 months</option>                        
                                 </field>
                                 <field name="timerangefield" type="sql" default="" label="Select a date/datetime field that will be used for the time range filtering"
-                               query="SELECT s.id as value, CONCAT(SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1), ' (', cname, ')') as timerangefield FROM (SELECT f.id, SUBSTR(f.name, LENGTH('k2f---')+1) as pname, c.name as cname FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id INNER JOIN #__k2_extra_fields_definition d ON f.id = d.id WHERE f.published = 1 AND c.published = 1 AND d.definition LIKE '%valid=date%' ORDER BY c.`id`, f.`ordering`) AS s"
+                               query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as timerangefield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND (f.name LIKE '%TYPE:date%' OR f.name LIKE '%TYPE:time%')"
                 />
                                 <field name="order" type="list" default="id" label="Category ordering" description="Ordering options">
                                         <option value="name">Category name</option>
@@ -180,7 +180,7 @@
                                         <option value="Large">Large</option>
                                         <option value="XLarge">XLarge</option>
                                 </field>
-                                <field name="imagefield" type="msql" default="" label="Image field" description="This field will replace K2 image. Make sure to select appropriate one for each field group/category"
+                                <field name="imagefield" type="msql" default="" label="Image field" description="This field will replace K2 image. Make sure to select appropriate one for each field group/category. Make also sure that field is visible in modules."
                                 query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as imagefield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND f.name LIKE '%TYPE:media%'"
                                 />
                                 <field name="imagecaptionsource" type="list" default="title" label="Caption source">
@@ -190,6 +190,10 @@
                                         <option value="image">Image caption (only if image source is k2fields)</option>
                                         <option value="layout">Layout</option>
                                 </field>
+                                <field name="imagefieldshow" type="radio" default="thumb" label="Part of image field to show" description="">
+                                        <option value="image">Image</option>
+                                        <option value="thumb">Thumbnail</option>
+                                </field>                                
                                 <field name="wordlimitcaption" type="text" size="4" default="" label="Word limit for caption" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
                                 <field name="defaultimage" type="filelist" default="" label="Default image" stripext="true" directory="media/mod_k2fields_contents/defaultimage"
                                 description="If image was not found as per selection above we can set a default image. The trailing figure indicates level of transparency. You can use your own images by placing them in media/mod_k2fields_contents/defaultimage as defaultimagethumb"/>
