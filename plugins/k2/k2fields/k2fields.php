@@ -52,27 +52,22 @@ class plgk2k2fields extends K2Plugin {
                 self::setLayout($item);
                 
                 // $this->processSearchPlugins($item);
-                self::processSocialbtns('BeforeDisplay', $item, $params, $limitstart);
                 return self::processExtrafields('BeforeDisplay', $item, $params, $limitstart);
         }
         
         function onK2AfterDisplay(&$item, &$params, $limitstart) {
-                self::processSocialbtns('AfterDisplay', $item, $params, $limitstart);
                 return self::processExtrafields('AfterDisplay', $item, $params, $limitstart);
         }
         
         function onK2AfterDisplayTitle(&$item, &$params, $limitstart) {
-                self::processSocialbtns('AfterDisplayTitle', $item, $params, $limitstart);
                 return self::processExtrafields('AfterDisplayTitle', $item, $params, $limitstart);
         }
         
         function onK2BeforeDisplayContent(&$item, &$params, $limitstart) {
-                self::processSocialbtns('BeforeDisplayContent', $item, $params, $limitstart);
                 return self::processExtrafields('BeforeDisplayContent', $item, $params, $limitstart);
         }
         
         function onK2AfterDisplayContent(&$item, &$params, $limitstart) {
-                self::processSocialbtns('AfterDisplayContent', $item, $params, $limitstart);
                 return self::processExtrafields('AfterDisplayContent', $item, $params, $limitstart);
         }
         
@@ -218,283 +213,17 @@ class plgk2k2fields extends K2Plugin {
                 return trim($res);
         }
         
-        private static function processSocialbtns($caller, &$item, &$params, $limitstart) {
-                if (K2FieldsModelFields::value($item, 'k2item')) return;
-                
-                $view = JRequest::getCmd('view');
-                $pos = $view == 'item' ? 'item' : 'list';
-                $pos = self::param('social'.$pos.'position', 'AfterDisplay');
-                
-                if ($caller != $pos || $pos == 'none') return;
-                
-                $setting = self::param('socialincludecats', array());
-                if (!empty($setting) && !in_array($item->catid, $setting)) return;
-                
-                $setting = self::param('socialincludeitems', '');
-                if (!empty($setting)) {
-                        if (!in_array($item->id, $setting)) return;
-                }
-                
-                $setting = self::param('socialexcludecats', array());
-                if (!empty($setting) && in_array($item->catid, $setting)) return;
-                
-                $setting = self::param('socialexcludeitems', '');
-                if (!empty($setting)) {
-                        if (in_array($item->id, $setting)) return;
-                }
-                
-                $url = trim(self::param('socialfixedurl', ''));
-                if (empty($url)) $url = JRoute::_($item->link);
-                $url = urlencode($url);
-                
-                $btns = trim(self::param('socialdisplay', ''));
-                $btns = explode(',', $btns);
-                
-                $ui = array();
-                
-                foreach ($btns as $btn) {
-                        $uiPart = self::_processSocialbtns ($btn, $url, $item);
-                        if (!empty($uiPart)) $ui[] = '<li class="k2f'.$btn.'">'.$uiPart.'</li>';
-                }
-                
-                if (!empty($ui)) $ui = '<ul class="k2fsocialbtns">'.implode('', $ui).'</ul>';
-                else $ui = '';
-                
-                $item->text .= $ui;
-        }
-        
-        private static function _processSocialbtns($btn, $url, $item) {
-                $ui = '';
-                $view = JFactory::getApplication()->input->get('view', '');
-                
-                switch ($btn) {
-                        case 'facebook':
-                                $ui = '
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-var js, fjs = d.getElementsByTagName(s)[0];
-if (d.getElementById(id)) return;
-js = d.createElement(s); js.id = id;
-js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-fjs.parentNode.insertBefore(js, fjs);
-}(document, "script", "facebook-jssdk"));</script>
-<div class="fb-like" 
-';
-                                $facebookSend = self::param('socialfacebooksend', false) ? 'true' : 'false';
-                                $facebookLayout = self::param('socialfacebooklayout', 'standard');
-                                $facebookShowfaces = self::param('socialfacebookshow_faces', false) ? 'true' : 'false';
-                                $facebookAction = self::param('socialfacebookaction', 'Like');
-                                $facebookWidth = (int) self::param('socialfacebookwidth', 450);
-                                
-                                if ($facebookLayout == 'standard') {
-                                        if ($facebookWidth < 265 && $facebookAction == 'recommend') {
-                                                $facebookWidth = $facebookSend == 'true' ? 325 : 265;
-                                        } else if ($facebookWidth < 285 && $facebookSend == 'true') {
-                                                $facebookWidth = 285;
-                                        } else if ($facebookWidth < 225) {
-                                                $facebookWidth = 225;
-                                        }
-                                } else if ($facebookLayout == 'button_count') {
-                                        if ($facebookWidth < 120 && $facebookAction == 'recommend') {
-                                                $facebookWidth = $facebookSend == 'true' ? 180 : 120;
-                                        } else if ($facebookWidth < 150 && $facebookSend == 'true') {
-                                                $facebookWidth = 150;
-                                        } else if ($facebookWidth < 90) {
-                                                $facebookWidth = 90;
-                                        }
-                                } else if ($facebookLayout == 'box_count') {
-                                        if ($facebookWidth < 85 && $facebookAction == 'recommend') {
-                                                $facebookWidth = $facebookSend == 'true' ? 145 : 85;
-                                        } else if ($facebookWidth < 145 && $facebookSend == 'true') {
-                                                $facebookWidth = 145;
-                                        } else if ($facebookWidth < 55) {
-                                                $facebookWidth = 55;
-                                        }
-                                }
-                                
-                                $facebookFont = self::param('socialfacebookfont', false);
-                                $facebookColorscheme = self::param('socialfacebookcolorscheme', false);
-
-                                $ui .= ' data-href="'.$url.
-                                        '" data-send="'.$facebookSend.
-                                        '" data-layout="'.$facebookLayout.
-                                        '" data-show-faces="'.$facebookShowfaces.
-                                        '" data-width="'.$facebookWidth.
-                                        '" data-action="'.$facebookAction.'" '.
-                                        '" data-font="'.$facebookFont.'" '.
-                                        '" data-color-scheme="'.$facebookColorscheme.'"></div>'
-                                ;
-                                
-                                break;
-                        case 'twitter':
-                                $tweetText = self::param('socialtwittertext', '');
-                                if (!empty($tweetText)) $tweetText = ' data-text="'.$tweetText.'"';
-
-                                $tweetCount = self::param('socialtwittercount', false) ? '' : ' data-count="none"';
-
-                                $tweetVia = self::param('socialtwittervia', '');
-                                if (!empty($tweetVia)) $tweetVia = ' data-via="'.$tweetVia.'"';
-
-                                $tweetRelated = self::param('socialtwitterrelated', '');
-                                if (!empty($tweetRelated)) $tweetRelated = ' data-related="'.$tweetRelated.'"';
-
-                                $tweetHash = self::param('socialtwitterhash', '');
-                                if (!empty($tweetHash)) $tweetHash = ' data-hashtags="'.$tweetHash.'"';
-
-                                $tweetButton = self::param('socialtwitterbutton', '');
-                                if (!empty($tweetButton)) $tweetButton = ' data-size="'.$tweetButton.'"';
-
-                                $ui = '
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="'.$url.'"'.$tweetText.$tweetCount.$tweetVia.$tweetRelated.$tweetHash.$tweetButton.'>Tweet</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>                                
-';
-                                break;
-                        case 'linkedin':
-                                $linkedinCounter = self::param('sociallinkedincounter', 'top');
-                                $ui = '
-<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
-<script type="IN/Share" data-url="'.$url.'" data-counter="'.$linkedinCounter.'"></script>
-';
-                                break;
-                        case 'pinterest':
-                                static $pinterestJSLoaded = false;
-                                if (!$pinterestJSLoaded) {
-                                        $ui .= '
-<script type="text/javascript">
-(function() {
-    window.PinIt = window.PinIt || { loaded:false };
-    if (window.PinIt.loaded) return;
-    window.PinIt.loaded = true;
-    function async_load(){
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        if (window.location.protocol == "https:")
-            s.src = "https://assets.pinterest.com/js/pinit.js";
-        else
-            s.src = "http://assets.pinterest.com/js/pinit.js";
-        var x = document.getElementsByTagName("script")[0];
-        x.parentNode.insertBefore(s, x);
-    }
-    if (window.attachEvent)
-        window.attachEvent("onload", async_load);
-    else
-        window.addEventListener("load", async_load, false);
-})();
-</script>                                                
-';
-                                        $pinterestJSLoaded = true;
-                                }
-                                $pinterestCounter = self::param('socialpinterestcounter', 'top');
-                                
-                                $pinterestDescription = self::param('socialpinterestdescription', '');
-                                if ($pinterestDescription == 'text') {
-                                        $pinterestDescription = self::param('socialpinterestdescriptiontext', '');
-                                } else if ($pinterestDescription == 'item') {
-                                        $pinterestDescription = $item->title;
-                                } else if ($pinterestDescription == 'image') {
-                                        // TODO: which image?
-                                }
-                                $pinterestDescription = urlencode($pinterestDescription);
-                                
-                                // TODO: which image should be pinned, ie. media parameter in url below
-                                $pinterestImage = self::param('socialpinterestcounter', 'top');
-                                
-                                $ui .= '
-<a href="http://pinterest.com/pin/create/button/?url='.$url.'&media=urlofimage.com&description=Optionalpindescription" class="pin-it-button" count-layout="'.$pinCounter.'">Pin It</a>                                        
-';
-                                break;
-                        case 'googleplus':
-                                static $googleplusJSLoaded = false;
-                                if (!$googleplusJSLoaded) {
-                                        $ui = '
-<script type="text/javascript">
-  (function() {
-    var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
-    po.src = "https://apis.google.com/js/plusone.js";
-    var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>                                                
-';
-                                        $googleplusJSLoaded = true;
-                                }
-                                
-                                $googleplusAnnotation = self::param('socialgoogleplusannotation', 'inline');
-                                
-                                $googleplusSize = self::param('socialgoogleplussize', '');
-                                if (!empty($googleplusSize)) $googleplusSize = ' size="'.$googleplusSize.'"';
-                                
-                                $ui .= '<g:plusone '.$googleplusSize.' annotation="'.$googleplusAnnotation.'"></g:plusone>';
-                                
-                                break;
-                        case 'readability':
-                                if ($view != 'item') return '';
-                                
-                                $readabilityRead = self::param('socialreadabilityread', '0');
-                                $readabilityPrint = self::param('socialreadabilityprint', '0');
-                                $readabilityEmail = self::param('socialreadabilityemail', '0');
-                                $readabilityKindle = self::param('socialreadabilitykindle', '0');
-                                
-                                if (!$readabilityEmail && !$readabilityRead && !$readabilityKindle && !$readabilityPrint) return '';
-                                
-                                $readabilityOrientation = self::param('socialreadabilityorientation', '0');
-                                $readabilityColorText = self::param('socialreadabilitycolortext', '#5c5c5c');
-                                $readabilityColorBg = self::param('socialreadabilitycolorbg', '#f3f3f3');
-                                
-                                $ui = '<div class="rdbWrapper" data-show-read="'.$readabilityRead.'" data-show-send-to-kindle="'.$readabilityKindle.'" data-show-print="'.$readabilityPrint.'" data-show-email="'.$readabilityEmail.'" data-orientation="'.$readabilityOrientation.'" data-version="1" data-text-color="'.$readabilityColorText.'" data-bg-color="'.$readabilityColorBg.'"></div>';
-                                $ui .= '<script type="text/javascript">(function() {var s = document.getElementsByTagName("script")[0],rdb = document.createElement("script"); rdb.type = "text/javascript"; rdb.async = true; rdb.src = document.location.protocol + "//www.readability.com/embed.js"; s.parentNode.insertBefore(rdb, s); })();</script>';
-                                break;
-                        case 'flattr':
-                                if ($view != 'item') return '';
-                                
-                                $flattrTitle = self::param('socialflattrtitle', $item->title);
-                                $flattrDescription = self::param('socialflattrdescription', $item->metadesc);
-                                $flattrUID = self::param('socialflattruid', '');
-                                if (!empty($flattrUID)) $flattrUID = ';uid:'.$flattrUID;
-                                $flattrCategory = self::param('socialflattrcategory', '');
-                                if (!empty($flattrCategory)) $flattrCategory = ';category:'.$flattrCategory;
-                                $flattrTags = self::param('socialflattrtags', '');
-                                if (!empty($flattrTags)) $flattrTags = ';tags:'.$flattrTags;
-                                $flattrHidden = self::param('socialflattrhidden', '');
-                                if (!empty($flattrHidden)) $flattrHidden = ';hidden:1';
-                                $flattrButton = self::param('socialflattrbutton', '');
-                                if (!empty($flattrButton)) $flattrButton = ';button:compact';
-                                
-                                $ui = '
-<a title="'.$flattrTitle.'" rel="flattr'.$flattrUID.$flattrCategory.$flattrTags.$flattrHidden.$flattrButton.';" href="'.$url.'" class="FlattrButton" style="display:none;">'.$flattrDescription.'</a>
-<script type="text/javascript">
-/* <![CDATA[ */
-(function() {
-    var s = document.createElement("script");
-    var t = document.getElementsByTagName("script")[0];
-
-    s.type = "text/javascript";
-    s.async = true;
-    s.src = "http://api.flattr.com/js/0.6/load.js?mode=auto";
-
-    t.parentNode.insertBefore(s, t);
- })();
-/* ]]> */
-</script>
-';
-                                
-                                
-                                break;
-                }
-                
-                return $ui;
-        }
-        
         private static function processExtrafields($caller, &$item, &$params, $limitstart) {
                 if (K2FieldsModelFields::value($item, 'k2item')) return;
                 
                 $view = JFactory::getApplication()->input->get('view');
+                $_view = $view;
                 
-                if ($view != 'itemlist') $view = '';
+                if ($_view != 'itemlist') $_view = '';
                 
-                $pos = K2FieldsModelFields::categorySetting($item->catid, $view.'catextrafieldsposition');
+                $pos = K2FieldsModelFields::categorySetting($item->catid, $_view.'catextrafieldsposition');
                 
-                if (!$pos) $pos = self::param($view.'extrafieldsposition', 'AfterDisplay');
+                if (!$pos) $pos = self::param($_view.'extrafieldsposition', 'AfterDisplay');
                 else {
                         $pos = current(current(current($pos)));
                 }
@@ -535,16 +264,22 @@ fjs.parentNode.insertBefore(js, fjs);
                                 $plg = JFile::read($file);
                                 $plg = trim($plg);
                                 
-                                if (!$introPlchFound && preg_match('#(\{k2fintrotext\})#i', $plg, $m)) {
-                                        $plg = str_replace($m[1], $item->introtext, $plg);
-                                        $tmp = str_replace($item->introtext, '', $tmp);
-                                        $item->introtext = '';
+                                if (strpos($plg, '{k2fintrotext}') !== false) {
+                                        $plg = str_replace('{k2fintrotext}', $item->introtext, $plg);
                                 }
 
-                                if (!$fullPlchFound && preg_match('#(\{k2ffulltext\})#i', $plg, $m)) {
-                                        $plg = str_replace($m[1], $item->fulltext, $plg);
-                                        $tmp = str_replace($item->fulltext, '', $tmp);
-                                        $item->fulltext = '';
+                                if (strpos($plg, '{k2ffulltext}') !== false) {
+                                        $plg = str_replace('{k2ffulltext}', $item->fulltext, $plg);
+                                }
+                                
+                                if (strpos($plg, '{k2ftitle}') !== false) {
+                                        $title = $item->title;
+                                        
+                                        if ($view == 'itemlist' && $params->get('catItemTitleLinked')) {
+                                                $title = K2FieldsHelperRoute::createItemLink($item);
+                                        }
+                                        
+                                        $plg = str_replace('{k2ftitle}', $title, $plg);
                                 }
                         }
                         
@@ -830,7 +565,7 @@ fjs.parentNode.insertBefore(js, fjs);
                 
                 $document = JFactory::getDocument();
                 
-                if ($tab != 'search') K2FieldsMap::loadResources($item);
+                if ($tab != 'search') K2FieldsMap::loadResources($item, null, false);
                 
                 if (!$includeDone) {
                         JprovenUtility::load('k2fields.css', 'css');

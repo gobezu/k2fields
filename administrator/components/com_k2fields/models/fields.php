@@ -27,7 +27,7 @@ class K2FieldsModelFields extends JModel {
         private static $extendedTypes = array('map', 'list', 'media', 'k2item');
         public static $dontSend = array('view', 'access', 'definition', 'isK2NativeList', 'isK2Field', 'isEditableList', 'isMedia', 'isMap', 'isList', 'group', 'published', 'ordering', 'picplg', 'itemlistpicplg', 'providerplg', 'itemlistproviderplg', 'videoplg', 'itemlistvideoplg', 'audioplg', 'itemlistaudioplg', 'mediafileexts');
         private static $defaultSection = self::DEFAULT_UI_SECTION;
-        public static $autoFieldTypes = array('title', 'rate');
+        public static $autoFieldTypes = array('title', 'rate', 'facebook', 'form', 'pinterest', 'linkedin', 'twitter', 'googleplus', 'readability', 'form');
         private static $autoFieldTypesRendered = array();
         
         function __construct($config = array()) {
@@ -1796,7 +1796,7 @@ class K2FieldsModelFields extends JModel {
                 $option = JRequest::getCmd('option');
                 $inModule = $item->params->get('parsedInModule') || 
                         isset($additionalRules['parsedInModule']) && $additionalRules['parsedInModule'];
-                $inMap = $view == 'itemlist' && $item->isItemlistMap;
+                $inMap = $view == 'itemlist' && isset($item->isItemlistMap) && $item->isItemlistMap;
                 
                 if ($inModule) {
                         $filterView = 'module';
@@ -2172,14 +2172,20 @@ class K2FieldsModelFields extends JModel {
                         
                         if (isset($_rules['fields'])) {
                                 $values = $_rules['rendered'];
+                                $values = JprovenUtility::getColumn($values, 'rendered');
+                                $values = implode('', $values);
                                 unset($_rules['fields']);
                                 unset($_rules['rendered']);
+                                reset($_rules);
+                                $_rules[key($_rules)]['rendered'] = $values;
                         } else {
                                 $values = $itemRules[$fieldId];
+                                
+                                foreach ($_rules as $i => &$rule) {
+                                        $rule['rendered'] = isset($values[$i]['rendered']) ? $values[$i]['rendered'] : '';
+                                }
                         }
                         
-                        foreach ($_rules as $i => &$rule) 
-                                $rule['rendered'] = $values[$i]['rendered'];
                 }
                 
                 return $rules;
@@ -2804,6 +2810,244 @@ class K2FieldsModelFields extends JModel {
                 return $renderedValues;
         }
         
+        public function renderFacebook($item, $values, $field, $helper, $rule = null) {
+                $ui = '
+                        <div id="fb-root"></div>
+                        <script>(function(d, s, id) {
+                        var js, fjs = d.getElementsByTagName(s)[0];
+                        if (d.getElementById(id)) return;
+                        js = d.createElement(s); js.id = id;
+                        js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+                        fjs.parentNode.insertBefore(js, fjs);
+                        }(document, "script", "facebook-jssdk"));</script>
+                        <div class="fb-like" 
+                        ';
+                
+                $facebookSend = self::value($field, 'facebooksend', false) ? 'true' : 'false';
+                $facebookLayout = self::value($field, 'facebooklayout', 'standard');
+                $facebookShowfaces = self::value($field, 'facebookshow_faces', false) ? 'true' : 'false';
+                $facebookAction = self::value($field, 'facebookaction', 'Like');
+                $facebookWidth = (int) self::value($field, 'facebookwidth', 450);
+
+                if ($facebookLayout == 'standard') {
+                        if ($facebookWidth < 265 && $facebookAction == 'recommend') {
+                                $facebookWidth = $facebookSend == 'true' ? 325 : 265;
+                        } else if ($facebookWidth < 285 && $facebookSend == 'true') {
+                                $facebookWidth = 285;
+                        } else if ($facebookWidth < 225) {
+                                $facebookWidth = 225;
+                        }
+                } else if ($facebookLayout == 'button_count') {
+                        if ($facebookWidth < 120 && $facebookAction == 'recommend') {
+                                $facebookWidth = $facebookSend == 'true' ? 180 : 120;
+                        } else if ($facebookWidth < 150 && $facebookSend == 'true') {
+                                $facebookWidth = 150;
+                        } else if ($facebookWidth < 90) {
+                                $facebookWidth = 90;
+                        }
+                } else if ($facebookLayout == 'box_count') {
+                        if ($facebookWidth < 85 && $facebookAction == 'recommend') {
+                                $facebookWidth = $facebookSend == 'true' ? 145 : 85;
+                        } else if ($facebookWidth < 145 && $facebookSend == 'true') {
+                                $facebookWidth = 145;
+                        } else if ($facebookWidth < 55) {
+                                $facebookWidth = 55;
+                        }
+                }
+
+                $facebookFont = self::value($field, 'facebookfont', false);
+                $facebookColorscheme = self::value($field, 'facebookcolorscheme', false);
+
+                $ui .= ' data-href="'.self::socLink($item).
+                        '" data-send="'.$facebookSend.
+                        '" data-layout="'.$facebookLayout.
+                        '" data-show-faces="'.$facebookShowfaces.
+                        '" data-width="'.$facebookWidth.
+                        '" data-action="'.$facebookAction.'" '.
+                        '" data-font="'.$facebookFont.'" '.
+                        '" data-color-scheme="'.$facebookColorscheme.'"></div>'
+                ;
+                
+                return $ui;
+        }
+        
+        private static function socLink($item) {
+                $url = JRoute::_($item->link);
+                $url = urlencode($url);
+                return $url;
+        }
+        
+        public function renderTwitter($item, $values, $field, $helper, $rule = null) {
+                $tweetText = self::value($field, 'twittertext', '');
+                if (!empty($tweetText)) $tweetText = ' data-text="'.$tweetText.'"';
+
+                $tweetCount = self::value($field, 'twittercounter', false) ? '' : ' data-count="none"';
+
+                $tweetVia = self::value($field, 'twittervia', '');
+                if (!empty($tweetVia)) $tweetVia = ' data-via="'.$tweetVia.'"';
+
+                $tweetRelated = self::value($field, 'twitterrelated', '');
+                if (!empty($tweetRelated)) $tweetRelated = ' data-related="'.$tweetRelated.'"';
+
+                $tweetHash = self::value($field, 'twitterhash', '');
+                if (!empty($tweetHash)) $tweetHash = ' data-hashtags="'.$tweetHash.'"';
+
+                $tweetButton = self::value($field, 'twitterbutton', '');
+                if (!empty($tweetButton)) $tweetButton = ' data-size="'.$tweetButton.'"';
+
+                $ui = '
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="'.self::socLink($item).'"'.$tweetText.$tweetCount.$tweetVia.$tweetRelated.$tweetHash.$tweetButton.'>Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>                                
+';
+                
+                return $ui;
+        }
+        
+        public function renderLinkedin($item, $values, $field, $helper, $rule = null) {
+                $linkedinCounter = self::value($field, 'linkedincounter', 'top');
+                
+                $ui = '
+<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
+<script type="IN/Share" data-url="'.self::socLink($item).'" data-counter="'.$linkedinCounter.'"></script>
+';                
+                return $ui;
+        }
+        
+        public function renderPinterest($item, $values, $field, $helper, $rule = null) {
+                static $pinterestJSLoaded = false;
+                
+                if (!$pinterestJSLoaded) {
+                        $ui .= '
+<script type="text/javascript">
+(function() {
+window.PinIt = window.PinIt || { loaded:false };
+if (window.PinIt.loaded) return;
+window.PinIt.loaded = true;
+function async_load(){
+var s = document.createElement("script");
+s.type = "text/javascript";
+s.async = true;
+if (window.location.protocol == "https:")
+s.src = "https://assets.pinterest.com/js/pinit.js";
+else
+s.src = "http://assets.pinterest.com/js/pinit.js";
+var x = document.getElementsByTagName("script")[0];
+x.parentNode.insertBefore(s, x);
+}
+if (window.attachEvent)
+window.attachEvent("onload", async_load);
+else
+window.addEventListener("load", async_load, false);
+})();
+</script>                                                
+';
+                        $pinterestJSLoaded = true;
+                }
+                
+                $pinterestCounter = self::value($field, 'pinterestcounter', 'top');
+
+                $pinterestDescription = self::value($field, 'pinterestdescription', '');
+                if ($pinterestDescription == 'text') {
+                        $pinterestDescription = self::value($field, 'pinterestdescriptiontext', '');
+                } else if ($pinterestDescription == 'item') {
+                        $pinterestDescription = $item->title;
+                } else if ($pinterestDescription == 'image') {
+                        // TODO: which image?
+                }
+                $pinterestDescription = urlencode($pinterestDescription);
+
+                // TODO: which image should be pinned, ie. media parameter in url below
+                $pinterestImage = self::value($field, 'pinterestcounter', 'top');
+
+                $ui .= '
+<a href="http://pinterest.com/pin/create/button/?url='.self::socLink($item).'&media=urlofimage.com&description=Optionalpindescription" class="pin-it-button" count-layout="'.$pinCounter.'">Pin It</a>                                        
+';                
+                return $ui;
+        }
+        
+        public function renderGoogleplus($item, $values, $field, $helper, $rule = null) {
+                static $googleplusJSLoaded = false;
+                
+                if (!$googleplusJSLoaded) {
+                        $ui = '
+<script type="text/javascript">
+(function() {
+var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
+po.src = "https://apis.google.com/js/plusone.js";
+var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
+})();
+</script>                                                
+';
+                        $googleplusJSLoaded = true;
+                }
+
+                $googleplusAnnotation = self::value($field, 'googleplusannotation', 'inline');
+
+                $googleplusSize = self::value($field, 'googleplusbuttonsize', '');
+                if (!empty($googleplusSize)) $googleplusSize = ' size="'.$googleplusSize.'"';
+
+                $ui .= '<g:plusone '.$googleplusSize.' annotation="'.$googleplusAnnotation.'"></g:plusone>';
+                
+                return $ui;
+        }
+        
+        public function renderFlattr($item, $values, $field, $helper, $rule = null) {
+                if (JFactory::getApplication()->input->get('view', '') != 'item') return '';
+                                
+                $flattrTitle = self::value($field, 'flattrtitle', $item->title);
+                $flattrDescription = self::value($field, 'flattrdescription', $item->metadesc);
+                $flattrUID = self::value($field, 'flattruid', '');
+                if (!empty($flattrUID)) $flattrUID = ';uid:'.$flattrUID;
+                $flattrCategory = self::value($field, 'flattrcategory', '');
+                if (!empty($flattrCategory)) $flattrCategory = ';category:'.$flattrCategory;
+                $flattrTags = self::value($field, 'flattrtags', '');
+                if (!empty($flattrTags)) $flattrTags = ';tags:'.$flattrTags;
+                $flattrHidden = self::value($field, 'flattrhidden', '');
+                if (!empty($flattrHidden)) $flattrHidden = ';hidden:1';
+                $flattrButton = self::value($field, 'flattrbutton', '');
+                if (!empty($flattrButton)) $flattrButton = ';button:compact';
+
+                $ui = '
+<a title="'.$flattrTitle.'" rel="flattr'.$flattrUID.$flattrCategory.$flattrTags.$flattrHidden.$flattrButton.';" href="'.self::socLink($item).'" class="FlattrButton" style="display:none;">'.$flattrDescription.'</a>
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+    var s = document.createElement("script");
+    var t = document.getElementsByTagName("script")[0];
+
+    s.type = "text/javascript";
+    s.async = true;
+    s.src = "http://api.flattr.com/js/0.6/load.js?mode=auto";
+
+    t.parentNode.insertBefore(s, t);
+ })();
+/* ]]> */
+</script>
+';       
+                
+                return $ui;
+        }
+        
+        public function renderReadability($item, $values, $field, $helper, $rule = null) {
+                if (JFactory::getApplication()->input->get('view', '') != 'item') return '';
+
+                $readabilityRead = self::value($field, 'readabilityread', '0');
+                $readabilityPrint = self::value($field, 'readabilityprint', '0');
+                $readabilityEmail = self::value($field, 'readabilityemail', '0');
+                $readabilityKindle = self::value($field, 'readabilitykindle', '0');
+
+                if (!$readabilityEmail && !$readabilityRead && !$readabilityKindle && !$readabilityPrint) return '';
+
+                $readabilityOrientation = self::value($field, 'readabilityorientation', '0');
+                $readabilityColorText = self::value($field, 'readabilitycolortext', '#5c5c5c');
+                $readabilityColorBg = self::value($field, 'readabilitycolorbg', '#f3f3f3');
+
+                $ui = '<div class="rdbWrapper" data-show-read="'.$readabilityRead.'" data-show-send-to-kindle="'.$readabilityKindle.'" data-show-print="'.$readabilityPrint.'" data-show-email="'.$readabilityEmail.'" data-orientation="'.$readabilityOrientation.'" data-version="1" data-text-color="'.$readabilityColorText.'" data-bg-color="'.$readabilityColorBg.'"></div>';
+                $ui .= '<script type="text/javascript">(function() {var s = document.getElementsByTagName("script")[0],rdb = document.createElement("script"); rdb.type = "text/javascript"; rdb.async = true; rdb.src = document.location.protocol + "//www.readability.com/embed.js"; s.parentNode.insertBefore(rdb, s); })();</script>';
+                
+                return $ui;
+        }
+        
         public static function getEmailRecord($data = '') {
                 static $results = array();
                 
@@ -2818,6 +3062,8 @@ class K2FieldsModelFields extends JModel {
                 $rec = base64_decode($data);
                 $rec = explode('%%', $rec);
                 $rec = array('item' => $rec[0], 'field'=>$rec[1], 'itemid'=>$rec[2], 'title'=>urldecode($rec[3]), 'rec'=>$data);
+                
+                if (count($rec) > 4) $rec['email'] = $rec[4];
                 
                 $model = JModel::getInstance('fields', 'K2FieldsModel');
                 $rec['fieldoptions'] = $model->getFieldsById($rec['field']);
@@ -2834,12 +3080,65 @@ class K2FieldsModelFields extends JModel {
                 $rec['formtitle'] = $title;
                 $rec['formfooter'] = $footer;
                 
-                $rec['email'] = $model->itemValues($rec['item'], $rec['field']);
-                $rec['email'] = self::value($rec['email'][$rec['field']][0], 'value');
+                if (!isset($rec['email'])) {
+                        $rec['email'] = $model->itemValues($rec['item'], $rec['field']);
+                        $rec['email'] = self::value($rec['email'][$rec['field']][0], 'value');
+                }
                 
                 $results[$data] = $rec;
                 
                 return $rec;
+        }
+        
+        public function renderForm($item, $values, $field, $helper, $rule = null) {
+                $rendered = '';
+                
+                $menu = self::value($field, 'menu');
+
+                if (empty($menu)) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_MISSING');
+
+                $menus = JSite::getMenu();
+                $menuItem = $menus->getItem($menu);
+
+                if (!$menuItem) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_INCORRECT');
+
+                $Itemid = JRequest::getInt('Itemid');
+
+                /**
+                 * NOTE: we make life easier by assuming that form authors 
+                 * will subscribe to the convention of collecting the related 
+                 * K2 item data and setting designated fields as author needs.
+                 * 
+                 * As such the following request variables are available:
+                 * - K2 item id => k2id
+                 * - K2 item title => k2title
+                 * - K2 item link => k2link
+                 */
+                $email = self::value($field, 'id');
+                $label = self::value($field, 'label', $menuItem->title);
+                $label = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $label);
+                $title = self::value($field, 'title', $label);
+                $title = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $title);
+                $rec = $item->id.'%%'.$email.'%%'.$Itemid.'%%'.urlencode($item->title);
+                if (self::isType($field, 'form')) $rec .= '%%'.self::value($field, 'email');
+                $rec = base64_encode($rec);
+
+                if ($menuItem->query['option'] == 'com_fabrik') $menuItem->link .= '&iframe=1';
+
+                JHTML::_('behavior.modal');
+
+                $winSize = 'x: '.self::value($field, 'width', 550).', y: '.self::value($field, 'height', 550);
+                $link = JRoute::_($menuItem->link.'&Itemid='.$menu.'&k2rec='.$rec.'&tmpl=component');
+
+                if (strpos($label, 'recommend')) $css = 'recommend';
+                else if (strpos($label, 'report')) $css = 'report';
+                else $css = 'contact';
+
+                $css = preg_replace('/[^\S]/i', '', $label);
+                $css = strtolower($css);
+                $rendered .= '<a class="modal emails '.$css.'" rel="{handler: \'iframe\', size: {'.$winSize.'}}" href="'.$link.'" title="'.$title.'"><span>'.$label.'</span></a>';
+                
+                return $rendered;
         }
         
         public function renderEmail($item, $values, $field, $helper, $rule = null) {
@@ -2852,48 +3151,7 @@ class K2FieldsModelFields extends JModel {
                         
                         switch ($format) {
                                 case 'form':
-                                        $menu = self::value($field, 'menu');
-                                        
-                                        if (empty($menu)) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_MISSING');
-                                        
-                                        $menus = JSite::getMenu();
-                                        $menuItem = $menus->getItem($menu);
-                                        
-                                        if (!$menuItem) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_INCORRECT');
-                                        
-                                        $Itemid = JRequest::getInt('Itemid');
-                                        
-                                        /**
-                                         * NOTE: we make life easier by assuming that form authors 
-                                         * will subscribe to the convention of collecting the related 
-                                         * K2 item data and setting designated fields as author needs.
-                                         * 
-                                         * As such the following request variables are available:
-                                         * - K2 item id => k2id
-                                         * - K2 item title => k2title
-                                         * - K2 item link => k2link
-                                         */
-                                        $email = self::value($field, 'id');
-                                        $label = self::value($field, 'label', $menuItem->title);
-                                        $label = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $label);
-                                        $title = self::value($field, 'title', $label);
-                                        $title = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $title);
-                                        $rec = base64_encode($item->id.'%%'.$email.'%%'.$Itemid.'%%'.urlencode($item->title));
-                                        
-                                        if ($menuItem->query['option'] == 'com_fabrik') $menuItem->link .= '&iframe=1';
-
-                                        JHTML::_('behavior.modal');
-
-                                        $winSize = 'x: '.self::value($field, 'width', 550).', y: '.self::value($field, 'height', 550);
-                                        $link = JRoute::_($menuItem->link.'&Itemid='.$menu.'&k2rec='.$rec.'&tmpl=component');
-                                        
-                                        if (strpos($label, 'recommend')) $css = 'recommend';
-                                        else if (strpos($label, 'report')) $css = 'report';
-                                        else $css = 'contact';
-                                        
-                                        $css = preg_replace('/[^\S]/i', '', $label);
-                                        $css = strtolower($css);
-                                        $rendered .= '<a class="modal emails '.$css.'" rel="{handler: \'iframe\', size: {'.$winSize.'}}" href="'.$link.'" title="'.$title.'"><span>'.$label.'</span></a>';
+                                        $rendered .= $this->renderForm($item, $values, $field, $helper, $rule);
                                         break;
                                 case 'link':
                                         $rendered .= '<a href="mailto:'.$email.'">'.JText::_('Click to mail').'</a>';

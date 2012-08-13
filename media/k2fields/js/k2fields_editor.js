@@ -465,6 +465,14 @@ var k2fieldseditor = new Class({
                                         {'value':'complex','text':'complex'},
                                         {'value':'alias','text':'alias'},
                                         {'value':'email','text':'email'},
+                                        {'value':'form','text':'form'},
+                                        {'value':'facebook','text':'facebook'},
+                                        {'value':'twitter','text':'twitter'},
+                                        {'value':'linkedin','text':'linkedin'},
+                                        {'value':'googleplus','text':'googleplus'},
+                                        {'value':'pinterest','text':'pinterest'},
+                                        {'value':'readability','text':'readability'},
+                                        {'value':'flattr','text':'flattr'},
                                         {'value':'numeric','text':'numeric'}, // from here and below check in basic module for parameters to be supported
                                         {'value':'text','text':'text'},
                                         {'value':'alpha','text':'alpha'},
@@ -486,13 +494,21 @@ var k2fieldseditor = new Class({
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'duration':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
-                                        'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1255', 'id:1256', 'id:1257', 'id:1258'],
+                                        'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1256', 'id:1257', 'id:1258'],
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395'],
                                         'alias':['id:1451', 'id:1452'],
-                                        'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505']
+                                        'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
+                                        'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607'],
+                                        'twitter':['id:1651', 'id:1652', 'id:1653', 'id:1654', 'id:1655', 'id:1656'],
+                                        'linkedin':['id:1701'],
+                                        'pinterest':['id:1751', 'id:1752', 'id:1753'],
+                                        'googleplus':['id:1801', 'id:1802'],
+                                        'readability':['id:1851', 'id:1852', 'id:1853', 'id:1854', 'id:1855', 'id:1856', 'id:1857'],
+                                        'flattr':['id:1901', 'id:1902', 'id:1903', 'id:1904', 'id:1905', 'id:1906'],
+                                        'form':['id:1951', 'id:1952', 'id:1953', 'id:1954', 'id:1956', 'id:1957', 'id:1958']
                                 },
                                 'required':'1',
                                 'savevalues':'validtypes',
@@ -810,6 +826,12 @@ var k2fieldseditor = new Class({
                                 'ui':'text',
                                 'size':60,
                                 'section':'Basic'
+                        },
+                        '44':{
+                                'name':'Positioned absolute',
+                                'optName':'absolute',
+                                'valid':'verifybox',
+                                'section':'Layout'
                         },
                         '52':{
                                 'name':'Search operator',
@@ -1161,13 +1183,9 @@ var k2fieldseditor = new Class({
                                 'optName':'mode',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'tip':'image to represent the gallery in itemlist',
                                 'values':[
                                         {'value':'single', 'text':'Single'}
                                 ],
-                                'deps':{
-                                        'single':['id:1154']
-                                },
                                 'section':'Type specific'
                         },
                         '1154':{
@@ -1188,7 +1206,10 @@ var k2fieldseditor = new Class({
                                 'ui':'select',
                                 'values':this.options.options['mediaplugins']['pic'],
                                 'sorted':true,
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'deps':{
+                                        'widgetkit_k2':['id:1551', 'id:1552', 'id:1553', 'id:1554', 'id:1555', 'id:1556', 'id:1557', 'id:1558', 'id:1559', 'id:1560', 'id:1561', 'id:1562']
+                                }
                         },
                         '1156':{
                                 'name':'Picture plugin (itemlist)',
@@ -1216,26 +1237,14 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '1159':{
-                                'name':'Main media',
-                                'optName':'mainmedia',
+                                'name':'Mode (itemlist)',
+                                'optName':'listmode',
                                 'valid':'text',
-                                'ui':'select',
+                                'ui':'checkbox',
                                 'values':[
-                                        {'value':'', 'text':'None'},
-                                        {'value':'random', 'text':'Random'},
-                                        {'value':'1', 'text':'1'},
-                                        {'value':'2', 'text':'2'},
-                                        {'value':'3', 'text':'3'},
-                                        {'value':'4', 'text':'4'},
-                                        {'value':'5', 'text':'5'},
-                                        {'value':'6', 'text':'6'},
-                                        {'value':'7', 'text':'7'},
-                                        {'value':'8', 'text':'8'},
-                                        {'value':'9', 'text':'9'},
-                                        {'value':'10', 'text':'10'}
+                                        {'value':'single', 'text':'Single'}
                                 ],
-                                'section':'Type specific',
-                                'tip':'If you want to dictate image to be shown in modules and itemlist view...'
+                                'section':'Type specific'
                         },
                         '1160':{
                                 name:'Watermark fields',
@@ -1590,12 +1599,6 @@ var k2fieldseditor = new Class({
                                 'name':'Modal height(px)',
                                 'optName':'height',
                                 'valid':'integer',
-                                'section':'Type specific'
-                        },
-                        '1255':{
-                                'name':'Form button positioned absolute',
-                                'optName':'absolute',
-                                'valid':'verifybox',
                                 'section':'Type specific'
                         },
                         '1256':{
@@ -2183,6 +2186,416 @@ var k2fieldseditor = new Class({
                                 ui:'radio',
                                 section:'Type specific',
                                 tip:'If image choosen: file needs to be located in media/k2fields/icon folder and named as follows: be of png type and have png as suffix and prefixed with "n" followed by the number it represents.'
+                        },
+                        '1551':{
+                                name:'Autoplay',
+                                optName:'widgetkit_k2_autoplay',
+                                valid:'yesno',
+                                section:'Type specific'
+                        },
+                        '1552':{
+                                name:'Order',
+                                optName:'widgetkit_k2_order',
+                                valid:'text',
+                                ui:'radio',
+                                values:['default', 'random'],
+                                section:'Type specific'
+                        },
+                        '1553':{
+                                name:'Autoplay Interval (ms)',
+                                optName:'widgetkit_k2_interval',
+                                valid:'integer',
+                                section:'Type specific',
+                                'default':5000
+                        },
+                        '1554':{
+                                name:'Effect Duration (ms)',
+                                optName:'widgetkit_k2_duration',
+                                valid:'integer',
+                                section:'Type specific',
+                                'default':500
+                        },
+                        '1555':{
+                                name:'Start Index',
+                                optName:'widgetkit_k2_index',
+                                valid:'integer',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1556':{
+                                name:'Navigation',
+                                optName:'widgetkit_k2_navigation',
+                                valid:'integer',
+                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':1
+                        },
+                        '1557':{
+                                name:'Buttons',
+                                optName:'widgetkit_k2_buttons',
+                                valid:'integer',
+                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':1
+                        },
+                        '1558':{
+                                name:'Slices',
+                                optName:'widgetkit_k2_slices',
+                                valid:'integer',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1559':{
+                                name:'Effect',
+                                optName:'widgetkit_k2_animated',
+                                valid:'text',
+                                values:[{'text':'Fade','value':'fade'}, {'text':'Slide','value':'slide'}, {'text':'Scroll','value':'scroll'}, {'text':'Swipe','value':'swipe'}, {'text':'SliceUp','value':'sliceUp'}, {'text':'SliceDown','value':'sliceDown'}, {'text':'SliceUpDown','value':'sliceUpDown'}, {'text':'Fold','value':'fold'}, {'text':'Puzzle','value':'puzzle'}, {'text':'Boxes','value':'boxes'}, {'text':'BoxesReverse','value':'boxesReverse'}, {'text':'KenBurns','value':'kenburns'}, {'text':'Rotate','value':'rotate'}, {'text':'Scale','value':'scale'}, {'text':'RandomSimple','value':'randomSimple'}, {'text':'RandomFx','value':'randomFx'}],
+                                ui:'select',
+                                section:'Type specific',
+                                'default':'fade'
+                        },
+                        '1560':{
+                                name:'Caption Animation Duration',
+                                optName:'widgetkit_k2_caption_animation_duration',
+                                valid:'integer',
+                                section:'Type specific',
+                                'default':500
+                        },
+                        '1561':{
+                                name:'Lightbox',
+                                optName:'widgetkit_k2_lightbox',
+                                valid:'integer',
+                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1562':{
+                                name:'Style',
+                                optName:'widgetkit_k2_style',
+                                valid:'text',
+                                values:['default', 'inside', 'inspire', 'radiance', 'revista_default', 'screen', 'showcase', 'showcase_box', 'slider', 'slideset', 'subway', 'wall'],
+                                ui:'select',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1601':{
+                                name:'Show send button',
+                                optName:'facebooksend',
+                                valid:'yesno',
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':0,
+                                tip:'The Send Button allows users to easily send content to their friends. People will have the option to send your URL in a message to their Facebook friends, to the group wall of one of their Facebook groups, and as an email to any email address. While the Like Button allows users to share content with all of their friends, the Send Button allows them to send a private message to just a few friends.'
+                        },
+                        '1602':{
+                                name:'Layout style',
+                                optName:'facebooklayout',
+                                valid:'text',
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':'standard',
+                                values:['standard', 'box_count', 'button_count'],
+                                tip:'Standard - displays social text to the right of the button and friends profile photos below. Button count - displays the total number of likes to the right of the button. Box count - displays the total number of likes above the button.'
+                        },
+                        '1603':{
+                                name:'Show faces (standard layout only)',
+                                optName:'facebookshow_faces',
+                                valid:'yesno',
+                                ui:'radio',
+                                section:'Type specific',
+                                'default':0,
+                                tip:'Display profile photos below the button.'
+                        },
+                        '1604':{
+                                name:'Width',
+                                optName:'facebookwidth',
+                                valid:'integer',
+                                ui:'text',
+                                section:'Type specific',
+                                'default':450
+                        },
+                        '1605':{
+                                name:'Action',
+                                optName:'facebookaction',
+                                valid:'text',
+                                ui:'radio',
+                                values:['like', 'recommend'],
+                                section:'Type specific',
+                                'default':'like'
+                        },
+                        '1606':{
+                                name:'Fonts',
+                                optName:'facebookfont',
+                                valid:'text',
+                                ui:'radio',
+                                values:['standard', 'arial', 'lucida grande', 'segoe ui', 'tahoma', 'trebuchet ms', 'verdana'],
+                                section:'Type specific',
+                                'default':'standard'
+                        },
+                        '1607':{
+                                name:'Color scheme',
+                                optName:'facebookcolorscheme',
+                                valid:'text',
+                                ui:'radio',
+                                values:['light', 'dark'],
+                                section:'Type specific',
+                                'default':'light'
+                        },
+                        '1651':{
+                                name:'Twitter text',
+                                optName:'twittertext',
+                                valid:'text',
+                                section:'Type specific',
+                                'default':'Tweet'
+                        },
+                        '1652':{
+                                name:'Show counter',
+                                optName:'twittercounter',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'','text':'Counter'}, {'value':'none','text':'None'}],
+                                section:'Type specific',
+                                'default':''
+                        },
+                        '1653':{
+                                name:'Via twitter ID',
+                                optName:'twittervia',
+                                valid:'text',
+                                section:'Type specific'
+                        },
+                        '1654':{
+                                name:'Related twitter ID',
+                                optName:'twitterrelated',
+                                valid:'text',
+                                section:'Type specific'
+                        },
+                        '1655':{
+                                name:'Related twitter hash (without trailing #)',
+                                optName:'twitterhash',
+                                valid:'text',
+                                section:'Type specific'
+                        },
+                        '1656':{
+                                name:'Twitter button',
+                                optName:'twitterbutton',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'','text':'Normal'}, {'value':'large','text':'Large'}],
+                                section:'Type specific',
+                                'default':''
+                        },
+                        '1701':{
+                                name:'Counter position',
+                                optName:'linkedincounter',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'right','text':'Right'}, {'value':'top','text':'Top'}, {'value':'none','text':'None'}],
+                                section:'Type specific',
+                                'default':'right'
+                        },
+                        '1751':{
+                                name:'Counter position',
+                                optName:'pinterestcounter',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'horizontal','text':'Right'}, {'value':'vertical','text':'Top'}, {'value':'none','text':'None'}],
+                                section:'Type specific',
+                                'default':'horizontal'
+                        },
+                        '1752':{
+                                name:'Description',
+                                optName:'pinterestdescription',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'text','text':'Text'}, {'value':'item','text':'Item'}, {'value':'image','text':'Image'}],
+                                section:'Type specific',
+                                'default':'text',
+                                deps:{
+                                        'text':['id:1753']
+                                }
+                        },
+                        '1753':{
+                                name:'Description text',
+                                optName:'pinterestdescriptiontext',
+                                valid:'text',
+                                section:'Type specific',
+                                size:50
+                        },
+                        '1801':{
+                                name:'Annotation position',
+                                optName:'googleplusannotation',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'inline','text':'Inline'}, {'value':'bubble','text':'Bubble'}, {'value':'none','text':'None'}],
+                                section:'Type specific',
+                                'default':'inline'
+                        },
+                        '1802':{
+                                name:'Button size',
+                                optName:'googleplusbuttonsize',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'small','text':'Small(15px)'}, {'value':'medium','text':'Medium(20px)'}, {'value':'standard','text':'Standard(24px)'}, {'value':'tall','text':'Tall(60px)'}],
+                                section:'Type specific',
+                                'default':'medium'
+                        },
+                        '1851':{
+                                name:'Read Now/Later',
+                                optName:'readabilityread',
+                                valid:'yesno',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1852':{
+                                name:'Print',
+                                optName:'readabilityprint',
+                                valid:'yesno',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1853':{
+                                name:'Email',
+                                optName:'readabilityemail',
+                                valid:'yesno',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1854':{
+                                name:'Send to Kindle',
+                                optName:'readabilitykindle',
+                                valid:'yesno',
+                                section:'Type specific',
+                                'default':0
+                        },
+                        '1855':{
+                                name:'Text color',
+                                optName:'readabilitycolortext',
+                                valid:'text',
+                                section:'Type specific',
+                                'default':'#5c5c5c'
+                        },
+                        '1856':{
+                                name:'Background color',
+                                optName:'readabilitycolorbg',
+                                valid:'text',
+                                section:'Type specific',
+                                'default':'#5c5c5c'
+                        },
+                        '1857':{
+                                name:'Orientation',
+                                optName:'readabilityorientation',
+                                valid:'text',
+                                ui:'radio',
+                                values:[{'value':'0','text':'Horizontal'}, {'value':'1','text':'Vertical'}],
+                                section:'Type specific',
+                                'default':'0'
+                        },
+                        '1901':{
+                                name:'A Flattr username',
+                                optName:'flattruid',
+                                valid:'text',
+                                section:'Type specific',
+                                tip:'This is a required parameter for autosubmit but not for things that are already on flattr.com.'
+                        },
+                        '1902':{
+                                name:'Title (replacing current item title)',
+                                optName:'flattruid',
+                                valid:'text',
+                                section:'Type specific',
+                                tip:'Will be used to describe your thing on Fattr. The title should be between 5-100 characters. All HTML is stripped. This is a required parameter for autosubmit but not for things that are already on flattr.com.'
+                        },
+                        '1903':{
+                                name:'Description (replacing current item meta tag)',
+                                optName:'flattrdescription',
+                                valid:'text',
+                                ui:'textarea',
+                                section:'Type specific',
+                                tip:'Will be used to describe your thing. The description should be between 5-1000 characters. All HTML is stripped except the &lt;br\&gt; character which will be converted into newlines (\n). This is a required parameter for autosubmit but not for things that are already on flattr.com.'
+                        },
+                        '1904':{
+                                name:'Category',
+                                optName:'flattrcategory',
+                                valid:'text',
+                                ui:'select',
+                                values:[{'value':'text','text':'Text'}, {'value':'images','text':'Images'}, {'video':'standard','text':'Video'}, {'value':'audio','text':'Audio'}, {'value':'software','text':'Software'}, {'value':'people','text':'People'}, {'value':'rest','text':'Other'}],
+                                section:'Type specific',
+                                tip:'This parameter is used to sort things on Flattr and has no impact on the functionality of your button.',
+                                'default':'text'
+                        },
+                        '1905':{
+                                name:'Button type',
+                                optName:'flattrbutton',
+                                valid:'text',
+                                ui:'select',
+                                values:[{'value':'','text':'Normal'}, {'value':'compact','text':'Compact'}],
+                                section:'Type specific',
+                                tip:'This parameter is used to sort things on Flattr and has no impact on the functionality of your button.',
+                                'default':''
+                        },
+                        '1906':{
+                                name:'Hidden',
+                                optName:'flattrhidden',
+                                valid:'text',
+                                ui:'select',
+                                values:[{'value':'','text':'Listed'}, {'value':'1','text':'Hidden'}],
+                                section:'Type specific',
+                                tip:'Not all content is suitable for public listing. If you for one reason or another do not want your content to be listed on Flattr set this parameter to hidden.',
+                                'default':''
+                        },
+                        '1951':{
+                                'name':'E-mail address',
+                                'optName':'email',
+                                'valid':'email',
+                                'section':'Type specific',
+                                'size':50
+                        },
+                        '1952':{
+                                'name':'Form',
+                                'optName':'menu',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':this.options.options['menuitems'],
+                                'tip':'menu item for the form to connect',
+                                'section':'Type specific'
+                        },
+                        '1953':{
+                                'name':'Modal width(px)',
+                                'optName':'width',
+                                'valid':'integer',
+                                'section':'Type specific'
+                        },
+                        '1954':{
+                                'name':'Modal height(px)',
+                                'optName':'height',
+                                'valid':'integer',
+                                'section':'Type specific'
+                        },
+                        '1956':{
+                                'name':'Form title',
+                                'optName':'formtitle',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
+                        },
+                        '1957':{
+                                'name':'Form footer',
+                                'optName':'formfooter',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
+                        },
+                        '1958':{
+                                'name':'Link title',
+                                'optName':'title',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
                         }
              };
         }
