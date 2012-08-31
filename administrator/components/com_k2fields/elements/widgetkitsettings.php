@@ -40,6 +40,7 @@ class JFormFieldWidgetkitsettings extends JFormField {
                 $sep = '%%';
                 $pre = 'k2fields_widgetkit_';
                 $values = (string) $this->value;
+                //jdbg::pe($values);
                 $values = !empty($values) ? explode($sep, $values) : array_fill (0, count($settings), null);
                 
                 $html = array();
@@ -66,6 +67,8 @@ class JFormFieldWidgetkitsettings extends JFormField {
                 $html[] = '<input type="hidden" value="'.$this->id.'" name="" id="wk_k2fields_id" />';
                 
                 $doc = JFactory::getDocument();
+                $doc->addStyleSheet(JURI::base().'components/com_widgetkit/css/admin.css');
+                $doc->addStyleSheet(JURI::base().'components/com_widgetkit/css/system.css');
                 $doc->addScriptDeclaration("
                 window.addEvent('domready', function(){
                         var 
@@ -80,8 +83,14 @@ class JFormFieldWidgetkitsettings extends JFormField {
                                 el.addEvent('change', function(){
                                         var vals = {};
 
-                                        els.each(function(ei) { nm = ei.get('name'); vals[nm] = nm.replace(namePre, '')+'=='+ei.get('value'); }.bind(this));
-
+                                        els.each(function(ei) { 
+                                                nm = ei.get('name');
+                                                
+                                                if (!(ei.get('tag') == 'input' && ei.get('type') == 'radio') || ei.get('checked')) {
+                                                        vals[nm] = nm.replace(namePre, '')+'=='+ei.get('value');
+                                                }
+                                        }.bind(this));
+                                        
                                         vals = new Hash(vals).getValues();
                                         vals = vals.join(sep);
 
@@ -93,6 +102,6 @@ class JFormFieldWidgetkitsettings extends JFormField {
                 
                 $doc->addStyleDeclaration(".wkoption { clear:both; width:100%; }");
                 
-                return implode('', $html);
+                return '<div id="widgetkit">'.implode('', $html).'</div>';
 	}
 }
