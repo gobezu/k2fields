@@ -6,7 +6,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.controller');
 
 class K2FieldsControllerEditor extends JController {
-	function retrieve($send = true) {
+	function retrieve($send = true, $field = array()) {
                 $pkg = array();
                 $pkg['lists'] = $this->lists();
                 $pkg['listslevels'] = $this->listslevels();
@@ -15,6 +15,7 @@ class K2FieldsControllerEditor extends JController {
                 $pkg['mediaplugins'] = $this->mediaplugins();
                 $pkg['fields'] = $this->fields();
                 $pkg['aclviewgroups'] = $this->aclviewgroups();
+                $pkg['widgetkit_k2'] = $this->widgetkitparams($field);
                 // aclviewgroups
                 if (!$send) return $pkg;
                 echo json_encode($pkg);
@@ -241,6 +242,62 @@ order by groupid, `text`
                 if (!$send) return $res;
                 echo json_encode($res);
                 JFactory::getApplication()->close();
+        }
+        
+        function widgetkitparams($field) {
+                if (!JFile::exists(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.php')) {
+			return array();
+		}
+                
+                if (!isset($field['picplg']) || $field['picplg'] != 'widgetkit_k2') return array();
+                
+                $type = 'gallery';
+                
+                if (isset($field['widgetkit_k2_type'])) $type = $field['widgetkit_type'];
+                
+                $path = JPATH_SITE.'/media/widgetkit/widgets/'.$type.'/'.$type.'.xml';
+                $type_xml = simplexml_load_file($path);
+                $type_settings = $type_xml->xpath('settings/setting');
+                $settings = array();
+                $ignore_settings = array();
+                
+                foreach ($type_settings as $setting) {
+                        $name = (string) $setting->attributes()->name;
+                        
+                        if (in_array($name, $ignore_settings)) continue;
+                        
+                        $settings[] = $setting;
+                }
+                
+                $style = 'default';
+                if (isset($field['widgetkit_k2_style'])) $style = $field['widgetkit_k2_style'];
+                
+                $path = JPATH_SITE.'/media/widgetkit/widgets/'.$type.'/styles/'.$style.'/config.xml';
+                
+                if (JFile::exists($path)) {
+                        $style_xml = JFile::exists($path) ? simplexml_load_file($path) : false;
+                        $style_settings = $style_xml->xpath('settings/setting');
+                        $settings = array_merge($settings, $style_settings);
+                }
+                
+                $widgetkit = Widgetkit::getInstance();
+                
+                foreach ($settings as $i => $setting) {
+                        // type = style read list of folders
+                        // type = text
+                        // else assume options are present
+                        $settings[$i] = array(
+                            'type' => (string) $setting->attributes()->type,
+                            'label' => (string) $setting->attributes()->label,
+                            'name' => (string) $setting->attributes()->name,
+                            'default' => (string) $setting->attributes()->default
+                        );
+                        $settings[$i]['rendered'] = $widgetkit['field']->render(
+                                $settings[$i]['type'], 'k2fields_widgetkit_' . $settings[$i]['name'], '', $setting
+                        );
+                }
+                
+                return $settings;
         }
 }
 
