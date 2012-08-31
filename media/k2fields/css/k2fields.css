@@ -9,9 +9,10 @@ ul.k2fmapactions { list-style: none; margin:5px 0px; padding:0px; }
 ul.k2fmapactions li { display:inline-block; padding:0px 0.5em; margin:0px; }
 
 .ui-tabs .ui-tabs-hide {
-    position: absolute;
-    left: -10000px;
-    display:block !important;
+    position: absolute !important;
+    left: -9999px;    
+    top: -9999px;
+    width:auto;
 }
 
 /* 
@@ -141,8 +142,12 @@ a.k2flink { }
 .itemListTabular .cols9 .fvc, .itemListTabular .cols9 .fieldsValuesCell, .itemListTabular .cols9 .col { width:10.5%; }
 .itemListTabular .fieldsValuesCell .fvc, .itemListTabular .col .fvc, .itemListTabular .itemContainerFirst .itemListHeading .col .lbl { width:100%; }
 .itemListTabular .itemContainer .colsFolded .fvc > .lbl { display:block; }
-.itemListTabular .catItemView .jptoggler-active:hover, .itemListTabular .jptoggler-active, .itemListTabular .catItemView .jptoggler-inactive:hover, .itemListTabular .catItemView .jptoggler-inactive { background:inherit; }
-.itemListTabular .catItemView .jptoggler { margin: inherit; font-size: inherit; padding: inherit; color: inherit; }
+/*.itemListTabular .catItemView .jptoggler-active:hover, .itemListTabular .jptoggler-active, .itemListTabular .catItemView .jptoggler-inactive:hover, .itemListTabular .catItemView .jptoggler-inactive { background:inherit; }*/
+.itemListTabular .catItemView .k2fitemlist > .jptoggler-active:hover, 
+.itemListTabular .k2fitemlist > .jptoggler-active, 
+.itemListTabular .catItemView .k2fitemlist > .jptoggler-inactive:hover,
+.itemListTabular .catItemView .k2fitemlist > .jptoggler-inactive { background:inherit; }
+/*.itemListTabular .catItemView .jptoggler { margin: inherit; font-size: inherit; padding: inherit; color: inherit; }*/
 .itemListTabular .catItemView .catItemBody { padding-bottom:0px; }
 .catItemView .colsFolded { background-color:#EEEEEE; padding-bottom:5px; padding-top:5px; }
 .itemListTabular .colsFolded .col { float:none; }

@@ -145,7 +145,7 @@ group by vvv.itemid
                 }
         }
         
-        public static function getK2CurrentCategory($defaultCategory, $isBasedOnMenu = true, $includeDefaultMenuItem = false) {
+        public static function getK2CurrentCategory($defaultCategory, $isBasedOnMenu = true, $includeDefaultMenuItem = false, $excludes = array()) {
                 $option = JRequest::getCmd('option');
                 
                 if ($isBasedOnMenu && $option == 'com_k2') {
@@ -210,11 +210,43 @@ group by vvv.itemid
                 }
                 
                 if (!isset($catid)) {
-                        $catid = 
-                                $option == 'com_k2fields' ? 
-                                JRequest::getInt('cid', $defaultCategory) : 
-                                $defaultCategory;
+                        if ($option == 'com_k2') {
+                                $view = JRequest::getCmd('view');
+                                $task = JRequest::getCmd('task');
+
+                                if ($view == 'item') {
+                                        $isK2item = JRequest::getBool('k2item', false);
+
+                                        if ($isK2item) {
+                                                $catid = JRequest::getInt('k2cat');
+                                        } else if ($task == 'add' || $task == 'edit') {
+                                                JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
+                                                $id = JRequest::getInt('cid');
+
+                                                if ($id) {
+                                                        $item = JModel::getInstance('item', 'K2Model');
+                                                        $item = $item->getData();
+                                                        $catid = $item->catid;
+                                                } else {
+                                                        $catid = JRequest::getInt('catid');
+                                                }
+                                        } else {
+                                                JModel::addIncludePath(JPATH_SITE.'/components/com_k2/models');
+                                                $item = JModel::getInstance('item', 'K2Model');
+                                                $item = $item->getData();
+                                                $catid = $item->catid;
+                                        }
+                                } else if ($task == 'category') {
+                                        $catid = JRequest::getInt('id');
+                                }
+                        } else if ($option == 'com_k2fields') {
+                                $catid = JRequest::getInt('cid', $defaultCategory);
+                        } 
                 }
+                
+                if (in_array($catid, $excludes)) $catid = '';
+                
+                if (empty($catid)) $catid = $defaultCategory;
                 
                 return $catid;
         }
@@ -284,7 +316,7 @@ group by vvv.itemid
                 $hiddenIfOne = false
         ) {
                 if ($categoriesId == 'cid' || $categoriesId == 'catid') 
-                        $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem);
+                        $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem, $excludes);
                 else 
                         $currentCatid = '';
                 
@@ -881,7 +913,7 @@ group by vvv.itemid
                 return $file;
         }
                 
-        public static function createTemplateFileName($theme = 'default', $type = '', $addId = -1) {
+        private static function subCreateTemplateFileName($view, $theme = 'default', $type = '', $addId = -1) {
                 if (empty($theme)) $theme = JRequest::getWord('theme', 'default');
                 
                 $template = JFactory::getApplication()->getTemplate();
@@ -894,19 +926,16 @@ group by vvv.itemid
 //                $dir = JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/';
                 $listLayout = JRequest::getWord('listlayout', self::setting('listLayout', 'k2fields', 'k2', null, ''));
                 $id = JRequest::getInt('id', -1);
-                $option = JRequest::getCmd('option');
-                if ($option == 'com_k2' || $option == 'com_k2fields') {
-                        $view = JRequest::getWord('view');
-                        $task = JRequest::getCmd('task');
-                } else if ($type == 'fields') {
-                        $view = 'item';
-                }
                 $isForm = self::isK2EditMode();
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
                 if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
                 $file = false;
                 $ext = $type == 'fields' ? 'fld' : 'php';
-                
+                $option = JRequest::getCmd('option');
+                if ($option == 'com_k2' || $option == 'com_k2fields') {
+                        $task = JRequest::getCmd('task');
+                }
+
                 foreach ($dirs as $dir) {
                         if ($file !== false) break;
                         
@@ -925,7 +954,7 @@ group by vvv.itemid
                                 }
                                 
                                 $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $ids, '', $ext);
-                        } else if ($view == 'itemlist' && $task == 'category') {
+                        } else if ($view == 'itemlist' && $task == 'category' || $view == 'module') {
                                 if (is_array($addId)) {
                                         $ids = $addId;
                                 } else {
@@ -939,7 +968,11 @@ group by vvv.itemid
                                         if ($id != -1) $ids[] = 'c'.$id;
                                 }
                                 
-                                $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $ids, $listLayout, $ext);
+                                if ($view == 'module')
+                                        $file = JprovenUtility::_createTemplateFileName('module'.$post, $dir, $ids, $listLayout, $ext);
+                                
+                                if ($file === false)
+                                        $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $ids, $listLayout, $ext);
                         } else {
                                 $file = JprovenUtility::_createTemplateFileName($view.$post, $dir, -1, '', $ext);
                         }
@@ -960,6 +993,28 @@ group by vvv.itemid
 //                        }
                 }
                 
+                return $file;
+        }
+        
+        public static function createTemplateFileName($theme = 'default', $type = '', $addId = -1, $viewOverrides = array()) {
+                $file = '';
+                if (!empty($viewOverrides)) {
+                        foreach ($viewOverrides as $view) {
+                                $file = self::subCreateTemplateFileName($view, $theme, $type, $addId);
+                                
+                                if (!empty($file)) 
+                                        break;
+                        }
+                }
+                if (empty($file)) {
+                        $option = JRequest::getCmd('option');
+                        if ($option == 'com_k2' || $option == 'com_k2fields') {
+                                $view = JRequest::getWord('view');
+                        } else if ($type == 'fields') {
+                                $view = 'item';
+                        }
+                        $file = self::subCreateTemplateFileName($view, $theme, $type, $addId);
+                }
                 return $file;
         }
         

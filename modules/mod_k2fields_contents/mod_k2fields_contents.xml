@@ -265,7 +265,12 @@
                                         <option value="1">Show</option>
                                 </field>
                                 <field name="itemCustomLinkURL" type="text" default="http://" label="Custom link URL" description="" />
-                                <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />                
+                                <field name="itemCustomLinkTitle" type="text" default="" label="Custom link title" description="" />
+                                <field name="itemSimilarLink" type="radio" default="0" label="Show similar link at the bottom" description="">
+                                        <option value="0">Don't show</option>
+                                        <option value="1">Show</option>
+                                </field>
+                                <field name="itemSimilarLinkTitle" type="text" default="" label="Similar link title" description="" />
                         </fieldset>                        
                         <fieldset name="layoutoptions">
                                 <field name="template" type="folderlist" default="ul" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />

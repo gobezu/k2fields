@@ -329,8 +329,9 @@ class K2FieldsModelSearchterms extends JModel {
         }
         
         function addTolerance($op, $value, $field) {
-                $op = substr($op, 0, 1);
                 $field = self::$_fields[$field];
+                if (!K2FieldsModelFields::isNumeric($field) || !K2FieldsModelFields::isDatetimeType($field)) return $value;
+                $op = substr($op, 0, 1);
                 $tolerance = self::getTolerance($field, $op);
                 
                 if (K2FieldsModelFields::isDatetimeType($field)) {
@@ -1129,6 +1130,7 @@ class K2FieldsModelSearchterms extends JModel {
                         array(K2FieldsModelFields::VALUE_SEPARATOR, '&cid=', '?cid='),
                         $url
                 );
+                $url = str_replace('&cid=', '&scid=', $url);
                 return $url;
         }
         

@@ -382,6 +382,11 @@ class K2FieldsMedia {
                                         }
                                 }
                         }
+                        
+                        if (self::getPlugin($field, 'pic')->name == 'widgetkit_k2') {
+                                require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/models/types/widgetkithelper.php';
+                                K2fieldsWidgetkitHelper::delete($item, $field);
+                        }
                 }
         }
         
@@ -736,41 +741,45 @@ class K2FieldsMedia {
                         $model = JModel::getInstance('fields', 'K2FieldsModel');
                         $itemId = K2FieldsModelFields::value($item, 'id');
                         $fieldsValues = $model->itemValues($itemId, $fields);
-                        
                         foreach ($fieldsValues as $fieldValues) {
                                 foreach ($fieldValues as $fieldValue) {
                                         if (!empty($fieldValue->txt)) $values[] = $fieldValue->txt;
                                         else if (!empty($fieldValue->value)) $values[] = $fieldValue->value;
                                 }
                         }
-                        
                         $values = implode(' - ', $values);
                         $values = preg_replace("#\<span class=[\"\']lbl[\"\']>(.+)\<\/span\>#U", "$1 - ", $values);
                         $values = trim(html_entity_decode(htmlspecialchars_decode(strip_tags($values))));
                 }
                 
-                $watermark = K2FieldsModelFields::value($options, 'watermark');
+                $_watermarks = K2FieldsModelFields::value($options, 'watermark');
                 
-                if (!$watermark && !$values || !JFile::exists($file)) return;
+                if (!$_watermarks && !$values || !JFile::exists($file)) return;
                 
                 require_once JPATH_SITE."/media/k2fields/lib/wideimage-11.02.19-full/lib/WideImage.php";
                 
                 $img = WideImage::load($file);
                 
-                if ($watermark) $watermark = JPath::clean(JPATH_SITE . '/' . $watermark, '/');
-                
                 $watermarks = $lefts = $tops = array();
                 
-                if (JFile::exists($watermark)) {
-                        $watermarks[] = WideImage::load($watermark);
-                        $left = K2FieldsModelFields::value($options, 'watermark_left', 'left+10');
-                        $top = K2FieldsModelFields::value($options, 'watermark_top', 'top+10');                        
-                        $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
-                        $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
+                if ($_watermarks) {
+                        $_watermarks = explode(K2FieldsModelFields::VALUE_SEPARATOR, $_watermarks);
+                        
+                        foreach ($_watermarks as $watermark) {
+                                $watermark = JPath::clean(JPATH_SITE . '/' . $watermark, '/');
+                                
+                                if (JFile::exists($watermark)) {
+                                        $watermarks[] = WideImage::load($watermark);
+                                        $left = K2FieldsModelFields::value($options, 'watermark_left', 'left+10');
+                                        $top = K2FieldsModelFields::value($options, 'watermark_top', 'top+10');                        
+                                        $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
+                                        $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
+                                }
+                        }
                 }
                 
                 if ($values) {
-                        $fontSize = 10;
+                        $fontSize = (int) K2FieldsModelFields::value($options, 'watermark_font_size', 12);
                         $font = JPATH_SITE."/media/k2fields/fonts/Existence-Light.ttf";
                         
                         $oFont = K2FieldsModelFields::value($options, 'id');
@@ -951,8 +960,8 @@ class K2FieldsMedia {
                                 $height = $maxHeight;
                         }
                 } else {
+                        $width *= $maxHeight / $height;
                         $height = $maxHeight;
-                        $width *= $maxHeight / $size[1];
                 }
 
                 $width = round($width);
@@ -1416,8 +1425,19 @@ class K2FieldsMedia {
                 return K2fieldsWidgetkitHelper::render($item, $field);
         }
         
+        private static function getView($item) {
+                $view = $item->params && $item->params->get('parsedInModule') ? 'itemlist' : '';
+                if ($view != '') return $view;
+                $view = JFactory::getApplication()->input->get('view');
+                if ($view != 'itemlist') $view = '';
+                return $view;
+        }
+
         public static function render($item, $values, $field, $helper, $rule = null) {
                 $rendered = array('embed'=>array(), 'other'=>array());
+                
+                if (isset($item->noMediaFields) && $item->noMediaFields) return '';
+                        
                 $medias = array();
                 
                 foreach ($values as $value) {
@@ -1446,7 +1466,7 @@ class K2FieldsMedia {
                                 }
                         }
                         
-                        $plugin = self::getPlugin($field, $mediaType);
+                        $plugin = self::getPlugin($field, $mediaType, self::getView($item));
                         
                         if ($plugin instanceof JException) continue;
                         
@@ -1481,12 +1501,16 @@ class K2FieldsMedia {
                 return $rendered;
         }
         
-        protected static function getPlugin($field, $mediaType) {
+        protected static function getPlugin($field, $mediaType, $overrideView = '') {
                 $nonePlugins = array('widgetkit_k2', 'img', 'source');
-                
                 $input = JFactory::getApplication()->input;
-                $view = $input->get('view', '', 'cmd');
-                        
+                
+                if ($overrideView !== '') {
+                        $view = $overrideView;
+                } else {
+                        $view = $input->get('view', '', 'cmd');
+                }
+                
                 if ($view != 'itemlist') $view = '';
                 
                 $mediaTypes = K2FieldsModelFields::value($field, 'mediatypes');
@@ -1523,7 +1547,8 @@ class K2FieldsMedia {
         protected static function renderSource($medias, $mediaType, $plugin, $item, $field) {
                 $ui = array();
                 
-                $src = JRequest::getCmd('view', 'itemlist') == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
+                $view = self::getView($item);
+                $src = $view == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
                 
                 foreach ($medias as $media) {
                         $ui[] = array('src'=>$media[self::SRCPOS]->value, 'thumb'=>$media[self::THUMBSRCPOS]->value, 'caption'=>$media[self::CAPTIONPOS]->value);
@@ -1534,10 +1559,29 @@ class K2FieldsMedia {
         
         protected static function renderImg($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
+                $view = self::getView($item);
+                $view = $view == 'itemlist' ? 'list' : '';
+                $mode = K2FieldsModelFields::value($field, $view.'mode');
+                
+                if (empty($mode) && $view == 'list') {
+                        $mode = 'single';
+                }
+                
+                $isSingleMode = $mode == 'single';
+                $singleMode = K2FieldsModelFields::value($field, 'singlemode');
+                
+                if ($isSingleMode) {
+                        if ($singleMode == 'first') {
+                                $medias = array_slice($medias, 0, 1);
+                        } else if ($singleMode == 'random') {
+                                $rand = rand(0, count($medias)-1);
+                                $medias = array_slice($medias, $rand, 1);
+                        }
+                }
                 
                 self::normalizeLocation($medias);
                 
-                $src = JRequest::getCmd('view', 'itemlist') == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
+                $src = $view == 'list' ? self::THUMBSRCPOS : self::SRCPOS;
                 
                 foreach ($medias as $media) {
                         $ui .= "<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />";
@@ -1574,8 +1618,8 @@ class K2FieldsMedia {
                 
                 if (count($medias)) $mediasId .= '_'.$medias[0][0]->fieldid;
                 
-                $input = JFactory::getApplication()->input;
-                $view = $input->get('view', '', 'cmd') == 'itemlist' ? 'list' : '';
+                $view = self::getView($item);
+                $view = $view == 'itemlist' ? 'list' : '';
                 $mode = K2FieldsModelFields::value($field, $view.'mode');
                 
                 if (empty($mode) && $view == 'list') {

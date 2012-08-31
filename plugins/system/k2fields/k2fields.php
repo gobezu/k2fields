@@ -356,7 +356,7 @@ class plgSystemk2fields extends JPlugin {
          * in each possible template override folder
          */
         private function addResources() {
-                if (plgk2k2fields::param('specificCSS', 'no') == 'yes')  JprovenUtility::loadK2SpecificResources();
+                if (plgk2k2fields::param('specificCSS', 'no') == 'yes') JprovenUtility::loadK2SpecificResources();
         }
         
         /**
@@ -556,11 +556,15 @@ class plgSystemk2fields extends JPlugin {
                         JprovenUtility::load('k2fields_editor.js', 'js');
                         
                         $id = JRequest::getInt('cid');
+                        $options = array();
+                        
                         if ($id) {
                                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables/');
                                 $tbl = JTable::getInstance('K2ExtraFieldsDefinition', 'Table');
                         
                                 $tbl->load(JRequest::getInt('cid'));
+                                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                                $options = $model->mapFieldOptions($tbl);
                         }
                         
                         $document = JFactory::getDocument();
@@ -573,7 +577,7 @@ class plgSystemk2fields extends JPlugin {
                                         def: '.($id ? json_encode($tbl->definition) : 'null').',
                                         emptysectionname:"'.K2FieldsModelFields::setting('emptysectionname').'",
                                         fieldSeparator: "' . K2FieldsModelFields::FIELD_SEPARATOR . '",
-                                        options: '.json_encode($ctrl->retrieve(false)).'
+                                        options: '.json_encode($ctrl->retrieve(false, $options)).'
                                 });
                         ');
                         

@@ -93,7 +93,7 @@ class K2FieldsModuleHelper {
         }
         
         public static function getItemLayout($item, $ext, $extType, $layoutDir, $extLayoutDir) {
-                $extDir = '/' . $extType . 's' . '/' . $ext;
+                $extDir = '/' . $extType . 's/' . $ext;
                 $tmpl = JFactory::getApplication()->getTemplate();
                 
 		$dirs = array(JPATH_SITE.'/templates/'.$tmpl.'/html/'.$layoutDir.'/', JPATH_SITE . $extDir . '/' . $extLayoutDir . '/');
@@ -109,6 +109,7 @@ class K2FieldsModuleHelper {
                                         break;
                                 }
                         }
+                        if (!empty($tmpl)) break;
                 }
                 
                 return $tmpl;
@@ -127,6 +128,7 @@ class K2FieldsModuleHelper {
          * 2. sticky criterias
          * 3. categories
          */
+        static $searchBy = array('fields'=>array(), 'categories'=>array());
 	static function _getList($params, $componentParams, $format = 'html', $partBy = 'category') {
                 $moduleId = $params->get('module_id');
                 
@@ -310,6 +312,7 @@ class K2FieldsModuleHelper {
                                 $fields = array_keys($valuesByField);
                                 
                                 $tbl = 'SELECT itemid, fieldid, listindex, partindex, GROUP_CONCAT(value SEPARATOR "%%") AS value FROM #__k2_extra_fields_values WHERE itemid <> '.$itemId.' AND (';
+                                self::$searchBy['fields'] = $valuesByField;
                                 
                                 $i = 0;
                                 foreach ($valuesByField as $fieldId => $valuesByParts) {
@@ -354,9 +357,13 @@ class K2FieldsModuleHelper {
                                         $query .= ' AND i.itemid in (SELECT id FROM #__k2_items WHERE catid IN (SELECT catid FROM #__k2_items WHERE id = '.$itemId.'))';
                                 } else if ($stickToCategory == 'cats' && !empty($categories)) {
                                         $query .= ' AND i.itemid in (SELECT id FROM #__k2_items WHERE catid IN ('.implode(',', $categories).'))';
-                                }  
+                                }
+                                
+                                self::$searchBy['categories'] = $categories;
+                                $query .= ' ORDER BY RAND()';
                                 
                                 $lim = $stickToCategory != 'none' && isset($limitPerCat) ? $limitPerCat : $limit;
+                                
                                 if (!empty($lim)) $query .= ' LIMIT 0, '.$lim;
                                 
                                 $db->setQuery($query);
@@ -561,6 +568,25 @@ class K2FieldsModuleHelper {
                 $db->setQuery($queries);
                 $items = $db->loadObjectList();
                 
+                if ($params->get('itemSimilarLink', false)) {
+                        $parts = array();
+                        if (!empty(self::$searchBy['fields'])) {
+                                foreach (self::$searchBy['fields'] as $fieldId => $valsByParts) {
+                                        foreach ($valsByParts as $part => $vals) {
+                                                foreach ($vals as $val) {
+                                                        $parts[] = 's'.$fieldId.'_'.$part.'='.$val->value;
+                                                }
+                                        }
+                                }
+                        }
+                        if (!empty(self::$searchBy['categories'])) {
+                                $parts[] = 'scid='.implode(',', self::$searchBy['categories']);
+                        }
+                        if (!empty($parts)) {
+                                self::$searchBy = implode('&', $parts);
+                        }
+                }
+                
                 if ($partBy == 'category') $indexBy = 'catid';
                 else if ($partBy == 'author') $indexBy = 'created_by';
                 else $indexBy = 'catid';
@@ -703,6 +729,7 @@ class K2FieldsModuleHelper {
                         
 			foreach ($items as $catId => &$itemsPerCat) {
                                 foreach ($itemsPerCat as &$item) {
+                                        $notEmpty = !empty($item->introtext);
                                         if ($cats) $item->category = $cats[$catId];
                                         
                                         JprovenUtility::loadK2SpecificResources($catId, $item->id);
@@ -897,6 +924,16 @@ class K2FieldsModuleHelper {
                                                 $params->set('parsedInModule', 1); // for plugins to know when they are parsed inside this module
                                                 $item->params = new JParameter($item->params);
                                                 $item->params->merge($params);
+                                                
+                                                $cparams = new JParameter($item->category->params);
+
+                                                if ($cparams->get('inheritFrom')) {
+                                                        $masterCategory = JTable::getInstance('K2Category', 'Table');
+                                                        $masterCategory->load($cparams->get('inheritFrom'));
+                                                        $cparams = new JParameter($masterCategory->params);
+                                                }
+                                                
+                                                $params->merge($cparams);                                                
 
                                                 if($params->get('JPlugins', 1)){
                                                         //Plugins
@@ -916,7 +953,10 @@ class K2FieldsModuleHelper {
                                                         $item->event->AfterDisplayContent = trim(implode("\n", $results));
 
                                                         $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
-                                                        $item->introtext = $item->text;
+                                                        
+                                                        if ($params->get('itemIntroText')) {
+                                                                $item->introtext = $item->text;
+                                                        }
                                                 } else {
                                                         $item->event->BeforeDisplay = '';
                                                         $item->event->AfterDisplay = '';
@@ -924,7 +964,7 @@ class K2FieldsModuleHelper {
                                                         $item->event->BeforeDisplayContent = '';
                                                         $item->event->AfterDisplayContent = '';
                                                 }
-
+                                                
                                                 //Init K2 plugin events
                                                 $item->event->K2BeforeDisplay = '';
                                                 $item->event->K2AfterDisplay = '';
@@ -933,7 +973,7 @@ class K2FieldsModuleHelper {
                                                 $item->event->K2AfterDisplayContent = '';
                                                 $item->event->K2CommentsCounter = '';
 
-                                                if($params->get('K2Plugins', 1)){
+                                                if ($params->get('K2Plugins', 1)) {
                                                         //K2 plugins
                                                         JPluginHelper::importPlugin('k2');
                                                         $results = $dispatcher->trigger('onK2BeforeDisplay', array(&$item, &$params, $limitstart));
@@ -952,8 +992,11 @@ class K2FieldsModuleHelper {
                                                         $item->event->K2AfterDisplayContent = trim(implode("\n", $results));
 
                                                         $dispatcher->trigger('onK2PrepareContent', array(&$item, &$params, $limitstart));
-                                                        $item->introtext = $item->text;
-
+                                                        
+                                                        if ($params->get('itemIntroText')) {
+                                                                $item->introtext = $item->text;
+                                                        }
+                                                        
                                                         if ($params->get('itemCommentsCounter')) {
                                                                 $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
                                                                 $item->event->K2CommentsCounter = trim(implode("\n", $results));
@@ -969,7 +1012,7 @@ class K2FieldsModuleHelper {
 
                                         //Clean the plugin tags
                                         $item->introtext = preg_replace("#{(.*?)}(.*?){/(.*?)}#s", '', $item->introtext);
-
+                                        
                                         //Author
                                         if ($params->get('itemAuthor')) {
                                                 if (! empty($item->created_by_alias)) {

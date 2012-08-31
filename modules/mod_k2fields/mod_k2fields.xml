@@ -57,7 +57,7 @@
                                         <option value="selectcategorymessage">Text message</option>
                                 </field>
                                 <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields." 
-                                        query="SELECT s.id as value, SUBSTR(s.pname, 1, LOCATE('---', s.pname)-1) as defaultfields FROM (SELECT id, SUBSTR(name, LENGTH('k2f---')+1) as pname FROM #__k2_extra_fields WHERE published = 1) AS s"
+                                        query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as defaultfields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1"
                                 />
                                 <field name="useitemid" type="radio" default="current" label="Itemid to tie results to">
                                         <option value="menu">Selected menu item (choose below)</option>

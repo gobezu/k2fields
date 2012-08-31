@@ -561,8 +561,10 @@ Marker: {
 			marker.mapstraction_marker.click.fire();
 		});
 		
+                // Added by gobezu@gmail.com, jproven.com, 20120829.1011.GMT+3
 		google.maps.event.addListener(marker, 'dragend', function(e) {
-			marker.mapstraction_marker.dragend.fire(e);
+                        var p = new mxn.LatLonPoint(e.latLng.lat(), e.latLng.lng());
+                        marker.mapstraction_marker.dragend.fire(p);
 		});
 		
 		return marker;

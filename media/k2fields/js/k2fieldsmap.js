@@ -52,6 +52,18 @@ var k2fields_type_map = {
                 return icon.substring(0, ind)+alterWith+icon.substring(ind);
         },
         
+        getMapIconColor:function(proxyField, icon, alterWith) {
+                icon = this.getOpt(proxyField, 'mapicon'+icon);
+                
+                if (!icon) return false;
+                
+                if (!alterWith) alterWith = '';
+                
+                var ind = icon.lastIndexOf('.');
+                
+                return icon.substring(0, ind)+alterWith+icon.substring(ind);
+        },
+        
         getMapIconSize:function(proxyField, icon) {
                 if (!this.getMapIcon(proxyField, icon)) return;
                 
@@ -117,7 +129,7 @@ var k2fields_type_map = {
                         point = new mxn.LatLonPoint(parseFloat(lat), parseFloat(lon)),
                         ms = map.markers, 
                         cnt = ms.length + 1,
-                        icon = this.getMapIcon(proxyField, 'color', (cnt > 9 ? cnt : '0'+cnt)),
+                        icon = this.getMapIcon(proxyField, 'colorfile', (cnt > 9 ? cnt : '0'+cnt)),
                         marker = new mxn.Marker(point)
                         ;
                 
@@ -128,14 +140,14 @@ var k2fields_type_map = {
 		map.addMarkerWithData(marker, {
                         'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
                         'icon':icon,
-                        'iconSize':this.getMapIconSize(proxyField, 'color'),
+                        'iconSize':this.getMapIconSize(proxyField, 'colorfile'),
                         'editor':[geo[0], geo[1]]
                 });
                 
                 marker.dragend.addHandler(function(name, source, args) {
                         var geo = source.getAttribute('editor');
-                        geo[0].set('value', args.latLng.lat());
-                        geo[1].set('value', args.latLng.lng());
+                        geo[0].set('value', args.lat);
+                        geo[1].set('value', args.lon);                                
                         this.setProxyFieldValue(geo[1]);
 		}.bind(this));
                 
@@ -341,19 +353,50 @@ var k2fields_type_map = {
 
         drawStaticMap: function(data) {
                 // TODO: if field is in a tab and not in focus at page load the size provided is incorrect
+                var urls = {
+                        'googlev3':'http://maps.google.com/maps/api/staticmap?sensor=false&size=%width%x%height%&maptype=%maptype%&zoom=%zoom%',
+                        'leaflet':'http://www.mapquestapi.com/staticmap/v3/getmap?key=%apikey%&amp;size=%width%,%height%&amp;zoom=%zoom%&amp;type=%maptype%',
+                        'other':this.options.base+'/media/k2fields/lib/staticmaplite/staticmap.php?size=%width%x%height%&zoom=%zoom%&maptype=mapnik'
+                };
+                
                 var 
                         i, lbls = new Element('ol', {'class':'mapPointLabels'}),
                         container = document.id(data['container']),
                         size = container.getStyles('width', 'height'), 
                         n = data['points'].length,
-                        url = 'http://maps.google.com/maps/api/staticmap?sensor=false&size='+size['width'].toInt()+'x'+size['height'].toInt()+'&maptype='+data['maptype']+'&zoom='+data['zoom'];
-                
-                for (i = 0; i < n; i++) {
-                        url += '&markers=label:'+(i+1)+'%7C'+
-                                data['points'][i]['lat'] + ',' + data['points'][i]['lon'];
-                        new Element('li', {html:data['points'][i]['label']?data['points'][i]['label']:'Interest point '+(i+1)}).inject(lbls);
+                        url = urls[data['provider']] || urls['other'],
+                        pois = '',
+                        iconColor = data['iconcolor'] || 'orange'
+                        ;
+                       
+                if (n == 1 && data['provider'] != 'googlev3') {
+                        url += '&center='+data['points'][0]['lat']+','+data['points'][0]['lon'];
                 }
                 
+                url = url.
+                        replace('%apikey%', data['apikey']).
+                        replace('%width%', size['width'].toInt()).
+                        replace('%height%', size['height'].toInt()).
+                        replace('%zoom%', data['zoom']).
+                        replace('%maptype%', data['maptype']).
+                        replace('%centerlat%', data['points'][0]['lat']).
+                        replace('%centerlon%', data['points'][0]['lon'])
+                ;
+                
+                for (i = 0; i < n; i++) {
+                        if (data['provider'] == 'googlev3') {
+                                pois += pois == '' ? '&amp;markers=' : '|';
+                                pois += '&markers=label:'+(i+1)+'%7C'+data['points'][i]['lat'] + ',' + data['points'][i]['lon'];
+                        } else if (data['provider'] == 'leaflet') {
+                                pois += pois == '' ? '&amp;pois=' : '|';
+                                pois += iconColor+'-'+(i+1)+','+data['points'][i]['lat'] + ',' + data['points'][i]['lon'];
+                        } else {
+                                pois += pois == '' ? '&markers=' : '|';
+                                pois += data['points'][i]['lat'] + ',' + data['points'][i]['lon']+','+iconColor;
+                        }
+                        new Element('li', {html:data['points'][i]['label']?data['points'][i]['label']:'Interest point '+(i+1)}).inject(lbls);
+                }
+                url += pois;
                 new Element('image', {src:url}).inject(container);
                 lbls.inject(container.getParent());
         },
@@ -362,21 +405,31 @@ var k2fields_type_map = {
         drawMap: function(proxyField, view) {
                 var 
                         container = this.getOpt(proxyField, 'mapcontainerid'), 
-                        provider = this.getOpt(proxyField, 'mapprovider'),
-                        map = new mxn.Mapstraction(container, provider),
+                        provider = this.getOpt(proxyField, 'mapprovider')
+                        ;
+                var 
+                        map = new mxn.Mapstraction(container, provider);
+                        
+                var
                         maptype = this.getOpt(proxyField, 'maptype'),
                         itemPoints, m, el, items = this.mapItems[proxyField], i, n, itemId, item, a,
                         ips = new Element('ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs,
-                        createIPs = this.getOpt(proxyField, 'mapcreateips')
+                        createIPs = this.getOpt(proxyField, 'mapcreateips'),
+                        ctrls = this.getOpt(proxyField, 'mapcontrols'),
+                        showInMapBtn = this.getOpt(proxyField, 'mapshowinmapbtn')
                         ;
                         
                 map.setMapType(maptype);
                 
-		map.addControls({
-			pan: true,
-			zoom: 'small',
-			map_type: true
-		});
+                if (ctrls) {
+                        var mCtrls = {};
+                        if (ctrls.contains('zoom')) mCtrls['zoom'] = 'large';
+                        if (ctrls.contains('zoom small')) mCtrls['zoom'] = 'small';
+                        if (ctrls.contains('pan')) mCtrls['pan'] = true;
+                        if (ctrls.contains('maptype')) mCtrls['map_type'] = true;
+                        if (ctrls.contains('overview')) mCtrls['overview'] = true;
+                        map.addControls(mCtrls);
+                }
                 
                 this.loadMapAPI(proxyField);
                 
@@ -384,6 +437,8 @@ var k2fields_type_map = {
                         item = items[itemId];
                         itemPoints = item['points'];
                         n = itemPoints.length;
+                        
+                        preIp = n > 1 || view == 'item' ? '' : item.title;
                         
                         if (createIPs) {
                                 ipsItem = new Element('li').inject(ips);
@@ -394,8 +449,6 @@ var k2fields_type_map = {
                                         replace('%item%', item.title).
                                         replace('%category%', item.id)
                                 ;
-
-                                preIp = n > 1 || view == 'item' ? '' : item.title;
 
                                 if (n > 1) {
                                         if (view != 'item') {
@@ -413,7 +466,7 @@ var k2fields_type_map = {
                                 
                                 attrs = {'href':'#', 'text':preIp};
                                 
-                                if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = 'Interest point '+(i+1);
+                                if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = item.title+' '+(i+1);
                                 
                                 if (itemPoints[i].lbl) attrs['text'] += (preIp ? ' - ' : '') + itemPoints[i].lbl;
                                 
@@ -443,7 +496,7 @@ var k2fields_type_map = {
                                                         return false;
                                                 }.bind(this);
                                         }
-
+                                        
                                         new Element('a', attrs).inject(ipsItemC).store('ip', [proxyField, itemId, i]);
 
                                         if (view != 'item' && n == 1) {
@@ -451,10 +504,36 @@ var k2fields_type_map = {
                                         }
                                 }
                 
+                                if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
+                                        if ($$('.catitem'+itemId).length > 0) {
+                                                $$('.catitem'+itemId).
+                                                        store('ip', [proxyField, itemId, i]).
+                                                        addEvent('mouseover', function(e) { this.openIP(e); }.bind(this))
+                                                ;
+                                        }
+                                } else {
+                                        if ($$('.catitem'+itemId).length > 0) {
+                                                $$('.catitem'+itemId).
+                                                        store('ip', [proxyField, itemId, i]).
+                                                        addEvent('mouseover', function(e) { this.highlightIP(e, true); }.bind(this)).
+                                                        addEvent('mouseout', function(e) { this.highlightIP(e, false); }.bind(this))
+                                                ;
+                                        }
+                                }
+                                
+                                if (showInMapBtn)
+                                        new Element('a', {
+                                                'text':'» Show in map', 
+                                                'href':'#',
+                                                'class':'showinmapbtn',
+                                                'events':{ 'click':function(e) { this.showInMap(e); }.bind(this) }
+                                        }).inject($$('.catitem'+itemId)[0].getParent());
+                                
+                                
                                 new Element(view != 'item'? 'a' : 'span', {
                                         'href':item.link, 
                                         'text':itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text']
-                                }).inject(view != 'item' ? el.getElement('.k2fmap') : el, 'top');
+                                }).inject(view != 'item' && el.getElement('.k2fmap') ? el.getElement('.k2fmap') : el, 'top');
                                 
                                 m.setInfoBubble(el);
                                 m.click.addHandler(function(name, source, args) {
@@ -472,6 +551,8 @@ var k2fields_type_map = {
                                         'icon':this.getMapIcon(proxyField, 'location'),
                                         'iconSize':this.getMapIconSize(proxyField, 'location')
                                 });
+                                
+                                new JPProcessor().accordion(m.infoBubble);
                                 
                                 this.mapItems[proxyField][itemId]['points'][i]['marker'] = m;
                         }
@@ -552,30 +633,48 @@ var k2fields_type_map = {
         
         getIP: function(a) {
                 var ip = this._tgt(a);
+                if (ip.getParent('.itemContainer')) {
+                        ip = ip.getParent('.itemContainer').getChildren()[0];
+                }
                 ip = ip.retrieve('ip');
                 ip = this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
                 return ip;
         },
         
+        showInMap: function(a) {
+                var ip = this.getIP(a), map = ip.mapstraction;
+                map.setCenterAndZoom(ip.location, map.getZoom());
+                this.openIP(a);
+                document.location.href='#'+ip.mapstraction.element;
+        },
+        
         highlightIP: function(a, isOn) {
                 var ip = this.getIP(a);
-                
-                if (ip.api != 'googlev3') return;
                 
                 var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
                 var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
                 
-                size = new google.maps.Size(size[0], size[1]);
-                var zerozero = new google.maps.Point(0,0);
+                ip.mapstraction.removeMarker(ip);
+                ip.mapstraction.addMarkerWithData(ip, {'icon':icon, 'iconSize':size});
                 
-                icon = new google.maps.MarkerImage(
-                        icon,
-                        size,
-                        zerozero,
-                        zerozero
-                );
-                 
-                ip.proprietary_marker.setIcon(icon); 
+                return;
+//                
+//                if (ip.api != 'googlev3') return;
+//                
+//                var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
+//                var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
+//                
+//                size = new google.maps.Size(size[0], size[1]);
+//                var zerozero = new google.maps.Point(0,0);
+//                
+//                icon = new google.maps.MarkerImage(
+//                        icon,
+//                        size,
+//                        zerozero,
+//                        zerozero
+//                );
+//                 
+//                ip.proprietary_marker.setIcon(icon); 
         },
         
         showNearbyMeIPs: function(proxyField, map, distance) {

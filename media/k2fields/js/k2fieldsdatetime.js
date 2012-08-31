@@ -402,7 +402,7 @@ var k2fields_type_datetime = {
                                 
                 if (repeat == 'enddate' && !this.isMode('search')) {
                         minDep = repeatUI[repeatUI.length - 1].get('id');
-                        this.enforceDateDependency(Date.parse(el.get('value')), minDep, 'min');
+                        this.enforceDateDependency(el.get('value') ? Date.parse(el.get('value')) : new Date(), minDep, 'min');
                         this.datePickers[el.get('id')].setOptions({
                                 onSelect: function(date) {
                                         this.enforceDateDependency(date, minDep, 'min');

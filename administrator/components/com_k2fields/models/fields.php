@@ -740,7 +740,11 @@ class K2FieldsModelFields extends JModel {
                                                                 if ($caption) {
                                                                         $condition = $caption;
                                                                 }
-                                                        } else if ($fieldData['valid'] == 'k2item' && !empty($r->value)) {
+                                                        }
+                                                        
+                                                        if ($fieldData['valid'] == 'k2item' && !empty($r->value)) {
+                                                                $db->setQuery('SELECT title FROM #__k2_items WHERE id = '.(int) $r->value);
+                                                                $r->txt = $db->loadResult();
 //                                                                $cls = $this->loadType('k2item');
 //                                                                $v = new stdClass();
 //                                                                $v->value = $r->value;
@@ -1106,8 +1110,15 @@ class K2FieldsModelFields extends JModel {
                 return self::setting($name, null, array(), $path, $sep, $allKey);
         }
         
-        public static function isAutoFieldPresent($fieldType, $catId) {
-                return self::isContainsType($fieldType, $catId) !== false;
+        public static function isFieldTypePresent($fieldType, $catId) {
+                if (($options = self::isContainsType($fieldType, $catId, 'view')) !== false) {
+                        $filterView = JFactory::getApplication()->input->get('view');
+                        $fields = array($options);
+                        self::filterBasedOnView($fields, $filterView);
+                        return !empty($fields);
+                }
+                
+                return false;
         }
         
         public static function isAutoField($field) {
@@ -1505,6 +1516,7 @@ class K2FieldsModelFields extends JModel {
         }
         
         public function renderK2fsearch($item, $itemRules, $itemText) {
+                return 'renderK2fsearch';
                 if (!is_object($item)) {
                         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
                         $tbl = JTable::getInstance('K2Item', 'Table');
@@ -1801,7 +1813,7 @@ class K2FieldsModelFields extends JModel {
                 if ($inModule) {
                         $filterView = 'module';
                         $modeFilter = array('view' => 'module');
-                } else if ($inMap) {
+                } else if ($inMap && !K2FieldsMap::showList()) {
                         $filterView = 'map';
                         $modeFilter = array('view' => 'map');
                 } else {
@@ -1828,7 +1840,6 @@ class K2FieldsModelFields extends JModel {
                 }
                 
                 self::filterBasedOnView($fields, $filterView);
-                
 //                $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
 //                $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
 //                if (!empty($mapFields)) {
@@ -1837,6 +1848,13 @@ class K2FieldsModelFields extends JModel {
 //                }
                 
                 $fieldIds = (array) JprovenUtility::getColumn($fields, 'id', true);
+                
+                if ($inMap) {
+                        $mapFieldsToShow = $fields;
+                        if (K2FieldsMap::showList()) self::filterBasedOnView($mapFieldsToShow, $filterView, 'map');
+                        $mapFieldsToShow = JprovenUtility::getColumn($mapFieldsToShow, 'id', true);
+                        
+                }
 //                $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
                 
                 // all rules is merged to all other non-excluding fields
@@ -1879,6 +1897,8 @@ class K2FieldsModelFields extends JModel {
                 $schemaType = false;
                 
                 foreach ($itemRules as $fieldId => &$fieldRules) {
+                        if (!isset($fields[$fieldId])) continue;
+                        
                         $fld = $fields[$fieldId];
                         
                         if (self::isFormField($fld) && !self::isAutoField($fld) && !isset($fieldsValues[$fieldId])) {
@@ -1968,6 +1988,13 @@ class K2FieldsModelFields extends JModel {
                                                         $position['rendered'] = array();
 
                                                 $position['rendered'][] = $fieldRule;
+                                                
+                                                if ($inMap && in_array($fieldId, $mapFieldsToShow)) {
+                                                        if (!isset($position['rendered_map'])) 
+                                                                $position['rendered_map'] = array();
+
+                                                        $position['rendered_map'][] = $fieldRule;
+                                                }
                                         }
                                         
                                         unset($fieldRules[$frCount]);
@@ -2062,6 +2089,10 @@ class K2FieldsModelFields extends JModel {
                                 if (isset($position['absolute'])) {
                                         foreach ($position['absolute'] as $absolute) 
                                                 $absoluteRendered .= $absolute['rendered'];
+                                        
+                                        if (!empty($absoluteRendered)) {
+                                                $absoluteRendered = '<div class="k2fabsolute">'.$absoluteRendered.'</div>';
+                                        }
                                 }
                                 
                                 $plgSettings = array_intersect_key($position, $_plgSettings);
@@ -2124,9 +2155,22 @@ class K2FieldsModelFields extends JModel {
                                         '</div>'
                                         ;
                                 
-                                
                                 if ($inMap && !empty($mapFields)) {
-                                        $item->rendered = $rendered;
+                                        if (count($mapFieldsToShow) > 1) {
+                                                $renderedMap = call_user_func(
+                                                        array($this, 'renderUI'.ucfirst($ui)),
+                                                        $position['rendered_map'], $fields, $item, $plgSettings
+                                                );
+                                        } else {
+                                                $renderedMap = $position['rendered_map'][0]['rendered'];
+                                        }
+                                        
+                                        $item->rendered_map = 
+                                                '<div class="k2f'.$filterView.'">'.
+                                                        $title.
+                                                        $renderedMap.
+                                                '</div>'
+                                                ;
                                         
                                         foreach ($mapItemRules as $fieldId => &$fieldRules) {
                                                 $fld = $mapFields[$fieldId];
@@ -2137,7 +2181,7 @@ class K2FieldsModelFields extends JModel {
                                                         else $fieldValues = array();                
                                                         call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
                                                 }
-                                        }                                        
+                                        }
                                 }
                                 
                                 foreach ($_rules as $i => &$rule) {
@@ -2172,7 +2216,7 @@ class K2FieldsModelFields extends JModel {
                         
                         if (isset($_rules['fields'])) {
                                 $values = $_rules['rendered'];
-                                $values = JprovenUtility::getColumn($values, 'rendered');
+                                $values = (array) JprovenUtility::getColumn($values, 'rendered');
                                 $values = implode('', $values);
                                 unset($_rules['fields']);
                                 unset($_rules['rendered']);
@@ -2185,13 +2229,12 @@ class K2FieldsModelFields extends JModel {
                                         $rule['rendered'] = isset($values[$i]['rendered']) ? $values[$i]['rendered'] : '';
                                 }
                         }
-                        
                 }
                 
                 return $rules;
         }
         
-        public static function filterBasedOnView(&$fields, $filterView) {
+        public static function filterBasedOnView(&$fields, $filterView, $filterValue = null) {
                 if (!$filterView) return;
                 
                 foreach ($fields as $f => &$field) {
@@ -2210,6 +2253,10 @@ class K2FieldsModelFields extends JModel {
                                                         unset($subfields[$i]);
                                                         unset($filters[$i]);
                                                 }
+                                                if (!empty($filterValues) && !in_array($filterValue, $filter['view'][$filterView])) {
+                                                        unset($subfields[$i]);
+                                                        unset($filters[$i]);
+                                                }                                                
 //                                        }                                        
                                 }
                                 
@@ -2226,8 +2273,12 @@ class K2FieldsModelFields extends JModel {
 //                                        if (isset($filter['view']) && !isset($filter['view'][$filterView])) 
 //                                                unset($fields[$f]);
 //                                } else {
-                                        if (!isset($filter['view']) || !isset($filter['view'][$filterView])) 
+                                        if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
                                                 unset($fields[$f]);
+                                        }
+                                        if (!empty($filterValue) && !in_array($filterValue, $filter['view'][$filterView])) {
+                                                unset($fields[$f]);
+                                        }
 //                                }
                         }
                 }
@@ -2249,6 +2300,7 @@ class K2FieldsModelFields extends JModel {
                 $view = JRequest::getCmd('view');
                 $lbl = '';
                 $id = self::value($field, 'id', '');
+                $v = $id;
                 $isPart = false;
                 
                 if (!$id || $id <= 0) {
@@ -2301,14 +2353,40 @@ class K2FieldsModelFields extends JModel {
                         
                         $mod = $fieldRule['alt'];
                         $n = count($values);
-
+                        
+                        $collapsible = self::isTrue($field, 'collapsible');
+                        $collapseLimit = self::value($field, 'collapselimit', $collapsible ? 3 : 0);
+                        $excludeValues = (array) self::value($field, 'excludevalues', array());
+                        $j = 0;
                         for ($i = 0; $i < $n; $i++) {
-                                $rendered[] = '<li class="alt'.(($i + 1) % $mod).' n'.($i + 1).'">'.$values[$i].'</li>';
+                                $isExclude = false;
+                                if (!empty($excludeValues)) {
+                                        foreach ($excludeValues as $excludeValue) {
+                                                if (strpos($excludeValue, 'reg:') === 0) {
+                                                        $excludeValue = str_replace('reg:', '', $excludeValue);
+                                                        if (preg_match('#'.$excludeValue.'#i', $values[$i])) {
+                                                                $isExclude = true;
+                                                                break;
+                                                        }
+                                                } else if ($excludeValue == $values[$i]) {
+                                                        $isExclude = true;
+                                                        break;
+                                                }
+                                        }
+                                        if ($isExclude) continue;
+                                }
+                                if ($collapsible && $j == $collapseLimit) {
+                                        $rendered[] = '<a href="javascript:void(0)" class="jpcollapse">'.JText::_('Additional').'</a><ul class="k2flist lst qty'.($n - $collapseLimit).'">';
+                                }
+                                
+                                $rendered[] = '<li class="alt'.(($j + 1) % $mod).' n'.($j + 1).'">'.$values[$i].'</li>';
+                                $j++;
                         }
                         
-                        $rendered = '<ul class="k2flist lst qty'.$n.'">'.implode('', $rendered).'</ul>';
+                        $rendered = '<ul class="k2flist lst qty'.$collapseLimit.'">'.implode('', $rendered).'</ul>';
                 } else {
                         $rendered = '<span>'.implode('', $values).'</span>';
+                        
                 }
                 
                 $schemaProp = self::value($field, 'schemaprop');
@@ -2476,6 +2554,75 @@ class K2FieldsModelFields extends JModel {
         
         private function renderUIHeaders($values, $fields, $item, $plgSettings = array()) {
                 return $this->renderUIPlain($values, $fields, $item, 'h3', $plgSettings = array());
+        }
+        
+        private function renderUIJqueryAccordion($values, $fields, $item, $plgSettings = array(), $type = 'tabs', $options = array()) {
+                static $count = 0;
+                $count++;
+                
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
+                $accId = 'k2f-'.$type.'-'.$count;
+                $ui = '<div id='.$accId.'>';
+                
+                foreach ($uis as $section => $_uis) {
+                        $ui .= '<h3><a href="#">'.JText::_($section).'</a></h3><div>'.implode('', $_uis).'</div>';
+                }
+                
+                $ui .= '</div>';
+
+                $params = K2HelperUtilities::getParams('com_k2');
+                
+                $document = JFactory::getDocument();
+                
+                $backendJQueryHandling = $params->get('backendJQueryHandling', 'remote');
+                
+		if ($backendJQueryHandling == 'remote') {
+			$document->addScript('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js');
+		} else {
+			$document->addScript(JURI::root(true).'/media/k2/assets/js/jquery-ui-1.8.16.custom.min.js');
+		}
+                
+                $document->addScriptDeclaration('jQuery(document).ready(function(){ jQuery("#'.$accId.'" ).accordion(); });');
+                
+                return $ui;
+        }
+        
+        private function renderUIJqueryTab($values, $fields, $item, $plgSettings = array(), $type = 'tabs', $options = array()) {
+                static $count = 0;
+                $count++;
+                
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
+                $handlers = array();
+                $panels = array();
+                foreach ($uis as $section => $_uis) {
+                        $id = self::generateUISectionId($section);
+                        $handlers[] = '<li><a href="#'.$id.'">'.JText::_($section).'</a></li>';
+                        $panels[] = '<div id="'.$id.'">'.implode('', $_uis).'</div>';
+                }
+                
+                $tabId = 'k2f-'.$type.'-'.$count;
+                $ui = 
+                        '<div id='.$tabId.' class="k2f-tabs k2f-jquery-tabs">'.
+                        '<ul class="simpleTabsNavigation">'.implode('', $handlers).'</ul>'.
+                        implode('', $panels).
+                        '</div>'
+                        ;
+
+                $params = K2HelperUtilities::getParams('com_k2');
+                
+                $document = JFactory::getDocument();
+                
+                $backendJQueryHandling = $params->get('backendJQueryHandling', 'remote');
+                
+		if ($backendJQueryHandling == 'remote') {
+			$document->addScript('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js');
+		} else {
+			$document->addScript(JURI::root(true).'/media/k2/assets/js/jquery-ui-1.8.16.custom.min.js');
+		}
+                
+                $document->addScriptDeclaration('jQuery(document).ready(function(){ jQuery("#'.$tabId.'" ).tabs(); });');
+                
+                return $ui;
         }
         
         private function renderUITab($values, $fields, $item, $plgSettings = array(), $type = 'tabs', $options = array()) {
@@ -2675,6 +2822,9 @@ class K2FieldsModelFields extends JModel {
                 
                 $rendered = '';
                 $val = array();
+                $excludeValues = (array) self::value($field, 'excludevalues', array());
+                $collapsible = self::isTrue($field, 'collapsible');
+                $collapseLimit = self::value($field, 'collapselimit', $collapsible ? 3 : 0);
                 
                 foreach ($values as $j => $value) {
                         $v = self::value($value, 'value');
@@ -2685,6 +2835,27 @@ class K2FieldsModelFields extends JModel {
                                         continue;
                                 }
                                 
+                                if (!empty($excludeValues)) {
+                                        $isExclude = false;
+                                        foreach ($excludeValues as $excludeValue) {
+                                                if (strpos($excludeValue, 'reg:') === 0) {
+                                                        $excludeValue = str_replace('reg:', '', $excludeValue);
+                                                        if (preg_match('#'.$excludeValue.'#i', $v)) {
+                                                                $isExclude = true;
+                                                                break;
+                                                        }
+                                                } else if ($excludeValue == $v) {
+                                                        $isExclude = true;
+                                                        break;
+                                                }
+                                        }
+                                        if ($isExclude) continue;
+                                }
+                                
+//                                if ($collapsible && $j == $collapseLimit) {
+//                                        $val[] = '<a href="javascript:void(0)" class="jpcollapse">'.JText::_('Additional').'</a><ul class="k2flist lst qty'.(count($values) - $collapseLimit).'">';
+//                                }
+//                                
                                 $val[] = self::formatValue($value, $rule, $field);
                         }
                 }
@@ -2811,13 +2982,15 @@ class K2FieldsModelFields extends JModel {
         }
         
         public function renderFacebook($item, $values, $field, $helper, $rule = null) {
+                $facebookAppId = self::value($field, 'facebooksend', false);
+                                
                 $ui = '
                         <div id="fb-root"></div>
                         <script>(function(d, s, id) {
                         var js, fjs = d.getElementsByTagName(s)[0];
                         if (d.getElementById(id)) return;
                         js = d.createElement(s); js.id = id;
-                        js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+                        js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId='.$facebookAppId.'";
                         fjs.parentNode.insertBefore(js, fjs);
                         }(document, "script", "facebook-jssdk"));</script>
                         <div class="fb-like" 
@@ -3094,7 +3267,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $rendered = '';
                 
                 $menu = self::value($field, 'menu');
-
+                
                 if (empty($menu)) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_MISSING');
 
                 $menus = JSite::getMenu();
@@ -3118,6 +3291,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $label = self::value($field, 'label', $menuItem->title);
                 $label = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $label);
                 $title = self::value($field, 'title', $label);
+                
                 $title = str_replace(array('%title%', '%category%'), array($item->title, $item->category->name), $title);
                 $rec = $item->id.'%%'.$email.'%%'.$Itemid.'%%'.urlencode($item->title);
                 if (self::isType($field, 'form')) $rec .= '%%'.self::value($field, 'email');
@@ -3194,7 +3368,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                         break;
                         }
                 }
-
+                
                 return $rendered;
         }
 
@@ -3678,11 +3852,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $ids = array_keys($defs);
 
                         foreach ($defs as $id => &$def) {
-                                if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#', $def->def, $mm)) {
+                                if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#U', $def->def, $mm)) {
                                         $deps = explode(self::VALUE_SEPARATOR, $mm[1]);
                                         $_deps = array();
                                         foreach ($deps as $dep) {
-                                                list($val, $fld) = explode('==', $dep);
+                                                list($val, $fld) = explode(self::VALUE_COMP_SEPARATOR, $dep);
                                                 if (!isset($_deps[$val])) $_deps[$val] = array();
                                                 if (($pos = array_search($fld, $ids)) !== false) {
                                                         $_deps[$val][] = $pos + 1;
@@ -3690,8 +3864,15 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                                         $_deps[$val][] = 'id:'.$fld;
                                                 }
                                         }
+                                        $deps = array();
+                                        foreach ($_deps as $val => $_dep) {
+                                                foreach ($_dep as $__dep) {
+                                                        $deps[] = $val.self::VALUE_COMP_SEPARATOR.$__dep;
+                                                }
+                                        }
+                                        $deps = implode(self::VALUE_SEPARATOR, $deps);
                                         $_deps = json_encode($_deps);
-                                        $def->def = str_replace('deps='.$mm[1], 'deps='.$_deps, $def->def);
+                                        $def->def = str_replace('deps='.$mm[1], 'deps='.$deps, $def->def);
                                 }
                         }
                         $defs = (array) JprovenUtility::getColumn($defs, 'def');
@@ -3699,18 +3880,17 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $optStr = $defs.':::'.str_replace(':::'.$m[0], '', $optStr);
                         $sub = true;
 //                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
-                } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#U', $optStr, $m)) {
+                } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-|$)#U', $optStr, $m)) {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
-                                $dep = explode('==', $dep);
+                                $dep = explode(self::VALUE_COMP_SEPARATOR, $dep);
                                 if (!isset($_deps[$dep[0]])) $_deps[$dep[0]] = array();
                                 $_deps[$dep[0]][] = 'id:'.$dep[1].(count($dep) > 2 ?':1':'');
                         }
                         $_deps = json_encode($_deps);
                         $optStr = str_replace('deps='.$m[1], 'deps='.$_deps, $optStr);
                 }
-                
                 $sopts = explode(self::FIELD_SEPARATOR, $optStr);
                 
                 foreach ($sopts as $k => &$opt) {
@@ -3899,16 +4079,28 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $v = self::value($options, 'alias');
                         $aliasedOptions = $this->getFieldsById($v);
                         $aliased = array('valid');
+                        $noneAliasable = array('search');
                         
                         foreach ($options as $key => $option) {
+                                if (in_array($key, $noneAliasable)) {
+                                        $aliasedOptions[$key] = $option;
+                                        continue;
+                                }
                                 if (!in_array($key, $aliased)) {
                                         if ($option !== '' && $option !== null)
                                                 $aliasedOptions[$key] = $option;
                                 } else {
                                         $aliasedOptions['alias_'.$key] = $option;
                                 }
-                                        
                         }
+                        
+                        foreach ($aliasedOptions as $key => $option) {
+                                if (!isset($options[$key]) && in_array($key, $noneAliasable)) {
+                                        unset($aliasedOptions[$key]);
+                                }
+                        }
+                        
+                        $aliasedOptions = array_filter($aliasedOptions);
                         
                         if (!isset($options['filters']) || empty($options['filters'])) 
                                 unset($aliasedOptions['filters']);

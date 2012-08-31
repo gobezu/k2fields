@@ -36,7 +36,8 @@ var JPForm = new Class({
                                 'events':{
                                         'click':function(e) {
                                                 e = this._tgt(e);
-                                                this.resetElements(e.getParent('ul'));
+                                                e = e.getParent('ul');
+                                                this.resetElements(e);
                                                 return false;
                                         }.bind(this)
                                 }
@@ -220,7 +221,7 @@ var JPForm = new Class({
                         if (cont.getStyle('display') != 'none') {
                                 var value = this.getDefaultValue(proxyField)
                                 
-                                if (value !== null && value !== undefined) {
+                                if (value !== null && value !== undefined && value != "") {
                                         return this.setValue(el, value, undefined, undefined, undefined, true);
                                 }
                         }

@@ -36,7 +36,9 @@ class K2FieldsMap {
          */
         
         // TODO: clarify that only one field / category is assumed to be of type map
-        private static $containerId = null;
+        private static $containerId = null, $loadResources = false;
+        
+        private static $staticMapProviders = array('googlev3', 'google');
         
         public static function containerId($field = null, $item = null) {
                 if (self::$containerId) return self::$containerId;
@@ -61,7 +63,7 @@ class K2FieldsMap {
                         if ($view == 'item') $ui = self::finalizeMap('item');
                 }
                 
-                self::loadResources($item);
+                self::loadResources($item, $field, false);
                 
                 return $ui;
         }
@@ -74,15 +76,21 @@ class K2FieldsMap {
                         $data[] = array(
                             'lat'=>$value[0]->lat, 
                             'lon'=>$value[0]->lng, 
-                            'label'=>count($value) > 1 ? $value[1]->value : ''
+                            'label'=>count($value) > 1 ? $value[1]->value : $item->title
                         );
                 }
 
-                $mapType = self::v($field, 'maptype');
-                $zoom = self::v($field, 'mapzoom');
                 $color = self::v($field, 'mapiconcolor');
-
-                $data = array('points'=>$data, 'container'=>$uiId, 'maptype'=>$mapType, 'zoom'=>$zoom, 'color'=>$color);
+                
+                $data = array(
+                    'points'=>$data, 
+                    'container'=>$uiId, 
+                    'maptype'=>self::v($field, 'maptype'), 
+                    'zoom'=>self::v($field, 'mapzoom'), 
+                    'provider'=>self::v($field, 'mapprovider'),
+                    'apikey'=>self::v($field, 'mapapikey'),
+                    'iconcolor'=>self::v($field, 'mapiconcolor')
+                );
                 $data = json_encode($data);
 
                 return 
@@ -114,7 +122,7 @@ window.addEvent("load", function() {
                         self::$map[$proxyFieldId]['items'][$item->id] = array(
                                 'points' => array(),
                                 'title' => $item->title,
-                                'rendered' => $view == 'item' ? '' : $item->rendered,
+                                'rendered' => $view == 'item' ? '' : $item->rendered_map,
                                 'link' => $item->link,
                                 'category' => $view == 'item' ? $item->category->name : $item->categoryname,
                                 'categoryid' => $view == 'item' ? $item->category->id : $item->categoryid,
@@ -189,7 +197,6 @@ window.addEvent("load", function() {
         
         public static function finalizeMap($view) {
                 $ui = '';
-                
                 foreach (self::$map as $proxyFieldId => $m) {
                         $params = json_encode($m['params']);
                         $items = json_encode($m['items']);
@@ -221,6 +228,16 @@ window.addEvent("load", function() {
                 return $params[$name];
         }
         
+        public static function isMapPresent() {
+                $params = self::getParameters();
+                $id = K2FieldsModelFields::value($params, 'id');
+                return !empty($id);
+        }
+        
+        public static function showList() {
+                return !(self::isMapPresent() && !self::v(null, 'mapshowitemlist'));
+        }
+        
         public static function getParameters($field = null, $options = null) {
                 $fieldId = $field ? K2FieldsModelFields::value($field, 'id') : 'default';
                 
@@ -236,6 +253,8 @@ window.addEvent("load", function() {
                 if (isset($_options[$fieldId])) return $_options[$fieldId];
                 
                 if (empty($options)) $options = $field;
+                
+                if (empty($options)) return;
                 
                 if (is_object($options)) $options = get_object_vars ($options);
                 
@@ -259,8 +278,8 @@ window.addEvent("load", function() {
                         if (!empty($icon)) {
                                 $icon = JPath::clean($icon[0], '/');
                                 $iconSize = getimagesize($icon);
-                                $options['mapiconcolorsize'] = array($iconSize[0], $iconSize[1]);
-                                $options['mapiconcolor'] = str_replace($root, JURI::root(), $icon);
+                                $options['mapiconcolorfilesize'] = array($iconSize[0], $iconSize[1]);
+                                $options['mapiconcolorfile'] = str_replace($root, JURI::root(), $icon);
                         } else {
                                 unset($options['mapiconcolor']);
                         }
@@ -334,18 +353,21 @@ window.addEvent("load", function() {
                 $options['mapcontainerid'] = K2FieldsModelFields::setting('mapcontainerid'.$view, $options, K2FieldsMap::MAP_CONTAINER_ID.'_'.$options['mapprovider'], null, '::', 'all', 'mapcontainerid');
                 $options['maptype'] = K2FieldsModelFields::setting('maptype'.$view, $options, K2FieldsMap::MAP_TYPE, null, '::', 'all', 'maptype');
                 $options['mapcontainerclass'] = K2FieldsModelFields::setting('mapcontainerclass'.$view, $options, K2FieldsMap::MAP_CONTAINER_CLASS, null, '::', 'all', 'mapcontainerclass');
+                $options['mapcontrols'] = K2FieldsModelFields::setting('mapcontrols'.$view, $options, array(), null, '::', 'all', 'mapcontrols');
                 
                 $_options[$fieldId] = $options;
+                
+                if (self::$loadResources) self::loadResources(self::$loadResources[0], self::$loadResources[1], self::$loadResources[2]);
                 
                 return $options;
         }
         
-        public static function loadResources($item = null, $field = null) {
+        public static function loadResources($item = null, $field = null, $isForForm = true) {
                 $app = JFactory::getApplication();
                 $view = $app->input->get('view');
                 $option = $app->input->get('option');
                 
-                if ($option != 'com_k2') return;
+                if (!in_array($option, array('com_k2', 'com_k2fields'))) return;
                 
                 $editorMode = false;
                 
@@ -363,10 +385,19 @@ window.addEvent("load", function() {
                 if (!$field) 
                         $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
                 
-                if ($editorMode && !K2FieldsModelFields::isTrue($field, 'showmapeditor')) return;
+                if ($isForForm) {
+                        if (!$editorMode || !K2FieldsModelFields::isTrue($field, 'showmapeditor')) return;
+                }
                 
                 // TODO: depends on view when fully implemented
                 $provider = self::v($field, 'mapprovider');
+                
+                if (empty($provider)) {
+                        self::$loadResources = array($item, $field, $isForForm);
+                        return;
+                }
+                
+                if ($view == 'item' && !$editorMode && K2FieldsModelFields::isTrue($field, 'mapstatic')) return;
                 
                 if (isset($isCoreLoaded[$provider]) && $isCoreLoaded[$provider]) return;
                 
@@ -418,6 +449,8 @@ window.addEvent("load", function() {
                         self::add('mxn', $params);
                         $isCoreLoaded[$provider] = true;
                 }
+                
+                self::$loadResources = false;
         }
         
         

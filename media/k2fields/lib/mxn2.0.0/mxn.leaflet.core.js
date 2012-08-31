@@ -280,42 +280,52 @@ Marker: {
 	
 	toProprietary: function() {
 		var me = this;
-		var thisIcon = L.Icon;
+                var opts = {};
+                // Modified by gobezu@gmail.com, jproven.com, 20120829.1011.GMT+3                
 		if (me.iconUrl) {
-			thisIcon = thisIcon.extend({
-				iconUrl: me.iconUrl
-			});
+			opts['iconUrl'] = me.iconUrl;
 		}
 		if (me.iconSize) {
-			thisIcon = thisIcon.extend({
-				iconSize: new L.Point(me.iconSize[0], me.iconSize[1])
-			});
+                        opts['iconSize'] = me.iconSize;
 		}
 		if (me.iconAnchor) {
-			thisIcon = thisIcon.extend({
-				iconAnchor: new L.Point(me.iconAnchor[0], me.iconAnchor[1])
-			});
+                        opts['iconAnchor'] = me.iconAnchor;
 		}
 		if (me.iconShadowUrl) {
-			thisIcon = thisIcon.extend({
-				shadowUrl: me.iconShadowUrl
-			});
+                        opts['shadowUrl'] = me.iconShadowUrl;
 		}
 		if (me.iconShadowSize) {
-			thisIcon = thisIcon.extend({
-				shadowSize: new L.Point(me.iconShadowSize[0], me.iconShadowSize[1])
-			});
+                        opts['shadowSize'] = me.iconShadowSize;
 		}
-		var iconObj = new thisIcon();
-		var marker = new L.Marker(
-			this.location.toProprietary('leaflet'),
-			{ icon: iconObj }
-		);
+                var 
+                        thisIcon = L.Icon.extend({options:opts}), 
+                        thisHIcon,
+                        iconObj = new thisIcon(),
+                        iconHObj,
+                        marker = new L.Marker(this.location.toProprietary('leaflet'), {icon:iconObj, draggable:me.draggable})
+                        ;
+                if (me.infoBubble) {
+                        marker.bindPopup(me.infoBubble);
+                }
 		(function(me, marker) {
 			marker.on("click", function (e) {
 				me.click.fire();
 			});
 		})(me, marker);
+                if (me.draggable) {
+                        marker.on('dragend', function(e) {
+                                var p = e.target._latlng;
+                                p = new mxn.LatLonPoint(p.lat, p.lng);
+                                marker.mapstraction_marker.dragend.fire(p);
+                        }.bind(this));
+                }
+                if (me.hoverIconUrl) {
+                        opts['iconUrl'] = me.hoverIconUrl;
+                        thisHIcon = L.Icon.extend({options:opts});
+                        iconHObj = new thisHIcon();
+                        marker.on('mouseover', function() { });
+                        marker.on('mouseout', function() { });
+                }
 		return marker;
 	},
 

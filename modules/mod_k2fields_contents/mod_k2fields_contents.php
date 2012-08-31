@@ -32,6 +32,7 @@ $itemList = K2FieldsModuleHelper::getList($params, $componentParams, $document->
 
 if (!empty($itemList) && count($itemList) > 0) {
         $isPartitioned = !empty($partBy);
+        $similarLink = K2FieldsModuleHelper::$searchBy;
 
         if (count($itemList) == 1) {
                 if ($isPartitioned) {

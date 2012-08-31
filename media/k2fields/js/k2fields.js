@@ -1246,7 +1246,14 @@ var k2fields = new Class({
                 }
                 
                 if (type == 'textarea' && this.getOpt(proxyField, 'show_editor')) {
-                        jQuery('#'+field[0].get('id')).markItUp(mySettings);
+                        if( typeof tinymce != 'undefined') {
+                                if(tinyMCE.get(field[0].get('id'))) {
+                                        tinymce.EditorManager.remove(tinyMCE.get(field[0].get('id')));
+                                }
+                                tinyMCE.execCommand('mceAddControl', false, field[0].get('id'));
+                        } else {
+                                jQuery('#'+field[0].get('id')).markItUp(mySettings);
+                        }
                 }
                 
                 return field;
@@ -1362,6 +1369,8 @@ var k2fields = new Class({
 //                if (isNegative && displayer == 'none') 
 //                        displayer = container.get('tag').toLowerCase() == 'tr' ? 'table-row' : 'block';
 //                
+                if (container.getStyle('display') == displayer) return;
+                
                 container.setStyle('display', displayer);
                 
                 var cnt;
@@ -1371,7 +1380,13 @@ var k2fields = new Class({
                         container.store('toggledcnt', cnt);
                 }
                 
-                if (mode == 'block' && (this.isMode('search') || cnt > 1)) this.resetElements(container);
+                if (mode == 'block' && (this.isMode('search') || this.options['isNew'] || cnt > 1)) {
+                        this.resetElements(container);
+                } else if (mode == 'none') {
+                        var pContainer = this.getProxyFieldContainer(field);
+                        this.resetElements(pContainer);
+                        this.resetElements(container);
+                }
         },
 
         isCustomField: function(field) {
@@ -1432,7 +1447,16 @@ var k2fields = new Class({
         getValueRow: function(proxyField) {
                 var row = this.getProxyFieldContainer(proxyField).getNext();
                 
-                return row && row.getElements('[valueholder=true]').length > 0 ? row : null;
+                if (!row) return null;
+                
+//                if (
+//                        row.getElements('[valueholder=true]').length > 0 || 
+//                        row.getElements('a.addbtn').length > 0 ||
+//                        row.retrieve('valuerow') == 1
+//                ) return row;
+                if (row.hasClass('k2fvaluerow')) return row;
+                
+                return null;
         },
         
         getCell: function(proxyField, filter, type) {
@@ -1460,7 +1484,7 @@ var k2fields = new Class({
                         td, fTd, tr, tip;
                         
                 if (isFirst) {
-                        tr = new Element(proxyFieldTr.get('tag'));
+                        tr = new Element(proxyFieldTr.get('tag'), {'class':'k2fvaluerow'});
 
                         proxyFieldTr.setStyle('display', 'none');
 

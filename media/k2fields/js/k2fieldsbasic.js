@@ -603,15 +603,14 @@ var k2fields_type_basic = {
                                 dep = Array.from(deps[k]);
                                 
                                 for (i = 0, n = dep.length; i < n; i++) {
-                                        
-                                        t = typeof dep[i] == 'number' ? dep[i] - 1 : dep[i];
+                                        t = dep[i].toInt() == dep[i] ? dep[i].toInt() - 1 : dep[i];
                                         
                                         if (depees.contains(t)) {
                                                 this.addDependsOn(t, field, k);
                                                 continue;
                                         }
                                         
-                                        if (typeof dep[i] != 'number') {
+                                        if (typeof t != 'number') {
                                                 var tt = t.replace('id:', '');
                                                 
                                                 if (tt.test(/\:1$/)) {
@@ -684,11 +683,23 @@ var k2fields_type_basic = {
                         depees = this.getOpt(field, 'depees'), 
                         vals = Array.from(this.getValue(field)),
                         depeesAvailable = [],
-                        dep, i, n, j, m, t;
+                        dep, i, n, j, m, t, valSelected;
+                
+                m = vals.length;
                 
                 for (i = 0, n = depees.length; i < n; i++) {
                         if (t = this.isDependent(depees[i], depeeFields, 0)) {
-                                this.toggleCustomField(t, t.match(/^id\:\d+\:1$/) ? 'block' : 'none');
+                                valSelected = false;
+                                
+                                for (j = 0; j < m; j++) {
+                                        if (deps.hasOwnProperty(vals[j]) && deps[vals[j]].contains(t)) {
+                                                valSelected = true;
+                                                break;
+                                        }
+                                }
+                                
+                                if (!valSelected) 
+                                        this.toggleCustomField(t, t.match(/^id\:\d+\:1$/) ? 'block' : 'none');
                         }
                 }
                 

@@ -70,7 +70,7 @@ $placeholder = JText::_("search")."...";
 if ($ft == $placeholder) $ft = '';
 
 if ($showfreetextsearch || $categoryselector || $showsearchfields) {
-        $renderedFields = modK2FieldsHelper::getFields($defaultCategory, $categoryselector == 2, $includedefaultmenuitem);
+        $renderedFields = modK2FieldsHelper::getFields($defaultCategory, $categoryselector == 2, $includedefaultmenuitem, $excludes);
         $catid = JprovenUtility::getK2CurrentCategory($defaultCategory);
         $defaultmode = $params->get('defaultmode', 'active');
 
@@ -92,7 +92,7 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         
         $whentogglerempty = $params->get('whentogglerempty', 'inactive');
         
-        if ($showfreetextsearch && $ftautocomplete) {
+        if ($showfreetextsearch) {
                 $arr = array(
                     'postUrl'=>'index.php?option=com_k2fields&task=search&view=itemlist&format=json&tmpl=component&exclfldft='.$exclfldft.'&acmc='.$acmaxchars.'&limit='.$acmaxitems.'&module='.$module->id.'&Itemid='. $useItemid,
                     'moreResultsUrl'=>'index.php?option=com_k2fields&task=search&view=itemlist&Itemid='.$useItemid.'&module='.$module->id.'&exclfldft='.$exclfldft,

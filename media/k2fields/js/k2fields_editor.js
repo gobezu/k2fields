@@ -206,6 +206,16 @@ var k2fieldseditor = new Class({
                         new Element('span').inject(uip);
                         _id = k2fs.options.pre + id;
                         val = vals[optName];
+                        if (optName == 'values') {
+                                var _val;
+                                if (val != undefined && (_val = val.match(/^(file|function|php|url|sql)\:/i))) {
+                                        if (_val[1].toLowerCase() != ps.name.toLowerCase()) {
+                                                val = '';
+                                        }
+                                } else if (ps.name.toLowerCase() != 'specify') {
+                                        val = '';
+                                }                                
+                        }
                         new Element('input', {'type':'text', 'id':_id, 'name':_id, 'value':val}).inject(uip.getElement('span'));
                         if (ps.valid == 'complex' && ps.subfields) {
                                 for (var i = 0; i < ps.subfields.length; i++) 
@@ -489,7 +499,7 @@ var k2fieldseditor = new Class({
                                 'deps': {
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
-                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177'],
+                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
@@ -498,10 +508,10 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399'],
                                         'alias':['id:1451', 'id:1452'],
                                         'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
-                                        'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607'],
+                                        'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
                                         'twitter':['id:1651', 'id:1652', 'id:1653', 'id:1654', 'id:1655', 'id:1656'],
                                         'linkedin':['id:1701'],
                                         'pinterest':['id:1751', 'id:1752', 'id:1753'],
@@ -833,6 +843,29 @@ var k2fieldseditor = new Class({
                                 'valid':'verifybox',
                                 'section':'Layout'
                         },
+                        '45':{
+                                'name':'Collapsible',
+                                'optName':'collapsible',
+                                'valid':'verifybox',
+                                'section':'Basic',
+                                'deps':{
+                                        1:['id:46']
+                                }
+                        },
+                        '46':{
+                                'name':'Collapse limit',
+                                'optName':'collapselimit',
+                                'valid':'integer',
+                                'section':'Basic'
+                        },
+                        '47':{
+                                'name':'Exclude values from display',
+                                'optName':'excludevalues',
+                                'valid':'text',
+                                'list':'normal',
+                                'section':'Additional',
+                                'size':70
+                        },
                         '52':{
                                 'name':'Search operator',
                                 'optName':'search',
@@ -850,7 +883,8 @@ var k2fieldseditor = new Class({
                                         {'value':'nearby','text':'Nearby (TBI:map)'}
                                 ],
                                 'sorter':true,
-                                'section':'Search'
+                                'section':'Search',
+                                'clearopt':'button'
                         },
                         '53':{
                                 'name':'Search default',
@@ -1277,7 +1311,7 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'size':100,
                                 'section':'Type specific',
-                                'tip':'Provide file location relative to site root to image to be used as watermark'
+                                'tip':'Provide file location relative to site root to image to be used as watermark. Separate with %% for several images.'
                         },                       
                         '1164':{
                                 'name':'Watermark left position (horizontal)',
@@ -1305,22 +1339,30 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'tip':'Comma separated list of red, green, blue values. Ex. 0,0,0 or 255,255,255',
                                 'section':'Type specific'
-                        },
+                        },                       
                         '1168':{
+                                'name':'Watermark font size',
+                                'optName':'watermark_font_size',
+                                'valid':'integer',
+                                'section':'Type specific',
+                                'tip':'If field choosen then this size will be applied to the value',
+                                'default':12
+                        },
+                        '1169':{
                                 'name':'Image width (px)',
                                 'optName':'picwidth',
                                 'valid':'integer',
                                 'section':'Type specific',
                                 'default':500
                         },
-                        '1169':{
+                        '1170':{
                                 'name':'Image height (px)',
                                 'optName':'picheight',
                                 'valid':'integer',
                                 'section':'Type specific',
                                 'default':500
                         },
-                        '1170':{
+                        '1171':{
                                 'name':'Image quality (%)',
                                 'optName':'picquality',
                                 'valid':'range',
@@ -1332,21 +1374,21 @@ var k2fieldseditor = new Class({
                                 'default':70,
                                 'ui':'select'
                         },
-                        '1171':{
+                        '1172':{
                                 'name':'Thumb - Image width (px)',
                                 'optName':'picwidththumb',
                                 'valid':'integer',
                                 'section':'Type specific',
                                 'default':170
                         },
-                        '1172':{
+                        '1173':{
                                 'name':'Thumb - Image height (px)',
                                 'optName':'picheightthumb',
                                 'valid':'integer',
                                 'section':'Type specific',
                                 'default':170
                         },
-                        '1173':{
+                        '1174':{
                                 'name':'Thumb - Image quality (%)',
                                 'optName':'picqualitythumb',
                                 'valid':'range',
@@ -1358,7 +1400,7 @@ var k2fieldseditor = new Class({
                                 'default':70,
                                 'ui':'select'
                         },
-                        '1174':{
+                        '1175':{
                                 'name':'Media limit',
                                 'optName':'medialimit',
                                 'valid':'integer',
@@ -1368,7 +1410,7 @@ var k2fieldseditor = new Class({
                                 'tip':'Maximum number of media items per K2 item (0 unlimited)',
                                 'default':10
                         },
-                        '1175':{
+                        '1176':{
                                 'name':'Image size (kb)',
                                 'optName':'picsize',
                                 'valid':'integer',
@@ -1378,7 +1420,7 @@ var k2fieldseditor = new Class({
                                 'default':100,
                                 'required':0
                         },
-                        '1176':{
+                        '1177':{
                                 'name':'Video size (kb)',
                                 'optName':'videosize',
                                 'valid':'integer',
@@ -1387,7 +1429,7 @@ var k2fieldseditor = new Class({
                                 'tip':'Maximum upload size for video files',
                                 'default':400
                         },
-                        '1177':{
+                        '1178':{
                                 'name':'Audio size (kb)',
                                 'optName':'audiosize',
                                 'valid':'integer',
@@ -1741,6 +1783,7 @@ var k2fieldseditor = new Class({
                                         {value:'leaflet',text:'leaflet (draggable)'}, 
                                         {value:'mapquest',text:'mapquest'}, 
                                         {value:'cloudmade',text:'cloudmade'}, 
+                                        {value:'openlayers',text:'openlayers'}, 
                                         {value:'microsoft',text:'microsoft'},
                                         {value:'yandex',text:'yandex'}
                                 ],
@@ -1756,7 +1799,7 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '1362':{
-                                'name':'Map provider (item)',
+                                'name':'Map provider (itemlist)',
                                 'optName':'mapprovideritemlist',
                                 'valid':'text',
                                 'ui':'select',
@@ -2062,6 +2105,29 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'section':'Type specific'
                         },
+                        '1397':{
+                                'name':'Map controls (item)',
+                                'optName':'mapcontrols',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'values':['pan', 'zoom large', 'zoom small', 'maptype', 'overview'],
+                                'ui':'checkbox'
+                        },
+                        '1398':{
+                                'name':'Map controls (itemlist)',
+                                'optName':'mapcontrolsitemlist',
+                                'valid':'text',
+                                'section':'Type specific',
+                                'values':['pan', 'zoom large', 'zoom small', 'maptype', 'overview'],
+                                'ui':'checkbox'
+                        },
+                        '1399':{
+                                'name':'Show in map button',
+                                'optName':'mapshowinmapbtn',
+                                'valid':'verifybox',
+                                'section':'Type specific',
+                                'default':1
+                        },
                         
                         '1401':{
                                 'name':'Source',
@@ -2116,7 +2182,7 @@ var k2fieldseditor = new Class({
                                 'tip':'File need to be located on site and given relative to site root. Each row in file need to adhere to the following format where only value column is mandatory: value==text==img'
                         },
                         '1406':{
-                                'name':'Specify values',
+                                'name':'Specify',
                                 'optName':'values',
                                 'valid':'complex',
                                 'list':'normal',
@@ -2331,9 +2397,10 @@ var k2fieldseditor = new Class({
                                 optName:'facebookfont',
                                 valid:'text',
                                 ui:'radio',
-                                values:['standard', 'arial', 'lucida grande', 'segoe ui', 'tahoma', 'trebuchet ms', 'verdana'],
+                                values:['arial', 'lucida grande', 'segoe ui', 'tahoma', 'trebuchet ms', 'verdana'],
                                 section:'Type specific',
-                                'default':'standard'
+                                'default':'',
+                                'clearopt':'button'
                         },
                         '1607':{
                                 name:'Color scheme',
@@ -2343,6 +2410,13 @@ var k2fieldseditor = new Class({
                                 values:['light', 'dark'],
                                 section:'Type specific',
                                 'default':'light'
+                        },
+                        '1608':{
+                                name:'Appid',
+                                optName:'facebookappid',
+                                valid:'text',
+                                size:'50',
+                                section:'Type specific'
                         },
                         '1651':{
                                 name:'Twitter text',

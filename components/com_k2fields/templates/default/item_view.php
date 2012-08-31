@@ -40,7 +40,7 @@ $fields = JModel::getInstance('fields', 'K2FieldsModel');
                         </span>
                         <?php endif; ?>
 
-                        <?php if (!K2FieldsModelFields::isAutoFieldPresent('title', $this->item->catid) && $this->item->params->get('itemTitle')): ?>
+                        <?php if (!K2FieldsModelFields::isFieldTypePresent('title', $this->item->catid) && $this->item->params->get('itemTitle')): ?>
                         <!-- Item title -->
                         <h2 class="itemTitle">
                                 <?php echo $this->item->title; ?>

@@ -26,7 +26,7 @@ K2HelperUtilities::setDefaultImage($this->item, 'itemlist', $this->params);
                 <?php echo $this->item->event->K2BeforeDisplay; ?>
 
                 <div class="catItemHeader">
-                        <?php if(!K2FieldsModelFields::isAutoFieldPresent('title', $this->item->catid) && $this->item->params->get('catItemTitle')): ?>
+                        <?php if(!K2FieldsModelFields::isFieldTypePresent('title', $this->item->catid) && $this->item->params->get('catItemTitle')): ?>
                         <!-- Item title -->
                         <h3 class="catItemTitle">
                                 <?php if ($this->item->params->get('catItemTitleLinked')): ?>

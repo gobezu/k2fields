@@ -230,6 +230,10 @@ class plgk2k2fields extends K2Plugin {
                 
                 if ($caller != $pos) return;
                 
+                /*
+                 * NOTE: due to autofields that doesn't carry values checking presence of fields
+                 * can't be validation to reject further parsing. Instead make available field processing
+                 * efficient
                 $p = is_object($params) ? $params : $item->params;
                 
                 if (is_string($p)) {
@@ -246,6 +250,8 @@ class plgk2k2fields extends K2Plugin {
                         ;
                 
                 if (!$ef) return;
+                 *
+                 */
                 
                 $inText = false;
                 $tmp = $item->text;
@@ -255,11 +261,20 @@ class plgk2k2fields extends K2Plugin {
                         $inText = true;
                 } else {
                         jimport('joomla.filesystem.file');
-
+                        
                         $plg = '';
                         $view = JFactory::getApplication()->input->get('view');
-                        $file = JprovenUtility::createTemplateFileName($params->get('theme'), 'fields', array('i'.$item->id, 'c'.$item->catid));
+                        $ids = array('i'.$item->id, 'c'.$item->catid);
                         
+                        if ($params->get('parsedInModule')) array_unshift($ids, 'm'.$params->get('module_id'));
+                        
+                        $file = JprovenUtility::createTemplateFileName(
+                                $params->get('theme'), 
+                                'fields', 
+                                $ids,
+                                $params->get('parsedInModule') ? array('module', 'itemlist') : ''
+                        );
+
                         if ($file) {
                                 $plg = JFile::read($file);
                                 $plg = trim($plg);
@@ -275,7 +290,7 @@ class plgk2k2fields extends K2Plugin {
                                 if (strpos($plg, '{k2ftitle}') !== false) {
                                         $title = $item->title;
                                         
-                                        if ($view == 'itemlist' && $params->get('catItemTitleLinked')) {
+                                        if (($params->get('parsedInModule') || $view == 'itemlist') && $params->get('catItemTitleLinked')) {
                                                 $title = K2FieldsHelperRoute::createItemLink($item);
                                         }
                                         
@@ -288,10 +303,11 @@ class plgk2k2fields extends K2Plugin {
                 
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
+                
                 // TODO: TOO obtrusive
                 $item->extra_fields = array();
                 $result = $item->text;
-                
+
                 $item->text = $inText ? str_replace($plg, $result, $tmp) : $tmp;
                 
                 if ($result) self::loadResources('item', $item);
@@ -326,7 +342,7 @@ class plgk2k2fields extends K2Plugin {
                         
                         $item->isItemlistMap = $view == 'itemlist' && !empty($map);
                         
-                        if ($item->isItemlistMap) $item->itemlistCSS = ' itemListMap';
+                        if ($item->isItemlistMap) $item->itemlistCSS .= ' itemListMap';
                         
                         if (empty(self::$catState)) self::$catState = clone $item;
                 }
@@ -565,7 +581,7 @@ class plgk2k2fields extends K2Plugin {
                 
                 $document = JFactory::getDocument();
                 
-                if ($tab != 'search') K2FieldsMap::loadResources($item, null, false);
+                if ($tab != 'search') K2FieldsMap::loadResources($item, null, true);
                 
                 if (!$includeDone) {
                         JprovenUtility::load('k2fields.css', 'css');

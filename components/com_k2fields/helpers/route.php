@@ -43,7 +43,7 @@ class K2FieldsHelperRoute {
                         require_once JPATH_SITE . '/components/com_k2fields/models/searchterms.php';
 
                         $s = K2FieldsModelSearchterms::getSearchUrl();
-
+                        
                         if ($s)
                                 $link .= '&' . $s;
                 }
@@ -125,7 +125,7 @@ class K2FieldsHelperRoute {
         }
 
         public static function createCategorySlug($item) {
-                return $item->catalias ? ($item->catid . ':' . urlencode($item->catalias)) : $item->catid;
+                return isset($item->categoryalias) && $item->categoryalias ? ($item->catid . ':' . urlencode($item->categoryalias)) : $item->catid;
         }
 
         protected static function createLink($link, $title = '', $mode = array(), $class = '') {

@@ -79,6 +79,8 @@
                                         <option value="list">List</option>
                                         <option value="tab">Joomla! native tabs</option>
                                         <option value="accordion">Joomla! native sliders</option>
+                                        <option value="jquerytab">jQuery UI tabs</option>
+                                        <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>
                                 <field name="catsui" type="textarea" cols="40" rows="10" default="all%%tab" label="Category specific for item view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
                                 <field name="defaultuiitemlist" type="list" default="plain" label="Default for itemlist view">
@@ -87,6 +89,8 @@
                                         <option value="list">List</option>
                                         <option value="tab">Joomla! native tabs</option>
                                         <option value="accordion">Joomla! native sliders</option>
+                                        <option value="jquerytab">jQuery UI tabs</option>
+                                        <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>        
                                 <field name="catsuiitemlist" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for itemlist view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
                                 <field name="defaultuimodule" type="list" default="plain" label="Default for module view">
@@ -95,6 +99,8 @@
                                         <option value="list">List</option>
                                         <option value="tab">Joomla! native tabs</option>
                                         <option value="accordion">Joomla! native sliders</option>
+                                        <option value="jquerytab">jQuery UI tabs</option>
+                                        <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>        
                                 <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for module view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
                         </fieldset>
