@@ -41,13 +41,13 @@ class plgk2k2fields extends K2Plugin {
                 $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
 		$item->link = urldecode(JRoute::_($link));
                 
-                $item->nonk2rating = 
-                        JPluginHelper::importPlugin('jcomments', 'rate') || JPluginHelper::importPlugin('slicomments', 'rate');
-                
                 if (is_string($item->params)) {
                         jimport('joomla.html.parameter');
                         $item->params = new JParameter ($item->params);
                 }
+                
+                if ($item->params->get('itemComments') && $item->params->get('itemRating'))
+                        $item->nonk2rating = JPluginHelper::importPlugin('k2', 'jcomments') && JPluginHelper::importPlugin('jcomments', 'rate');
                 
                 self::setLayout($item);
                 
