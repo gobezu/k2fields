@@ -417,8 +417,11 @@ window.addEvent("load", function() {
                         case 'mapquest':
                                 $providerSrcs['js'][]  = 'http://btilelog.beta.mapquest.com/tilelog/transaction?transaction=script&key='.$apiKey.'&itk=true&v=5.3.0_RC5&ipkg=controls1';
                         case 'leaflet':
-                                $providerSrcs['js'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.js';
-                                $providerSrcs['css'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.css';
+                                JprovenUtility::loc(true, true, 'lib/mapproviders/leaflet.css', true, 'css');
+                                JprovenUtility::loc(true, true, 'lib/mapproviders/leaflet.js', true, 'js');
+//                                $providerSrcs['js'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.js';
+//                                $providerSrcs['css'][]  = 'http://leaflet.cloudmade.com/dist/leaflet.css';
+						
                                 break;
                         case 'cloudmade':
                         case 'openlayers':
