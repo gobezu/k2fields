@@ -27,6 +27,7 @@ $includedefaultmenuitem = $params->get('includedefaultmenuitem', 1);
 $showsearchfields = $params->get('showsearchfields', true);
 $showorderby = $params->get('showorderby', true);
 $ftautocomplete = $params->get('ftautocomplete', true);
+$ftautocompletecustomwidth = 'inherit';
 if ($ftautocomplete) {
         $ftautocompletewidth = $params->get('ftautocompletewidth', 'autofit');
         if ($ftautocompletewidth != 'autofit') {

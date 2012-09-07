@@ -241,10 +241,10 @@ group by vvv.itemid
                                 }
                         } else if ($option == 'com_k2fields') {
                                 $catid = JRequest::getInt('cid', $defaultCategory);
-                        } 
+                        }
                 }
                 
-                if (in_array($catid, $excludes)) $catid = '';
+                if (isset($catid) && in_array($catid, $excludes)) $catid = '';
                 
                 if (empty($catid)) $catid = $defaultCategory;
                 

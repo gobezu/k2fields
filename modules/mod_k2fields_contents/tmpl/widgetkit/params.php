@@ -32,7 +32,7 @@ if ($isPartitioned) {
         $partTitles = array('category'=>'categoryname', 'author'=>'author');
         
         $partitionId = "mod_k2fields_contents_".$module->id;
-        $document->addScriptDeclaration('new WKK2fields("'.$partitionId.'");');
+        //$document->addScriptDeclaration('new WKK2fields("'.$partitionId.'");');
 } else {
-        $document->addScriptDeclaration('new WKK2fields();');
+        //$document->addScriptDeclaration('new WKK2fields();');
 }

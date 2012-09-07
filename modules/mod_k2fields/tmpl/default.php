@@ -4,6 +4,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 ?>
+<div class="k2fSearchForm" id="k2fSearchForm<?php echo $module->id; ?>">
 <form name="searchForm" method="get" action="index.php">
         <ul id="searchFormContainer">
         <? if ($categoryselector || $showsearchfields): ?>
@@ -49,3 +50,4 @@ defined('_JEXEC') or die('Restricted access');
         <input type="hidden" name="exclfldft" value="<?= $exclfldft ?>" />
 <?php endif; ?>        
 </form>
+</div>
