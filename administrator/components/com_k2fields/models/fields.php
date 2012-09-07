@@ -2492,17 +2492,19 @@ class K2FieldsModelFields extends JModel {
                         foreach ($fieldsByCol as $field) {
                                 $id = self::value($field, 'id');
                                 $isFolded = self::isTrue($field, 'folded');
-                                $vals = $valuesByField[$id];
-                                
-                                if ($vals) {
-                                        foreach ($vals as $val) {
-                                                if ($isFolded) {
-                                                        $_uiFolded .= $val['rendered'];
-                                                } else {
-                                                        $_ui .= $val['rendered'];
+                                if (isset($valuesByField[$id])) {
+                                        $vals = $valuesByField[$id];
+
+                                        if ($vals) {
+                                                foreach ($vals as $val) {
+                                                        if ($isFolded) {
+                                                                $_uiFolded .= $val['rendered'];
+                                                        } else {
+                                                                $_ui .= $val['rendered'];
+                                                        }
                                                 }
+                                                unset($valuesByField[$id]);
                                         }
-                                        unset($valuesByField[$id]);
                                 }
                         }
                         
@@ -2562,10 +2564,10 @@ class K2FieldsModelFields extends JModel {
                 
                 $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
                 $accId = 'k2f-'.$type.'-'.$count;
-                $ui = '<div id='.$accId.'>';
+                $ui = '<div id='.$accId.' class="k2f-pane k2f-jquery-ui-accordion">';
                 
                 foreach ($uis as $section => $_uis) {
-                        $ui .= '<h3><a href="#">'.JText::_($section).'</a></h3><div>'.implode('', $_uis).'</div>';
+                        $ui .= '<h3><a href="#">'.JText::_($section).'</a></h3><div class="k2f-panel">'.implode('', $_uis).'</div>';
                 }
                 
                 $ui .= '</div>';
@@ -2597,12 +2599,12 @@ class K2FieldsModelFields extends JModel {
                 foreach ($uis as $section => $_uis) {
                         $id = self::generateUISectionId($section);
                         $handlers[] = '<li><a href="#'.$id.'">'.JText::_($section).'</a></li>';
-                        $panels[] = '<div id="'.$id.'">'.implode('', $_uis).'</div>';
+                        $panels[] = '<div id="'.$id.'" class="k2f-panel">'.implode('', $_uis).'</div>';
                 }
                 
                 $tabId = 'k2f-'.$type.'-'.$count;
                 $ui = 
-                        '<div id='.$tabId.' class="k2f-tabs k2f-jquery-tabs">'.
+                        '<div id='.$tabId.' class="k2f-pane k2f-jquery-ui-tab">'.
                         '<ul class="simpleTabsNavigation">'.implode('', $handlers).'</ul>'.
                         implode('', $panels).
                         '</div>'
