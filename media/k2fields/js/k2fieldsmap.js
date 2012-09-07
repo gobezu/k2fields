@@ -416,7 +416,8 @@ var k2fields_type_map = {
                         ips = new Element('ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs,
                         createIPs = this.getOpt(proxyField, 'mapcreateips'),
                         ctrls = this.getOpt(proxyField, 'mapcontrols'),
-                        showInMapBtn = this.getOpt(proxyField, 'mapshowinmapbtn')
+                        showInMapBtn = this.getOpt(proxyField, 'mapshowinmapbtn'),
+                        cont
                         ;
                         
                 map.setMapType(maptype);
@@ -503,33 +504,34 @@ var k2fields_type_map = {
                                                 new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItemC);
                                         }
                                 }
-                
-                                if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
-                                        if ($$('.catitem'+itemId).length > 0) {
-                                                $$('.catitem'+itemId).
-                                                        store('ip', [proxyField, itemId, i]).
-                                                        addEvent('mouseover', function(e) { this.openIP(e); }.bind(this))
-                                                ;
+                                
+                                cont = $$('.catitem'+itemId).length > 0 ? $$('.catitem'+itemId) : $$('.item'+itemId);
+                                cont = cont && cont.length > 0 ? cont[0] : false;
+                                
+                                if (cont) {
+                                        cont.store('ip', [proxyField, itemId, i]);
+                                        
+                                        if (view != 'item') {
+                                                if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
+                                                        cont.addEvent('mouseover', function(e) { this.openIP(e); }.bind(this));
+                                                } else {
+                                                        cont.
+                                                                addEvent('mouseover', function(e) { this.highlightIP(e, true); }.bind(this)).
+                                                                addEvent('mouseout', function(e) { this.highlightIP(e, false); }.bind(this))
+                                                        ;
+                                                }
                                         }
-                                } else {
-                                        if ($$('.catitem'+itemId).length > 0) {
-                                                $$('.catitem'+itemId).
-                                                        store('ip', [proxyField, itemId, i]).
-                                                        addEvent('mouseover', function(e) { this.highlightIP(e, true); }.bind(this)).
-                                                        addEvent('mouseout', function(e) { this.highlightIP(e, false); }.bind(this))
-                                                ;
+                                        
+                                        if (showInMapBtn) {
+                                                new Element('a', {
+                                                        'text':'» Show in map', 
+                                                        'href':'#',
+                                                        'class':'showinmapbtn',
+                                                        'events':{ 'click':function(e) { this.showInMap(e); }.bind(this) }
+                                                }).inject(cont.getParent());
                                         }
                                 }
-                                
-                                if (showInMapBtn)
-                                        new Element('a', {
-                                                'text':'» Show in map', 
-                                                'href':'#',
-                                                'class':'showinmapbtn',
-                                                'events':{ 'click':function(e) { this.showInMap(e); }.bind(this) }
-                                        }).inject($$('.catitem'+itemId)[0].getParent());
-                                
-                                
+                
                                 new Element(view != 'item'? 'a' : 'span', {
                                         'href':item.link, 
                                         'text':itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text']
@@ -632,7 +634,12 @@ var k2fields_type_map = {
         },
         
         getIP: function(a) {
-                var ip = this._tgt(a);
+                var ip;
+                if (this.options.view == 'item') {
+                        ip = document.id('k2Container').getParent();
+                } else {
+                        ip = this._tgt(a);
+                }
                 if (ip.getParent('.itemContainer')) {
                         ip = ip.getParent('.itemContainer').getChildren()[0];
                 }
@@ -642,10 +649,20 @@ var k2fields_type_map = {
         },
         
         showInMap: function(a) {
-                var ip = this.getIP(a), map = ip.mapstraction;
+                var ip = this.getIP(a), map = ip.mapstraction, mapEl = document.id(map.element);
+                // NOTE: assuming jQuery UI is in use
+                // TODO: devise similar methods for other offered UIs
+                if (mapEl.getParent('.ui-tabs-hide') || mapEl.getParent('.ui-accordion-hide')) {
+                        var i = mapEl.getParent('.k2f-pane').getElements('.k2f-panel').indexOf(mapEl.getParent('.k2f-panel'));
+                        if (mapEl.getParent('.k2f-jquery-ui-tab')) {
+                                jQuery(mapEl.getParent('.k2f-jquery-ui-tab')).tabs('select', i);
+                        } else if (mapEl.getParent('.k2f-jquery-ui-accordion')) {
+                                jQuery(mapEl.getParent('.k2f-jquery-ui-tab')).accordion('activate', i);
+                        }
+                }
+                document.location.hash='#'+map.element;
                 map.setCenterAndZoom(ip.location, map.getZoom());
                 this.openIP(a);
-                document.location.href='#'+ip.mapstraction.element;
         },
         
         highlightIP: function(a, isOn) {
