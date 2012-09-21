@@ -540,7 +540,8 @@ var k2fieldseditor = new Class({
                                 'deps':{
                                         'select':['id:7', 'id:12', 'id:14', 'id:15', 'id:28'],
                                         'radio':['id:7', 'id:14', 'id:15', 'id:39'],
-                                        'checkbox':['id:7', 'id:14', 'id:15', 'id:28']
+                                        'checkbox':['id:7', 'id:14', 'id:15', 'id:28'],
+                                        'textarea':['id:48', 'id:49']
                                 },
                                 'savevalues':'uis',
                                 'section':'Basic'
@@ -865,6 +866,18 @@ var k2fieldseditor = new Class({
                                 'list':'normal',
                                 'section':'Additional',
                                 'size':70
+                        },
+                        '48':{
+                                'name':'Cols',
+                                'optName':'cols',
+                                'valid':'integer',
+                                'section':'Basic'
+                        },
+                        '49':{
+                                'name':'Rows',
+                                'optName':'rows',
+                                'valid':'integer',
+                                'section':'Basic'
                         },
                         '52':{
                                 'name':'Search operator',

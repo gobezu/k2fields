@@ -1959,7 +1959,7 @@ group by vvv.itemid
         public static function indexBy($values, $keys, $genericKey = 'all', $keySubstitute = null, $unique = true, $flat = false) {
                 $result = array();
 
-                if (empty($keys)) return $values;
+                if (empty($keys) || empty($values)) return $values;
 
                 $keys = (array) $keys;
                 

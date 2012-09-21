@@ -1280,8 +1280,10 @@ class K2FieldsModelFields extends JModel {
         }
         
         public function getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
-                $cache = JFactory::getCache('com_k2fields');
-                $result = $cache->call(array($this, '_getFields'), $value, $mode, $modeFilter, $objectify, $preserveOrder); 
+//                $cache = JFactory::getCache('com_k2fields');
+//                $result = $cache->call(array($this, '_getFields'), $value, $mode, $modeFilter, $objectify, $preserveOrder); 
+                
+                $result = $this->_getFields($value, $mode, $modeFilter, $objectify, $preserveOrder);
                 return $result;
         }
         

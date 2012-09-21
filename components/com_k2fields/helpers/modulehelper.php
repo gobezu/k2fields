@@ -117,7 +117,7 @@ class K2FieldsModuleHelper {
         
         public static function getList($params, $componentParams, $format = 'html', $partBy = 'category', $caller = 'mod_k2fields_contents') {
                 $cache = JFactory::getCache($caller);
-                $result = $cache->call('K2FieldsModuleHelper::_getList', $params, $componentParams, $format, $partBy); 
+                $result = $cache->call('K2FieldsModuleHelper::_getList', $params, $componentParams, $format, $partBy);
                 return $result;
         }
 
@@ -553,7 +553,7 @@ class K2FieldsModuleHelper {
 
                                 $sql = @implode(',', $cat);
 
-                                $queries[] = "(" . $q . " AND i.catid IN ({$sql}) ORDER BY i.catid, " . $orderby . " LIMIT 0, ".$cnts[$c] . ")";
+                                $queries[] = "(" . $q . " AND i.catid IN ({$sql}) ORDER BY " . $orderby . " LIMIT 0, ".$cnts[$c] . ")";
                         }
                         
                         // TODO: group by instead of union
@@ -561,7 +561,7 @@ class K2FieldsModuleHelper {
                 } else {
                         $queries = 
                                 $query .
-                                ' AND i.id IN ('.implode(',', $items).')'.
+                                ' AND i.id IN ('.implode(',', $items).') ORDER BY '.$orderby.
                                 (!empty($limit) ? ' LIMIT 0, '.$limit : '');
                 }
                 
