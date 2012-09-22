@@ -6,6 +6,9 @@ var k2fields = new Class({
         options: {
                 dateMin: new Date('1970-01-01'),
                 dateMax: new Date('2099-12-31'),
+                dateformat:'%Y-%m-%d',
+                timeformat:'%H:%M',
+                datetimeformat:'%Y-%m-%d %H:%M',
                 selectTreshold: 7,
                 base: '',
                 pre: 'K2ExtraField_',

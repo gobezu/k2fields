@@ -300,7 +300,7 @@ class plgk2k2fields extends K2Plugin {
                         
                         if (empty($plg)) $plg = '{k2f}';
                 }
-                
+				
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
                 
@@ -677,7 +677,8 @@ class plgk2k2fields extends K2Plugin {
                                 'timeFormat' => K2FieldsModelFields::setting('timeFormat'),
                                 'weekstartson' => K2FieldsModelFields::setting('weekstartson'),
                                 'autoFields' => K2FieldsModelFields::$autoFieldTypes,
-                                'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength')
+                                'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength'),
+                                'view'=>  JFactory::getApplication()->input->get('view')
                         );
                         
                         if (isset($addParams)) $params = array_merge($params, $addParams);

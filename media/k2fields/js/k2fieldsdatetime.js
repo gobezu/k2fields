@@ -284,12 +284,14 @@ var k2fields_type_datetime = {
                         valid = this.getOpt(proxyField, 'valid'),
                         theme = this.getOpt(proxyField, 'theme', null, 'dashboard'),
                         timePicker = valid.indexOf('time') >= 0 || valid.indexOf('duration') >= 0,
-                        format = this.getOpt(
-                                proxyField, 
-                                (!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format', 
-                                null, 
-                                this.options[(!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format']
-                        ),
+                        format = this.getOpt(proxyField, valid + 'format', null, this.options[valid + 'format']),
+                        //format = this.getOpt(proxyField, this.getOpt(proxyField, 'valid') + 'format'),
+//                        format = this.getOpt(
+//                                proxyField, 
+//                                (!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format', 
+//                                null, 
+//                                this.options[(!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format']
+//                        ),
                         minDep = this.getOpt(proxyField, 'starttime'),
                         maxDep = this.getOpt(proxyField, 'endtime'),
                         label = this.getOpt(proxyField, 'label', null, this.getOpt(proxyField, 'name', null, '')),
@@ -299,6 +301,8 @@ var k2fields_type_datetime = {
                         isInitial = false,
                         position = this.getOpt(proxyField, 'position')
                         ;
+                
+                format = this.convertPHPToJSDatetimeFormat(format);
                 
                 if (this.isMode('search')) {
                         opts['ignore'] = true;
@@ -354,23 +358,24 @@ var k2fields_type_datetime = {
                 
                 if (theme.indexOf('datepicker_') != 0) theme = 'datepicker_'+theme;
                 
-                var x = (el.getStyle('width').toInt() - 185)/2;
-                
                 var options = {
-                        position: {x:x<0?0:x, y:0},
 			pickerClass: theme,
 			useFadeInOut: !Browser.ie,
                         format: format,
                         minDate: range[0],
                         maxDate: range[1],
-                        onSelect: function(date){
+/*                        onSelect: function(date){
                                 this.enforceDateDependency(date, minDep, 'min');
                                 this.enforceDateDependency(date, maxDep, 'max');
-                        }.bind(this),
+                        }.bind(this),*/
                         timeWheelStep: 5,
                         timePicker: timePicker,
-                        startDay: this.options.weekstartson.toInt()
+                        startDay: this.getOpt(proxyField, 'weekstartson', null, 1).toInt()
 		};
+                
+                if (!isNaN(el.getStyle('width').toInt())) {
+                        options['position'] = {x:(el.getStyle('width').toInt() - 185)/2, y:0};
+                }
                 
                 if (valid.indexOf('date') < 0) {
                         options['pickOnly'] = 'time';

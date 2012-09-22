@@ -37,6 +37,10 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables');
+        
+        JLoader::register('K2HelperRoute', JPATH_SITE.'/components/com_k2/helpers/route.php');
+        JLoader::register('K2HelperPermissions', JPATH_SITE.'/components/com_k2/helpers/permissions.php');
+        JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2/helpers/utilities.php');
 }
 
 class plgSystemk2fields extends JPlugin {

@@ -500,10 +500,10 @@ var k2fieldseditor = new Class({
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
                                         'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
-                                        'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
-                                        'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
-                                        'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
-                                        'duration':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214'],
+                                        'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
+                                        'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
+                                        'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
+                                        'duration':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
                                         'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1256', 'id:1257', 'id:1258'],
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
@@ -1616,6 +1616,23 @@ var k2fieldseditor = new Class({
                                 'optName':'repeatcombine',
                                 'valid':'verifybox',
                                 'tip':'if we have a several repeating instances, in the case where we have a list valued field, and we would want to combine them all to create one single list of event date/times then we would need to provide this option as true',
+                                'section':'Type specific'
+                        },
+                        '1215':{
+                                'name':'Week starts on',
+                                'optName':'weekstartson',
+                                'valid':'integer',
+                                'values':[
+                                        {'value':1,'text':'Monday'},
+                                        {'value':2,'text':'Tueday'},
+                                        {'value':3,'text':'Wedensday'},
+                                        {'value':4,'text':'Thursday'},
+                                        {'value':5,'text':'Friday'},
+                                        {'value':6,'text':'Saturday'},
+                                        {'value':0,'text':'Sunday'}
+                                ],
+                                'ui':'select',
+                                'sorted':true,
                                 'section':'Type specific'
                         },
                         '1251':{
