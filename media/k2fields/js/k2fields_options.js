@@ -397,6 +397,6 @@ var k2fieldsoptions = new Class({
                 return value.format(this.options.datetimeFormat);
         },
         convertPHPToJSDatetimeFormat: function(fmt) {
-                return fmt.replace(/F/, 'B').replace(/M/, 'b').repalce(/i/, 'M').replace(/j/, 'e').replace(/^/, '%').replace(/([\-\:])/g, '$1%').replace(/\s([a-zA-Z])/g, ' %$1').replace(/\%i/, '%M').replace(/\%s/, '%S');
+                return fmt.replace(/F/, 'B').replace(/M/, 'b').replace(/i/, 'M').replace(/s/, 'S').replace(/j/, 'e').replace(/([a-zA-Z])/g, '%$1');
         }
 });

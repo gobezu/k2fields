@@ -379,6 +379,7 @@ var k2fields_type_datetime = {
                 
                 if (valid.indexOf('date') < 0) {
                         options['pickOnly'] = 'time';
+                        options['format'] = '';
                 }
                 
                 this.datePickers[el.get('id')] = new Picker.Date(el, options);
