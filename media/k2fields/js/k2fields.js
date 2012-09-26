@@ -19,6 +19,7 @@ var k2fields = new Class({
                 tabindexstart:300
         },
         fields: [],
+        editors: [],
         conditions: [],
         validator: null,
         utility: null,
@@ -263,6 +264,12 @@ var k2fields = new Class({
                         if (this.categoryEl()) this.categoryEl().set('disabled', false);
 
                         this.containerEl().getElements('input[type=radio]').set('name', '');
+                        
+                        this.editors.each(function(editorID) {
+                                if (tinyMCE.get(editorID).isDirty()) {
+                                        this.setValue(editorID, tinyMCE.get(editorID).getContent());
+                                }
+                        }.bind(this));
                 } else if (this.isMode('editfields')) {
                         k2fseditor.updateFieldDefinition();
                 }
@@ -1254,6 +1261,7 @@ var k2fields = new Class({
                                         tinymce.EditorManager.remove(tinyMCE.get(field[0].get('id')));
                                 }
                                 tinyMCE.execCommand('mceAddControl', false, field[0].get('id'));
+                                this.editors.push(field[0].get('id'));
                         } else {
                                 jQuery('#'+field[0].get('id')).markItUp(mySettings);
                         }
