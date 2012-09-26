@@ -177,11 +177,6 @@ class plgSystemk2fields extends JPlugin {
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2')) return;
                 
                 jimport('joomla.application.helper');
-                $xml = simplexml_load_file(JPATH_ADMINISTRATOR.'/components/com_k2/manifest.xml');
-                $path = 'version';
-                $result = $xml->xpath($path);
-                $result = (string) $result[0];
-                define('K2VERSION', $result);
                 
                 // Override the ugly and old calendar used by joomla!
                 // JHTML::addIncludePath(JPATH_SITE.'/media/k2fields/mootools');
