@@ -48,7 +48,7 @@ class JElementK2FParams extends JElement {
                 $opts = JElementK2FParams::_renderOptions($k2ItemForm, 'item-view-options', 'item', JText::_('In item view'));
                 $options = array_merge($options, $opts);
                 
-                $fieldName = ((K2_JVERSION=='16') ? $name : $control_name.'['.$name.']').'[]';
+                $fieldName = $name;
                 $output = JHTML::_('select.genericlist',  $options, $fieldName, 'class="inputbox" style="width:90%;" multiple="multiple" size="10"', 'value', 'text', $value);
                 
                 return $output;

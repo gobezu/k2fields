@@ -179,7 +179,6 @@ $document->addScriptDeclaration("
 					<div id="k2Accordion">
 						<h3><a href="#"><?php echo JText::_('K2_CATEGORY_ITEM_LAYOUT'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('category-item-layout') as $field): ?>
@@ -198,13 +197,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'category-item-layout'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2_CATEGORY_VIEW_OPTIONS'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('category-view-options') as $field): ?>
@@ -223,13 +218,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'category-view-options'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2_ITEM_IMAGE_OPTIONS'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('item-image-options') as $field): ?>
@@ -248,13 +239,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'item-image-options'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2_ITEM_VIEW_OPTIONS_IN_CATEGORY_LISTINGS'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('item-view-options-listings') as $field): ?>
@@ -273,13 +260,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'item-view-options-listings'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2_ITEM_VIEW_OPTIONS'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('item-view-options') as $field): ?>
@@ -298,13 +281,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'item-view-options'); ?>
-							<?php endif; ?>
 						</div>
                                                 <h3><a href="#"><?php echo JText::_('K2item view options in category listings').' (k2fields)'; ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->k2categoryform->getFieldset('k2item-item-view-options-listings') as $field): ?>
@@ -323,13 +302,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->k2categoryform->render('params', 'k2item-item-view-options-listings'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2item view options in Item view').'(k2fields)'; ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->k2categoryform->getFieldset('k2item-item-view-options') as $field): ?>
@@ -348,13 +323,9 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->k2categoryform->render('params', 'k2item-item-view-options'); ?>
-							<?php endif; ?>
 						</div>
 						<h3><a href="#"><?php echo JText::_('K2_METADATA_INFORMATION'); ?></a></h3>
 						<div>
-							<?php if(K2_JVERSION == '16'): ?>
 							<fieldset class="panelform">
 								<ul class="adminformlist">
 									<?php foreach ($this->form->getFieldset('category-metadata-information') as $field): ?>
@@ -373,9 +344,6 @@ $document->addScriptDeclaration("
 									<?php endforeach; ?>
 								</ul>
 							</fieldset>
-							<?php else: ?>
-							<?php echo $this->form->render('params', 'category-metadata-information'); ?>
-							<?php endif; ?>
 						</div>
 						<?php if($this->aceAclFlag): ?>
 						<h3><a href="#"><?php echo JText::_('AceACL') . ' ' . JText::_('COM_ACEACL_COMMON_PERMISSIONS'); ?></a></h3>
