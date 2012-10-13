@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
 
-class K2FieldsViewItem extends JView {
+class K2FieldsViewItem extends K2View {
 
 	function display($tpl = null) {
 		$mainframe = &JFactory::getApplication();
@@ -269,7 +269,7 @@ class K2FieldsViewItem extends JView {
 		$menus = &JSite::getMenu();
 		$menu = $menus->getActive();
 		if (is_object($menu) && isset($menu->query['view']) && $menu->query['view'] == 'item' && isset($menu->query['id']) && $menu->query['id'] == $item->id) {
-			$menu_params = new JParameter($menu->params);
+			$menu_params = new JRegistry($menu->params);
 			if (!$menu_params->get('page_title')) {
 				$params->set('page_title', $item->cleanTitle);
 			}
@@ -277,16 +277,14 @@ class K2FieldsViewItem extends JView {
 			$params->set('page_title', $item->cleanTitle);
 		}
 
-		if(K2_JVERSION == '16') {
-			if ($mainframe->getCfg('sitename_pagetitles', 0) == 1) {
-				$title = JText::sprintf('JPAGETITLE', $mainframe->getCfg('sitename'), $params->get('page_title'));
-				$params->set('page_title', $title);
-			}
-			elseif ($mainframe->getCfg('sitename_pagetitles', 0) == 2) {
-				$title = JText::sprintf('JPAGETITLE', $params->get('page_title'), $mainframe->getCfg('sitename'));
-				$params->set('page_title', $title);
-			}
-		}
+                if ($mainframe->getCfg('sitename_pagetitles', 0) == 1) {
+                        $title = JText::sprintf('JPAGETITLE', $mainframe->getCfg('sitename'), $params->get('page_title'));
+                        $params->set('page_title', $title);
+                }
+                elseif ($mainframe->getCfg('sitename_pagetitles', 0) == 2) {
+                        $title = JText::sprintf('JPAGETITLE', $params->get('page_title'), $mainframe->getCfg('sitename'));
+                        $params->set('page_title', $title);
+                }
 		$document->setTitle($params->get('page_title'));
 
 		// Set pathway
@@ -353,7 +351,7 @@ class K2FieldsViewItem extends JView {
 		if ($mainframe->getCfg('MetaAuthor') == '1' && isset($item->author->name)) {
 			$document->setMetadata('author', $item->author->name);
 		}
-		$mdata = new JParameter($item->metadata);
+		$mdata = new JRegistry($item->metadata);
 		$mdata = $mdata->toArray();
 		foreach ($mdata as $k=>$v) {
 			if ($k == 'robots' || $k == 'author') {

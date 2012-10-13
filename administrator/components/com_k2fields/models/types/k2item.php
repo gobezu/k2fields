@@ -14,7 +14,7 @@ class K2fieldsK2Item {
                 if (empty($options)) $options = $field;
                 
 //                if ($reverseField = K2FieldsModelFields::value($field, 'reverse')) {
-//                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+//                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
 //                        $reverseField = $model->getFieldsById($reverseField);
 //                        $field = JprovenUtility::mergeK2FieldValues($reverseField, $field);
 //                }
@@ -234,7 +234,7 @@ class K2fieldsK2Item {
                 $categories = K2FieldsModelFields::value($field, 'categories');
                 
                 if ($reverseField = K2FieldsModelFields::value($field, 'reverse')) {
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $reverseField = $model->getFieldsById($reverseField);
                         $categories = K2FieldsModelFields::value($reverseField, 'categories');
                 }
@@ -262,7 +262,7 @@ class K2fieldsK2Item {
                 if (!empty($fieldsFilters)) {
                         $fieldsFilters = explode(K2FieldsModelFields::VALUE_SEPARATOR, $fieldsFilters);
                         $list = new K2FieldsList();
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $db = JFactory::getDbo();
                         
                         for ($i = 0, $n = count($fieldsFilters); $i < $n; $i++) {

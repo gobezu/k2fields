@@ -42,8 +42,7 @@ class plgk2k2fields extends K2Plugin {
 		$item->link = urldecode(JRoute::_($link));
                 
                 if (is_string($item->params)) {
-                        jimport('joomla.html.parameter');
-                        $item->params = new JParameter ($item->params);
+                        $item->params = new JRegistry($item->params);
                 }
                 
                 if ($item->params->get('itemComments') && $item->params->get('itemRating'))
@@ -94,12 +93,12 @@ class plgk2k2fields extends K2Plugin {
         }
         
         function onBeforeK2Save(&$item, $isNew) {
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 return $model->preSave($item);
         }
         
         function onAfterK2Save(&$item, $isNew) {
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $model->save($item, $isNew);
                 
                 $row = JTable::getInstance('K2Item', 'Table');
@@ -237,8 +236,7 @@ class plgk2k2fields extends K2Plugin {
                 $p = is_object($params) ? $params : $item->params;
                 
                 if (is_string($p)) {
-                        jimport('joomla.html.parameter');
-                        $p = new JParameter($p);
+                        $p = new JRegistry($p);
                 }
                 
                 $ef = is_array($item->extra_fields) && count($item->extra_fields) > 0 &&
@@ -370,19 +368,19 @@ class plgk2k2fields extends K2Plugin {
                                 
                                 if (!empty($cparams)) {
                                         if (is_string($cparams))
-                                                $cparams = new JParameter($cparams);
+                                                $cparams = new JRegistry($cparams);
 
                                         if ($cparams->get('inheritFrom')) {
                                                 $masterCategory = &JTable::getInstance('K2Category', 'Table');
                                                 $masterCategory->load($cparams->get('inheritFrom'));
-                                                $cparams = new JParameter($masterCategory->params);
+                                                $cparams = new JRegistry($masterCategory->params);
                                         }
 
                                         $params = $cparams;
                                 }
                         } else if (!empty($cparams)) {
                                 if (is_string($cparams))
-                                        $cparams = new JParameter($cparams);
+                                        $cparams = new JRegistry($cparams);
                                 
                                 $params = $cparams;
                         }
@@ -657,7 +655,7 @@ class plgk2k2fields extends K2Plugin {
                                 }
                         }
                         
-                        JModel::getInstance('searchterms', 'k2fieldsmodel');
+                        K2Model::getInstance('searchterms', 'k2fieldsmodel');
                         
                         $params = array(
                                 'listItemSeparator' => K2FieldsModelFields::LIST_ITEM_SEPARATOR,
@@ -723,7 +721,7 @@ class plgk2k2fields extends K2Plugin {
                         $mode = 'group';
                 }
 
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $fields = $model->getFields($value, $mode, $modeFilter);
                 
                 return $fields;
@@ -809,8 +807,8 @@ class plgk2k2fields extends K2Plugin {
                                 } else if (!empty($basedOn)) {
                                         $flds = explode('|', $basedOn);
                                         $basedOn = 'fields';
-                                        JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
-                                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                                        K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
+                                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                                         $ids = array();
                                         
                                         foreach ($flds as $fld) {

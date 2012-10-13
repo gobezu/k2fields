@@ -9,7 +9,7 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-$fields = JModel::getInstance('fields', 'K2FieldsModel');
+$fields = K2Model::getInstance('fields', 'K2FieldsModel');
 ?>
 
 <?php if(JRequest::getInt('print')==1): ?>

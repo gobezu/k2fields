@@ -33,15 +33,13 @@ class K2FieldsHelper {
                         $category = JTable::getInstance('K2Category', 'Table');
                         $category->load($category);
                 }
-                
-                jimport('joomla.html.parameters');
-                
-                $cparams = new JParameter($category->params);
+                                
+                $cparams = new JRegistry($category->params);
                 
                 if ($cparams->get('inheritFrom')) {
                         $masterCategory = JTable::getInstance('K2Category', 'Table');
                         $masterCategory->load($cparams->get('inheritFrom'));
-                        $cparams = new JParameter($masterCategory->params);
+                        $cparams = new JRegistry($masterCategory->params);
                 }
                 
                 $params->merge($cparams);

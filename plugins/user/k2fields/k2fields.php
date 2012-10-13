@@ -34,9 +34,7 @@ class plgUserK2fields extends JPlugin {
                         $row = JTable::getInstance('K2User', 'Table');
                         $row->load($k2UserId);
                         
-                        jimport('joomla.html.parameter');
-                        
-                        $params = new JParameter($row->plugins);
+                        $params = new JRegistry($row->plugins);
                         $group = $params->get('k2fieldsuserprovidedgroup', $row->group);
                         
                         $row->group = $group;

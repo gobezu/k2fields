@@ -287,9 +287,8 @@ class JcommentsRate {
                         $this->_db->setQuery($query);
                         $this->_db->query();
                 } else if ($extensionName == 'com_content') {
-                        jimport('joomla.application.component.model');
-                        JModel::addIncludePath(JPATH_SITE.'/components/com_content/models');
-                        $model = JModel::getInstance('Article', 'ContentModel');
+                        K2Model::addIncludePath(JPATH_SITE.'/components/com_content/models');
+                        $model = K2Model::getInstance('Article', 'ContentModel');
                         $model->storeVote($contentId, $rate);
                 }
         }

@@ -12,8 +12,6 @@ class JFormFieldK2FCategories extends JFormFieldCategories {
         }
 }
 
-jimport('joomla.html.parameter.element');
-
 class JElementK2FCategories extends JElementCategories {
         var $_name = 'k2fcategories';
 }

@@ -282,8 +282,8 @@ class SliRate {
                         $input->set('itemID', $itemId);
                         $input->set('user_rating', $rate);
 
-                        JModel::addIncludePath(JPATH_SITE.'/components/com_k2/models');
-                        $model = JModel::getInstance('item', 'K2Model');
+                        K2Model::addIncludePath(JPATH_SITE.'/components/com_k2/models');
+                        $model = K2Model::getInstance('item', 'K2Model');
                         $model->vote();      
                         
                         $input->set('itemID', $oldItemId);
@@ -309,8 +309,8 @@ class SliRate {
 //                        }
                 } else if ($extensionName == 'com_content') {
                         $rate *= self::CONTENT_RATE_SCALE;
-                        JModel::addIncludePath(JPATH_SITE.'/components/com_content/models');
-                        $model = JModel::getInstance('Article', 'ContentModel');
+                        K2Model::addIncludePath(JPATH_SITE.'/components/com_content/models');
+                        $model = K2Model::getInstance('Article', 'ContentModel');
                         $model->storeVote($itemId, $rate);
                 }
                 

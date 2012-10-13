@@ -738,7 +738,7 @@ class K2FieldsMedia {
                 $values = array();
                 
                 if ($fields) {
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $itemId = K2FieldsModelFields::value($item, 'id');
                         $fieldsValues = $model->itemValues($itemId, $fields);
                         foreach ($fieldsValues as $fieldValues) {
@@ -1179,7 +1179,7 @@ class K2FieldsMedia {
                                 $_entries[$entry->fieldid][] = $entry->itemid;
                         }
                         
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $fields = $model->getFieldsById(array_keys($_entries));
                         
                         foreach ($fields as $fieldid => $field) {
@@ -1863,7 +1863,7 @@ class K2FieldsMedia {
                                         $end = '<script type="text/javascript">Shadowbox.setup("span.'.$mediasId.' a");</script>';
                                 } else if ($plugin->name == "modalizer") {
                                         $plg = JPluginHelper::getPlugin('system', 'modalizer');
-                                        $plgParams = new JParameter($plg->params);
+                                        $plgParams = new JRegistry($plg->params);
                                         $trigger = $plgParams->get('enable_classnames');
                                         if ((bool) $trigger) {
                                                 $trigger = $plgParams->get('classnames');
@@ -1997,7 +1997,7 @@ class K2FieldsMedia {
                         case "denvideo":
                                 $vfile = $pre.$rel_file.$media->videofile;
                                 $_plugin =& JPluginHelper::getPlugin('content', 'denvideo');
-                                $_plgParams = new JParameter( $_plugin->params );
+                                $_plgParams = new JRegistry( $_plugin->params );
                                 $defdir = $_plgParams->get('defaultdir');
                                 
                                 if ($defdir) {

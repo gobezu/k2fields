@@ -279,7 +279,7 @@ class K2FieldsModuleHelper {
                                 }
                                 
                                 if (!empty($complexFields)) {
-                                        $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                                        $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
                                         $complexFields = $fieldsModel->getFieldsById($complexFields);
                                         
                                         foreach ($complexFields as $f) {
@@ -488,11 +488,11 @@ class K2FieldsModuleHelper {
                 
                 if (!empty($timeRange) && !empty($timeRangeField)) {
                         require_once JPATH_SITE.'/components/com_k2fields/models/searchterms.php';
-                        $smModel = JModel::getInstance('searchterms', 'K2FieldsModel');
+                        $smModel = K2Model::getInstance('searchterms', 'K2FieldsModel');
                         
                         require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/models/fields.php';
 
-                        $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                        $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
                         $field = $fieldsModel->getFieldsById($timeRangeField);
                         $time = K2FieldsModelSearchterms::convertDates($timeRange, $field);
                         
@@ -525,7 +525,7 @@ class K2FieldsModuleHelper {
                         
                         if ($efCriterias) {
                                 require_once JPATH_SITE.'/components/com_k2fields/models/searchterms.php';
-                                $st = JModel::getInstance('searchterms', 'K2fieldsModel');
+                                $st = K2Model::getInstance('searchterms', 'K2fieldsModel');
                                 
                                 $efCriterias = explode("\n", $efCriterias);
                                 $efc = array();
@@ -710,7 +710,7 @@ class K2FieldsModuleHelper {
         
         public static function prepareList($items, $params, $componentParams, $format) {
 		if (count($items)) {
-                        $model = JModel::getInstance('item', 'K2Model');
+                        $model = K2Model::getInstance('item', 'K2Model');
                         
                         require_once JPATH_SITE.'/components/com_k2/helpers/permissions.php';
                         
@@ -746,7 +746,7 @@ class K2FieldsModuleHelper {
                                                 if ($imageFields) {
                                                         $imageFields = array_unique($imageFields);
                                                         $imageFields = (array) $imageFields;
-                                                        $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                                                        $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
                                                         $imageFields = $fieldsModel->getFieldsById($imageFields, array('view' => 'module'));
                                                         K2FieldsModelFields::filterBasedOnView($imageFields, 'module');
                                                         $theImageField = null;
@@ -922,15 +922,15 @@ class K2FieldsModuleHelper {
                                         
                                         if ($format != 'feed') {
                                                 $params->set('parsedInModule', 1); // for plugins to know when they are parsed inside this module
-                                                $item->params = new JParameter($item->params);
+                                                $item->params = new JRegistry($item->params);
                                                 $item->params->merge($params);
                                                 
-                                                $cparams = new JParameter($item->category->params);
+                                                $cparams = new JRegistry($item->category->params);
 
                                                 if ($cparams->get('inheritFrom')) {
                                                         $masterCategory = JTable::getInstance('K2Category', 'Table');
                                                         $masterCategory->load($cparams->get('inheritFrom'));
-                                                        $cparams = new JParameter($masterCategory->params);
+                                                        $cparams = new JRegistry($masterCategory->params);
                                                 }
                                                 
                                                 $params->merge($cparams);                                                

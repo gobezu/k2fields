@@ -21,7 +21,7 @@ class K2FieldsModelItemlist extends K2ModelItemlist {
         
         function __construct($config = array(), $requestData = null) {
                 $config['data'] = $requestData;
-                $this->_sts = JModel::getInstance('searchterms', 'K2FieldsModel', $config);
+                $this->_sts = K2Model::getInstance('searchterms', 'K2FieldsModel', $config);
                 parent::__construct($config);
         }
         

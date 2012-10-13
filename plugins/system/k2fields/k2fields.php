@@ -12,7 +12,8 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
         JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
         
-        jimport('joomla.application.component.model');
+        JLoader::register('K2Model', JPATH_ADMINISTRATOR.'/components/com_k2/models/model.php');
+        JLoader::register('K2View', JPATH_ADMINISTRATOR.'/components/com_k2/views/view.php');
         
         if ($app->isSite() && JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') == '1') {
                 $input = $app->input;
@@ -28,13 +29,13 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
                 }
                 
                 if (($option == 'com_k2' || $option == 'com_k2fields') && !in_array($task, array('edit', 'add', 'save'))) {
-                        JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
-                        JModel::getInstance('item', 'K2Model');
+                        K2Model::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
+                        K2Model::getInstance('item', 'K2Model');
                 }
         }
         
-        JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models');
-        JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models');
+        K2Model::addIncludePath(JPATH_SITE.'/components/com_k2fields/models');
+        K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables');
         
@@ -181,7 +182,7 @@ class plgSystemk2fields extends JPlugin {
                 // Override the ugly and old calendar used by joomla!
                 // JHTML::addIncludePath(JPATH_SITE.'/media/k2fields/mootools');
                 
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $model->reinstateReadOnlyFields();
                 $model->adjustUnpublishDates();
         }
@@ -202,7 +203,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 $tbl = JTable::getInstance('K2ExtraFieldsDefinition', 'Table');
                 $db = JFactory::getDbo();
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
 
                 if ($step == 1) {
                         $sid = $session->get(self::SESSIONID);
@@ -323,7 +324,7 @@ class plgSystemk2fields extends JPlugin {
 		if ($loaded) return;
                 
                 // make sure to load currently available mootools, if its not already loaded
-                JHTML::_('behavior.mootools');
+                JHtmlBehavior::framework();
                 
                 $adds = array(
                         JURI::root().'media/k2fields/mootools/mootools-core-1.4.5', 
@@ -336,7 +337,7 @@ class plgSystemk2fields extends JPlugin {
                 );
                 
                 if ($debug === null) {
-			$debug = JFactory::getConfig()->getValue('config.debug');
+			$debug = JFactory::getConfig()->get('config.debug');
 		}
                 
                 foreach ($adds as &$add)
@@ -523,7 +524,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 if ($app->isSite()) {
                         jimport('joomla.application.component.model');
-                        $sts = JModel::getInstance('searchterms', 'K2FieldsModel');
+                        $sts = K2Model::getInstance('searchterms', 'K2FieldsModel');
                         K2FieldsModelSearchterms::addPathWay();
                 }
                 
@@ -531,8 +532,8 @@ class plgSystemk2fields extends JPlugin {
                 
                 if ($app->isAdmin() && $option == 'com_k2' && $view == 'items') {
                         jimport('joomla.application.component.model');
-                        JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $model->maintainExtended();
                 }
                 
@@ -562,7 +563,7 @@ class plgSystemk2fields extends JPlugin {
                                 $tbl = JTable::getInstance('K2ExtraFieldsDefinition', 'Table');
                         
                                 $tbl->load(JRequest::getInt('cid'));
-                                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                                 $options = $model->mapFieldOptions($tbl);
                         }
                         

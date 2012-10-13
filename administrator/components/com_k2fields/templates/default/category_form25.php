@@ -12,16 +12,10 @@ defined('_JEXEC') or die('Restricted access');
 
 $k2categoryForm = null;
 
-if(version_compare( JVERSION, '1.6.0', 'ge' )){
-        jimport('joomla.form.form');
-        $k2categoryForm = JForm::getInstance('k2itemCategoryForm', JPATH_ADMINISTRATOR.'/components/com_k2fields/models/category.xml');
-        $values = array('params'=>json_decode($this->row->params));
-        $k2categoryForm->bind($values);
-} else {
-        jimport('joomla.html.parameter');
-        $k2categoryForm = new JParameter('', JPATH_ADMINISTRATOR.'/components/com_k2fields/models/category.xml');
-        $k2categoryForm->loadINI($this->row->params);
-}
+jimport('joomla.form.form');
+$k2categoryForm = JForm::getInstance('k2itemCategoryForm', JPATH_ADMINISTRATOR.'/components/com_k2fields/models/category.xml');
+$values = array('params'=>json_decode($this->row->params));
+$k2categoryForm->bind($values);
 
 $this->assignRef('k2categoryform', $k2categoryForm);
 

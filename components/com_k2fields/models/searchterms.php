@@ -15,7 +15,7 @@ jimport('joomla.application.component.model');
  * 
  * @@credit: not surprisingly lot of the code below expands on K2ModelItemlist::getData
  */
-class K2FieldsModelSearchterms extends JModel {
+class K2FieldsModelSearchterms extends K2Model {
         private static $_fields, $_searchUrl, $_searchTerms, $_mapTbl, $_ITEMTBL = 'i', $_CATTBL = 'c', $cnt = 0, $wheres = array(), $_orders = array();
         var $_db, $_valueTbl, $_filter;
         
@@ -227,7 +227,7 @@ class K2FieldsModelSearchterms extends JModel {
                         $lng = $value[1];
                 }
                 
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $options = $model->getFieldsById($field);
                 $dist = K2FieldsModelFields::setting('nearbyDistance', $options, JRequest::getInt('dist', 10));
                 $lim = K2FieldsModelFields::setting('nearbyNum', $options, 10);
@@ -600,7 +600,7 @@ class K2FieldsModelSearchterms extends JModel {
         function _list($field, $part, $value, $def, $tbl) {
                 $list = new K2FieldsList();
                 
-                $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
                 $fieldOptions = $fieldsModel->getFieldsById($field);
                 
                 if (K2FieldsModelFields::isType($fieldOptions, 'complex')) {
@@ -700,11 +700,11 @@ class K2FieldsModelSearchterms extends JModel {
         }
         
         public function createSearchRequest($values, $as = 'url') {
-                JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
+                K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
                 
                 $url = array();
                 $keys = array_keys($values);
-                $fieldsModel = JModel::getInstance('fields', 'K2FieldsModel');
+                $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
                 $fields = null;
                 
                 if ($cid = array_search('cid', $keys)) {
@@ -843,7 +843,7 @@ class K2FieldsModelSearchterms extends JModel {
                 
                 $url = implode('&', $url);
                 $fieldIds = array_keys($terms);
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 self::$_fields = $model->getFieldsById($fieldIds);
                 
                 foreach ($terms as $fieldId => &$_terms) {
@@ -1050,7 +1050,7 @@ class K2FieldsModelSearchterms extends JModel {
 //                                $dir = in_array($dir, $special) ? 'ASC' : 'DESC';
 //                        }
 //                        else {
-//                                $model = JModel::getInstance('fields', 'K2FieldsModel');
+//                                $model = K2Model::getInstance('fields', 'K2FieldsModel');
 //                                $options = $model->getFieldsById($orderBy);
 //                                $dir = K2FieldsModelFields::value($options, 'dir');
 //                        }
@@ -1228,7 +1228,7 @@ class K2FieldsModelSearchterms extends JModel {
                         $params = JComponentHelper::getParams('com_k2');
                         
                         if (is_object($menu)) {
-                                $menu_params = new JParameter($menu->params);
+                                $menu_params = new JRegistry($menu->params);
                                 
                                 if (!$menu_params->get('page_title'))
                                         $params->set('page_title', $name);

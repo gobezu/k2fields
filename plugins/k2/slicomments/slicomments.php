@@ -121,8 +121,8 @@ class plgK2Slicomments extends JPlugin {
 		static $model;
 		if ($model === null)
 		{
-			JModel::addIncludePath(JPATH_SITE.'/components/com_slicomments/models', 'sliCommentsModel');
-			$model = JModel::getInstance('Comments', 'sliCommentsModel', array('ignore_request' => true));
+			K2Model::addIncludePath(JPATH_SITE.'/components/com_slicomments/models', 'sliCommentsModel');
+			$model = K2Model::getInstance('Comments', 'sliCommentsModel', array('ignore_request' => true));
 		}
 		return $model;
 	}

@@ -6,7 +6,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class K2FieldsModelFields extends JModel {
+class K2FieldsModelFields extends K2Model {
         const JS_VAR_NAME = 'k2fs';
         const USERADDED = 'useradded:';
         const FILTER_ADDED_BY_USER = 1;
@@ -254,7 +254,7 @@ class K2FieldsModelFields extends JModel {
                 $publishUp = $item->publish_up != $nullDate ? JprovenUtility::createDate($item->publish_up) : null;
                 
                 /** Auto expire based on field values **/
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $fields = $model->getFieldsByItem($itemId);
                 $fieldsValues = $model->itemValues($itemId);
                 $field = null;
@@ -1554,8 +1554,8 @@ class K2FieldsModelFields extends JModel {
                         JRequest::setVar('limit', $limit);
                 }
                 
-                JModel::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/');
-                $sts = JModel::getInstance('searchterms', 'K2FieldsModel', array('parse'=>false));
+                K2Model::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/');
+                $sts = K2Model::getInstance('searchterms', 'K2FieldsModel', array('parse'=>false));
                 
                 $ui = $sts->createSearchRequest($searches, $as);
                 $labels = $ui['labels'];
@@ -1590,9 +1590,7 @@ class K2FieldsModelFields extends JModel {
                                         
                                         foreach ($modules as $module) {
                                                 if ($module->module == 'mod_k2fields') {
-                                                        jimport('joomla.html.parameter');
-                                                        
-                                                        $params = new JParameter($module->params);
+                                                        $params = new JRegistry($module->params);
                                                         
                                                         if ($params->get('useitemid') == 'current') {
                                                                 $itemId = JRequest::getInt('Itemid');
@@ -1735,8 +1733,8 @@ class K2FieldsModelFields extends JModel {
                         if (!class_exists('K2HelperUtilities')) {
                                 JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2/helpers/utilities.php');
                         }
-                        JModel::addIncludePath(JPATH_SITE . '/components/com_k2/models');
-                        $itemModel = JModel::getInstance('item', 'K2Model');
+                        K2Model::addIncludePath(JPATH_SITE . '/components/com_k2/models');
+                        $itemModel = K2Model::getInstance('item', 'K2Model');
                         $item = $itemModel->prepareItem($item, $view, $task);
                         $item = $itemModel->execPlugins($item, $view, $task);
                 }
@@ -3242,7 +3240,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 
                 if (count($rec) > 4) $rec['email'] = $rec[4];
                 
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $rec['fieldoptions'] = $model->getFieldsById($rec['field']);
                 
                 $db = JFactory::getDBO();
@@ -3628,7 +3626,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 		if (!is_null($itemID) && $itemID){
                         static $items = array();
                         if (!isset($items[$itemID])) {
-                                JModel::addTablePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables/');
+                                K2Model::addTablePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables/');
                                 $item = JTable::getInstance('K2Item', 'Table');
                                 $item->load($itemID);
                                 $items[$itemID] = $item;
@@ -3673,8 +3671,8 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 				}
 			}
 		} else {
-                        JModel::addIncludePath('searchterms', JPATH_SITE . '/components/com_k2fields/models');
-                        $st = JModel::getInstance('searchterms', 'K2FieldsModel');
+                        K2Model::addIncludePath('searchterms', JPATH_SITE . '/components/com_k2fields/models');
+                        $st = K2Model::getInstance('searchterms', 'K2FieldsModel');
                         K2FieldsModelSearchterms::parseSearchTerms();
 //                        $active = null;
                         $active = K2FieldsModelSearchterms::getFieldValue($extraField);

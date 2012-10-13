@@ -61,7 +61,7 @@ class K2FieldsList {
                         if (empty($id)) {
                                 $result = array('error' => 'Missing field ID');
                         } else {
-                                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                                 $fields = $model->getFieldsById($id);
                                 $result = $this->getList($fields, $format);
                         }

@@ -157,7 +157,7 @@ class K2fieldsWidgetkitHelper {
                 $keepSynch = K2FieldsModelFields::value($field, 'widgetsynch', false);
                 
                 if (empty($widget->id) || $keepSynch) {
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $fieldId = K2FieldsModelFields::value($field, 'id');
                         $medias = $model->itemValues($item->id, array($fieldId));
                         

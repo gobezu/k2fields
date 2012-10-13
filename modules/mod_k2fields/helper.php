@@ -46,7 +46,7 @@ class modK2FieldsHelper {
         public static function getFields($defaultCategory, $isBasedOnMenu, $includedefaultmenuitem, $excludes) {
                 $cid = JprovenUtility::getK2CurrentCategory($defaultCategory, $isBasedOnMenu, $includedefaultmenuitem, $excludes);
                 
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $fields = $model->getFieldsByGroup($cid, 'search');
                 $output = JprovenUtility::renderK2fieldsForm($fields, 'searchfields', true, $cid);
                 

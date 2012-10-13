@@ -158,19 +158,19 @@ group by vvv.itemid
                                 if ($isK2item) {
                                         $catid = JRequest::getInt('k2cat');
                                 } else if ($task == 'add' || $task == 'edit') {
-                                        JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
+                                        K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
                                         $id = JRequest::getInt('cid');
                                         
                                         if ($id) {
-                                                $item = JModel::getInstance('item', 'K2Model');
+                                                $item = K2Model::getInstance('item', 'K2Model');
                                                 $item = $item->getData();
                                                 $catid = $item->catid;
                                         } else {
                                                 $catid = JRequest::getInt('catid');
                                         }
                                 } else {
-                                        JModel::addIncludePath(JPATH_SITE.'/components/com_k2/models');
-                                        $item = JModel::getInstance('item', 'K2Model');
+                                        K2Model::addIncludePath(JPATH_SITE.'/components/com_k2/models');
+                                        $item = K2Model::getInstance('item', 'K2Model');
                                         $item = $item->getData();
                                         $catid = $item->catid;
                                 }
@@ -220,19 +220,19 @@ group by vvv.itemid
                                         if ($isK2item) {
                                                 $catid = JRequest::getInt('k2cat');
                                         } else if ($task == 'add' || $task == 'edit') {
-                                                JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
+                                                K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
                                                 $id = JRequest::getInt('cid');
 
                                                 if ($id) {
-                                                        $item = JModel::getInstance('item', 'K2Model');
+                                                        $item = K2Model::getInstance('item', 'K2Model');
                                                         $item = $item->getData();
                                                         $catid = $item->catid;
                                                 } else {
                                                         $catid = JRequest::getInt('catid');
                                                 }
                                         } else {
-                                                JModel::addIncludePath(JPATH_SITE.'/components/com_k2/models');
-                                                $item = JModel::getInstance('item', 'K2Model');
+                                                K2Model::addIncludePath(JPATH_SITE.'/components/com_k2/models');
+                                                $item = K2Model::getInstance('item', 'K2Model');
                                                 $item = $item->getData();
                                                 $catid = $item->catid;
                                         }
@@ -377,8 +377,8 @@ group by vvv.itemid
                         return $categories;
                 } else {
                         jimport('joomla.application.component.model');
-                        JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models/');
-                        $categoriesModel = JModel::getInstance('categories', 'K2Model');
+                        K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models/');
+                        $categoriesModel = K2Model::getInstance('categories', 'K2Model');
                         $categories = $categoriesModel->categoriesTree(null, true);
                 }
                 
@@ -423,7 +423,7 @@ group by vvv.itemid
                 
                 if (count($fields) > 0) {
                         $counter = 0;
-                        $model = JModel::getInstance('fields', 'K2FieldsModel');
+                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
 
                         if ($type == 'searchfields') {
                                 $output .= '<ul class="admintable" id="extraFields">';
@@ -737,7 +737,7 @@ group by vvv.itemid
                 } else if (is_object($item->params)) {
                         $result = clone $item->params;
                 } else {
-                        $result = new JParameter($item->params);
+                        $result = new JRegistry($item->params);
                 }
                 
                 if (JprovenUtility::isAjaxCall()) {
@@ -766,7 +766,7 @@ group by vvv.itemid
                         }
                         
                         if (!empty($inheritFrom)) {
-                                $inheritFrom = new JParameter($inheritFrom);
+                                $inheritFrom = new JRegistry($inheritFrom);
                                 $excludeInheritance = self::setting('dontinheritcategories', 'k2fields', 'k2', null, array());
                         }
                         
@@ -786,7 +786,7 @@ group by vvv.itemid
                         $id = $item instanceof TableK2Category ? $item->id : $item->catid;
                 }
                 
-                if ($inheritFrom instanceof JParameter && !in_array($id, $excludeInheritance)) {
+                if ($inheritFrom instanceof JRegistry && !in_array($id, $excludeInheritance)) {
                         $inherit = clone $inheritFrom;
                         
                         $result->merge($inherit);
@@ -1075,12 +1075,12 @@ group by vvv.itemid
                 $params = JComponentHelper::getParams('com_k2');
                 $category = JTable::getInstance('K2Category', 'Table');
                 $category->load($cid);
-                $cparams = new JParameter($category->params);
+                $cparams = new JRegistry($category->params);
                 
                 if ($cparams->get('inheritFrom')) {
                         $masterCategory = JTable::getInstance('K2Category', 'Table');
                         $masterCategory->load($cparams->get('inheritFrom'));
-                        $cparams = new JParameter($masterCategory->params);
+                        $cparams = new JRegistry($masterCategory->params);
                 }
                 
                 $params->merge($cparams);
@@ -1395,7 +1395,7 @@ group by vvv.itemid
                 $module->position	= strtolower($module->position);
                 
                 jimport('joomla.html.parameter');
-                $module->params         = new JParameter($module->params);
+                $module->params         = new JRegistry($module->params);
                 
                 if ($render) $module->rendered = JModuleHelper::renderModule($module);
                 
@@ -1622,7 +1622,7 @@ group by vvv.itemid
                         $plgs[$plgsKey]['plg'] = $db->loadObject();
 
                         jimport('joomla.html.parameter');
-                        $plgs[$plgsKey]['params'] = new JParameter($plgs[$plgsKey]['plg']->params);
+                        $plgs[$plgsKey]['params'] = new JRegistry($plgs[$plgsKey]['plg']->params);
                         $plgs[$plgsKey]['values'] = array();
                 }
                 
@@ -1779,8 +1779,8 @@ group by vvv.itemid
                 }
                 
                 jimport('joomla.application.component.model');
-                JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
-                $model = JModel::getInstance('fields', 'K2FieldsModel');
+                K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 
                 foreach ($rules as $item => $itemRules) {
                         $renderedItemRules = call_user_func_array(
