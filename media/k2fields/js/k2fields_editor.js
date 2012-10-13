@@ -211,10 +211,12 @@ var k2fieldseditor = new Class({
                                 if (val != undefined && (_val = val.match(/^(file|function|php|url|sql)\:/i))) {
                                         if (_val[1].toLowerCase() != ps.name.toLowerCase()) {
                                                 val = '';
+                                        } else {
+                                                val = val.replace(_val[0], '');
                                         }
                                 } else if (ps.name.toLowerCase() != 'specify') {
                                         val = '';
-                                }                                
+                                }
                         }
                         new Element('input', {'type':'text', 'id':_id, 'name':_id, 'value':val}).inject(uip.getElement('span'));
                         if (ps.valid == 'complex' && ps.subfields) {
@@ -312,7 +314,6 @@ var k2fieldseditor = new Class({
                                 var _val;
                                 if (_val = val.match(/^(file|function|php|url|sql)\:/i)) {
                                         _defs['source'] = _val[1];
-                                        val = val.replace(_val[1]+':', '');
                                 } else {
                                         _defs['source'] = 'specify';
                                 }
