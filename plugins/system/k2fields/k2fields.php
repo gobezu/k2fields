@@ -323,8 +323,8 @@ class plgSystemk2fields extends JPlugin {
                 
 		if ($loaded) return;
                 
-                // make sure to load currently available mootools, if its not already loaded
-                JHtmlBehavior::framework();
+                // make sure to load currently available mootools
+                JHtml::_('behavior.framework');
                 
                 $adds = array(
                         JURI::root().'media/k2fields/mootools/mootools-core-1.4.5', 
