@@ -3851,8 +3851,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $query = "SELECT id, replace(definition, 'k2f---', CONCAT('subfieldid=', id, ':::')) as def FROM #__k2_extra_fields_definition WHERE id IN ({$ids})";
                         $this->_db->setQuery($query);
                         $defs = $this->_db->loadObjectList('id');
-                        $ids = array_keys($defs);
-
+                        $ids = explode(',', $ids);
                         foreach ($defs as $id => &$def) {
                                 if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#U', $def->def, $mm)) {
                                         $deps = explode(self::VALUE_SEPARATOR, $mm[1]);
@@ -3877,9 +3876,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                         $def->def = str_replace('deps='.$mm[1], 'deps='.$deps, $def->def);
                                 }
                         }
-                        $defs = (array) JprovenUtility::getColumn($defs, 'def');
-                        $defs = implode(':::', $defs);
-                        $optStr = $defs.':::'.str_replace(':::'.$m[0], '', $optStr);
+                        $_optStr = '';
+                        foreach ($ids as $i => $id) {
+                                $_optStr .= $defs[$id]->def . ':::';
+                        }
+                        $optStr = $_optStr.str_replace(':::'.$m[0], '', $optStr);
                         $sub = true;
 //                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
                 } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-|$)#U', $optStr, $m)) {
