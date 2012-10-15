@@ -17,7 +17,7 @@ defined('_JEXEC') or die ;
 
 jimport('joomla.application.component.model');
 
-JTable::addIncludePath(JPATH_COMPONENT_ADMINISTRATOR.DS.'tables');
+JTable::addIncludePath(JPATH_SITE.'/administrator/components/com_k2/tables');
 
 class K2ModelItem extends K2Model
 {
