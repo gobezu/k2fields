@@ -23,7 +23,7 @@ k2fields is a set of extensions primarily providing you:
 Requirements
 ------------
 * Joomla! version 2.5.4+
-* K2 version 2.5.6+
+* K2 version 2.6+
 
 Usage
 -----
