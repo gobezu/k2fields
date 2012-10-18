@@ -70,7 +70,7 @@ class plgSystemWidgetkit_K2 extends JPlugin {
         }
         
         function onAfterRender() {
-                if (!$this->widgetkit->removeK2jQueryUI) return;
+                if (!isset($this->widgetkit->removeK2jQueryUI) || !$this->widgetkit->removeK2jQueryUI) return;
                 
                 $xml = JFactory::getXML(JPATH_ADMINISTRATOR.'/components/com_k2/k2.xml');
                 

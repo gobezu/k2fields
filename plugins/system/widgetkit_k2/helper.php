@@ -140,12 +140,13 @@ class WidgetkitK2WidgetkitHelper extends WidgetkitHelper {
                         //require_once JPATH_SITE.'/modules/mod_k2_content/helper.php';
                         JLoader::register('modK2ContentHelper', JPATH_SITE.'/modules/mod_k2_content/helper.php');
                         JLoader::register('K2ModelItemlist', JPATH_SITE.'/components/com_k2/models/itemlist.php');
-                        return modK2ContentHelper::getItems($params);
+                        $items = modK2ContentHelper::getItems($params);
                 } else {
                         $componentParams = JComponentHelper::getParams('com_k2');
                         JLoader::register('K2FieldsModuleHelper', JPATH_SITE.'/components/com_k2fields/helpers/modulehelper.php');
                         $items = K2FieldsModuleHelper::getList($params, $componentParams, 'html', null, 'widgetkit_k2');
-                        return $items;
                 }
+                
+                return $items;
         }
 }
