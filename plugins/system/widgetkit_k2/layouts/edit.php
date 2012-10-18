@@ -52,14 +52,14 @@ defined('_JEXEC') or die('Restricted access');
                                 </p>
                                 <?php endif; ?>
                                 <p>
-                                        This is part of the <a target="_blank" href="http://jproven.com/k2fields">k2fields</a> effort to be released soon, where we are trying to pull together the best of available extensions to a whole.
+                                        This is part of the <a target="_blank" href="http://github/gobezu/k2fields">k2fields</a> effort to be released soon, where we are trying to pull together the best of available extensions to a whole.
                                 </p>
                                 <p>
                                         Each item rendering is based on overridable template located at plugins/system/widget_k2/layouts/item.php. This layout is based on mod_k2_content's where we have fleshed out item specific parts. 
                                         Override templates can be placed at yourtemplatefolder/html/plg_widgetkit_k2. Note: you will most probably need to create the folder yourself.
                                 </p>
                                 <p>
-                                        Templates can be item or category specific or global with the following priortity order and naming convention applying:
+                                        Templates can be item or category specific or global with the following priority order and naming convention applying:
                                 </p>
                                 <ul>
                                         <li>item specific layout - file named as i&lt;itemid&gt;.php</li>

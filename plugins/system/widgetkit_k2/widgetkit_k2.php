@@ -37,6 +37,8 @@ class plgSystemWidgetkit_K2 extends JPlugin {
 		$this->widgetkit['event']->bind('admin', array($this, 'init'));
 		$this->widgetkit['event']->bind('site', array($this, 'init'));
 		$this->widgetkit['event']->bind('site', array($this, 'loadAssets'));
+		$this->widgetkit['event']->bind('widgetoutput', array($this, '_applycontentplugins'));
+
 	}
 
 	public function init() {
@@ -50,6 +52,40 @@ class plgSystemWidgetkit_K2 extends JPlugin {
 	public function loadAssets() {
 		$this->widgetkit['asset']->addFile('css', 'widgetkit_k2.assets:css/style.css');
 	}
+
+	public function _applycontentplugins(&$text) {
+
+		// import joomla content plugins
+		JPluginHelper::importPlugin('content');
+
+		$registry      = new JRegistry('');
+		$dispatcher    = JDispatcher::getInstance();
+		$article       = JTable::getInstance('content');
+		$article->text = $text;
+
+		$dispatcher->trigger('onPrepareContent', array(&$article, &$registry, 0));
+		$dispatcher->trigger('onContentPrepare', array('com_widgetkit', &$article, &$registry, 0));
+
+		$text = $article->text;
+        }
+        
+        function onAfterRender() {
+                if (!$this->widgetkit->removeK2jQueryUI) return;
+                
+                $xml = JFactory::getXML(JPATH_ADMINISTRATOR.'/components/com_k2/k2.xml');
+                
+                if (version_compare((string) $xml->version, '2.6.0', 'lt')) return;
+                
+                $body = JResponse::getBody();
+                $body = preg_replace('#<script src="//ajax.googleapis.com/ajax/libs/jqueryui/[^\/]+/jquery-ui.min.js" type="text/javascript"></script>#', '', $body);
+                
+                if (preg_match("#(<script[^>]*media/k2/assets/js/k2\.noconflict\.js[^>]*)(\/>|><\/script>)#i", $body, $m)) {
+                        $body = preg_replace("#(<script[^>]*media/k2/assets/js/k2\.noconflict\.js[^>]*)(\/>|><\/script>)#i", '', $body);
+                        $body = preg_replace("#(<script[^>]*media/widgetkit/js/jquery\.js[^>]*)(\/>|><\/script>)#i", '$1$2'.$m[0], $body);
+                }
+                
+                JResponse::setBody($body);
+        }
 }
 
 class K2Widget {
@@ -150,6 +186,20 @@ class K2Widget {
                 $modHTML = array(JHtml::_('sliders.start', 'module-sliders'));
                 $addedModule = false;
 
+                $k2xml = JFactory::getXML(JPATH_ADMINISTRATOR.'/components/com_k2/k2.xml');
+                $wkxml = JFactory::getXML(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.xml');
+                
+                if (version_compare((string) $k2xml->version, '2.6.0', 'ge') && version_compare((string) $wkxml->version, '1.3.0', 'ge')) {
+                        $params = &K2HelperUtilities::getParams('com_k2');
+                        $params->set('backendJQueryHandling', false);
+                        $this->widgetkit->removeK2jQueryUI = true;
+                } else {
+                        $this->widgetkit->removeK2jQueryUI = false;
+                }
+                
+                // jQuery is loaded by either Joomla! (v3+) or K2
+                // $this->widgetkit['system']->application->set('jquery', true);
+                
                 foreach ($fss as $fsName => $fs) {
                         if (!in_array($fsName, $inclFldSets)) continue;
 
@@ -194,7 +244,7 @@ class K2Widget {
 
                 $modHTML[] = JHtml::_('sliders.end');
                 $modHTML = implode('', $modHTML);
-
+                
 		echo $this->widgetkit['template']->render("edit", compact('widget', 'xml', 'style_xml', 'type', 'modHTML'));
 	}
 
