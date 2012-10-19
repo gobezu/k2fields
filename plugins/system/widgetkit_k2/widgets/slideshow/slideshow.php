@@ -1,5 +1,5 @@
 <?php
-// $Copyright$
+//$Copyright$
 
 /** ORIGINAL copyright adapted from corresponding Joomla! plugin
 * @package   Widgetkit

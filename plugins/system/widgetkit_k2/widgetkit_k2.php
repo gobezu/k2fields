@@ -190,6 +190,7 @@ class K2Widget {
                 $wkxml = JFactory::getXML(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.xml');
                 
                 if (version_compare((string) $k2xml->version, '2.6.0', 'ge') && version_compare((string) $wkxml->version, '1.3.0', 'ge')) {
+                        JLoader::register('K2HelperUtilities', JPATH_SITE.'/components/com_k2/helpers/utilities.php');
                         $params = &K2HelperUtilities::getParams('com_k2');
                         $params->set('backendJQueryHandling', false);
                         $this->widgetkit->removeK2jQueryUI = true;
