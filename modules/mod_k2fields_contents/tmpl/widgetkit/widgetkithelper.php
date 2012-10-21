@@ -61,7 +61,10 @@ class K2fieldsModuleWidgetkitHelper {
         }
         
         private static function isInstalled() {
-                if (!JFile::exists(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.php')) {
+                jimport('joomla.filesystem.file');
+                
+                if (!JFile::exists(JPATH_ADMINISTRATOR.'/components/com_widgetkit/classes/widgetkit.php')
+				|| !JComponentHelper::getComponent('com_widgetkit', true)->enabled) {
                         return K2FieldsMedia::error('Widgetkit is not installed.');
                 }
                 
