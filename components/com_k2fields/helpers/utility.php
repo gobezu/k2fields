@@ -1,5 +1,5 @@
 <?php
-// $Copyright$
+//$Copyright$
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
