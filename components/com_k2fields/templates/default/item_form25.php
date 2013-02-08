@@ -3,12 +3,13 @@
 /* based on the following original copyright and where editing have made to accommodate:
  * 1. removal of certain tabs
  * 2. k2item provision
+ * 3. removal of J15 dependency
  */ 
 /**
- * @version		$Id: itemform.php 1377 2011-12-02 10:43:01Z lefteris.kavadas $
+ * @version		$Id: itemform.php 1812 2013-01-14 18:45:06Z lefteris.kavadas $
  * @package		K2
- * @author		JoomlaWorks http://www.joomlaworks.gr
- * @copyright	Copyright (c) 2006 - 2011 JoomlaWorks Ltd. All rights reserved.
+ * @author		JoomlaWorks http://www.joomlaworks.net
+ * @copyright	Copyright (c) 2006 - 2013 JoomlaWorks Ltd. All rights reserved.
  * @license		GNU/GPL license: http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -16,7 +17,6 @@
 defined('_JEXEC') or die('Restricted access');
 
 $app = JFactory::getApplication();
-
 JprovenUtility::load('k2fieldsform.css', 'css');
   
 // honoring preselected catid
@@ -121,7 +121,8 @@ $document->addScriptDeclaration("
 	}
 ");
 
-$task = JRequest::getWord('task');
+$_input = JFactory::getApplication()->input;
+$task = $_input->get('task', '', 'word');
 
 if ($task == 'edit') {
         $sel = $this->lists['categories'];
@@ -132,15 +133,17 @@ if ($task == 'edit') {
         $this->lists['categories'] = JprovenUtility::getK2PostCategoriesSelector('catid', JText::_('K2_SELECT_CATEGORY'));        
 }
 
+$isAdmin = JFactory::getApplication()->isAdmin();
+
 ?>
-<form action="index.php" enctype="multipart/form-data" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo $isAdmin ? "" : JURI::root(true)."/"; ?>index.php" enctype="multipart/form-data" method="post" name="adminForm" id="adminForm">
 	<?php if($this->mainframe->isSite()): ?>
 	<div id="k2FrontendContainer" <?php echo $tabsCnt;?>>
 		<div id="k2Frontend">
 			<table class="k2FrontendToolbar" cellpadding="2" cellspacing="4">
 				<tr>
 					<td id="toolbar-save" class="button">
-						<a class="toolbar" href="#" onclick="javascript: submitbutton('save'); return false;"> <span title="<?php echo JText::_('K2_SAVE'); ?>" class="icon-32-save"></span> <?php echo JText::_('K2_SAVE'); ?> </a>
+						<a class="toolbar" href="#" onclick="Joomla.submitbutton('save'); return false;"> <span title="<?php echo JText::_('K2_SAVE'); ?>" class="icon-32-save icon-save"></span> <?php echo JText::_('K2_SAVE'); ?> </a>
 					</td>
 					<td id="toolbar-cancel" class="button">
                                                 <a class="toolbar" href="#"> <span title="<?php echo JText::_('K2_CANCEL'); ?>" class="icon-32-cancel"></span> <?php echo JText::_('K2_CLOSE'); ?> </a>
@@ -149,7 +152,7 @@ if ($task == 'edit') {
 			</table>
 			<div id="k2FrontendEditToolbar">
 				<h2 class="header icon-48-k2">
-					<?php echo str_replace('Item', $catTitle, (JRequest::getInt('cid')) ? JText::_('K2_EDIT_ITEM') : JText::_('K2_ADD_ITEM')); ?>
+					<?php echo str_replace('Item', $catTitle, ($_input->get('cid', '', 'int')) ? JText::_('K2_EDIT_ITEM') : JText::_('K2_ADD_ITEM')); ?>
 				</h2>
 			</div>
 			<div class="clr"></div>
@@ -171,7 +174,7 @@ if ($task == 'edit') {
 				<tbody>
 					<tr>
 						<td>
-							<table class="adminFormK2">
+							<table class="adminFormK2<?php echo $isAdmin ? " table" : ""; ?>">
 								<tr>
 									<td class="adminK2LeftCol">
 										<label for="title"><?php echo JText::_('K2_TITLE'); ?></label>
@@ -331,7 +334,7 @@ if ($task == 'edit') {
 								<?php if ($this->params->get('showImageTab')): ?>
 								<!-- Tab image -->
 								<div class="simpleTabsContent" id="k2Tab2">
-									<table class="admintable">
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>">
 										<tr>
 											<td align="right" class="key">
 												<?php echo JText::_('K2_ITEM_IMAGE'); ?>
@@ -369,7 +372,9 @@ if ($task == 'edit') {
 												<?php echo JText::_('K2_ITEM_IMAGE_PREVIEW'); ?>
 											</td>
 											<td>
-												<a class="modal" rel="{handler: 'image'}" href="<?php echo $this->row->image; ?>" title="<?php echo JText::_('K2_CLICK_ON_IMAGE_TO_PREVIEW_IN_ORIGINAL_SIZE'); ?>"> <img alt="<?php echo $this->row->title; ?>" src="<?php echo $this->row->thumb; ?>" class="k2AdminImage"/> </a>
+												<a class="modal" rel="{handler: 'image'}" href="<?php echo $this->row->image; ?>" title="<?php echo JText::_('K2_CLICK_ON_IMAGE_TO_PREVIEW_IN_ORIGINAL_SIZE'); ?>">
+                                                                                                        <img alt="<?php echo $this->row->title; ?>" src="<?php echo $this->row->thumb; ?>" class="k2AdminImage" />
+                                                                                                </a>
 												<input type="checkbox" name="del_image" id="del_image" />
 												<label for="del_image"><?php echo JText::_('K2_CHECK_THIS_BOX_TO_DELETE_CURRENT_IMAGE_OR_JUST_UPLOAD_A_NEW_IMAGE_TO_REPLACE_THE_EXISTING_ONE'); ?></label>
 											</td>
@@ -394,7 +399,7 @@ if ($task == 'edit') {
 								<!-- Tab image gallery -->
 								<div class="simpleTabsContent" id="k2Tab3">
 									<?php if ($this->lists['checkSIG']): ?>
-									<table class="admintable" id="item_gallery_content">
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>" id="item_gallery_content">
 										<tr>
 											<td align="right" valign="top" class="key">
 												<?php echo JText::_('K2_UPLOAD_A_ZIP_FILE_WITH_IMAGES'); ?>
@@ -403,11 +408,17 @@ if ($task == 'edit') {
 												<input type="file" name="gallery" class="fileUpload" />
 												<i>(<?php echo JText::_('K2_MAX_UPLOAD_SIZE'); ?>: <?php echo ini_get('upload_max_filesize'); ?>)</i>
 												<br />
+                                                                                                <?php if($isAdmn && $this->sigPro): ?>
+												<a class="modal" rel="{handler: 'iframe', size: {x: 940, y: 560}}" href="index.php?option=com_sigpro&view=galleries&task=create&newFolder=<?php echo $this->sigProFolder; ?>&type=k2&tmpl=component">SIGPRO</a>
+                                                <input name="sigProFolder" type="hidden" value="<?php echo $this->sigProFolder; ?>" />
+												<?php endif; ?>                                                                                                
 												<br />
 												<?php echo JText::_('K2_OR_ENTER_A_FLICKR_SET_URL'); ?>
 												<input type="text" name="flickrGallery" size="50" value="<?php echo ($this->row->galleryType == 'flickr')? $this->row->galleryValue : ''; ?>" />
 												<?php if (!empty($this->row->gallery)): ?>
-												<div id="itemGallery"> <?php echo $this->row->gallery; ?>
+												<div id="itemGallery">
+                                                                                                        <?php echo $this->row->gallery; ?>
+                                                                                                        <br />
 													<input type="checkbox" name="del_gallery" id="del_gallery"/>
 													<label for="del_gallery"><?php echo JText::_('K2_CHECK_THIS_BOX_TO_DELETE_CURRENT_IMAGE_GALLERY_OR_JUST_UPLOAD_A_NEW_IMAGE_GALLERY_TO_REPLACE_THE_EXISTING_ONE'); ?></label>
 												</div>
@@ -416,14 +427,23 @@ if ($task == 'edit') {
 										</tr>
 									</table>
 									<?php else: ?>
-									<dl id="system-message">
-										<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
-										<dd class="notice message fade">
-											<ul>
-												<li><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_SIMPLE_IMAGE_GALLERY_PRO_PLUGIN_IF_YOU_WANT_TO_USE_THE_IMAGE_GALLERY_FEATURES_OF_K2'); ?></li>
-											</ul>
-										</dd>
-									</dl>
+                                                                                <?php if(K2_JVERSION == '25'): ?>
+										<div id="system-message-container">
+											<dl id="system-message">
+												<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
+												<dd class="notice message">
+													<ul>
+														<li><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_SIMPLE_IMAGE_GALLERY_PRO_PLUGIN_IF_YOU_WANT_TO_USE_THE_IMAGE_GALLERY_FEATURES_OF_K2'); ?></li>
+													</ul>
+												</dd>
+											</dl>
+										</div>
+										<?php else: ?>
+										<div class="alert">
+											<h4 class="alert-heading"><?php echo JText::_('K2_NOTICE'); ?></h4>
+											<div><p><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_SIMPLE_IMAGE_GALLERY_PRO_PLUGIN_IF_YOU_WANT_TO_USE_THE_IMAGE_GALLERY_FEATURES_OF_K2'); ?></p></div>
+										</div>
+										<?php endif; ?>
 									<?php endif; ?>
 									<?php if (count($this->K2PluginsItemGallery)): ?>
 									<div class="itemPlugins">
@@ -443,7 +463,7 @@ if ($task == 'edit') {
 								<!-- Tab video -->
 								<div class="simpleTabsContent" id="k2Tab4">
 									<?php if ($this->lists['checkAllVideos']): ?>
-									<table class="admintable" id="item_video_content">
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>" id="item_video_content">
 										<tr>
 											<td align="right" class="key">
 												<?php echo JText::_('K2_MEDIA_SOURCE'); ?>
@@ -516,15 +536,24 @@ if ($task == 'edit') {
 										<?php endif; ?>
 									</table>
 									<?php else: ?>
-									<dl id="system-message">
-										<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
-										<dd class="notice message fade">
-											<ul>
-												<li><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_ALLVIDEOS_PLUGIN_IF_YOU_WANT_TO_USE_THE_FULL_VIDEO_FEATURES_OF_K2'); ?></li>
-											</ul>
-										</dd>
-									</dl>
-									<table class="admintable" id="item_video_content">
+                                                                                <?php if(K2_JVERSION == '25'): ?>
+										<div id="system-message-container">
+											<dl id="system-message">
+												<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
+												<dd class="notice message">
+													<ul>
+														<li><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_ALLVIDEOS_PLUGIN_IF_YOU_WANT_TO_USE_THE_FULL_VIDEO_FEATURES_OF_K2'); ?></li>
+													</ul>
+												</dd>
+											</dl>
+										</div>
+										<?php else: ?>
+										<div class="alert">
+											<h4 class="alert-heading"><?php echo JText::_('K2_NOTICE'); ?></h4>
+											<div><p><?php echo JText::_('K2_NOTICE_PLEASE_INSTALL_JOOMLAWORKS_ALLVIDEOS_PLUGIN_IF_YOU_WANT_TO_USE_THE_FULL_VIDEO_FEATURES_OF_K2'); ?></p></div>
+										</div>
+										<?php endif; ?>
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>" id="item_video_content">
 										<tr>
 											<td align="right" class="key">
 												<?php echo JText::_('K2_MEDIA_SOURCE'); ?>
@@ -594,27 +623,44 @@ if ($task == 'edit') {
 								<div class="simpleTabsContent" id="k2Tab5">
 									<div id="extraFieldsContainer">
 										<?php if (count($this->extraFields)): ?>
-										<table class="admintable" id="extraFields">
+										<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>" id="extraFields">
 											<?php foreach($this->extraFields as $extraField): ?>
+											<?php if($extraField->type == 'header'): ?>
+											<tr>
+												<td colspan="2" ><h4 class="k2ExtraFieldHeader"><?php echo $extraField->name; ?></h4></td>
+											</tr>												
+											<?php else: ?>
 											<tr>
 												<td align="right" class="key">
-													<?php echo $extraField->name; ?>
+													<label for="K2ExtraField_<?php echo $extraField->id; ?>"><?php echo $extraField->name; ?></label>
 												</td>
 												<td>
 													<?php echo $extraField->element; ?>
 												</td>
 											</tr>
+											<?php endif; ?>
 											<?php endforeach; ?>
 										</table>
 										<?php else: ?>
-										<dl id="system-message">
-											<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
-											<dd class="notice message fade">
-												<ul>
-													<li><?php echo JText::_('K2_PLEASE_SELECT_A_CATEGORY_FIRST_TO_RETRIEVE_ITS_RELATED_EXTRA_FIELDS'); ?></li>
-												</ul>
-											</dd>
-										</dl>
+                                                                                        <?php if (K2_JVERSION == '25'): ?>
+											<div id="system-message-container">
+												<dl id="system-message">
+													<dt class="notice"><?php echo JText::_('K2_NOTICE'); ?></dt>
+													<dd class="notice message">
+														<ul>
+															<li><?php echo JText::_('K2_PLEASE_SELECT_A_CATEGORY_FIRST_TO_RETRIEVE_ITS_RELATED_EXTRA_FIELDS'); ?></li>
+														</ul>
+													</dd>
+												</dl>
+											</div>
+											<?php else: ?>
+											<div class="alert">
+												<h4 class="alert-heading"><?php echo JText::_('K2_NOTICE'); ?></h4>
+												<div>
+													<p><?php echo JText::_('K2_PLEASE_SELECT_A_CATEGORY_FIRST_TO_RETRIEVE_ITS_RELATED_EXTRA_FIELDS'); ?></p>
+												</div>
+											</div>
+											<?php endif; ?>
 										<?php endif; ?>
 									</div>
 									<?php if (count($this->K2PluginsItemExtraFields)): ?>
@@ -714,13 +760,13 @@ if ($task == 'edit') {
 							
 							<input type="hidden" name="isSite" value="<?php echo (int)$this->mainframe->isSite(); ?>" />
 							<?php if($this->mainframe->isSite()): ?>
-							<input type="hidden" name="lang" value="<?php echo JRequest::getCmd('lang'); ?>" />
+							<input type="hidden" name="lang" value="<?php echo $_input->get('lang', '', 'word'); ?>" />
 							<?php endif; ?>
 							<input type="hidden" name="id" value="<?php echo $this->row->id; ?>" />
 							<input type="hidden" name="option" value="com_k2" />
 							<input type="hidden" name="view" value="item" />
-							<input type="hidden" name="task" value="<?php echo JRequest::getVar('task'); ?>" />
-                                                        <input type="hidden" name="Itemid" value="<?php echo JRequest::getInt('Itemid'); ?>" />
+							<input type="hidden" name="task" value="<?php echo $_input->get('task'); ?>" />
+                                                        <input type="hidden" name="Itemid" value="<?php echo $_input->get('Itemid', '', 'int'); ?>" />
 							<?php echo JHTML::_('form.token'); ?>
 						</td>
 						<td id="adminFormK2Sidebar"<?php if($this->mainframe->isSite() && !$this->params->get('sideBarDisplayFrontend')): ?> style="display:none;"<?php endif; ?> class="xmlParamsFields">
@@ -813,7 +859,7 @@ if ($task == 'edit') {
 							<div id="k2Accordion">
 								<h3><a href="#"><?php echo JText::_('K2_AUTHOR_PUBLISHING_STATUS'); ?></a></h3>
 								<div>
-									<table class="admintable">
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>">
 										<?php if(isset($this->lists['language'])): ?>
 										<tr>
 											<td align="right" class="key">
@@ -880,7 +926,7 @@ if ($task == 'edit') {
 								</div>
 								<h3><a href="#"><?php echo JText::_('K2_METADATA_INFORMATION'); ?></a></h3>
 								<div>
-									<table class="admintable">
+									<table class="admintable<?php echo $isAdmin ? " table" : ""; ?>">
 										<tr>
 											<td align="right" class="key">
 												<?php echo JText::_('K2_DESCRIPTION'); ?>

@@ -12,7 +12,7 @@ $lang->load('com_users', JPATH_SITE);
 require_once JPATH_SITE.'/components/com_k2/helpers/utilities.php';
 require_once JPATH_SITE.'/components/com_k2/helpers/permissions.php';
 
-if (JRequest::getCmd('option') != 'com_k2') K2HelperPermissions::setPermissions();
+if (JFactory::getApplication()->input->get('option') != 'com_k2') K2HelperPermissions::setPermissions();
 
 $canAdd = K2HelperPermissions::canAddItem();
 

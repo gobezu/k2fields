@@ -26,9 +26,11 @@ class K2FieldsModelItemlist extends K2ModelItemlist {
         }
         
         function getData($ordering = NULL) {
-                if (JRequest::getInt('_limit_')) {
-                        $lim = JRequest::getInt('limit');
-                        JRequest::setVar('limit', JRequest::getInt('_limit_'));
+                $input = JFactory::getApplication()->input;
+                
+                if ($input->get('_limit_', '', 'int')) {
+                        $lim = $input->get('limit', '', 'int');
+                        $input->set('limit', $input->get('_limit_', '', 'int'));
                 }
                 
                 $data = $this->_sts->getData(NULL, $ordering);
@@ -38,7 +40,7 @@ class K2FieldsModelItemlist extends K2ModelItemlist {
                         return parent::getData(NULL, $ordering);
                 }
                 
-                if (isset($lim)) JRequest::setVar('limit', $lim);
+                if (isset($lim)) $input->set('limit', $lim);
                 
                 return $data;
         }

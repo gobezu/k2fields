@@ -14,8 +14,8 @@ if (plgk2k2fields::catState('isItemlistMap')) {
         
         if (!K2FieldsMap::showList()) return;
 }
-
-$tmpl = JRequest::getCmd('tmpl');
+$_input = JFactory::getApplication()->input;
+$tmpl = $_input->get('tmpl', '', 'cmd');
 $isComponentOnly = $tmpl == 'component';
 ?>
 <?php if (!$isComponentOnly): ?>
@@ -264,7 +264,8 @@ $isComponentOnly = $tmpl == 'component';
 <!-- Pagination -->
 <?php 
 if(count($this->pagination->getPagesLinks()) && !$isComponentOnly) {
-        if ($cid = JRequest::getInt('id', JRequest::getInt('cid', false))) {
+        $cid = $_input->get('cid', false, 'int');
+        if ($cid = $_input->get('id', $cid, 'int')) {
                 $catTitle = plgk2k2fields::catState('categoryname');
                 $catTitle = JprovenUtility::nize($catTitle, 1);
         } else {

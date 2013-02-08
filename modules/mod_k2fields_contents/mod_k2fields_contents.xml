@@ -279,6 +279,7 @@
                                         <option value="none">None</option>
                                         <option value="category">Category</option>
                                         <option value="author">Author (TBI)</option>
+                                        <option value="alpha">Alphabetical (TBI)</option>
                                 </field>
                                 <field name="partition_template" type="filelist" default="joomla_tabs" hide_none="true" label="PARTITION_TEMPLATE" directory="modules/mod_k2fields_contents/tmpl/_partition" stripext="true" />
                                 <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION">
@@ -406,6 +407,7 @@
                                 </field>                                
                         </fieldset>
                         <fieldset name="widgetkitoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field name="wkinfo" type="lbl" default="Requires Widgetkit and the Widgetkit / K2 plugin" />
                                 <field name="widgetkit_type" type="folderlist" default="slideshow" hide_none="true" label="Widget type" directory="plugins/system/widgetkit_k2/widgets" filter="" exclude="" stripext="" />
                                 <field name="widgetkit_theme" type="dependentfolderlist" missing="Widgetkit not installed" default="default" hide_none="true" label="Style" directory="media/widgetkit/widgets/%replace%/styles" dependson="widgetkit_type" reg="" filter="" exclude="" stripext="" />
                                 <field name="widgetkit_settings" label="Widget style settings" type="widgetkitsettings" default="" />

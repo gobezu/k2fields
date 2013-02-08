@@ -33,8 +33,10 @@ class K2FieldsHelperRoute {
                 if ($item = self::_findItem($needles)) {
                         $link .= '&Itemid=' . $item->id;
                 } else if ($catid) {
-                        $Itemid = JRequest::getInt('Itemid');
-                        if (JRequest::getCmd('option') == 'com_k2fields' && JRequest::getInt('cid') == $catid && $Itemid) {
+                        $input = JFactory::getApplication()->input;
+                        $Itemid = $input->get('Itemid', '', 'int');
+                        if ($input->get('option', '', 'cmd') == 'com_k2fields' && 
+                                $input->get('cid', '', 'int') == $catid && $Itemid) {
                                 $link .= '&Itemid=' . $Itemid;
                         }
                 }

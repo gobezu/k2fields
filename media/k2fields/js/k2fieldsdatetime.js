@@ -279,6 +279,170 @@ var k2fields_type_datetime = {
         datePickers: {},
         
         createDatetime: function(holder, proxyField, value, condition, pos, lbl) {
+                return this._createDatetime(holder, proxyField, value, condition);
+                
+                var result, theme = this.getOpt(proxyField, 'theme', null, 'dashboard');
+                
+                theme = 'datepicker/'+theme+'/'+theme+'.css';
+                
+                this.utility.load('request', this.options.base + this.options.k2fbase + 'lib/'+theme, 'css');
+                
+                this.utility.load(
+                        'tag', 
+                        this.options.base + this.options.k2fbase + 'lib/datepicker.js', 
+                        'js', 
+                        false, 
+                        '', 
+                        function() { 
+                                result = this._createDatetime(holder, proxyField, value, condition);
+                        }.bind(this)
+                );
+                
+                return result;
+        },
+        
+        _createDatetime: function(holder, proxyField, value, condition, pos, lbl) {
+                var 
+                        range = this.getOpt(proxyField, 'interval'), 
+                        valid = this.getOpt(proxyField, 'valid'),
+                        theme = this.getOpt(proxyField, 'theme', null, 'dashboard'),
+                        timePicker = valid.indexOf('time') >= 0 || valid.indexOf('duration') >= 0,
+                        format = this.getOpt(proxyField, valid + 'format', null, this.options[valid + 'format']),
+                        //format = this.getOpt(proxyField, this.getOpt(proxyField, 'valid') + 'format'),
+//                        format = this.getOpt(
+//                                proxyField, 
+//                                (!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format', 
+//                                null, 
+//                                this.options[(!timePicker ? 'date' : (valid == 'duration' ? 'time' : valid).replace(/range/i, ''))+'Format']
+//                        ),
+                        minDep = this.getOpt(proxyField, 'starttime'),
+                        maxDep = this.getOpt(proxyField, 'endtime'),
+                        label = this.getOpt(proxyField, 'label', null, this.getOpt(proxyField, 'name', null, '')),
+                        el,
+                        now = (new Date()).format(format),
+                        opts = {'class':'dpinput', 'size':now.length+3},
+                        isInitial = false,
+                        position = this.getOpt(proxyField, 'position')
+                        ;
+                
+                format = this.convertPHPToJSDatetimeFormat(format);
+                
+                if (this.isMode('search')) {
+                        opts['ignore'] = true;
+                        timePicker = this.getOpt(proxyField, 'searchtime', null, 'true') == 'true';
+                }
+                
+                var dValue = value, repeat = this.getOpt(proxyField, 'repeat');
+                
+                if (!dValue) {
+//                        dValue = this.getDefaultValue(proxyField);
+//                        
+//                        if (!dValue) {
+//                                dValue = valid == 'duration' ? '00:00' : now;
+//                        }
+                        
+                        isInitial = true;
+                } else {
+                        dValue = value.split(this.options.valueSeparator);
+                        dValue = dValue[0];
+                }
+                
+                el = this.ccf(
+                        proxyField, 
+                        dValue,
+                        pos || position || 0, 
+                        valid, 
+                        lbl === false ? '' : (lbl || label), 
+                        holder, 
+                        undefined, 
+                        opts,
+                        repeat ? false : pos == undefined,
+                        undefined, undefined, !this.isMode('search')
+                );
+
+                el = el[0];
+                
+                if (holder.getParent().getElements('.resettimebtn').length == 0) {
+                        new Element('a', {
+                                'text':'Reset',
+                                'class':'resettimebtn',
+                                'href':'#',
+                                'events':{
+                                        'click':function(e) {
+                                                e = this._tgt(e);
+                                                this.resetElements(e.getParent());
+                                                return false;
+                                        }.bind(this)
+                                }
+                        }).inject(holder, 'after');
+                }
+                                
+                if (isInitial) this.setProxyFieldValue(el);
+                
+                if (theme.indexOf('datepicker_') != 0) theme = 'datepicker_'+theme;
+                
+                var options = {
+			pickerClass: theme,
+			useFadeInOut: !Browser.ie,
+                        format: format,
+                        minDate: range[0],
+                        maxDate: range[1],
+/*                        onSelect: function(date){
+                                this.enforceDateDependency(date, minDep, 'min');
+                                this.enforceDateDependency(date, maxDep, 'max');
+                        }.bind(this),*/
+                        timeWheelStep: 5,
+                        timePicker: timePicker,
+                        startDay: this.getOpt(proxyField, 'weekstartson', null, 1).toInt()
+		};
+                
+                if (!isNaN(el.getStyle('width').toInt())) {
+                        options['position'] = {x:(el.getStyle('width').toInt() - 185)/2, y:0};
+                }
+                
+                if (valid.indexOf('date') < 0) {
+                        options['pickOnly'] = 'time';
+                        options['format'] = '';
+                }
+                
+                this.datePickers[el.get('id')] = new Picker.Date(el, options);
+                
+                var repeatUI = [];
+                
+                if (repeat && !this.isMode('search')) {
+                        repeatUI = this.createDatetimeRepeatableUI(holder, proxyField, value, condition, pos, el);
+                }
+                
+                if (minDep)
+                        this.addFormElementComplete(
+                                'enforceDateDependency',
+                                this.options.pre+minDep,
+                                [Date.parse(el.get('value')), minDep, 'min'],
+                                this.options.pre+minDep
+                        );
+                
+                if (maxDep)
+                        this.addFormElementComplete(
+                                'enforceDateDependency',
+                                this.options.pre+maxDep,
+                                [Date.parse(el.get('value')), maxDep, 'max'],
+                                this.options.pre+maxDep
+                        );
+                                
+                if (repeat == 'enddate' && !this.isMode('search')) {
+                        minDep = repeatUI[repeatUI.length - 1].get('id');
+                        this.enforceDateDependency(el.get('value') ? Date.parse(el.get('value')) : new Date(), minDep, 'min');
+                        this.datePickers[el.get('id')].setOptions({
+                                onSelect: function(date) {
+                                        this.enforceDateDependency(date, minDep, 'min');
+                                }.bind(this)
+                        });
+                }
+                
+                return [el].combine(repeatUI);
+        },
+        
+        __createDatetime: function(holder, proxyField, value, condition, pos, lbl) {
                 var 
                         range = this.getOpt(proxyField, 'interval'), 
                         valid = this.getOpt(proxyField, 'valid'),
@@ -438,6 +602,7 @@ var k2fields_type_datetime = {
                 rep = rep[0];
                 
                 var repeatOn = value[pos] != '';
+                
                 rep.addEvent('change', function(e) {
                         e = document.id(e.target);
                         
@@ -459,8 +624,7 @@ var k2fields_type_datetime = {
                                 if (el.get('tag') == 'select') el.selectedIndex = -1;
                                 else el.set('value', '');
                         }
-                        if (el.get('tag') == 'input') 
-                                el.getPrevious('label').setStyle('display', to);
+                        if (el.get('tag') == 'input') el.getPrevious('label').setStyle('display', to);
                         
                         el.disabled = disabled;
                         el.setStyle('display', to);
@@ -519,15 +683,15 @@ var k2fields_type_datetime = {
                 return [rep, freq, unit, times];
         },
         
-        createTimerange: function(holder, proxyField, value, condition) {return this.createDatetimerange(holder, proxyField, value, condition);},
+        createTimerange: function(holder, proxyField, value, condition) { return this.createDatetimerange(holder, proxyField, value, condition); },
         
-        createDaterange: function(holder, proxyField, value, condition) {return this.createDatetimerange(holder, proxyField, value, condition);},
+        createDaterange: function(holder, proxyField, value, condition) { return this.createDatetimerange(holder, proxyField, value, condition); },
         
-        createTime: function(holder, proxyField, value, condition) {return this.createDatetime(holder, proxyField, value, condition);},
+        createTime: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
         
         createDuration: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
 
-        createDate: function(holder, proxyField, value, condition) {return this.createDatetime(holder, proxyField, value, condition);},
+        createDate: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
         
         enforceDateDependency: function(date, dep, minOrMax) {
                 if (dep) {

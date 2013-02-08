@@ -95,6 +95,7 @@ var k2fields_type_map = {
                 
                 if (defs) {
                         this.modifyComplexOpts(proxyField, defs);
+                        if (typeOf(value) == 'array') value = value.join(this.options.valueSeparator);
                         var ui = this.createComplex(holder, proxyField, value, condition);
                         this.revertOpts(proxyField);
 

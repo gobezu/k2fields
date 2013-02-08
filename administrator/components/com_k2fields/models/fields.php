@@ -63,7 +63,8 @@ class K2FieldsModelFields extends K2Model {
         }
         
         public function preSave(&$item) {
-                $variables = JRequest::get('post');
+                $variables = JprovenUtility::getRequest();
+                // $variables = JRequest::get('post');
                 
                 foreach ($variables as $key => $value) {
                         if (($field = $this->getField($key)) !== false && $field->isEditableList) {
@@ -145,6 +146,8 @@ class K2FieldsModelFields extends K2Model {
         }
         
         public function adjustUnpublishDates($on = 'notunpublished') {
+                // TODO: remove return
+                return;
                 $categories = self::setting('checkandexpire');
                 
                 if (empty($categories)) return false;
@@ -1114,6 +1117,16 @@ class K2FieldsModelFields extends K2Model {
                 if (($options = self::isContainsType($fieldType, $catId, 'view')) !== false) {
                         $filterView = JFactory::getApplication()->input->get('view');
                         $fields = array($options);
+                        $input = JFactory::getApplication()->input;
+                        $option = $input->get('option');
+                        $view = $input->get('view');
+                        $layout = $input->get('layout');
+                        $inCompare = $view == 'itemlist' && $layout == 'compare';
+                        if ($inCompare) {
+                                $filterView = strpos($option, 'com_k2') !== false ? 'compare' : null;
+                        } else {
+                                $filterView = strpos($option, 'com_k2') !== false ? $view : null;
+                        }                        
                         self::filterBasedOnView($fields, $filterView);
                         return !empty($fields);
                 }
@@ -1229,9 +1242,12 @@ class K2FieldsModelFields extends K2Model {
         }    
         
         public function getFieldsBasedOnRequest() {
-                $type = JRequest::getWord('type');
-                $item = JRequest::getInt('id', 0);
-                $cat = JRequest::getInt('cid', JRequest::getInt('catid'));
+                $input = JFactory::getApplication()->input;
+                $type = $input->get('type', '', 'word');
+                $item = $input->get('id', 0, 'int');
+                $cat = $input->get('catid', '', 'int');
+                $cat = $input->get('cid', $cat, 'int');
+                $fields = null;
                 
                 if ($type == 'searchfields') {
                         if (empty($cat) && empty($item)) {
@@ -1247,10 +1263,12 @@ class K2FieldsModelFields extends K2Model {
                                 }
                         }
                 } else {
-                        if ($cat) {
-                                $fields = $this->getFieldsByGroup($cat, 'edit');
-                        } else if ($item) {
+                        if ($item) {
                                 $fields = $this->getFieldsByItem($item, 'edit');                                
+                        }
+                        
+                        if (empty($fields) && $cat) {
+                                $fields = $this->getFieldsByGroup($cat, 'edit');
                         }
                 }
                 
@@ -1282,13 +1300,14 @@ class K2FieldsModelFields extends K2Model {
         public function getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
 //                $cache = JFactory::getCache('com_k2fields');
 //                $result = $cache->call(array($this, '_getFields'), $value, $mode, $modeFilter, $objectify, $preserveOrder); 
-                
                 $result = $this->_getFields($value, $mode, $modeFilter, $objectify, $preserveOrder);
                 return $result;
         }
         
         function _getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
                 if (empty($value) || $mode != 'id' && $mode != 'group' && $mode != 'item') return array();
+                
+                $accValue = $value;
                 
                 $query = "
                         SELECT 
@@ -1348,53 +1367,105 @@ class K2FieldsModelFields extends K2Model {
                 if ($onlyDefinitions) return $fields;
                 
                 $fields = $this->mapFieldsOptions($fields, $modeFilter == 'search');
-                $fields = $this->__getFields($fields, $mode, $value, $modeFilter, $objectify, $preserveOrder);
+                $fields = $this->__getFields($fields, $mode, $accValue, $modeFilter, $objectify, $preserveOrder);
                 
                 return $fields;
         }
         
-        function reinstateReadOnlyFields() {
-                $task = JRequest::getCmd('task');
-                $view = JRequest::getCmd('view');
-                $option = JRequest::getCmd('option');
-                $id = JRequest::getInt('id');
+        /**
+         * The current request is massaged to contain default value for each field 
+         * to which current user does NOT have edit access to
+         * 
+         * PRE: called only for new items
+         */
+        function setDefaultValues() {
+                $input = JFactory::getApplication()->input;
+                $task = $input->get('task');
+                $view = $input->get('view');
+                $option = $input->get('option');
                 
-                if ($option == 'com_k2' && $id && $task == 'save' && $view == 'item') {
+                if ($option == 'com_k2' && $task == 'save' && $view == 'item') {
                         $user = JFactory::getUser();
-                        $row = JTable::getInstance('K2Item', 'Table');
-                        $row->load($id);
-                        $fieldsValues = json_decode($row->extra_fields);
-                        $fieldsValues = JprovenUtility::indexBy($fieldsValues, 'id');
-                        $fields = $this->getFieldsByItem($id, 'read');
-                        $found = array();
+                        $catId = $input->get('catid', -1, 'int');
+                        $fields = $this->getFieldsByGroup($catId, '-edit');
+                        
                         foreach ($fields as $i => $field) {
                                 $access = self::value($field, 'access');
-                                
+
                                 if ($access && isset($access['edit'])) {
                                         $allowed = in_array($access['edit'], $user->getAuthorisedViewLevels());
                                         
-                                        if (!$allowed) continue;
-                                                                                
+                                        if ($allowed || $access['edit'] == -1) continue;
+
                                         $id = self::value($field, 'id');
-                                        $found['K2ExtraField_'.$id] = $fieldsValues[$id][0]->value;
-                                        JRequest::setVar('K2ExtraField_'.$id, $fieldsValues[$id][0]->value);
-                                }                        
+                                        $value = self::value($field, 'default');
+                                        // TODO: incompatible with J3+
+                                        //JRequest::setVar('K2ExtraField_'.$id, $value);
+                                        //$input->set('K2ExtraField_'.$id, $value);
+                                        JprovenUtility::setVar('K2ExtraField_'.$id, $value, 'post');
+                                }
+                        }
+                }
+        }
+        
+        function resetValues() {
+                $input = JFactory::getApplication()->input;
+                $task = $input->get('task');
+                $view = $input->get('view');
+                $option = $input->get('option');
+                $id = $input->get('id', '', 'int');
+                
+                if ($id && $option == 'com_k2' && $task == 'save' && $view == 'item') {
+                        $user = JFactory::getUser();
+                        $row = JTable::getInstance('K2Item', 'Table');
+                        $row->load($id);
+                        $previousValues = json_decode($row->extra_fields);
+                        $previousValues = JprovenUtility::indexBy($previousValues, 'id');
+                        $fields = $this->getFieldsByItem($id, 'read');
+
+                        foreach ($fields as $i => $field) {
+                                $access = self::value($field, 'access');
+
+                                if ($access && isset($access['edit'])) {
+                                        $allowed = in_array($access['edit'], $user->getAuthorisedViewLevels());
+                                        
+                                        if ($allowed) continue;
+
+                                        if ($access['edit'] == -1) {
+                                                if ($user->id == $row->created_by || $user->authorise('core.admin')) continue;
+                                        }
+
+                                        $id = self::value($field, 'id');
+                                        // TODO: incompatible with J3+
+                                        // JRequest::setVar('K2ExtraField_'.$id, $previousValues[$id][0]->value);
+                                        // $input->set('K2ExtraField_'.$id, $previousValues[$id][0]->value);
+                                        JprovenUtility::setVar('K2ExtraField_'.$id, $previousValues[$id][0]->value, 'post');
+                                }
                         }
                 }
         }
         
         private function __getFields($fields, $mode, $value, $modeFilter, $objectify = false, $preserveOrder = false) {
+                $app = JFactory::getApplication();
+                $input = $app->input;
+                $view = $input->get('view');
+                $task = $input->get('task');
+                $type = $input->get('type');
+                $layout = $input->get('layout');
+                
+                if ($layout == 'category' && $view == 'itemlist') $layout = false;
+                
+                if ($isNegate = (strpos($modeFilter, '-') === 0)) {
+                        $modeFilter = str_replace('-', '', $modeFilter);
+                }
+                
                 if (isset($modeFilter) && $modeFilter != 'edit') {
                         if (is_string($modeFilter) && $modeFilter == 'view') {
-                                $modeFilter = array('view' => JRequest::getCmd('view', ''));
+                                $modeFilter = array('view' => $layout ? $layout : $view);
                         }
                         
                         $accessMode = 'read';
                 } else if (!isset($modeFilter)) {
-                        $app = JFactory::getApplication();
-                        $task = JRequest::getCmd('task');
-                        $type = JRequest::getCmd('type');
-                        
                         if ($app->isAdmin() || $task == 'edit' || $task == 'retrieve' && $type == 'fields') {
                                 $accessMode = 'edit';
                         } else {
@@ -1434,10 +1505,46 @@ class K2FieldsModelFields extends K2Model {
                         $access = self::value($field, 'access');
                         
                         if ($access && isset($access[$accessMode]) && !empty($access[$accessMode])) {
-                                $notAllowed = !in_array($access[$accessMode], $user->getAuthorisedViewLevels());
+                                $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
                                 
-                                if ($notAllowed) unset($fields[$i]);
-                        }
+                                if (!$allowed) {
+                                        if ($access['edit'] == -1) {
+                                                $type = JFactory::getApplication()->input->get('type', 'fields', 'word');
+                                                
+                                                if ($type == 'fields' && $mode != 'item') {     // New item
+                                                        $allowed = true;
+                                                } else if ($mode == 'item') {
+                                                        if (is_numeric($value) && $value > 0) {
+                                                                $row = JTable::getInstance('K2Item', 'Table');
+                                                                $row->load($value);
+                                                                $allowed = $user->id == $row->created_by || $user->authorise('core.admin');
+                                                        }
+                                                }
+                                        }
+                                }
+                                
+                                if ($allowed && $isNegate || !$allowed && !$isNegate) unset($fields[$i]);
+                                
+//                                $notAllowed = !in_array($access[$accessMode], $user->getAuthorisedViewLevels());
+//                                
+//                                if ($notAllowed) {
+//                                        if ($access['edit'] == -1) {
+//                                                $type = JFactory::getApplication()->input->get('type', 'fields', 'word');
+//                                                
+//                                                if ($type == 'fields' && $mode != 'item') {     // New item
+//                                                        $notAllowed = false;
+//                                                } else if ($mode == 'item') {
+//                                                        if (is_numeric($value) && $value > 0) {
+//                                                                $row = JTable::getInstance('K2Item', 'Table');
+//                                                                $row->load($value);
+//                                                                $notAllowed = !($user->id == $row->created_by || $user->authorise('core.admin'));
+//                                                        }
+//                                                }
+//                                        }
+//                                }
+//                                
+//                                if (!$isNegate && $notAllowed || $isNegate && !$notAllowed) unset($fields[$i]);
+                        } else if ($isNegate) unset($fields[$i]);
                 }
                 
                 if ($mode == 'id' && is_numeric($value)) {
@@ -1711,8 +1818,10 @@ class K2FieldsModelFields extends K2Model {
         public function renderK2f(&$item, $itemRules, $itemText, $itemObj, $additionalRules = array()) {
                 $isItemObj = false;
                 $isK2item = isset($itemRules['all'][0]['k2item']) && $itemRules['all'][0]['k2item'] == 'true';
-                $view = JRequest::getCmd('view');
-                $task = JRequest::getCmd('task');
+                $input = JFactory::getApplication()->input;
+                $view = $input->get('view');
+                $task = $input->get('task');
+                $layout = $input->get('layout');
                 
                 if (is_object($item)) {
                         $itemId = $item->id;
@@ -1805,10 +1914,11 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 $fields = array_keys($itemRules);
-                $option = JRequest::getCmd('option');
+                $option = $input->get('option');
                 $inModule = $item->params->get('parsedInModule') || 
                         isset($additionalRules['parsedInModule']) && $additionalRules['parsedInModule'];
                 $inMap = $view == 'itemlist' && isset($item->isItemlistMap) && $item->isItemlistMap;
+                $inCompare = $view == 'itemlist' && $layout == 'compare';
                 
                 if ($inModule) {
                         $filterView = 'module';
@@ -1816,6 +1926,9 @@ class K2FieldsModelFields extends K2Model {
                 } else if ($inMap && !K2FieldsMap::showList()) {
                         $filterView = 'map';
                         $modeFilter = array('view' => 'map');
+                } else if ($inCompare) {
+                        $filterView = strpos($option, 'com_k2') !== false ? 'compare' : null;
+                        $modeFilter = array('view' => 'compare');
                 } else {
                         $filterView = strpos($option, 'com_k2') !== false ? $view : null;
                         $modeFilter = $filterView ? 'view' : null;
@@ -2118,8 +2231,9 @@ class K2FieldsModelFields extends K2Model {
                                 }
                                 
                                 if (isset($item->isItemlistTabular) && $item->isItemlistTabular) $ui = 'k2ftable';
+                                if ($inCompare) $ui = 'compare';
                                 
-                                if (count($fieldIds) > 1) {
+                                if (count($fieldIds)) {
                                         $rendered = call_user_func(
                                                 array($this, 'renderUI'.ucfirst($ui)),
                                                 $values, $fields, $item, $plgSettings
@@ -2128,92 +2242,104 @@ class K2FieldsModelFields extends K2Model {
                                         $rendered = $values[0]['rendered'];
                                 }
                                 
-                                $title = '';
-                                
-                                if ($title = self::value($position, 'title')) {
-                                        if ($title == 'true') $title = $item->title;
-                                        
-                                        $title = self::autoTitle(
-                                                $item, 
-                                                $title, 
-                                                self::value($position, 'titlecollapse') == 'true' ? 'collapse' : 'link'
-                                        );
-                                }
-                                
-                                $schema = '';
-                                
-                                if ($schemaType) {
-                                        $schemaType = ucfirst(strtolower($schemaType));
-                                        $schema = ' itemscope itemtype="http://schema.org/'.$schemaType.'"';
-                                }
-                                
-                                $rendered = 
-                                        '<div class="k2f'.$filterView.'"'.$schema.'>'.
-                                                $title.
-                                                $rendered.
-                                                $absoluteRendered.
-                                        '</div>'
-                                        ;
-                                
-                                if ($inMap && !empty($mapFields)) {
-                                        if (count($mapFieldsToShow) > 1) {
-                                                $renderedMap = call_user_func(
-                                                        array($this, 'renderUI'.ucfirst($ui)),
-                                                        $position['rendered_map'], $fields, $item, $plgSettings
-                                                );
-                                        } else {
-                                                $renderedMap = $position['rendered_map'][0]['rendered'];
+                                if (!is_string($rendered)) {
+                                        foreach ($_rules as $i => &$rule) {
+                                                $rule['rendered'] = $position['_plg_'] == $rule['_plg_'] ? $rendered : '';
                                         }
                                         
-                                        $item->rendered_map = 
-                                                '<div class="k2f'.$filterView.'">'.
+                                        $_rules['raw'] = true;
+                                } else {
+                                        $title = '';
+
+                                        if ($title = self::value($position, 'title')) {
+                                                if ($title == 'true') $title = $item->title;
+
+                                                $title = self::autoTitle(
+                                                        $item, 
+                                                        $title, 
+                                                        self::value($position, 'titlecollapse') == 'true' ? 'collapse' : 'link'
+                                                );
+                                        }
+
+                                        $schema = '';
+
+                                        if ($schemaType) {
+                                                $schemaType = ucfirst(strtolower($schemaType));
+                                                $schema = ' itemscope itemtype="http://schema.org/'.$schemaType.'"';
+                                        }
+
+                                        $rendered = 
+                                                '<div class="k2f'.$filterView.'"'.$schema.'>'.
                                                         $title.
-                                                        $renderedMap.
+                                                        $absoluteRendered.
+                                                        $rendered.
                                                 '</div>'
                                                 ;
-                                        
-                                        foreach ($mapItemRules as $fieldId => &$fieldRules) {
-                                                $fld = $mapFields[$fieldId];
 
-                                                foreach ($fieldRules as $frCount => &$fieldRule) {
-                                                        $renderer = $this->getRenderer($fld);
-                                                        if (isset($fieldsValues[$fieldId])) $fieldValues = JprovenUtility::chunkArray($fieldsValues[$fieldId], 'listindex');
-                                                        else $fieldValues = array();                
-                                                        call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
+                                        if ($inMap && !empty($mapFields)) {
+                                                if (count($mapFieldsToShow) > 1) {
+                                                        $renderedMap = call_user_func(
+                                                                array($this, 'renderUI'.ucfirst($ui)),
+                                                                $position['rendered_map'], $fields, $item, $plgSettings
+                                                        );
+                                                } else {
+                                                        $renderedMap = $position['rendered_map'][0]['rendered'];
                                                 }
-                                        }
-                                }
-                                
-                                foreach ($_rules as $i => &$rule) {
-                                        if ($position['_plg_'] == $rule['_plg_']) {
-                                                $rule['rendered'] = $rendered;
-                                                
-                                                if ($isItemObj) {
-                                                        $fieldsRendered = JprovenUtility::indexBy($position['rendered'], 'field', 'all', null, true, true);
-                                                        
-                                                        foreach ($item->extra_fields as &$ef) {
-                                                                $id = self::value($ef, 'id');
-                                                                
-                                                                if (!isset($fields[$id])) {
-                                                                        self::setValue($ef, 'k2fields', false);
-                                                                        continue;
-                                                                }
-                                                                
-                                                                $name = self::value($fields[$id], 'name');
-                                                                
-                                                                self::setValue($ef, 'value', !isset($fieldsRendered[$id]) ? '' : $fieldsRendered[$id]['rendered']);
-                                                                self::setValue($ef, 'name', $name);
-                                                                self::setValue($ef, 'k2fields', true);
+
+                                                $item->rendered_map = 
+                                                        '<div class="k2f'.$filterView.'">'.
+                                                                $title.
+                                                                $renderedMap.
+                                                        '</div>'
+                                                        ;
+
+                                                foreach ($mapItemRules as $fieldId => &$fieldRules) {
+                                                        $fld = $mapFields[$fieldId];
+
+                                                        foreach ($fieldRules as $frCount => &$fieldRule) {
+                                                                $renderer = $this->getRenderer($fld);
+                                                                if (isset($fieldsValues[$fieldId])) $fieldValues = JprovenUtility::chunkArray($fieldsValues[$fieldId], 'listindex');
+                                                                else $fieldValues = array();                
+                                                                call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
                                                         }
                                                 }
-                                        } else {
-                                                $rule['rendered'] = '';
                                         }
+
+                                        foreach ($_rules as $i => &$rule) {
+                                                if ($position['_plg_'] == $rule['_plg_']) {
+                                                        self::addComparisonButton($item, $rendered);
+                                                        $rule['rendered'] = $rendered;
+
+                                                        if ($isItemObj) {
+                                                                $fieldsRendered = JprovenUtility::indexBy($position['rendered'], 'field', 'all', null, true, true);
+
+                                                                foreach ($item->extra_fields as &$ef) {
+                                                                        $id = self::value($ef, 'id');
+
+                                                                        if (!isset($fields[$id])) {
+                                                                                self::setValue($ef, 'k2fields', false);
+                                                                                continue;
+                                                                        }
+
+                                                                        $name = self::value($fields[$id], 'name');
+
+                                                                        self::setValue($ef, 'value', !isset($fieldsRendered[$id]) ? '' : $fieldsRendered[$id]['rendered']);
+                                                                        self::setValue($ef, 'name', $name);
+                                                                        self::setValue($ef, 'k2fields', true);
+                                                                }
+                                                        }
+                                                } else {
+                                                        $rule['rendered'] = '';
+                                                }
+                                        }
+                                        
+                                        $_rules['raw'] = false;
                                 }
                                 
                                 continue;
                         }
                         
+                
                         if (isset($_rules['fields'])) {
                                 $values = $_rules['rendered'];
                                 $values = (array) JprovenUtility::getColumn($values, 'rendered');
@@ -2221,17 +2347,65 @@ class K2FieldsModelFields extends K2Model {
                                 unset($_rules['fields']);
                                 unset($_rules['rendered']);
                                 reset($_rules);
+                                self::addComparisonButton($item, $values);
                                 $_rules[key($_rules)]['rendered'] = $values;
                         } else {
                                 $values = $itemRules[$fieldId];
                                 
                                 foreach ($_rules as $i => &$rule) {
                                         $rule['rendered'] = isset($values[$i]['rendered']) ? $values[$i]['rendered'] : '';
+                                        self::addComparisonButton($item, $rule['rendered']);
                                 }
                         }
                 }
                 
                 return $rules;
+        }
+        
+        private static function addComparisonButton($item, &$value) {
+                $input = JFactory::getApplication()->input;
+                
+                if ($input->get('view') != 'itemlist') return;
+                
+                $catId = self::value($item, 'catid');
+                $catId = self::categorySetting($catId, 'comparable');
+                $isComparable = !empty($catId);
+                
+                if (!$isComparable) return;
+                
+                $isCompare = $input->get('layout') == 'compare';
+                
+                static $isFirst = true;
+                
+                if ($isFirst) {
+                        JprovenUtility::load('jpcompare.js', 'js');
+                        $document = JFactory::getDocument();
+                        $document->addScriptDeclaration("\n".'window.addEvent("domready", function(){ new JPCompare().'.($isCompare ? 'comparize' : 'init').'(); });');
+                }
+                
+                $id = self::value($item, 'id');
+                
+                if ($input->get('layout') == 'compare') {
+//                        if (!$isFirst)
+                                $value = '<div class="compareremovec"><input class="compareremove" type="button" id="id'.$id.'" value="Remove"></div>'.$value;
+                               
+                        $isFirst = false;
+                        
+                        return;
+                }
+                
+                $v = $input->get('items', array(), 'array');
+                
+                $ui = '';
+                
+                if ($isFirst)
+                        $ui .= '<input type="button" id="comparecompare" value="Compare" /><input type="button" id="compareclear" value="Clear" /><div class="clr"> </div>';
+                
+                $ui .= '<input class="comparer" type="checkbox" value="'.$id.'" />';
+                
+                $value = $ui.$value;
+                
+                $isFirst = false;
         }
         
         public static function filterBasedOnView(&$fields, $filterView, $filterValue = null) {
@@ -2243,21 +2417,14 @@ class K2FieldsModelFields extends K2Model {
                                 $subfields = self::value($field, 'subfields');
 
                                 foreach ($filters as $i => $filter) {
-//                                        if ($filterView == 'item') {
-//                                                if (isset($filter['view']) && !isset($filter['view'][$filterView])) {
-//                                                        unset($subfields[$i]);
-//                                                        unset($filters[$i]);                                                        
-//                                                }
-//                                        } else {
-                                                if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
-                                                        unset($subfields[$i]);
-                                                        unset($filters[$i]);
-                                                }
-                                                if (!empty($filterValues) && !in_array($filterValue, $filter['view'][$filterView])) {
-                                                        unset($subfields[$i]);
-                                                        unset($filters[$i]);
-                                                }                                                
-//                                        }                                        
+                                        if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
+                                                unset($subfields[$i]);
+                                                unset($filters[$i]);
+                                        }
+                                        if (!empty($filterValues) && !in_array($filterValue, $filter['view'][$filterView])) {
+                                                unset($subfields[$i]);
+                                                unset($filters[$i]);
+                                        }                                                
                                 }
                                 
                                 if (empty($subfields)) {
@@ -2268,18 +2435,14 @@ class K2FieldsModelFields extends K2Model {
                                 }
                         } else {
                                 $filter = self::value($field, 'filters');
-
-//                                if ($filterView == 'item') {
-//                                        if (isset($filter['view']) && !isset($filter['view'][$filterView])) 
-//                                                unset($fields[$f]);
-//                                } else {
-                                        if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
-                                                unset($fields[$f]);
-                                        }
-                                        if (!empty($filterValue) && !in_array($filterValue, $filter['view'][$filterView])) {
-                                                unset($fields[$f]);
-                                        }
-//                                }
+                                
+                                if (!isset($filter['view']) || !isset($filter['view'][$filterView])) {
+                                        unset($fields[$f]);
+                                }
+                                
+                                if (!empty($filterValue) && !in_array($filterValue, $filter['view'][$filterView])) {
+                                        unset($fields[$f]);
+                                }
                         }
                 }
         }
@@ -2290,6 +2453,28 @@ class K2FieldsModelFields extends K2Model {
                         $rendered[] = $value->txt ? $value->txt : $value->value;
                 }
                 return implode(', ', $rendered);
+        }
+        
+        private static function isExcluded($value, $excludedValues) {
+                $isExcluded = false;
+
+                if (!empty($excludedValues)) {
+                        foreach ($excludedValues as $excludedValue) {
+                                if (strpos($excludedValue, 'reg:') === 0) {
+                                        $excludedValue = str_replace('reg:', '', $excludedValue);
+
+                                        if (preg_match('#'.$excludedValue.'#i', $value)) {
+                                                $isExcluded = true;
+                                                break;
+                                        }
+                                } else if ($excludedValue == $value) {
+                                        $isExcluded = true;
+                                        break;
+                                }
+                        }
+                }
+                
+                return $isExcluded;
         }
         
         public function renderFieldValues($values, $field, $fieldRule, $isFormatted = false) {
@@ -2338,13 +2523,14 @@ class K2FieldsModelFields extends K2Model {
                         $tips = ' jptips" jptips="'.htmlspecialchars($tips, ENT_COMPAT);
                 }
                 
-                if (!empty($lbl) && self::isTrue($field, ($view != 'item' ? '' : '') . 'showlabel')) {
+                if (!empty($lbl) && self::isTrue($field, ($view != 'item' ? 'itemlist' : '') . 'showlabel')) {
                         $lbl = '<span class="lbl'.$tips.'">'.$lbl.'</span>';
                 } else {
                         $lbl = '';
                 }
                 
                 $replace = self::value($field, 'replace');
+                $excludeValues = (array) self::value($field, 'excludevalues', array());
                 
                 if ($list != '') {
                         $rendered = array();
@@ -2354,29 +2540,16 @@ class K2FieldsModelFields extends K2Model {
                         $mod = $fieldRule['alt'];
                         $n = count($values);
                         
-                        $collapsible = self::isTrue($field, 'collapsible');
-                        $collapseLimit = self::value($field, 'collapselimit', $collapsible ? 3 : 0);
-                        $excludeValues = (array) self::value($field, 'excludevalues', array());
+                        $collapsible = self::isTrue($field, 'collapsible'.($view == 'item' ? '' : 'itemlist'));
+                        $collapseLimit = self::value($field, 'collapselimit'.($view == 'item' ? '' : 'itemlist'), $collapsible ? 3 : 0);
+                        $collapseLabel = self::value($field, 'collapselabel'.($view == 'item' ? '' : 'itemlist'), 'Additional');
                         $j = 0;
+                        
                         for ($i = 0; $i < $n; $i++) {
-                                $isExclude = false;
-                                if (!empty($excludeValues)) {
-                                        foreach ($excludeValues as $excludeValue) {
-                                                if (strpos($excludeValue, 'reg:') === 0) {
-                                                        $excludeValue = str_replace('reg:', '', $excludeValue);
-                                                        if (preg_match('#'.$excludeValue.'#i', $values[$i])) {
-                                                                $isExclude = true;
-                                                                break;
-                                                        }
-                                                } else if ($excludeValue == $values[$i]) {
-                                                        $isExclude = true;
-                                                        break;
-                                                }
-                                        }
-                                        if ($isExclude) continue;
-                                }
+                                if (self::isExcluded($values[$i], $excludeValues)) continue;
+                                        
                                 if ($collapsible && $j == $collapseLimit) {
-                                        $rendered[] = '<a href="javascript:void(0)" class="jpcollapse">'.JText::_('Additional').'</a><ul class="k2flist lst qty'.($n - $collapseLimit).'">';
+                                        $rendered[] = '<a href="javascript:void(0)" class="jpcollapse" title="'.JText::_('Click here to see additional items').'">'.JText::_($collapseLabel).'</a><ul class="k2flist lst qty'.($n - $collapseLimit).'">';
                                 }
                                 
                                 $rendered[] = '<li class="alt'.(($j + 1) % $mod).' n'.($j + 1).'">'.$values[$i].'</li>';
@@ -2385,8 +2558,16 @@ class K2FieldsModelFields extends K2Model {
                         
                         $rendered = '<ul class="k2flist lst qty'.$collapseLimit.'">'.implode('', $rendered).'</ul>';
                 } else {
-                        $rendered = '<span>'.implode('', $values).'</span>';
+                        $n = count($values);
+                        $rendered = '';
                         
+                        for ($i = 0; $i < $n; $i++) {
+                                if (self::isExcluded($values[$i], $excludeValues)) continue;
+                                
+                                $rendered .= $values[$i];
+                        }
+                        
+                        $rendered = '<span>'.$rendered.'</span>';
                 }
                 
                 $schemaProp = self::value($field, 'schemaprop');
@@ -2449,18 +2630,53 @@ class K2FieldsModelFields extends K2Model {
                 return $ui;
         }       
         
+        private function renderUICompare($values, $fields, $item, $plgSettings = array()) {
+                foreach ($values as &$value) {
+                        if (!isset($value['section'])) {
+                                $value['section'] = self::value($fields[$value['field']], 'section');
+                        }
+                }
+                
+                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false, '', '', '', '', 'raw');
+                
+                return $uis;
+                
+                $ui = '';
+                
+                static $isFirst = true;
+                
+                foreach ($uis as $section => $_uis) {
+                        if (empty($section)) $section = JText::_('Additional');
+                        
+                        $class = 'itemCompare '.($isFirst ? 'itemCompareHeading' : '');
+                        $ui .= '<tr class="'.$class.' itemCompareSection"><td><div>'.$section.'</div></td></tr>';
+                        $section = JFile::makeSafe($section);
+                        $section = strtolower($section);
+                        $class .= ' '.$section;
+                        
+                        foreach ($_uis as $i => $_ui) {
+                                $ui .= '<tr class="'.$class.' itemCompare'.$i.' '.($i%2 == 0 ? 'compareeven' : 'compareodd').'"><td>'.$_ui.'</td></tr>';
+                        }
+                }
+                
+                $ui = '<table class="compareitem">'.$ui.'</table>';
+                $isFirst = false;
+                
+                return $ui;
+        }
+        
         public static function getRenderUICols($fields) {
                 $fieldsByCols = array();
                 
                 foreach ($fields as $field) {
-                        if (self::isType($field, 'complex')) {
+                        $col = self::value($field, 'col');
+                        
+                        if (!is_numeric($col) && self::isType($field, 'complex')) {
                                 $subfields = self::value($field, 'subfields');
                                 foreach ($subfields as $subfield) {
                                         $col = self::value($subfield, 'col');
                                         if (is_numeric($col)) break;
                                 }
-                        } else {
-                                $col = self::value($field, 'col');
                         }
                         
                         if (is_numeric($col)) {
@@ -2469,6 +2685,8 @@ class K2FieldsModelFields extends K2Model {
                         } else {
                                 $fieldsByCols['__empty__'] = $field;
                         }
+                        
+                        $col = null;
                 }
                 
                 if (isset($fieldsByCols['__empty__'])) unset($fieldsByCols['__empty__']);
@@ -2699,7 +2917,8 @@ class K2FieldsModelFields extends K2Model {
                 $itemGluePre = '', 
                 $itemGluePost = '',
                 $gluePre = '', 
-                $gluePost = ''
+                $gluePost = '',
+                $format = 'rendered'
         ) {
                 $uis = array();
                 
@@ -2714,9 +2933,9 @@ class K2FieldsModelFields extends K2Model {
                                 $uis[$section] = $glue ? '' : array();
                         
                         if ($glue) 
-                                $uis[$section] .= $itemGluePre . $value['rendered'] . $itemGluePost;
+                                $uis[$section] .= $format == 'rendered' ? $itemGluePre . $value['rendered'] . $itemGluePost : $value;
                         else 
-                                $uis[$section][] = $value['rendered'];
+                                $uis[$section][$value['field']] = $format == 'rendered' ? $value['rendered'] : $value;
                 }
                 
                 if (!empty($gluePre) || !empty($gluePost)) 
@@ -2825,8 +3044,12 @@ class K2FieldsModelFields extends K2Model {
                 $rendered = '';
                 $val = array();
                 $excludeValues = (array) self::value($field, 'excludevalues', array());
-                $collapsible = self::isTrue($field, 'collapsible');
-                $collapseLimit = self::value($field, 'collapselimit', $collapsible ? 3 : 0);
+                $view = JFactory::getApplication()->input->get('view', 'itemlist');
+                $collapsible = self::isTrue($field, 'collapsible'.($view == 'item' ? '' : 'itemlist'));
+                $collapseLimit = self::value($field, 'collapselimit'.($view == 'item' ? '' : 'itemlist'), $collapsible ? 3 : 0);
+                $collapseLabel = self::value($field, 'collapselabel'.($view == 'item' ? '' : 'itemlist'), 'Additional');
+                
+                $id = self::value($field, 'subfieldid');
                 
                 foreach ($values as $j => $value) {
                         $v = self::value($value, 'value');
@@ -2854,10 +3077,10 @@ class K2FieldsModelFields extends K2Model {
                                         if ($isExclude) continue;
                                 }
                                 
-//                                if ($collapsible && $j == $collapseLimit) {
-//                                        $val[] = '<a href="javascript:void(0)" class="jpcollapse">'.JText::_('Additional').'</a><ul class="k2flist lst qty'.(count($values) - $collapseLimit).'">';
-//                                }
-//                                
+                                if ($collapsible && $j == $collapseLimit) {
+                                        $val[] = '<a href="javascript:void(0)" class="jpcollapse" title="'.JText::_('Click here to see additional items').'">'.JText::_($collapseLabel).'</a><ul class="k2flist lst qty'.(count($values) - $collapseLimit).'">';
+                                }
+                                
                                 $val[] = self::formatValue($value, $rule, $field);
                         }
                 }
@@ -3704,7 +3927,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 }
                 
                 $pre = self::pre($type);
-
+                
 		switch ($extraField->type){
 			case 'textfield':
                         $output='<textarea name="'.$pre.$extraField->id.'" id="'.$pre.$extraField->id.'" rows="10" cols="40">'.$active.'</textarea>';
@@ -4005,6 +4228,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                                 // J2.5 ACL view permissions
                                 $val = explode(self::VALUE_SEPARATOR, $val);
+//                                if (!isset($val[1])) {
+//                                        jdbg::p($val);
+//                                        jdbg::pex($opts);
+//                                }
+//                                jdbg::pf($val);
                                 $val = array('read'=>$val[0], 'edit'=>$val[1]);
 //                                $v = array();
 //                                for ($j = 0, $m = count($val); $j < $m; $j++) {
@@ -4023,6 +4251,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         
                         $options[$key] = $val;
                 }
+                
                 
                 if (!isset($options['valid'])) $options['valid'] = 'alphanum';
                 
@@ -4189,7 +4418,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 
                 $filters = (array) $filters;
                 $filterNames = array_keys($filters);
-                
+
                 if (is_numeric($filterNames[0])) {
                         $filterNames = $filters;
                         $filterValues = array_fill(0, count($filterNames), false);

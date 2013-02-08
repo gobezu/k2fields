@@ -101,6 +101,7 @@ var k2fieldseditor = new Class({
                                 case 'access':
                                         val = vals[0];
                                         if (val == k2fs.options.valueSeparator) val = '';
+                                        val = val.join(k2fs.options.valueSeparator);
                                         break;
                                 case 'conditions':
                                         val = vals.join(k2fs.options.valueSeparator);
@@ -536,7 +537,9 @@ var k2fieldseditor = new Class({
                                         {'value':'text'},
                                         {'value':'textarea'},
                                         {'value':'editor'},
-                                        {'value':'select'}
+                                        {'value':'select'},
+                                        {'value':'slider'},
+                                        {'value':'rangeslider'}
                                 ],
                                 'deps':{
                                         'select':['id:7', 'id:12', 'id:14', 'id:15', 'id:28'],
@@ -649,7 +652,7 @@ var k2fieldseditor = new Class({
                                 'name':'Folded',
                                 'optName':'folded',
                                 'valid':'verifybox',
-                                'tip':'In case of using tabular layout',
+                                'tip':'Applicable only for tabular layout',
                                 'section':'Layout'
                         },
                         '18':{
@@ -660,7 +663,7 @@ var k2fieldseditor = new Class({
                                 'shift':1,
                                 'low':0,
                                 'high':7,
-                                'tip':'In case of using tabular layout',
+                                'tip':'Applicable only for tabular layout',
                                 'section':'Layout'
                         },
                         '21':{
@@ -851,14 +854,45 @@ var k2fieldseditor = new Class({
                                 'valid':'verifybox',
                                 'section':'Basic',
                                 'deps':{
-                                        1:['id:46']
+                                        1:['id:46', 'id:65']
                                 }
                         },
                         '46':{
                                 'name':'Collapse limit',
                                 'optName':'collapselimit',
                                 'valid':'integer',
-                                'section':'Basic'
+                                'section':'Basic',
+                                'default':3
+                        },
+                        '65':{
+                                'name':'Collapse label',
+                                'optName':'collapselabel',
+                                'valid':'text',
+                                'section':'Basic',
+                                'default':'Additional'
+                        },
+                        '62':{
+                                'name':'Collapsible (itemlist)',
+                                'optName':'collapsibleitemlist',
+                                'valid':'verifybox',
+                                'section':'Basic',
+                                'deps':{
+                                        1:['id:63', 'id:64']
+                                }
+                        },
+                        '63':{
+                                'name':'Collapse limit (itemlist)',
+                                'optName':'collapselimititemlist',
+                                'valid':'integer',
+                                'section':'Basic',
+                                'default':3
+                        },
+                        '64':{
+                                'name':'Collapse label (itemlist)',
+                                'optName':'collapselabelitemlist',
+                                'valid':'text',
+                                'section':'Basic',
+                                'default':'Additional'
                         },
                         '47':{
                                 'name':'Exclude values from display',
@@ -879,6 +913,14 @@ var k2fieldseditor = new Class({
                                 'optName':'rows',
                                 'valid':'integer',
                                 'section':'Basic'
+                        },
+                        '66':{
+                                'name':'Note',
+                                'optName':'field_notes',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'section':'Basic',
+                                'tip':'When dealing with many fields over time you may forget the original intention of a field. Instead of going through a reverse engineering process to discover the idea you can put short notes about the actual intended use and other related notes as reference.'
                         },
                         '52':{
                                 'name':'Search operator',
@@ -1003,7 +1045,7 @@ var k2fieldseditor = new Class({
                                 'optName':'view',
                                 'valid':'text',
                                 'ui':'checkbox',
-                                'values':['item', 'itemlist', 'module', 'map'],
+                                'values':['item', 'itemlist', 'module', 'map', 'compare'],
                                 'section':'Layout',
                                 'default':['item']
                                 // TODO: consistency in value separators
@@ -1017,7 +1059,8 @@ var k2fieldseditor = new Class({
                                         {'name':'Read', 'valid':'select', 'values':this.options.options['aclviewgroups']},
                                         {'name':'Edit', 'valid':'select', 'values':this.options.options['aclviewgroups']}
                                 ],
-                                'section':'Basic'
+                                'section':'Basic',
+                                'tip':'In addition to the defined ACL view groups we have added necessary restrictions such as owner, where if that value is set then only the creator of the item will be able to have the provided access.'
                         },
                         '201':{
                                 'name':'Custom properties',
@@ -1224,7 +1267,8 @@ var k2fieldseditor = new Class({
                                         
                                 },
                                 'sorted':true,
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'default':'upload'
                         },
                         '1153':{
                                 'name':'Mode',

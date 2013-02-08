@@ -3,8 +3,8 @@
  
 defined('_JEXEC') or die('Restricted access');
 
-$view = JRequest::getWord('view', 'itemlist');
-$task = JRequest::getCmd('task', 'search');
+$view = JFactory::getApplication()->input->get('view', 'itemlist', 'word');
+$task = JFactory::getApplication()->input->get('task', 'search', 'cmd');
 
 if ($view == 'fields' || $view == 'field') {
         require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/k2fields.php';

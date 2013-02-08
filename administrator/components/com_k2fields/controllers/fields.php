@@ -9,9 +9,11 @@ class K2FieldsControllerFields extends JController {
 	function retrieve() {
                 $model = $this->getModel('fields');
                 $fields = $model->getFieldsBasedOnRequest();
-                $item = JRequest::getInt('id', 0);
-                $cat = JRequest::getInt('cid', JRequest::getInt('catid'));
-                $type = JRequest::getWord('type');
+                $input = JFactory::getApplication()->input;
+                $type = $input->get('type', '', 'word');
+                $item = $input->get('id', 0, 'int');
+                $cat = $input->get('catid', '', 'int');
+                $cat = $input->get('cid', $cat, 'int');
                 $output = JprovenUtility::renderK2fieldsForm($fields, $type, false, $cat, $item);
                 echo $output;
                 JFactory::getApplication()->close();

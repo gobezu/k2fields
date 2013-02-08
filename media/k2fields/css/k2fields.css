@@ -114,7 +114,7 @@ input[type=button]:disabled, input[type=submit]:disabled, button.search:disabled
 ul.k2flist > li .fp > .fv > span, 
 ul.k2flist > li > div, 
 ul.k2flist li
-{ display:inline-block; padding:0px 0.5em; margin:0px 3px 3px 0px; }
+{ display:inline-block; padding:0px 0.5em 0px 0px; margin:0px 3px 3px 0px; }
 
 .complex .fvc > .fv > ul.k2flist > li .fp > .fv > span { background:inherit; }
 .complex .fvc > .fv > ul.k2flist > li { border-left:1px solid #43413D; background:inherit; margin-bottom:0.5em; }
@@ -123,9 +123,70 @@ ul.k2flist li
 
 a.k2flink { }
 
+/* compare list layout */
+table.compare { overflow:hidden; table-layout:fixed; padding:0; display:table; border-collapse:collapse; border-spacing:0; }
+table.compare * { margin:0; padding:0; border:0; font-weight:normal; font-style:normal; font-size:100%; line-height:1.2; font-family:inherit; }
+table.compare .fvc .lbl, table.compare .fv .condition { font-weight:normal; }
+table.compare thead th .lbl, table.compare tbody td .lbl, table.compare tbody th .fv { display:none; }
+table.compare tbody th .lbl { display:inherit; }
+
+table.compare .fvc { border:0px; }
+table.compare { border-top:1px solid #d9d8cd; border-right:1px solid #d9d8cd; }
+table.compare thead tr th { background-color:#fff; border-bottom:1px solid #b7b5a2; font-size:12px; text-align:center; vertical-align:bottom; }
+table.compare thead > tr { height:auto !important; }
+table.compare td, table.compare th { border-left:1px solid #d9d8cd; white-space:normal; }
+table.compare > tbody > tr > th, table.compare > tbody > tr > td { padding:3px 4px; line-height:18px; border-top:1px solid #e9e7dc; }
+table.compare > tbody > tr:nth-child(odd), table.compare > tbody > tr:nth-child(odd) { background-color:#f8f7f2; }
+table.compare > tbody > tr > td { overflow:hidden; text-overflow:ellipsis; }
+table.compare > tbody > tr.comparefield:hover > td, table.compare > tbody > tr.comparefield:hover > th { background-color:#ccc; }
+table.compare > tbody > tr.comparefieldhide { display:none; }
+table.compare > tbody > tr.comparefieldselected { background-color:#e3f1ff !important; }
+table.compare > tbody > tr.comparefielddiff > th { background-color:#fff2d8 !important; }
+
+/*
+.itemListCompare .itemContainer { min-width:150px !important; }
+.itemListCompare .lbl { display:none; }
+.itemListCompare .itemContainerFirst .catItemView .lbl { display:inherit; }
+.itemListCompare .itemContainerFirst .catItemView .fv { display:none; }
+.itemListCompare .catItemBody { padding:0px; }
+.itemListCompare .fv ul.k2flist li { padding:0px; }
+.itemListCompare tr.itemCompareSection td { visibility:hidden; }
+.itemListCompare .itemContainer:first-child tr.itemCompareSection td { visibility:visible; }
+tr.itemCompareSection td div { }
+table.compareitem { width:100%; border:1px solid #bbbbbb; }
+table.compareitem tr.comparehighlight { background-color:#bbbbbb; }
+tr.compareodd { background-color:#efefef; }
+tr.compareeven { background-color:#dddddd; }
+
+*/
+.compareremovec { height:30px; }
+
+/*
+table.list.compact.compare{border-top:1px solid #d9d8cd;border-right:1px solid #d9d8cd}
+table.list.compact.compare td, table.list.compact.compare th{border-left:1px solid #d9d8cd;white-space:normal}
+table.list.compact.compare .img140{margin:10px 0 5px 0}
+table.list.compact.compare thead tr th{background-color:#fff;border-bottom:1px solid #b7b5a2;font-size:12px;text-align:center;vertical-align:bottom}
+table.list.compact.compare thead tr th .prod-img{width:140px;height:140px}
+table.list.compact.compare thead tr:hover th, table.list.compact.compare thead a:hover{background-color:#fff !important}
+table.list.compact.compare .color-label{height:5px;margin:5px -4px -8px -4px}
+table.list.compact.compare td.empty, table.list.compact.compare th.empty{background:#e9e7dc}
+table.list.compact.compare tr:hover td.empty{background:#f2f1e7}
+table.list.compact.compare tr.diff td.pos, table.list.compact.compare tr.diff th.pos{background:#e6f8d7;border-top:1px solid #caf1ac}
+table.list.compact.compare tr.diff td.neg, table.list.compact.compare tr.diff th.neg{background:#fecec1;border-top:1px solid #febaa8}
+table.list.compact.compare tr.diff td.diff, table.list.compact.compare tr.diff th.diff{background:#ffeabe;border-top:1px solid #ffe1a5}
+table.list.compact.compare tr.diff:hover td.pos, table.list.compact.compare tr.diff:hover th.pos{background:#f4fced;border-top:1px solid #e0f7cf}
+table.list.compact.compare tr.diff:hover td.neg, table.list.compact.compare tr.diff:hover th.neg{background:#fee2da;border-top:1px solid #fecec1}
+table.list.compact.compare tr.diff:hover td.diff, table.list.compact.compare tr.diff:hover th.diff{background:#fff2d8;border-top:1px solid #ffeabe}
+table.list.compact.compare .category-name{font-size:11px}
+table.list.compact .cell-right{text-align:right}
+table.list.compact .show-on-hover{padding:0!important;margin-top:-3px !important}
+table.list.compact .contribute-hint{float:right;text-align:right}
+table.list.compact .contribute-hint .show-on-hover{padding:2px !important;width:100px !important;margin-left:-60px}*/
+
 /* tabular list layout */
 .itemListTabular .itemContainer { border-bottom: 1px solid #43413D;}
 .itemListTabular .itemListHeading, .itemListTabular .itemContainer .lbl { display:none; }
+.itemListTabular .itemContainer .colsFolded .lbl { display:inherit; }
 .itemListTabular .itemContainerFirst .itemListHeading { background-color:#D1D1D1; padding:5px; display:block; }
 .itemListTabular .itemContainerFirst .itemListHeading .fvc .lbl { display:block; }
 .itemListTabular .itemListHeading .fvc .clr, .itemListTabular .itemListHeading .fv {display:none;}
@@ -224,6 +285,8 @@ textarea.condition { }
   
 /* k2item link handling */
 .jptoggler { cursor:pointer; margin: 0; padding:5px; font-size:14px; color: #595959;padding-left: 20px; background-repeat:no-repeat; }
+.itemList .jptoggler { padding-left:0px; }
+.itemList .fv .jptoggler { padding-left:20px; }
 .jptoggler-inactive:hover, .jptoggler-inactive { background: url(../icons/jptoggler-inactive.png) no-repeat scroll -5px 50% transparent; }
 .jptoggler-active:hover, .jptoggler-active { background: url(../icons/jptoggler-active.png) no-repeat scroll 0px 50% transparent; }
 .jpelement { padding:0 5px; }

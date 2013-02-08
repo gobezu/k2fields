@@ -47,23 +47,21 @@ var JPUtility = new Class({
                 return false;
         },
         
-        loaded: [],
+        loaded: {'tag':[], 'request':[]},
 
         /**
          * method = tag|ajax, default tag
          * types = [css|js,...], can be inferred from src if all srcs end with js or css
          * isSync = default true
          */
-        load: function(method, srcs, types, isSync, evt, evtfn) {
+        load: function(method, srcs, types, isSync, evt, evtFn, evtOnce) {
                 var counter = 0, self = this, src, type, i, n, result;
 
-                if (!method) {
-                        method = 'tag';
-                }
+                if (!method) method = 'tag';
                 
-                if (typeof srcs == 'string') {
-                        srcs = [srcs];
-                }
+                if (typeof srcs == 'string') srcs = [srcs];
+                
+                if (evtOnce == undefined) evtOnce = true;
                 
                 n = srcs.length;
 
@@ -94,19 +92,20 @@ var JPUtility = new Class({
                         }
                         
                         if (this.isLoaded(src, type)) {
+                                if (evtFn) evtFn();
                                 counter++;
                                 continue;
                         }
                         
                         if (method == 'tag') {
                                 if (result == undefined) {
-                                        result = self.toBody(method, src, type, isSync, evtfn);
+                                        result = self.toBody(method, src, type, isSync, evtOnce ? (i == 0 ? evtFn : null) : evtFn);
                                 } else {
-                                        result &= self.toBody(method, src, type, isSync, evtfn);
+                                        result &= self.toBody(method, src, type, isSync, evtOnce ? (i == 0 ? evtFn : null) : evtFn);
                                 }
                                 
-                                self.loaded.push(src);
-                        } else {
+                                self.loaded['tag'].push(src);
+                        } else if (method == 'request') {
                                 new Request({
                                         url: src,
                                         method: 'get',
@@ -118,15 +117,13 @@ var JPUtility = new Class({
                                                         result &= self.toBody(method, code, type);
                                                 }
 
-                                                counter++;
-
-                                                if (srcs.length == counter) {
-                                                        if (evt && evtfn) {
-                                                                self.fireEvent(evt, evtfn);
-                                                        }
+                                                if (evtFn && (evtOnce && i == 0 || !evtOnce)) {
+                                                        evtFn();
                                                 }
 
-                                                self.loaded.push(this.url);
+                                                counter++;
+                                                
+                                                self.loaded['request'].push(this.options.url);
                                         },
                                         onFailure: function() {
                                                 result = false;
@@ -142,11 +139,15 @@ var JPUtility = new Class({
                 }
         },        
         
-        isLoaded: function(src, type) {
+        isLoaded: function(src, type, method) {
+                if (!method) method = 'tag';
+                
+                if (method == 'request') return this.loaded[method].contains(src);
+                
                 var scripts = document.id(document).getElement('head').getChildren(type == 'css' ? 'link' : 'script')
 
                 for (var i = 0; i < scripts.length; i++) {
-                        if (scripts[i].getProperty(type == 'css' ? 'href' : 'src') == src || this.loaded.contains(src)) {
+                        if (scripts[i].getProperty(type == 'css' ? 'href' : 'src') == src && this.loaded[method].contains(src)) {
                                 return true;
                         }
                 }
@@ -433,3 +434,11 @@ requires:
 	});
 
 })();
+
+String.implement('toNumber', function(numericType) {
+        if (numericType == 'float' || numericType == 'double') return this.toFloat();
+        else if (numericType == 'int' || numericType == 'integer') return this.toInt();
+        var f = this.toFloat(), i = this.toInt();
+        if (Math.abs(f - i) > 0) return f;
+        else return i;
+});

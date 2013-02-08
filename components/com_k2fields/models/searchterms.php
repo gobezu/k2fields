@@ -52,14 +52,15 @@ class K2FieldsModelSearchterms extends K2Model {
                 if (empty(self::$_searchTerms)) 
                         return false;
                 
-                $layout = JRequest::getWord('layout');
+                $input = JFactory::getApplication()->input;
+                $layout = $input->get('layout', '', 'word');
                 $query = '';
                 $this->sqlFrom($query, $ordering);
                 $this->sqlSelect($query, $ordering, $layout, $mode);
                 $this->sqlWhere($query, $ordering);
                 $this->sqlOrderby($query, $ordering);
                 
-                $limitstart = JRequest::getInt('limitstart');
+                $limitstart = $input->get('limitstart', '', 'int');
                 
                 if ($mode == 'count') {
                         $this->_db->setQuery($query);
@@ -70,7 +71,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         
                         $this->_db->setQuery($query, $limitstart, $limit);
                         
-//                        jdbg::p($this->_db->getQuery());
+//                        jdbg::pe($this->_db->getQuery());
                         
                         if ($mode == 'id') {
                                 $result = $this->_db->loadResultArray();
@@ -78,7 +79,7 @@ class K2FieldsModelSearchterms extends K2Model {
                                 $result = $this->_db->loadObjectList();                        
 
                                 if ($layout == 'map') {
-                                        $zoom = JRequest::getInt('zoom', K2FieldsModelFields::setting('mapzoom'));
+                                        $zoom = $input->get('zoom', K2FieldsModelFields::setting('mapzoom'), 'int');
                                         $result = self::cluster($result, $zoom);
                                 }
                         }
@@ -101,16 +102,21 @@ class K2FieldsModelSearchterms extends K2Model {
                 if (empty($field)) return $result;
                 
                 $value = strtolower($value);
-                $exclfldft = JRequest::getBool('exclfldft', false);
+                $exclfldft = JFactory::getApplication()->input->get('exclfldft', false, 'bool');
                 $cols = array('title', 'introtext', '`fulltext`');
                 
 //                if (!$exclfldft) $cols[] = 'extra_fields';
                 if (!$exclfldft) $cols[] = 'extra_fields_search';
                 
-                $op = JRequest::getWord('searchmode', 'exact');
+                $op = JFactory::getApplication()->input->get('searchmode', 'exact', 'word');
                 $result = $this->__compare($op, $field, $part, $value, $def, self::$_ITEMTBL, $cols);
                 
                 return $result;
+        }
+        
+        function _items($field, $part, $value, $def, $tbl) {
+                self::$wheres[] = ' '.self::$_ITEMTBL.'.id IN ('.implode(',', $value).')';
+                return $query;
         }
         
         function _catid($field, $part, $value, $def, $tbl) {
@@ -229,7 +235,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $options = $model->getFieldsById($field);
-                $dist = K2FieldsModelFields::setting('nearbyDistance', $options, JRequest::getInt('dist', 10));
+                $dist = K2FieldsModelFields::setting('nearbyDistance', $options, JFactory::getApplication()->input->get('dist', 10, 'int'));
                 $lim = K2FieldsModelFields::setting('nearbyNum', $options, 10);
                 //$sp = 'CALL #__k2_extra_fields_geodist('.$itemId.','.$lat.','.$lng.','.$field.','.$dist.','.$lim.')';
                 $sp = 'CALL #__k2_extra_fields_geodist(54,'.$lat.','.$lng.','.$field.','.$dist.','.$lim.')';
@@ -516,7 +522,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         $value = implode(',', $value);
                         if ($op == 'interval') {
                                 if (K2FieldsModelFields::isNumeric($def)) {
-                                        $value = explode(',', $value);
+                                        $value = explode(';', $value);
                                         if (is_numeric($value[0])) {
                                                 $q = $tbl.'value >= '.(int)$value[0];
                                         }
@@ -733,7 +739,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         unset($values['ft']);
                 }
                 
-                if ($limit = JRequest::getInt('limit')) {
+                if ($limit = JFactory::getApplication()->input->get('limit', '', 'int')) {
                         $url['limit'] = $limit;
                 }
                 
@@ -826,7 +832,8 @@ class K2FieldsModelSearchterms extends K2Model {
                 
                 $pre = K2FieldsModelFields::pre('search');
                 
-                if ($checkRequest) $requestData = JRequest::get('get');
+                // TODO how do we get the entire request in new API
+                if ($checkRequest) $requestData = JprovenUtility::getRequest();
                 
                 $pattern = '#^'.$pre.'(\d+)\_(\d+)$#';
                 $terms = array();
@@ -902,10 +909,17 @@ class K2FieldsModelSearchterms extends K2Model {
                         }
                 }
                 
+                $input = JFactory::getApplication()->input;
+                
                 if ($checkRequest) {
-                        $catid = JRequest::getInt('cid', JRequest::getInt('scid', ''));
+                        $catid = $input->get('scid', '', 'int');
+                        $catid = $input->get('cid', $catid, 'int');
+                        
+                        $items = $input->get('items', '', 'string');
                 } else {
                         $catid = isset($requestData['cid']) ? $requestData['cid'] : '';
+                        
+                        $items = isset($requestData['items']) ? $requestData['items'] : '';
                 }
                 
                 if ($catid) {
@@ -919,12 +933,31 @@ class K2FieldsModelSearchterms extends K2Model {
                                 )
                             )
                         );
-                
+                        
                         // cid prefixed by s as cid is mangled out during route
                         $url .= (!empty($url) ? '&' : '') . 'scid='.$catid;
                 }
                 
-                $freetext = JRequest::getString('ft', null);
+                if ($items) {
+                        $items = explode(',', $items);
+                        
+                        JprovenUtility::toInt($items);
+                        
+                        $terms['items'] = array(
+                            0 => array(
+                                'val' => $items,
+                                'def' => array(
+                                    'search' => 'default',
+                                    'valid' => '_items',
+                                    'complete' => true
+                                )
+                            )
+                        );
+                        
+                        $url .= (!empty($url) ? '&' : '') . 'items='.implode(',', $items);
+                }
+                
+                $freetext = JFactory::getApplication()->input->get('ft', null, 'string');
                 
                 if (!empty($freetext)) {
                         $replace = array('#', '>', '<', '\\', JText::_("search")."...");
@@ -968,7 +1001,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 if ($layout == 'map') {
                         if (!empty(self::$_mapTbl)) $q .= ', '.self::$_mapTbl.".lat, ".self::$_mapTbl.".lng";
                         
-                        $zoom = JRequest::getInt('zoom', K2FieldsModelFields::setting('mapzoom'));
+                        $zoom = JFactory::getApplication()->input->get('zoom', K2FieldsModelFields::setting('mapzoom'), 'int');
                         $result = self::cluster($result, $zoom);
                 }                
                 
@@ -993,9 +1026,11 @@ class K2FieldsModelSearchterms extends K2Model {
                                 ." AND ".self::$_CATTBL.$access
                                 ." AND ".self::$_CATTBL.".trash = 0";                        
 
-                if (JRequest::getInt('featured', -1) === 0) {
+                $input = JFactory::getApplication()->input;
+                
+                if ($input->get('featured', -1, 'int') === 0) {
                         $query .= " AND ".self::$_ITEMTBL.".featured != 1";
-                } else if (JRequest::getInt('featured', -1) == '2') {
+                } else if ($input->get('featured', -1, 'int') == '2') {
                         $query .= " AND ".self::$_ITEMTBL.".featured = 1";
                 }       
                 
@@ -1003,7 +1038,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 
                 if (!empty($ft)) $query .= ' AND '.$ft;
                 
-                $module = JRequest::getInt('module');
+                $module = $input->get('module', '', 'int');
                 
                 if (!empty($module)) {
                         $module = JprovenUtility::getModule($module);
@@ -1026,7 +1061,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 $join = $this->sqlJoin($query);
 //                $query .= " LEFT JOIN #__k2_categories AS c ON c.id = i.catid";
 //
-//                $catid = JRequest::getInt('cid', false);
+//                $catid = JFactory::getApplication()->input->get('cid', false, 'int');
 //                
 //                if ($catid) {
 //                        $query .= " AND c.id = " . $catid;
@@ -1040,7 +1075,7 @@ class K2FieldsModelSearchterms extends K2Model {
         private static function getOrderDirection($orderBy) {
                 static $special = array('created', 'alpha', 'order', 'publish_down');
                 
-                $dir = JRequest::getWord('dir', '');
+                $dir = JFactory::getApplication()->input->get('dir', '', 'word');
                 
                 if (empty($dir)) {
                         $dir = in_array($orderBy, $special) ? 'ASC' : 'DESC';
@@ -1056,7 +1091,7 @@ class K2FieldsModelSearchterms extends K2Model {
 //                        }
                 }
                 
-                $reverse = JRequest::getBool('rdir', false);
+                $reverse = JFactory::getApplication()->input->get('rdir', false, 'bool');
                 
                 if ($reverse) {
                         $dir = $dir == 'ASC' ? 'DESC' : 'ASC';
@@ -1066,7 +1101,7 @@ class K2FieldsModelSearchterms extends K2Model {
         }
         
         function sqlOrderby(&$query, $ordering) {
-                $ord = JRequest::getWord('ord', $ordering);
+                $ord = JFactory::getApplication()->input->get('ord', $ordering, 'word');
                 if (empty($ord)) $ord = 'id';
                 
                 $orderby = array_values(self::$_orders);
@@ -1093,7 +1128,7 @@ class K2FieldsModelSearchterms extends K2Model {
                                 break;
                         case 'order':
                         case 'rorder':
-                                if (JRequest::getInt('featured') == '2') {
+                                if (JFactory::getApplication()->input->get('featured', '', 'int') == '2') {
                                         $orderby[] = self::$_ITEMTBL.'.featured_ordering';
                                 } else {
                                         $orderby[] = self::$_ITEMTBL.'.ordering';
@@ -1154,15 +1189,26 @@ class K2FieldsModelSearchterms extends K2Model {
                 
                 self::parseSearchTerms();
                 
-                $option = JRequest::getCmd('option');
-                $view = JRequest::getCmd('view');
-                $task = JRequest::getCmd('task');
-                $Itemid = JRequest::getInt('Itemid');
+                $input = JFactory::getApplication()->input;
                 
-                if (empty($Itemid)) return;
+                $option = $input->get('option', '', 'cmd');
+                $view = $input->get('view', '', 'cmd');
+                $task = $input->get('task', '', 'cmd');
+                $Itemid = $input->get('Itemid', '', 'int');
                 
                 $pathway = $app->getPathway();
                 $pathwayArr = $pathway->getPathway();
+                
+                if (empty($Itemid)) {
+                        if ($option == 'com_k2fields' && $view == 'itemlist' && $task == 'search' && $input->get('layout') == 'compare') {
+                                array_pop($pathwayArr);
+                                $pathway->setPathway($pathwayArr);
+                                $pathway->addItem(JText::_('Compare items'), '');
+                                $pathwayArr = $pathway->getPathway();
+                                JFactory::getDocument()->setTitle(JText::_('Compare items'));
+                        }
+                        return;
+                }
                 
                 if (self::isMenuSearch($view)) {
                         $app = JFactory::getApplication();
@@ -1205,7 +1251,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 }
                 
                 if ($k2Item) {
-                        if (JRequest::getInt('k2item', 0) == 1) {
+                        if ($input->get('k2item', 0, 'int') == 1) {
                                 array_pop($pathwayArr);
                                 if (empty($link)) $pathwayArr[] = $last;
                                 $pathway->setPathway($pathwayArr);
@@ -1219,7 +1265,6 @@ class K2FieldsModelSearchterms extends K2Model {
                         }
                 } else if ($k2fieldsSearch) {
                         // TODO: Add details about search fields based on self::$_searchTerms
-                                                
                         $name = JText::_('Search results');
                         $pathway->addItem($name, $link);
                         

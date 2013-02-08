@@ -94,6 +94,7 @@ class plgk2k2fields extends K2Plugin {
         
         function onBeforeK2Save(&$item, $isNew) {
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
+                if ($isNew) $model->setDefaultValues();            
                 return $model->preSave($item);
         }
         
@@ -176,9 +177,8 @@ class plgk2k2fields extends K2Plugin {
         }        
 
         function onRenderAdminForm(&$item, $type, $tab = '') {
-                if (JFactory::getApplication()->isAdmin() && ($type == 'item' || $type == 'category')) {
+                if (JFactory::getApplication()->isAdmin() && ($type == 'item' || $type == 'category'))
                         JprovenUtility::setLayout();
-                }
                 
                 if ($type == 'item') {
 //                        $input = JFactory::getApplication()->input;
@@ -187,7 +187,6 @@ class plgk2k2fields extends K2Plugin {
 //                         && $view == 'item'
 
                         if (JFactory::getApplication()->isSite()) JprovenUtility::setLayout(); 
-                        
                         if ($tab == 'extra-fields') self::loadResources($tab, $item);
                 } else if ($type == 'user') {
                         // return self::adjustUserFormLayout($item);
@@ -299,18 +298,22 @@ class plgk2k2fields extends K2Plugin {
                         if (empty($plg)) $plg = '{k2f}';
                 }
 				
+                
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
                 
                 // TODO: TOO obtrusive
                 $item->extra_fields = array();
                 $result = $item->text;
-
-                $item->text = $inText ? str_replace($plg, $result, $tmp) : $tmp;
                 
                 if ($result) self::loadResources('item', $item);
                 
-                return $inText ? '' : $result;
+                if (!empty($item->k2f)) {
+                        return '';
+                } else {
+                        $item->text = $inText ? str_replace($plg, $result, $tmp) : $tmp;
+                        return $inText ? '' : $result;
+                }
         }
         
         private static $catState;

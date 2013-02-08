@@ -4,7 +4,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 // Used only when no result have been rendered
-$cid = JRequest::getInt('cid');
+$cid = JFactory::getApplication()->input->get('cid', '', 'int');
 $advice = $tries = '';
 if ($cid) {
         $link = K2FieldsHelperRoute::createCategoryLink($cid);

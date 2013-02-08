@@ -83,19 +83,19 @@ var JPProcessor = new Class({
         },
 
         accordion: function(c, selector, options) {
-                var set = this.setupCollapsibleElements('accordion', c, selector, options);
+                var _set = this.setupCollapsibleElements('accordion', c, selector, options);
 
-                if (!set) return;
+                if (!_set) return;
                 
                 if (!JPProcessor.accordionSets) JPProcessor.accordionSets = [];
 
-                var sets = Array.from(this.options.accordion.selector.sets), i, n = set[0].length, j, m = sets.length, found;
+                var sets = Array.from(this.options.accordion.selector.sets), i, n = _set[0].length, j, m = sets.length, found;
                 
                 for (i = 0; i < n; i++) {
                         found = false;
 
                         for (j = 0; j < m; j++) {
-                                if (found = document.id(set[0][i][0]).getParent(sets[j])) {
+                                if (found = document.id(_set[0][i][0]).getParent(sets[j])) {
                                         break;
                                 } 
                         }
@@ -105,19 +105,19 @@ var JPProcessor = new Class({
                                 // and might also appear during different time of the life 
                                 // span of the page and therefore persisted in the class state
                                 if (JPProcessor.accordionSets[j]) {
-                                        JPProcessor.accordionSets[j][1].push(set[0][i][0]);
-                                        JPProcessor.accordionSets[j][2].push(set[1][i][0]);
+                                        JPProcessor.accordionSets[j][1].push(_set[0][i][0]);
+                                        JPProcessor.accordionSets[j][2].push(_set[1][i][0]);
                                 } else {
                                         JPProcessor.accordionSets[j] = [];
-                                        JPProcessor.accordionSets[j][0] = set[3][i];
-                                        JPProcessor.accordionSets[j][1] = [set[0][i][0]];
-                                        JPProcessor.accordionSets[j][2] = [set[1][i][0]];
+                                        JPProcessor.accordionSets[j][0] = _set[3][i];
+                                        JPProcessor.accordionSets[j][1] = [_set[0][i][0]];
+                                        JPProcessor.accordionSets[j][2] = [_set[1][i][0]];
                                 }
                         } else {
                                 // Individual accordions
-                                if (!document.id(set[0][i][0]).hasClass(this.options.accordion.selector.done)) {
-                                        new JPAccordion(set[3][i], set[0][i], set[1][i], Object.clone(set[2]), this.options.accordion.preventLinkClicks);
-                                        document.id(set[0][i][0]).addClass(this.options.accordion.selector.done);
+                                if (!document.id(_set[0][i][0]).hasClass(this.options.accordion.selector.done)) {
+                                        new JPAccordion(_set[3][i], _set[0][i], _set[1][i], Object.clone(_set[2]), this.options.accordion.preventLinkClicks);
+                                        document.id(_set[0][i][0]).addClass(this.options.accordion.selector.done);
                                 }
                         }
                 }
@@ -146,7 +146,7 @@ var JPProcessor = new Class({
                                                 JPProcessor.accordionSets[j][0], 
                                                 ts, 
                                                 es,
-                                                Object.clone(set[2]),
+                                                Object.clone(_set[2]),
                                                 this.options.accordion.preventLinkClicks
                                         );
                                 } else {
@@ -161,12 +161,12 @@ var JPProcessor = new Class({
 
                 options = Object.merge(options, this.options.accordion);
 
-                var set = this.setupCollapsibleElements('ajax', c, selector, options);
+                var _set = this.setupCollapsibleElements('ajax', c, selector, options);
 
-                if (!set) return;
+                if (!_set) return;
 
-                for (var i = 0, n = set[0].length; i < n; i++) {
-                        new JPAccordion(set[3][i], set[0][i], set[1][i], set[2]);
+                for (var i = 0, n = _set[0].length; i < n; i++) {
+                        new JPAccordion(_set[3][i], _set[0][i], _set[1][i], _set[2]);
                 }
         },
 
@@ -254,7 +254,7 @@ var JPProcessor = new Class({
                 }.bind(this));
                 return links;
         },
-
+        
         paginate: function() {
                 var btn = document.id(this.options.paginate.selector);
 
@@ -597,6 +597,7 @@ var JPAccordion = new Class({
         },
         addSections: function(togglers, elements) {
                 for (var i = 0; i < togglers.length; i++) this.addSection(togglers[i], elements[i]);
+                if (elements[0].getStyle('height').toInt() > 0) togglers[0].fireEvent('click', [togglers[0]]);
                 return this;
         },
         display: function(index, useFx) {

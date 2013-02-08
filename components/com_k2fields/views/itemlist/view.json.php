@@ -24,7 +24,7 @@ class K2FieldsViewItemlist extends JView {
                         if ($user->guest){
                                 $hits = $items[$i]->hits;
                                 $items[$i]->hits = 0;
-                                $items[$i] = $cache->call(array('K2ModelItem', 'prepareItem'), $items[$i], $view, $task);
+                                $items[$i] = $cache->call(array($itemModel, 'prepareItem'), $items[$i], $view, $task);
                                 $items[$i]->hits = $hits;
                         } else {
                                 $items[$i] = $itemModel->prepareItem($items[$i], $view, $task);

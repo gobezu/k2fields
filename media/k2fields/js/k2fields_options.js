@@ -224,10 +224,24 @@ var k2fieldsoptions = new Class({
                 return this._filterOptions(opts) !== false;
         },
         
+        findFieldOptions: function(id) {
+                var pId, sfs, i, n;
+                for (pId in this.options.fieldsOptions) {
+                        if (sfs = this.options.fieldsOptions[pId]['subfields']) {
+                                for (i = 0, n = sfs.length; i < n; i++) {
+                                        if (sfs[i]['id'] == id) return sfs[i];
+                                }
+                        }
+                }
+                return false;
+        },
+        
         parseFieldOptions: function(proxyField, opts) {
                 var id = (document.id(proxyField).get('id') || document.id(proxyField).get('name')).replace(this.options.pre, '');
                 
                 if (!opts) opts = this.options.fieldsOptions[id];
+                
+                if (!opts) opts = this.findFieldOptions(id);
                 
                 if (!opts) opts = this.fieldsOptions[this.options.pre+id];
                 

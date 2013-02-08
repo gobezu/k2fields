@@ -10,13 +10,13 @@ class K2FieldsHelper {
         public static $availableTabs = array('content', 'image', 'gallery', 'video', 'extrafields', 'attachments', 'plugins');
 
         public static function getItemlistLimit($category = null) {
-                if (JRequest::getWord('format') == 'feed') {
+                if (JFactory::getApplication()->input->get('format', '', 'word') == 'feed') {
                         $params = JComponentHelper::getParams('com_k2');
                         return $params->get('feedLimit');
                 }
                 
-                if (JRequest::getInt('limit')) {
-                        return JRequest::getInt('limit');
+                if (JFactory::getApplication()->input->get('limit', '', 'int')) {
+                        return JFactory::getApplication()->input->get('limit', '', 'int');
                 }
                 
                 if (empty($category) || $category <= 0) {

@@ -10,9 +10,10 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 $fields = K2Model::getInstance('fields', 'K2FieldsModel');
+$_input = JFactory::getApplication()->input;
 ?>
 
-<?php if(JRequest::getInt('print')==1): ?>
+<?php if($_input->get('print', '', 'int')==1): ?>
 <!-- Print button at the top of the print page only -->
 <a class="itemPrintThisPage" rel="nofollow" href="#" onclick="window.print();return false;">
 	<span><?php echo JText::_('K2_PRINT_THIS_PAGE'); ?></span>
@@ -20,7 +21,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
 <?php endif; ?>
 
 <!-- Start K2 Item Layout -->
-<span id="startOfPageId<?php echo JRequest::getInt('id'); ?>"></span>
+<span id="startOfPageId<?php echo $_input->get('id', '', 'int'); ?>"></span>
 <div class="<?php echo 'item'.$this->item->id. ' cat'.$this->item->category->id; ?>">
         <div id="k2Container" class="itemView<?php echo ($this->item->featured) ? ' itemIsFeatured' : ''; ?><?php if($this->item->params->get('pageclass_sfx')) echo ' '.$this->item->params->get('pageclass_sfx'); ?>">
 
@@ -125,7 +126,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
                                 </li>
                                 <?php endif; ?>
 
-			<?php if($this->item->params->get('itemPrintButton') && !JRequest::getInt('print')): ?>
+			<?php if($this->item->params->get('itemPrintButton') && !$_input->get('print', '', 'int')): ?>
                                 <!-- Print Button -->
                                 <li>
 				<a class="itemPrintLink" rel="nofollow" href="<?php echo $this->item->printLink; ?>" onclick="window.open(this.href,'printWindow','width=900,height=600,location=no,menubar=no,resizable=yes,scrollbars=yes'); return false;">
@@ -134,7 +135,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
                                 </li>
                                 <?php endif; ?>
 
-			<?php if($this->item->params->get('itemEmailButton') && !JRequest::getInt('print')): ?>
+			<?php if($this->item->params->get('itemEmailButton') && !$_input->get('print', '', 'int')): ?>
                                 <!-- Email Button -->
                                 <li>
 				<a class="itemEmailLink" rel="nofollow" href="<?php echo $this->item->emailLink; ?>" onclick="window.open(this.href,'emailWindow','width=400,height=350,location=no,menubar=no,resizable=no,scrollbars=no'); return false;">
@@ -531,7 +532,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
         </div>
         <?php endif; ?>
 
-        <?php if($this->item->params->get('itemNavigation') && !JRequest::getCmd('print') && (isset($this->item->nextLink) || isset($this->item->previousLink))): ?>
+        <?php if($this->item->params->get('itemNavigation') && !$_input->get('print', '', 'int') && (isset($this->item->nextLink) || isset($this->item->previousLink))): ?>
         <!-- Item navigation -->
         <div class="itemNavigation">
   	<span class="itemNavigationTitle"><?php echo JText::_('K2_MORE_IN_THIS_CATEGORY'); ?></span>
@@ -568,7 +569,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
 
         <div class="itemComments">
 
-                <?php if($this->item->params->get('commentsFormPosition')=='above' && $this->item->params->get('itemComments') && !JRequest::getInt('print') && ($this->item->params->get('comments') == '1' || ($this->item->params->get('comments') == '2' && K2HelperPermissions::canAddComment($this->item->catid)))): ?>
+                <?php if($this->item->params->get('commentsFormPosition')=='above' && $this->item->params->get('itemComments') && !$_input->get('print', '', 'int') && ($this->item->params->get('comments') == '1' || ($this->item->params->get('comments') == '2' && K2HelperPermissions::canAddComment($this->item->catid)))): ?>
                 <!-- Item comments form -->
                 <div class="itemCommentsForm">
                         <?php echo $this->loadTemplate('comments_form'); ?>
@@ -644,7 +645,7 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
                 </div>
                         <?php endif; ?>
 
-                        <?php if($this->item->params->get('commentsFormPosition')=='below' && $this->item->params->get('itemComments') && !JRequest::getInt('print') && ($this->item->params->get('comments') == '1' || ($this->item->params->get('comments') == '2' && K2HelperPermissions::canAddComment($this->item->catid)))): ?>
+                        <?php if($this->item->params->get('commentsFormPosition')=='below' && $this->item->params->get('itemComments') && !$_input->get('print', '', 'int') && ($this->item->params->get('comments') == '1' || ($this->item->params->get('comments') == '2' && K2HelperPermissions::canAddComment($this->item->catid)))): ?>
                 <!-- Item comments form -->
                 <div class="itemCommentsForm">
                         <?php echo $this->loadTemplate('comments_form'); ?>
@@ -658,9 +659,9 @@ $fields = K2Model::getInstance('fields', 'K2FieldsModel');
         </div>
         <?php endif; ?>
 
-	<?php if(!JRequest::getCmd('print')): ?>
+	<?php if(!$_input->get('print', '', 'int')): ?>
                 <div class="itemBackToTop">
-		<a class="k2Anchor" href="<?php echo $this->item->link; ?>#startOfPageId<?php echo JRequest::getInt('id'); ?>">
+		<a class="k2Anchor" href="<?php echo $this->item->link; ?>#startOfPageId<?php echo $_input->get('id', '', 'int'); ?>">
 			<?php echo JText::_('K2_BACK_TO_TOP'); ?>
 		</a>
                 </div>

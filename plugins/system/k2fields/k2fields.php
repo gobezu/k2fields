@@ -184,7 +184,7 @@ class plgSystemk2fields extends JPlugin {
                 // JHTML::addIncludePath(JPATH_SITE.'/media/k2fields/mootools');
                 
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
-                $model->reinstateReadOnlyFields();
+                $model->resetValues();
                 $model->adjustUnpublishDates();
         }
         

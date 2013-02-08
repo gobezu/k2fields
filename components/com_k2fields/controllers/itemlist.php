@@ -10,36 +10,38 @@ require_once JPATH_SITE . '/components/com_k2/controllers/itemlist.php';
 
 class K2fieldsControllerItemlist extends K2ControllerItemlist {
         function display() {
-                $cid = JRequest::getInt('cid', -1);
+                $input = JFactory::getApplication()->input;
+                $cid = $input->getInt('cid', -1);
                 
                 if ($cid == 0) $cid = -1;
                 
-                $task = JRequest::getCmd('task');
-                JRequest::setVar('k2fieldstask', $task);
+                $task = $input->getCmd('task');
+                $input->set('k2fieldstask', $task);
                 $params = JComponentHelper::getParams('com_k2');                
                 $this->adjustLimits($params, $cid);
                 
                 if ($cid != -1) {
-                        JRequest::setVar('task', 'category');
-                        JRequest::setVar('layout', 'category');
-                        JRequest::setVar('id', $cid);
+                        $input->set('task', 'category');
+                        $input->set('layout', 'category');
+                        $input->set('id', $cid);
                         JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
-                } else {
-                        JRequest::setVar('task', '');
                 }
+//                else {
+//                        $input->set('task', '');
+//                }
                 
-                $lim = JRequest::getInt('limit');
+                $lim = $input->getInt('limit');
                 
                 if ($lim && $lim <= (int) K2FieldsModelFields::setting('maximumresultlistsize')) {
-                        JRequest::setVar('_limit_', $lim);
+                        $input->set('_limit_', $lim);
                 }
                 
                 parent::display();
-                JRequest::setVar('task', $task);
+                $input->set('task', $task);
         }
         
         function adjustLimits(&$params, $categoryId) {
-                $layout = JRequest::getWord('layout', 'category');
+                $layout = JFactory::getApplication()->input->get('layout', 'category', 'word');
                 
                 if ($categoryId != -1 && !preg_match('#map#', $layout)) return;
                 

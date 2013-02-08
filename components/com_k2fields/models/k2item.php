@@ -27,7 +27,7 @@ class K2fieldsModelK2item extends K2ModelItem {
                         }
                 }
                 
-                $view = JRequest::getCmd('view');
+                $view = JFactory::getApplication()->input->get('view', '', 'cmd');
                 if ($view != 'item') {
                         for ($i = 0, $n = count($keys); $i < $n; $i++) {
                                 $fromKey = $keys[$i];

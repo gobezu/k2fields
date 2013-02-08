@@ -52,7 +52,12 @@ class K2ModelItem extends K2Model
         //Initialize params
         if ($view != 'item')
         {
-
+			if (K2_JVERSION == '30')
+			{
+				$params = $application->getParams('com_k2');
+			}
+			else
+			{
             $component = JComponentHelper::getComponent('com_k2');
             $params = class_exists('JParameter') ? new JParameter($component->params) : new JRegistry($component->params);
             $itemid = JRequest::getInt('Itemid');
@@ -62,8 +67,8 @@ class K2ModelItem extends K2Model
                 $menuparams = $menu->getParams($itemid);
                 $params->merge($menuparams);
             }
-
         }
+		}
         else
         {
             $params = K2HelperUtilities::getParams('com_k2');
@@ -87,7 +92,8 @@ class K2ModelItem extends K2Model
         //Params
         $cparams = class_exists('JParameter') ? new JParameter($category->params) : new JRegistry($category->params);
         $iparams = class_exists('JParameter') ? new JParameter($item->params) : new JRegistry($item->params);
-        $item->params = $params;
+		$item->params = version_compare(PHP_VERSION, '5.0.0', '>=') ? clone $params : $params;
+
         if ($cparams->get('inheritFrom'))
         {
             $masterCategoryID = $cparams->get('inheritFrom');
@@ -184,7 +190,7 @@ class K2ModelItem extends K2Model
         //Extra fields
         if (($view == 'item' && $item->params->get('itemExtraFields')) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemExtraFields')) || ($view == 'itemlist' && $task == 'tag' && $item->params->get('tagItemExtraFields')) || ($view == 'itemlist' && ($task == 'search' || $task == 'date') && $item->params->get('genericItemExtraFields')))
         {
-            $item->extra_fields = $this->getItemExtraFields($item->extra_fields);
+			$item->extra_fields = $this->getItemExtraFields($item->extra_fields, $item);
         }
 
         //Attachments
@@ -307,7 +313,8 @@ class K2ModelItem extends K2Model
         //Item image
         if ($params->get('feedItemImage') && JFile::exists(JPATH_SITE.DS.'media'.DS.'k2'.DS.'items'.DS.'cache'.DS.md5("Image".$item->id).'_'.$params->get('feedImgSize').'.jpg'))
         {
-            $item->description .= '<div class="K2FeedImage"><img src="'.JURI::root().'media/k2/items/cache/'.md5('Image'.$item->id).'_'.$params->get('feedImgSize').'.jpg" alt="'.$item->title.'" /></div>';
+			$altText = $item->image_caption ? $item->image_caption : $item->title;
+			$item->description .= '<div class="K2FeedImage"><img src="'.JURI::root().'media/k2/items/cache/'.md5('Image'.$item->id).'_'.$params->get('feedImgSize').'.jpg" alt="'.$altText.'" /></div>';
         }
 
         //Item Introtext
@@ -364,11 +371,20 @@ class K2ModelItem extends K2Model
                 $item->text = $item->video;
                 if (K2_JVERSION == '15')
                 {
-                    $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+					$dispatcher->trigger('onPrepareContent', array(
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }
                 else
                 {
-                    $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$item, &$params, $limitstart));
+					$dispatcher->trigger('onContentPrepare', array(
+						'com_k2.'.$view,
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }                $item->description .= '<div class="K2FeedVideo">'.$item->text.'</div>';
             }
         }
@@ -383,11 +399,20 @@ class K2ModelItem extends K2Model
             $item->text = $item->gallery;
             if (K2_JVERSION == '15')
             {
-                $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+				$dispatcher->trigger('onPrepareContent', array(
+					&$item,
+					&$params,
+					$limitstart
+				));
             }
             else
             {
-                $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$item, &$params, $limitstart));
+				$dispatcher->trigger('onContentPrepare', array(
+					'com_k2.'.$view,
+					&$item,
+					&$params,
+					$limitstart
+				));
             }
             $item->description .= '<div class="K2FeedGallery">'.$item->text.'</div>';
         }
@@ -485,8 +510,11 @@ class K2ModelItem extends K2Model
                 unset($item->author->profile->plugins);
             }
             $row->author->profile = $item->author->profile;
+			if (isset($row->author->profile->url))
+			{
             $row->author->profile->url = htmlspecialchars($row->author->profile->url, ENT_QUOTES, 'UTF-8');
         }
+		}
         $row->numOfComments = $item->numOfComments;
         $row->events = $item->event;
         $row->language = $item->language;
@@ -495,7 +523,8 @@ class K2ModelItem extends K2Model
 
     function execPlugins($item, $view, $task)
     {
-
+		jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.folder');
         $params = K2HelperUtilities::getParams('com_k2');
         $limitstart = JRequest::getInt('limitstart');
         $view = JRequest::getCmd('view');
@@ -520,11 +549,20 @@ class K2ModelItem extends K2Model
                 $item->text = $item->gallery;
                 if (K2_JVERSION == '15')
                 {
-                    $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+					$dispatcher->trigger('onPrepareContent', array(
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }
                 else
                 {
-                    $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$item, &$params, $limitstart));
+					$dispatcher->trigger('onContentPrepare', array(
+						'com_k2.'.$view,
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }
                 $item->gallery = $item->text;
             }
@@ -573,11 +611,20 @@ class K2ModelItem extends K2Model
                 $item->text = $item->video;
                 if (K2_JVERSION == '15')
                 {
-                    $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+					$dispatcher->trigger('onPrepareContent', array(
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }
                 else
                 {
-                    $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$item, &$params, $limitstart));
+					$dispatcher->trigger('onContentPrepare', array(
+						'com_k2.'.$view,
+						&$item,
+						&$params,
+						$limitstart
+					));
                 }
                 $item->video = $item->text;
             }
@@ -637,36 +684,80 @@ class K2ModelItem extends K2Model
             $item->event->BeforeDisplay = '';
             $item->event->AfterDisplay = '';
 
-            $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$item, &$params, $limitstart));
+			$dispatcher->trigger('onContentPrepare', array(
+				'com_k2.'.$view,
+				&$item,
+				&$params,
+				$limitstart
+			));
 
-            $results = $dispatcher->trigger('onContentAfterTitle', array('com_k2.'.$view, &$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onContentAfterTitle', array(
+				'com_k2.'.$view,
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->AfterDisplayTitle = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onContentBeforeDisplay', array('com_k2.'.$view, &$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onContentBeforeDisplay', array(
+				'com_k2.'.$view,
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->BeforeDisplayContent = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onContentAfterDisplay', array('com_k2.'.$view, &$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onContentAfterDisplay', array(
+				'com_k2.'.$view,
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->AfterDisplayContent = trim(implode("\n", $results));
 
         }
         else
         {
-            $results = $dispatcher->trigger('onBeforeDisplay', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onBeforeDisplay', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->BeforeDisplay = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onAfterDisplay', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onAfterDisplay', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->AfterDisplay = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onAfterDisplayTitle', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onAfterDisplayTitle', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->AfterDisplayTitle = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onBeforeDisplayContent', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onBeforeDisplayContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->BeforeDisplayContent = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onAfterDisplayContent', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onAfterDisplayContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->AfterDisplayContent = trim(implode("\n", $results));
 
-            $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+			$dispatcher->trigger('onPrepareContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
 
         }
 
@@ -677,26 +768,51 @@ class K2ModelItem extends K2Model
         $item->event->K2BeforeDisplayContent = '';
         $item->event->K2AfterDisplayContent = '';
 
-        if (($view == 'item' && $item->params->get('itemK2Plugins')) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemK2Plugins')) || ($view == 'itemlist' && $task == 'user' && $item->params->get('userItemK2Plugins')))
+		if (($view == 'item' && $item->params->get('itemK2Plugins')) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemK2Plugins')) || ($view == 'itemlist' && $task == 'user' && $item->params->get('userItemK2Plugins')) || ($view == 'itemlist' && ($task == 'search' || $task == 'tag' || $task == 'date')))
         {
+
             JPluginHelper::importPlugin('k2');
 
-            $results = $dispatcher->trigger('onK2BeforeDisplay', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onK2BeforeDisplay', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->K2BeforeDisplay = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onK2AfterDisplay', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onK2AfterDisplay', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->K2AfterDisplay = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onK2AfterDisplayTitle', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onK2AfterDisplayTitle', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->K2AfterDisplayTitle = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onK2BeforeDisplayContent', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onK2BeforeDisplayContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->K2BeforeDisplayContent = trim(implode("\n", $results));
 
-            $results = $dispatcher->trigger('onK2AfterDisplayContent', array(&$item, &$params, $limitstart));
+			$results = $dispatcher->trigger('onK2AfterDisplayContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
             $item->event->K2AfterDisplayContent = trim(implode("\n", $results));
 
-            $dispatcher->trigger('onK2PrepareContent', array(&$item, &$params, $limitstart));
+			$dispatcher->trigger('onK2PrepareContent', array(
+				&$item,
+				&$params,
+				$limitstart
+			));
 
         }
 
@@ -710,7 +826,7 @@ class K2ModelItem extends K2Model
         }
 
         // Extra fields plugins
-        if (($view == 'item' && $item->params->get('itemExtraFields')) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemExtraFields')))
+		if (($view == 'item' && $item->params->get('itemExtraFields')) || ($view == 'itemlist' && ($task == '' || $task == 'category') && $item->params->get('catItemExtraFields')) || ($view == 'itemlist' && $task == 'tag' && $item->params->get('tagItemExtraFields')) || ($view == 'itemlist' && ($task == 'search' || $task == 'date') && $item->params->get('genericItemExtraFields')))
         {
             if (count($item->extra_fields) && is_array($item->extra_fields))
             {
@@ -722,13 +838,26 @@ class K2ModelItem extends K2Model
                         $tmp->text = $extraField->value;
                         if (K2_JVERSION != '15')
                         {
-                            $dispatcher->trigger('onContentPrepare', array('com_k2.'.$view, &$tmp, &$params, $limitstart));
+							$dispatcher->trigger('onContentPrepare', array(
+								'com_k2.'.$view,
+								&$tmp,
+								&$params,
+								$limitstart
+							));
                         }
                         else
                         {
-                            $dispatcher->trigger('onPrepareContent', array(&$tmp, &$params, $limitstart));
+							$dispatcher->trigger('onPrepareContent', array(
+								&$tmp,
+								&$params,
+								$limitstart
+							));
                         }
-                        $dispatcher->trigger('onK2PrepareContent', array(&$tmp, &$params, $limitstart));
+						$dispatcher->trigger('onK2PrepareContent', array(
+							&$tmp,
+							&$params,
+							$limitstart
+						));
                         $extraField->value = $tmp->text;
                     }
                 }
@@ -1146,13 +1275,14 @@ class K2ModelItem extends K2Model
         return $K2ItemTagsInstances[$itemID];
     }
 
-    function getItemExtraFields($itemExtraFields)
+	function getItemExtraFields($itemExtraFields, &$item = null)
     {
 
         static $K2ItemExtraFieldsInstances = array();
-        if (isset($K2ItemExtraFieldsInstances[$itemExtraFields]))
+		if ($item && isset($K2ItemExtraFieldsInstances[$item->id]))
         {
-            return $K2ItemExtraFieldsInstances[$itemExtraFields];
+			$this->buildAliasBasedExtraFields($K2ItemExtraFieldsInstances[$item->id], $item);
+			return $K2ItemExtraFieldsInstances[$item->id];
         }
 
         jimport('joomla.filesystem.file');
@@ -1173,10 +1303,15 @@ class K2ModelItem extends K2Model
         JArrayHelper::toInteger($extraFieldsIDs);
         $condition = @implode(',', $extraFieldsIDs);
 
-        $query = "SELECT * FROM #__k2_extra_fields WHERE published=1 AND id IN ({$condition}) ORDER BY ordering ASC";
+		$query = "SELECT extraFieldsGroup FROM #__k2_categories WHERE id=".(int)$item->catid;
         $db->setQuery($query);
+		$group = $db->loadResult();
+
+		$query = "SELECT * FROM #__k2_extra_fields WHERE `group` = ".(int)$group." AND published=1 AND (id IN ({$condition}) OR `type` = 'header') ORDER BY ordering ASC";
+		$db->setQuery($query);
         $rows = $db->loadObjectList();
         $size = count($rows);
+
         for ($i = 0; $i < $size; $i++)
         {
 
@@ -1184,10 +1319,8 @@ class K2ModelItem extends K2Model
             $values = array();
             foreach ($jsonObjects as $object)
             {
-
                 if ($rows[$i]->id == $object->id)
                 {
-
                     if ($rows[$i]->type == 'textfield' || $rows[$i]->type == 'textarea' || $rows[$i]->type == 'date')
                     {
                         $value = $object->value;
@@ -1198,6 +1331,24 @@ class K2ModelItem extends K2Model
                         }
 
                     }
+					else if ($rows[$i]->type == 'image')
+					{
+						if ($object->value)
+						{
+							$src = '';
+							if (JString::strpos('http://', $object->value) === false)
+							{
+								$src .= JURI::root(true);
+							}
+							$src .= $object->value;
+							$value = '<img src="'.$src.'" alt="'.$rows[$i]->name.'" />';
+						}
+						else
+						{
+							$value = false;
+						}
+
+					}
                     else if ($rows[$i]->type == 'labels')
                     {
                         $labels = explode(',', $object->value);
@@ -1256,7 +1407,6 @@ class K2ModelItem extends K2Model
                         }
 
                     }
-
                     else
                     {
 
@@ -1308,18 +1458,79 @@ class K2ModelItem extends K2Model
                 }
 
             }
-            if ($value)
-            {
-                $rows[$i]->value = $value;
-            }
-            else
-            {
-                unset($rows[$i]);
-            }
+
+            if ($rows[$i]->type == 'header')
+                {
+                        $tmp = json_decode($rows[$i]->value);
+                        if (!$tmp[0]->displayInFrontEnd)
+                        {
+                                $value = null;
+                        }
+                        else
+                        {
+                                $value = $tmp[0]->value;
+                        }
+                }
+
+                // Detect alias
+                $tmpValues = json_decode($rows[$i]->value);
+                if (isset($tmpValues[0]) && isset($tmpValues[0]->alias) && !empty($tmpValues[0]->alias))
+                {
+                        $rows[$i]->alias = $tmpValues[0]->alias;
+                }
+                else
+                {
+                        $filter = JFilterInput::getInstance();
+                        $rows[$i]->alias = $filter->clean($rows[$i]->name, 'WORD');
+                        if (!$rows[$i]->alias)
+                        {
+                                $rows[$i]->alias = 'extraField'.$rows[$i]->id;
+                        }
+                }
+
+                if (JString::trim($value) != '')
+                {
+                        $rows[$i]->value = $value;
+                        if (!is_null($item))
+                        {
+                                if (!isset($item->extraFields))
+                                {
+                                        $item->extraFields = new stdClass;
+                                }
+                                $tmpAlias = $rows[$i]->alias;
+                                $item->extraFields->$tmpAlias = $rows[$i];
+                        }
+                }
+                else
+                {
+                        unset($rows[$i]);
+                }
         }
-        $K2ItemExtraFieldsInstances[$itemExtraFields] = $rows;
-        return $K2ItemExtraFieldsInstances[$itemExtraFields];
+
+		if ($item)
+		{
+			$K2ItemExtraFieldsInstances[$item->id] = $rows;
     }
+		$this->buildAliasBasedExtraFields($K2ItemExtraFieldsInstances[$item->id], $item);
+		return $K2ItemExtraFieldsInstances[$item->id];
+	}
+
+	function buildAliasBasedExtraFields($extraFields, &$item)
+	{
+		if (is_null($item))
+		{
+			return false;
+		}
+		if (!isset($item->extraFields))
+		{
+			$item->extraFields = new stdClass;
+		}
+		foreach ($extraFields as $extraField)
+		{
+			$tmpAlias = $extraField->alias;
+			$item->extraFields->$tmpAlias = $extraField;
+		}
+	}
 
     function getItemAttachments($itemID)
     {
@@ -1336,7 +1547,8 @@ class K2ModelItem extends K2Model
         $rows = $db->loadObjectList();
         foreach ($rows as $row)
         {
-            $row->link = JRoute::_('index.php?option=com_k2&view=item&task=download&id='.$row->id.'_'.JUtility::getHash($row->id));
+			$hash = version_compare(JVERSION, '3.0', 'ge') ? JApplication::getHash($row->id) : JUtility::getHash($row->id);
+			$row->link = JRoute::_('index.php?option=com_k2&view=item&task=download&id='.$row->id.'_'.$hash);
         }
         $K2ItemAttachmentsInstances[$itemID] = $rows;
         return $K2ItemAttachmentsInstances[$itemID];

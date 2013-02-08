@@ -103,6 +103,7 @@
                                         <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>        
                                 <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for module view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="comparable" type="k2fmulticategories" default="" label="Categories for which to allow comparison" />
                         </fieldset>
                         <fieldset name="PLG_K2FIELDS_SECTIONS">
 <!--                                <field name="uicounts" type="spacer" label="Layout item counts" />

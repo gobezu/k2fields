@@ -1072,7 +1072,7 @@ var k2fields = new Class({
         visOnTab:function(fld) {
                 fld.addEvent('focus', function(e) {
                         var containingTab = fld.getParent('.ui-tabs-panel');
-                        if (containingTab.hasClass('ui-tabs-hide')) {
+                        if (containingTab && containingTab.hasClass('ui-tabs-hide')) {
                                 $K2('#k2fieldsTabs').tabs("option", "selected", containingTab.getAllPrevious('.ui-tabs-panel').length);
                         }
                 }.bind(this));
@@ -1423,6 +1423,16 @@ var k2fields = new Class({
                 return holder;
         },
         
+        getK2CustomFieldPosition: function(field) {
+                var f = field, pos = this.getOpt(f, 'position');
+                
+                while (f = this.getOpt(f, 'subfieldof')) {
+                        pos += this.getOpt(f, 'position');
+                }
+                
+                return pos;
+        },
+        
         getK2CustomFieldValue: function(valueHolder) {
                 var fields = document.id(valueHolder).getElements('[customvalueholder=true]');
                 var field, result = [], value, internalValueSeparator, position;
@@ -1430,7 +1440,7 @@ var k2fields = new Class({
                 for (var i = 0, n = fields.length; i < n; i++) {
                         field = fields[i];
                         internalValueSeparator = this.getOpt(field, 'internalValueSeparator');
-                        position = this.getOpt(field, 'position');
+                        position = this.getK2CustomFieldPosition(field);
                         value = field.get('disabled') ? '' : this.getValue(field, true, true);
                         
                         if (value == undefined) value = '';

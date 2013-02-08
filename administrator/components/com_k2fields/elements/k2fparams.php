@@ -50,7 +50,7 @@ class JFormFieldK2FParams extends JFormField {
                 $opts = self::_renderOptions($form, 'item-view-options', 'item', JText::_('In item view'));
                 $options = array_merge($options, $opts);
                 
-                $output = JHTML::_('select.genericlist',  $options, $this->name, 'class="inputbox" style="width:90%;" multiple="multiple" size="10"', 'value', 'text', $this->value);
+                $output = JHTML::_('select.genericlist',  $options, $this->name.'[]', 'class="inputbox" style="width:90%;" multiple="multiple" size="10"', 'value', 'text', $this->value);
                 
                 return $output;
         }
@@ -66,10 +66,10 @@ class JFormFieldK2FParams extends JFormField {
                 }
                 
                 $flds = $form->getFieldset($group);
-                $excludes = array('header');
+                $excludes = array('JFormFieldHeader', 'JFormFieldSpacer');
                 
                 foreach ($flds as $fldName => $fld) {
-                        if (in_array($fld->type, $excludes)) continue;
+                        if (in_array(get_class($fld), $excludes)) continue;
                         $options[] = JHTML::_('select.option',  $view.$fld->fieldname, $indentOpt.$fld->getTitle());
                 }
                 

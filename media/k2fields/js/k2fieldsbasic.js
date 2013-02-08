@@ -372,56 +372,95 @@ var k2fields_type_basic = {
                 return this.createBasic(holder, proxyField, value, condition);
         },
         
-        createSearchBasic: function(holder, proxyField, value, condition) {
-                if (this.isMode('search') && this.getOpt(proxyField, 'search') == 'interval') {
-                        var result;
-                        
-                        this.utility.load(
-                                'tag', 
-                                this.options.base + this.options.k2fbase + 'lib/Slider.Range.js', 
-                                false, 
-                                false, 
-                                '', 
-                                function() {
-                                        var id = this.generateId(proxyField);
-
-                                        result = new Element('span', {'html':
-                                                '<div class="sliderc cf"><div id="'+id+'" class="sliderbar"><div class=knob></div><div class=knob></div></div></div>'
-                                        }).inject(holder);
-                                        
-                                        var opts = {type:'text', 'ignore':true}, interval = this.getOpt(proxyField, 'interval');
-                                        
-                                        if (!value || (typeOf(value) == 'array' && value.length != 2)) value = interval;
-                                        else if (typeof value == 'string') value = value.split(',');
-                                        else if (typeOf(value) == 'object') value = [value.minpos, value.maxpos];
-                                        
-                                        this.ccf(proxyField, value[0], 1, 'number', 'Min:', result.getElements('.knob')[0], 'input', opts, false);
-                                        this.ccf(proxyField, value[1], 2, 'number', 'Max:', result.getElements('.knob')[1], 'input', opts, false);
-
-                                        opts = {type:'hidden'};
-                                        
-                                        var fieldOpts = this.getOpts(proxyField);
-                                        
-                                        if (fieldOpts.hasOwnProperty('subfieldof')) opts['subfieldof'] = fieldOpts['subfieldof'];
-                                        
-                                        var fld = this.ccf(proxyField, '', fieldOpts && fieldOpts.hasOwnProperty('position') ? fieldOpts['position'] : 0, false, '', holder, 'input', opts, true, undefined, true);
-                                        
-                                        fld = fld[0];
-
-                                        var slider = new Slider.Range(id, {
-                                                range: [interval[0].toInt(), interval[1].toInt()],
-                                                initialSteps: value
-                                        });
-
-                                        slider.addEvent('change-0', function() {this._updateSearchBasic(result, fld);}.bind(this));
-                                        slider.addEvent('change-1', function() {this._updateSearchBasic(result, fld);}.bind(this));
-                                }.bind(this)
-                        );     
+        _createSlider: function(holder, proxyField, value, condition) {
+                var result;
+                
+                this.utility.load(
+                        'tag', [
+                                this.options.base + this.options.k2fbase + 'lib/jslider/bin/jquery.slider.min.js', 
+                                this.options.base + this.options.k2fbase + 'lib/jslider/bin/jquery.slider.min.css'
+                        ],
+                        false, 
+                        false, 
+                        '',
+                        function() { 
+                                result = this.__createSlider(holder, proxyField, value, condition);
                                 
-                        return result;
+                                if (!this.getOpt(proxyField, 'subfieldof')) {
+                                        if (this.initiateFieldDependency(result[0]))
+                                                this.handleFieldDependency(result[0]);
+                                }
+                        }.bind(this),
+                        true
+                );                
+                
+                return result;
+        },
+        
+        __createSlider: function(holder, proxyField, value, condition) {
+                var 
+                        isInterval = this.getOpt(proxyField, 'ui') == 'rangeslider', 
+                        def = {smooth:false},
+                        values = this.getOpt(proxyField, 'values'),
+                        val
+                        ;
+                
+                if (values) {
+                        def.scale = [];
+                        
+                        var i, n = values.length;
+                        
+                        for (i = 0; i < n; i++) def.scale.push(values[i].text);
+                        
+                        def.from = values[0].value;
+                        def.to = values[n-1].value;
                 } else {
-                        return this.createBasic(holder, proxyField, value, condition);
+                        def.from = this.getOpt(proxyField, 'min');
+                        def.to = this.getOpt(proxyField, 'max');
+                        
                 }
+                
+                if (!value) {
+                        value = this.getDefaultValue(proxyField);
+                        
+                        if (!value) value = def.from + (isInterval ? ';' + def.to : '');
+                }
+                
+                // Assumes equidistant steps and thereby scale
+                if (val = this.getOpt(proxyField, 'step')) def.step = val.toNumber();
+                else def.step = values[1].value.toNumber() - values[0].value.toNumber();
+                
+                def.from = def.from.toNumber();
+                def.to = def.to.toNumber();
+                
+                if (val = this.getOpt(proxyField, 'post')) def.dimension = val;
+                
+                if (val = this.getOpt(proxyField, 'format')) def.format = val;
+                
+                if (val = this.getOpt(proxyField, 'intervalfunc')) def.calculate = val;
+                
+                if (val = this.getOpt(proxyField, 'intervalskin', 'round_plastic')) def.skin = val;
+                
+                // if ignore is set we need to invoke callback
+                // def.callback = function(value) { this.setProxyFieldValue(proxyField); };
+                
+                var 
+                        fieldOpts = this.getOpts(proxyField), 
+                        fld = this.ccf(
+                        proxyField, value, 
+                        fieldOpts && fieldOpts.hasOwnProperty('position') ? fieldOpts['position'] : 0, 
+                        false, '', holder
+                );
+                        
+                def.onstatechange = function(value){ 
+                        fld[0].set('value', value).fireEvent('change', [fld[0]]);
+                }.bind(this);
+                
+                val = fld[0].get('id');
+                jQuery('#'+val).attr('value', value);
+                jQuery('#'+val).slider(def);
+                
+                return fld;
         },
         
         _updateSearchBasic: function(cont, dst) {
@@ -507,11 +546,15 @@ var k2fields_type_basic = {
                         }
                 }
                 
-                field = this.ccf(proxyField, value, position, fieldType, lbl, holder, type, typeOptions);
+                if (fieldType == 'slider' || fieldType == 'rangeslider') {
+                        field = this._createSlider(holder, proxyField, value, condition, isSubFieldOf);
+                } else {
+                        field = this.ccf(proxyField, value, position, fieldType, lbl, holder, type, typeOptions);
                 
-                if (!isSubFieldOf) {
-                        if (this.initiateFieldDependency(field[0]))
-                                this.handleFieldDependency(field[0]);
+                        if (!isSubFieldOf) {
+                                if (this.initiateFieldDependency(field[0]))
+                                        this.handleFieldDependency(field[0]);
+                        }
                 }
                 
                 return field;

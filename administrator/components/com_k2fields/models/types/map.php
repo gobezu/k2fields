@@ -286,8 +286,8 @@ window.addEvent("load", function() {
                 }
                 
                 if (!$options['mapiconlocation']) {
-                        $options['mapiconlocation'] = $options['mapiconcolor'];
-                        $options['mapiconlocationsize'] = $options['mapiconcolorsize'];
+                        $options['mapiconlocation'] = $options['mapiconcolorfile'];
+                        $options['mapiconlocationsize'] = $options['mapiconcolorfilesize'];
                 } else {
                         $icon = JPath::clean($root . $options['mapiconlocation'], '/');
                         
@@ -322,6 +322,25 @@ window.addEvent("load", function() {
                 
                 $options['markerfixed'] = 1;
                 
+//                if ($app->isAdmin() || $view == 'item') {
+//                        if ($app->isAdmin()) {
+//                                $view = 'edit';
+//                                $options['markerfixed'] = 0;
+//                        } else {
+//                                $task = JRequest::getCmd('task', false);
+//                                $view = $task == 'add' || $task == 'edit' ? 'edit' : 'item';
+//                                
+//                                if ($view == 'item') {
+//                                        $options['mapstatic'] = K2FieldsModelFields::setting('mapstatic', $options);
+//                                } else {
+//                                        $options['markerfixed'] = 0;
+//                                }
+//                        }
+//                } else {
+//                        $view = 'itemlist';
+//                        $options['mapstatic'] = 0;
+//                }
+//                
                 if ($app->isAdmin() || $view == 'item') {
                         if ($app->isAdmin()) {
                                 $view = 'edit';
@@ -337,11 +356,10 @@ window.addEvent("load", function() {
                                 }
                         }
                 } else {
-                        $view = 'itemlist';
                         $options['mapstatic'] = 0;
                 }
                 
-                $options['view'] = $view . K2FieldsModelFields::VALUE_SEPARATOR . 'map';
+                $options['view'] .= (isset($options['view']) ? K2FieldsModelFields::VALUE_SEPARATOR : ''). 'map';
                 
                 // TODO: use $view when extracting values
                 
@@ -382,7 +400,7 @@ window.addEvent("load", function() {
                 
                 static $isCoreLoaded = array();
                 
-                if (!$field) 
+                if (!$field)
                         $field = $item ? K2FieldsModelFields::isContainsType('map', $item->catid) : null;
                 
                 if ($isForForm) {
