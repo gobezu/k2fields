@@ -79,7 +79,9 @@ class plgJcommentsRate extends JPlugin {
                 
                 $content = $input->get('id', '', 'int');
                 
-                self::setAttributes($content, $extensionName, $this->params);
+                self::$criterias = self::$rater->getDefinition($extensionName, $content, $this->params);
+                
+//                self::setAttributes($content, $extensionName, $this->params);
                 
                 $document->addScriptDeclaration("
                 window.addEvent('domready', function(){ 
@@ -93,27 +95,20 @@ class plgJcommentsRate extends JPlugin {
                 self::$isLoaded = true;
 	}
         
+        
         protected static function setAttributes($content, $extensionName, $params) {
-                if (isset(self::$criterias) || empty($content) || empty($extensionName)) return;
-                
-                $content = self::$rater->getContent($content, $extensionName);
-                
-                $groups = $params->get($extensionName.'_ratingcategories');
-                $criterias = $params->get($extensionName.'_ratingcriterias');
-                $separator = $params->get($extensionName.'_separator');
-                
-                self::$criterias = self::parseCriterias($content->catid, $groups, $criterias, $separator);
-        }
-
+                self::$criterias = self::$rater->getDefinition($extensionName, $content, $params);
+        }        
+        
         function onJCommentsCommentsPrepare(&$comments) {
                 $contentId = $comments[0]->{JcommentsRate::CONTENTID_COL};
                 $extensionName = $comments[0]->{JcommentsRate::EXTENSIONNAME_COL};
                 $rate = self::$rater->getRate($contentId, $extensionName);
-                
+                $definition = self::$rater->getDefinition($extensionName, $contentId, $this->params);
                 $aggrRate = clone $comments[0];
                 
                 $aggrRate->id = -1;
-                $aggrRate->comment = self::_tmpl($rate, true);
+                $aggrRate->comment = self::_tmpl($rate, $definition, true);
                 $aggrRate->_skip_prepare = true;
                 $aggrRate->isContent = false;
                 
@@ -122,11 +117,11 @@ class plgJcommentsRate extends JPlugin {
                 foreach ($comments as $comment) {
                         if (isset($rates[$comment->id])) {
                                 $rate = $rates[$comment->id];
-                                $rate = self::_tmpl($rate);
+                                $rate = self::_tmpl($rate, $definition);
                         } else $rate = '';
                         
                         $comment->author = JComments::getCommentAuthorName($comment);
-                        $comment->comment = $rate.'<div class="comment-body" itemprop="description">'.$comment->comment.'</div>';
+                        $comment->comment = $rate.'<div class="comment-body" itemprop="reviewBody">'.$comment->comment.'</div>';
                         $comment->_skip_prepare = true;
                 }
                 
@@ -178,13 +173,19 @@ class plgJcommentsRate extends JPlugin {
                 );
         }
         
-        private static function _tmpl($rate, $isContent = false) {
+        private static function _tmpl($rate, $definition, $isContent = false) {
                 $prefix = $isContent ? 's' : '';
                 $title = $isContent ? '<h5>'.JText::sprintf('Average user rating from: %d users', $rate->count).'</h5>' : '';
                 
                 if (!$rate) return JText::_('Not rated');
                 
-                $r = $rate->rate_grade;
+                $isPercentage = $definition[0][JcommentsRate::COL_SHOWAS];
+                $col = $isPercentage ? 'rate_grade' : 'rate';
+                $unit = $isPercentage ? '%' : '';
+                $r = $rate->$col;
+                $max = $definition[0][JcommentsRate::COL_MAXS]['max'];
+                $min = $definition[0][JcommentsRate::COL_MAXS]['min'];
+                $maxValue = $definition[0][JcommentsRate::COL_MAXS]['maxvalue'];
                 
                 if ($r == 0) {
                         $r = '0';
@@ -193,31 +194,35 @@ class plgJcommentsRate extends JPlugin {
                 
                 $ui = '';
                 
-                if (!$isContent)                
-                        $ui .= '
-<div style="display:none;" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
-        <span itemprop="ratingValue">'.$rr.'</span>
-        <span itemprop="bestRating">100</span>
-</div>
-       ';
-                else 
-                        $ui .= '
-<div style="display:none;" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
-        <span itemprop="ratingValue">'.$rr.'</span>
-        <span itemprop="bestRating">100</span>
-        <span itemprop="ratingCount">'.$rate->count.'</span>
-</div>
-       ';
+//                if ($isContent) {
+//                        $ui .= '
+//<div style="display:none;" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
+//        <span itemprop="ratingValue">'.$rr.'</span>
+//        <span itemprop="bestRating">'.($isPercentage ? '100' : $max).'</span>
+//        <meta itemprop="worstRating" content="'.($isPercentage ? '0' : $min).'">
+//        <span itemprop="ratingCount">'.$rate->count.'</span>
+//</div>
+//       ';
+//                } else {
+//                        $ui .= '
+//<div style="display:none;" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+//        <span itemprop="ratingValue">'.$rr.'</span>
+//        <span itemprop="bestRating">'.($isPercentage ? '100' : $max).'</span>
+//</div>
+//       ';
+//                }
                         
                 $ui .= $title.'
         <ul class="rating_table rateoverall jpcollapse">
-                <li>
+                <li itemprop="'.($isContent ? 'aggregateRating' : 'reviewRating').'" itemscope itemtype="http://schema.org/'.($isContent ? 'AggregateRating' : 'Rating').'">
                         <span class="rating_label">'. JText::_('Overall rating') .'&nbsp;</span>
-                        <span class="rating_value">'. $rr.
-                                ($isContent ? '&nbsp;&nbsp;('.$rate->count.')' : '').'</span>
-                        <span class="rating_starc">
+                        <meta itemprop="worstRating" content="'.$min.'">
+                        <meta itemprop="bestRating" content="'.$max.'">
+                        <span class="rating_value"><span class="nofloat" itemprop="ratingValue">'. $rr.'</span>'.$unit.
+                                ($isContent ? '&nbsp;&nbsp;(<span class="nofloat" itemprop="ratingCount">'.$rate->count.'</span>)' : '').'</span>
+                        <span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxValue).'px;">
                                 <div class="rating_star_user">
-                                        <div style="width: '. $r .'%;">&nbsp;</div>
+                                        <div style="width: '. ($isPercentage ? $r : $r/$maxValue * 100) .'%;">&nbsp;</div>
                                 </div>
                         </span>
                 </li>
@@ -225,21 +230,24 @@ class plgJcommentsRate extends JPlugin {
         <ul class="rating_table">
                 ';
                 
-                foreach (self::$criterias as $i => $criteria) {
-                        $r = $rate->{'rate'.$prefix.($i+1).'_grade'};
+                foreach ($definition as $i => $criteria) {
+                        $col = 'rate'.$prefix.($i+1).($isPercentage ? '_grade' : '');
+                        $r = $rate->$col;
                         if ($r == 0) {
                                 $r = '0';
                                 $rr = '0';
                         } else $rr = round($r, 1);
+                        $rr .= $unit;
+                        $maxValue = $definition[0][JcommentsRate::COL_LOCALMAXS]['maxvalue'];
                         $ui .= '<li>
                                 <span class="rating_label">'. $criteria[JcommentsRate::COL_NAME].'&nbsp;</span>
                                 <span class="rating_value">'. 
                                                 $rr.
                                                 ($isContent ? '&nbsp;&nbsp;('.$rate->{'counts'.($i + 1)}.')' : '').
                                 '</span>
-                                <span class="rating_starc">
+                                <span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxValue).'px;">
                                         <div class="rating_star_user">
-                                                <div style="width: '.$r.'%;">&nbsp;</div>
+                                                <div style="width: '.($isPercentage ? $r : $r/$maxValue * 100).'%;">&nbsp;</div>
                                         </div>
                                 </span>
                         </li>
@@ -253,110 +261,121 @@ class plgJcommentsRate extends JPlugin {
                 return $ui;
         }
         
-        private static function parseCriterias($catId, $groups, $criterias, $separator) {
-                if (empty($catId)) $catId = 'all';
-                
-                if (is_object($catId)) {
-                        $tokenValues = array($catId->title, $catId->catname);
-                        $catId = $catId->catid;
-                } else {
-                        $tokenValues = array();
-                }
-                
-                $criteriaGroup = self::setting($groups, (array) $catId, 'all', '', $separator);
-                
-                if (empty($criteriaGroup)) return;
-                
-                $excludedCategories = array();
-                        
-                if (count($criteriaGroup) > 1 && !empty($criteriaGroup[1])) $excludedCategories = explode(',', $criteriaGroup[1]);
-                        
-                if (in_array($catId, $excludedCategories)) return;
-                
-                $criterias = self::setting($criterias, $criteriaGroup[0], 'all', '', $separator);
-                
-                if (empty($criterias)) return;
-                
-                $tokens = array('%item%', '%cat%');
-                
-                foreach ($criterias as &$criteria) {
-                        // name
-                        $criteria[JcommentsRate::COL_NAME] = str_replace($tokens, $tokenValues, JText::_($criteria[JcommentsRate::COL_NAME]));
-
-                        // weight
-                        $criteria[JcommentsRate::COL_WEIGHT] = (int) $criteria[JcommentsRate::COL_WEIGHT] / 100;
-
-                        // scales (value1=label1,value2=label2,....,valueN=labelN)
-                        $scales = count($criteria) < 2 || empty($criteria[JcommentsRate::COL_SCALES]) ? range(1, 5, 1) : explode(',', $criteria[JcommentsRate::COL_SCALES]);
-
-                        foreach ($scales as &$scale) {
-                                $scale = explode('=', $scale);
-
-                                if (count($scale) == 1) $scale[] = $scale[0];
-
-                                $scale[0] = (float) $scale[0];
-
-                                $scale[1] = str_replace($tokens, $tokenValues, JText::_($scale[1]));
-                        }
-
-                        $criteria[JcommentsRate::COL_SCALES] = $scales;
-
-                        // requried
-                        $criteria[JcommentsRate::COL_REQUIRED] = count($criteria) <= 3 ? false : (bool) $criteria[JcommentsRate::COL_REQUIRED];
-                        $criteria[JcommentsRate::COL_UI] = trim(count($criteria) <= 4 ? 'select' : $criteria[JcommentsRate::COL_UI]);
-                }
-                
-                return $criterias;
-        }
-        
-        protected static function setting($val, $assertedKeys = null, $allKey = 'all', $name = '', $separator) {
-                $assertedKeys = (array) $assertedKeys;
-                
-                $isAllKeyValue = false;
-                
-                if (!empty($assertedKeys) && is_string($val)) {
-                        $result = array();
-                        $vals = explode("\n", $val);
-                        $keys = $assertedKeys;
-                        
-                        if (!empty($allKey)) $keys[] = $allKey;
-                        
-                        foreach ($vals as $_val) {
-                                $_val = explode($separator, $_val);
-                                $_val[0] = trim($_val[0]);
-                                
-                                if (in_array($_val[0], $keys)) {
-                                        $__val = $_val[0];
-                                        array_shift($_val);
-                                        
-                                        if (!isset($result[$__val])) {
-                                                $result[$__val] = array();
-                                        }
-                                        
-                                        $result[$__val][] = $_val;
-                                }
-                        }
-                }
-                
-                if (!empty($assertedKeys)) {
-                        if (empty($result)) $result = null;
-                        
-                        return self::first($result);
-                }
-                
-                return self::first($val);
-        }
-        
-        protected static function first($array) {
-                if (empty($array)) return;
-                $key = self::firstKey($array);
-                return $array[$key];
-        }
-        
-        protected static function firstKey($array) {
-                $keys = array_keys($array);
-                $index = 0;
-                if ($keys[$index] == 'all' && count($keys) > 1 && !empty($array[$keys[1]])) $index = 1;
-                return $keys[$index];
-        }        
+//        protected static function setAttributes($content, $extensionName, $params) {
+//                if (isset(self::$criterias) || empty($content) || empty($extensionName)) return;
+//                
+//                $content = self::$rater->getContent($content, $extensionName);
+//                
+//                $groups = $params->get($extensionName.'_ratingcategories');
+//                $criterias = $params->get($extensionName.'_ratingcriterias');
+//                $separator = $params->get($extensionName.'_separator');
+//                
+//                self::$criterias = self::parseCriterias($content->catid, $groups, $criterias, $separator);
+//        }
+//        private static function parseCriterias($catId, $groups, $criterias, $separator) {
+//                if (empty($catId)) $catId = 'all';
+//                
+//                if (is_object($catId)) {
+//                        $tokenValues = array($catId->title, $catId->catname);
+//                        $catId = $catId->catid;
+//                } else {
+//                        $tokenValues = array();
+//                }
+//                
+//                $criteriaGroup = self::setting($groups, (array) $catId, 'all', '', $separator);
+//                
+//                if (empty($criteriaGroup)) return;
+//                
+//                $excludedCategories = array();
+//                        
+//                if (count($criteriaGroup) > 1 && !empty($criteriaGroup[1])) $excludedCategories = explode(',', $criteriaGroup[1]);
+//                        
+//                if (in_array($catId, $excludedCategories)) return;
+//                
+//                $criterias = self::setting($criterias, $criteriaGroup[0], 'all', '', $separator);
+//                
+//                if (empty($criterias)) return;
+//                
+//                $tokens = array('%item%', '%cat%');
+//                
+//                foreach ($criterias as &$criteria) {
+//                        // name
+//                        $criteria[JcommentsRate::COL_NAME] = str_replace($tokens, $tokenValues, JText::_($criteria[JcommentsRate::COL_NAME]));
+//
+//                        // weight
+//                        $criteria[JcommentsRate::COL_WEIGHT] = (int) $criteria[JcommentsRate::COL_WEIGHT] / 100;
+//
+//                        // scales (value1=label1,value2=label2,....,valueN=labelN)
+//                        $scales = count($criteria) < 2 || empty($criteria[JcommentsRate::COL_SCALES]) ? range(1, 5, 1) : explode(',', $criteria[JcommentsRate::COL_SCALES]);
+//
+//                        foreach ($scales as &$scale) {
+//                                $scale = explode('=', $scale);
+//
+//                                if (count($scale) == 1) $scale[] = $scale[0];
+//
+//                                $scale[0] = (float) $scale[0];
+//
+//                                $scale[1] = str_replace($tokens, $tokenValues, JText::_($scale[1]));
+//                        }
+//
+//                        $criteria[JcommentsRate::COL_SCALES] = $scales;
+//
+//                        // requried
+//                        $criteria[JcommentsRate::COL_REQUIRED] = count($criteria) <= 3 ? false : (bool) $criteria[JcommentsRate::COL_REQUIRED];
+//                        $criteria[JcommentsRate::COL_UI] = trim(count($criteria) <= 4 ? 'select' : $criteria[JcommentsRate::COL_UI]);
+//                }
+//                
+//                return $criterias;
+//        }
+//        
+//        protected static function setting($val, $assertedKeys = null, $allKey = 'all', $name = '', $separator) {
+//                $assertedKeys = (array) $assertedKeys;
+//                
+//                $isAllKeyValue = false;
+//                
+//                if (!empty($assertedKeys) && is_string($val)) {
+//                        $result = array();
+//                        $vals = explode("\n", $val);
+//                        $keys = $assertedKeys;
+//                        
+//                        if (!empty($allKey)) $keys[] = $allKey;
+//                        
+//                        foreach ($vals as $_val) {
+//                                $_val = explode($separator, $_val);
+//                                $_val[0] = trim($_val[0]);
+//                                
+//                                if (in_array($_val[0], $keys)) {
+//                                        $__val = $_val[0];
+//                                        array_shift($_val);
+//                                        
+//                                        if (!isset($result[$__val])) {
+//                                                $result[$__val] = array();
+//                                        }
+//                                        
+//                                        $result[$__val][] = $_val;
+//                                }
+//                        }
+//                }
+//                
+//                if (!empty($assertedKeys)) {
+//                        if (empty($result)) $result = null;
+//                        
+//                        return self::first($result);
+//                }
+//                
+//                return self::first($val);
+//        }
+//        
+//        protected static function first($array) {
+//                if (empty($array)) return;
+//                $key = self::firstKey($array);
+//                return $array[$key];
+//        }
+//        
+//        protected static function firstKey($array) {
+//                $keys = array_keys($array);
+//                $index = 0;
+//                if ($keys[$index] == 'all' && count($keys) > 1 && !empty($array[$keys[1]])) $index = 1;
+//                return $keys[$index];
+//        }        
 }

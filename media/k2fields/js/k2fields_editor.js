@@ -682,6 +682,26 @@ var k2fieldseditor = new Class({
                                 'tip':'Based on selected schema type in your title field. If this is a field of type title please leave this empty as the property of it is given.',
                                 'section':'SEO'
                         },
+                        '67':{
+                                'name':'Schema property value',
+                                'optName':'schemapropvalue',
+                                'valid':'text',
+                                'ui':'radio',
+                                'values':[
+                                        {'value':'%value%', 'text':'value'},
+                                        {'value':'%text%', 'text':'text'},
+                                        {'value':'%img%', 'text':'image'}
+                                ],
+                                'default':'value',
+                                'section':'SEO'
+                        },
+                        '68':{
+                                'name':'Use meta tag for schema values',
+                                'optName':'schemausemeta',
+                                'valid':'yesno',
+                                'default':0,
+                                'section':'SEO'
+                        },
                         '23':{
                                 'name':'Placeholder text',
                                 'optName':'ph',

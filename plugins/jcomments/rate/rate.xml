@@ -52,15 +52,23 @@
 	</uninstall>        
         <config>
                 <fields name="params">
+                        <fieldset name="PLG_JCOMMENTS_K2">
+                                <field name="com_k2_ratingcriterias" type="textarea" default="" cols="40" rows="20" label="Rating criterias" description="On each line provide: &lt;br/&gt;&lt;br/&gt;category%%criterianame%%weight%%scales%%required%%ui&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;category&lt;/strong&gt; = category you specify below&lt;br/&gt;&lt;strong&gt;scales&lt;/strong&gt; = descrete series of values such as 1,2,3,4,5 (default value)&lt;br/&gt;&lt;strong&gt;weight&lt;/strong&gt; must add up to 100 for all criterias within a criteria group&lt;br/&gt;&lt;strong&gt;ui&lt;/strong&gt; = select or stars" />
+                                <field name="com_k2_ratingcategories" type="textarea" default="" cols="40" rows="10" label="Rating categories" description="K2 content categories with rating criteria categories. On each line provide: &lt;br/&gt;&lt;br/&gt;k2category%%ratecategory%%excluded%%showas.&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;k2category&lt;/strong&gt; = K2 category to be tied to this rating category&lt;br/&gt;&lt;strong&gt;ratecategory&lt;/strong&gt; = rating categories you will provide above, use sequential numeric values&lt;br/&gt;&lt;strong&gt;excluded&lt;/strong&gt; = excluded sub categories comma separated (not supported yet)&lt;strong&gt;showas&lt;/strong&gt; = actual value or as percentage" />
+                                <field name="com_k2_separator" type="text" size="10" default="%%" label="Value separator"  />
+                                <field name="com_k2_showas" type="radio" default="percentage" label="Show as (default and applies only if category isn't set)">
+                                        <option value="value">value</option>
+                                        <option value="percentage">percentage</option>
+                                </field>
+                        </fieldset>
                         <fieldset name="PLG_JCOMMENTS_CONTENT">
                                 <field name="com_content_ratingcriterias" type="textarea" default="" cols="40" rows="20" label="Rating criterias" description="On each line provide: &lt;br/&gt;&lt;br/&gt;category%%criterianame%%weight%%scales%%required%%ui&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;category&lt;/strong&gt; = category you specify below&lt;br/&gt;&lt;strong&gt;scales&lt;/strong&gt; = descrete series of values such as 1,2,3,4,5 (default value)&lt;br/&gt;&lt;strong&gt;weight&lt;/strong&gt; must add up to 100 for all criterias within a criteria group&lt;br/&gt;&lt;strong&gt;ui&lt;/strong&gt; = select or stars" />
                                 <field name="com_content_ratingcategories" type="textarea" default="" cols="40" rows="10" label="Rating categories" description="Connect content categories with rating criteria categories. On each line provide: &lt;br/&gt;&lt;br/&gt;contentcategory%%ratecategory%%excluded.&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;contentcategory&lt;/strong&gt; = content category to be tied to this rating category&lt;br/&gt;&lt;strong&gt;ratecategory&lt;/strong&gt; = rating categories you will provide above, use sequential numeric values&lt;br/&gt;&lt;strong&gt;excluded&lt;/strong&gt; = excluded sub categories comma separated (not supported yet)" />
                                 <field name="com_content_separator" type="text" size="10" default="%%" label="Value separator"  />
-                        </fieldset>
-                        <fieldset name="PLG_JCOMMENTS_K2">
-                                <field name="com_k2_ratingcriterias" type="textarea" default="" cols="40" rows="20" label="Rating criterias" description="On each line provide: &lt;br/&gt;&lt;br/&gt;category%%criterianame%%weight%%scales%%required%%ui&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;category&lt;/strong&gt; = category you specify below&lt;br/&gt;&lt;strong&gt;scales&lt;/strong&gt; = descrete series of values such as 1,2,3,4,5 (default value)&lt;br/&gt;&lt;strong&gt;weight&lt;/strong&gt; must add up to 100 for all criterias within a criteria group&lt;br/&gt;&lt;strong&gt;ui&lt;/strong&gt; = select or stars" />
-                                <field name="com_k2_ratingcategories" type="textarea" default="" cols="40" rows="10" label="Rating categories" description="K2 content categories with rating criteria categories. On each line provide: &lt;br/&gt;&lt;br/&gt;k2category%%ratecategory%%excluded.&lt;br/&gt;&lt;br/&gt;&lt;strong&gt;k2category&lt;/strong&gt; = K2 category to be tied to this rating category&lt;br/&gt;&lt;strong&gt;ratecategory&lt;/strong&gt; = rating categories you will provide above, use sequential numeric values&lt;br/&gt;&lt;strong&gt;excluded&lt;/strong&gt; = excluded sub categories comma separated (not supported yet)" />
-                                <field name="com_k2_separator" type="text" size="10" default="%%" label="Value separator"  />
+                                <field name="com_content_showas" type="radio" default="percentage" label="Show as (default and applies only if category isn't set)">
+                                        <option value="value">value</option>
+                                        <option value="percentage">percentage</option>
+                                </field>
                         </fieldset>
                 </fields>
         </config>

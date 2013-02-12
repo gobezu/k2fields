@@ -10,6 +10,9 @@ class JcommentsRate {
         const COL_SCALES = 2;
         const COL_REQUIRED = 3;
         const COL_UI = 4;
+        const COL_SHOWAS = 5;
+        const COL_LOCALMAXS = 6;
+        const COL_MAXS = 7;
         
         const COL_REQ_INTERVAL = 0;
         const COL_REQ_ACCESS = 1;
@@ -26,11 +29,182 @@ class JcommentsRate {
         const CONTENTID_COL = 'object_id';
         const EXTENSIONNAME_COL = 'object_group';
         const COMMENT_TBL = '#__jcomments';
+        const STAR_WIDTH = 16;
         
 	public function __construct() {
                 $this->_db = JFactory::getDBO();
 	}
         
+        public function getDefinition($extensionName = 'com_k2', $content = null, $params = null) {
+                if (empty($extensionName)) $extensionName = JFactory::getApplication()->input->get('option');
+                if (empty($content)) $content = JFactory::getApplication()->input->get('id', '', 'int');
+                
+                $content = $this->getContent($content, $extensionName);
+                
+                if (!$params) {
+                        jimport('joomla.plugin.helper');
+                        $plugin = JPluginHelper::getPlugin('jcomments', 'rate');
+                        $params = new JRegistry($plugin->params);
+                }
+                
+                $groups = $params->get($extensionName.'_ratingcategories');
+                $criterias = $params->get($extensionName.'_ratingcriterias');
+                $separator = $params->get($extensionName.'_separator');
+                $showAs = $params->get($extensionName.'_showas');
+                
+                $definition = self::parseCriterias($content->catid, $groups, $criterias, $separator, $showAs);
+                
+                return $definition;
+        }
+        
+        public function getMax($definition) {
+                $criteriasScales = JprovenUtility::getColumn($definition, self::COL_SCALES);
+                $aggrMin = $aggrMax = 0;
+                $count = count($criteriasScales);
+                
+                for ($i = 0; $i < $count; $i++) {
+                        $scales = JprovenUtility::getColumn($criteriasScales[$i], 0);
+                        $min = min($scales);
+                        $max = max($scales);
+                        $aggrMin += $min;
+                        $aggrMax += $max;                        
+                }
+                
+                return array('min'=>$aggrMin/$count, 'max'=>$aggrMax/$count);
+        }
+        
+        private static function parseCriterias($catId, $groups, $criterias, $separator, $showAs) {
+                if (empty($catId)) $catId = 'all';
+                
+                if (is_object($catId)) {
+                        $tokenValues = array($catId->title, $catId->catname);
+                        $catId = $catId->catid;
+                } else {
+                        $tokenValues = array();
+                }
+                
+                $criteriaGroup = self::setting($groups, (array) $catId, 'all', '', $separator);
+                
+                if (empty($criteriaGroup)) return;
+                
+                $excludedCategories = array();
+                        
+                if (count($criteriaGroup) > 1 && !empty($criteriaGroup[1])) $excludedCategories = explode(',', $criteriaGroup[1]);
+                        
+                if (in_array($catId, $excludedCategories)) return;
+                
+                $_showAs = count($criteriaGroup) > 2 ? $criteriaGroup[2] : '';
+                if (!empty($_showAs)) $showAs = $_showAs;
+                $isPercentage = $showAs == 'percentage';
+                
+                $criterias = self::setting($criterias, $criteriaGroup[0], 'all', '', $separator);
+                
+                if (empty($criterias)) return;
+                
+                $tokens = array('%item%', '%cat%');
+                $aggrMin = $aggrMax = 0;
+                
+                foreach ($criterias as &$criteria) {
+                        // name
+                        $criteria[JcommentsRate::COL_NAME] = str_replace($tokens, $tokenValues, JText::_($criteria[JcommentsRate::COL_NAME]));
+
+                        // weight
+                        $criteria[JcommentsRate::COL_WEIGHT] = (int) $criteria[JcommentsRate::COL_WEIGHT] / 100;
+
+                        // scales (value1=label1,value2=label2,....,valueN=labelN)
+                        $scales = count($criteria) < 2 || empty($criteria[JcommentsRate::COL_SCALES]) ? range(1, 5, 1) : explode(',', $criteria[JcommentsRate::COL_SCALES]);
+
+                        
+                        foreach ($scales as &$scale) {
+                                $scale = explode('=', $scale);
+
+                                if (count($scale) == 1) $scale[] = $scale[0];
+
+                                $scale[0] = (float) $scale[0];
+
+                                $scale[1] = str_replace($tokens, $tokenValues, JText::_($scale[1]));
+                        }
+
+                        $criteria[JcommentsRate::COL_SCALES] = $scales;
+                        
+                        $values = JprovenUtility::getColumn($scales, 0);
+                        $min = min($values);
+                        $aggrMin += $min;
+                        $max = max($values);
+                        $aggrMax += $max;
+                        
+                        $criteria[JcommentsRate::COL_LOCALMAXS] = array(
+                            'min'=>$isPercentage ? 0 : $min, 
+                            'max'=>$isPercentage ? 100 : $max, 
+                            'maxvalue'=>$max
+                        );
+
+                        // requried
+                        $criteria[JcommentsRate::COL_REQUIRED] = count($criteria) <= 3 ? false : (bool) $criteria[JcommentsRate::COL_REQUIRED];
+                        $criteria[JcommentsRate::COL_UI] = trim(count($criteria) <= 4 ? 'select' : $criteria[JcommentsRate::COL_UI]);
+                        $criteria[JcommentsRate::COL_SHOWAS] = $isPercentage;
+                }
+                
+                $count = count($criterias);
+                $max = array('min'=>$isPercentage ? 0 : $aggrMin/$count, 'max'=>$isPercentage ? 100 : $aggrMax/$count, 'maxvalue'=>$aggrMax/$count);
+                
+                for ($i = 0; $i < $count; $i++) $criterias[$i][JcommentsRate::COL_MAXS] = $max;
+                
+                return $criterias;
+        }
+        
+        protected static function setting($val, $assertedKeys = null, $allKey = 'all', $name = '', $separator) {
+                $assertedKeys = (array) $assertedKeys;
+                
+                $isAllKeyValue = false;
+                
+                if (!empty($assertedKeys) && is_string($val)) {
+                        $result = array();
+                        $vals = explode("\n", $val);
+                        $keys = $assertedKeys;
+                        
+                        if (!empty($allKey)) $keys[] = $allKey;
+                        
+                        foreach ($vals as $_val) {
+                                $_val = explode($separator, $_val);
+                                $_val[0] = trim($_val[0]);
+                                
+                                if (in_array($_val[0], $keys)) {
+                                        $__val = $_val[0];
+                                        array_shift($_val);
+                                        
+                                        if (!isset($result[$__val])) {
+                                                $result[$__val] = array();
+                                        }
+                                        
+                                        $result[$__val][] = $_val;
+                                }
+                        }
+                }
+                
+                if (!empty($assertedKeys)) {
+                        if (empty($result)) $result = null;
+                        
+                        return self::first($result);
+                }
+                
+                return self::first($val);
+        }
+        
+        protected static function first($array) {
+                if (empty($array)) return;
+                $key = self::firstKey($array);
+                return $array[$key];
+        }
+        
+        protected static function firstKey($array) {
+                $keys = array_keys($array);
+                $index = 0;
+                if ($keys[$index] == 'all' && count($keys) > 1 && !empty($array[$keys[1]])) $index = 1;
+                return $keys[$index];
+        }        
+        
+        // Get individual rates
         public function getRates($commentIds = null, $content = null, $extensionName = null) {
                 if (!empty($content) && !empty($extensionName)) {
                         $commentIds = 
@@ -48,6 +222,7 @@ class JcommentsRate {
                 return $rate;
         }
         
+        // Get aggregated rate
         public function getRate($content = null, $extensionName = null) {
                 if (empty($content)) $content = JFactory::getApplication()->input->get('id', '', 'int');
                 if (empty($extensionName)) $extensionName = JFactory::getApplication()->input->get('option', '', 'cmd');

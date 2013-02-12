@@ -109,8 +109,9 @@ class K2FieldsHelperRoute {
         }
 
         public static function createItemLink($item, $title = '', $mode = '', $class = 'k2flink') {
-                if (empty($title))
-                        $title = $item->title;
+                if (empty($title)) {
+                        $title = '<span itemprop="name">'.$item->title.'</span>';
+                }
 
                 $link = self::getItemRoute(self::createItemSlug($item), self::createCategorySlug($item));
 

@@ -955,6 +955,8 @@ group by vvv.itemid
                 
                 $input = JFactory::getApplication()->input;
                 
+                $layout = '';
+                
                 if ($view == 'itemlist') $layout = self::setting('listLayout', 'k2fields', 'k2', null, '');
                 
                 $layout = $input->get('layout', $layout, 'word');
@@ -1953,8 +1955,6 @@ group by vvv.itemid
                 if ($rowCnt == 0) $ui .= self::renderComparisonActions($field);
                 
                 $ui .= self::renderComparisonSection($section, $fieldCnt, $rowCnt, $cols) . '<tr class="comparefield'.($rowCnt == 0 ? ' comparetitle' : '').'">';
-//                $prevValue = '';
-//                $diff = false;
                 
                 foreach ($field as $itemi => $itemValues) {
                         if ($itemi == 'heading' && $fieldCnt == 0) {
@@ -1964,20 +1964,12 @@ group by vvv.itemid
 
                         $tag = $fieldCnt == 0 || $itemi == 'heading' ? 'th' : 'td';
                         
-//                        if ($prevValue != '' && !$diff) $diff = $prevValue != $itemValues;
-                        
                         if ($itemi == 'heading') {
                                 $itemValues .= '<a href="#" class="comparehidefield" title="'.JText::_('Hide this row').'">-<a/>';
                         }
                         
                         $ui .= '<'.$tag.'>'.$itemValues.'</'.$tag.'>';
-                        
-//                        if ($itemi != 'heading') $prevValue = $itemValues;
-//                        
-//                        $prevValue = $itemValues;
                 }
-                
-                //if ($diff) $ui = str_replace('<tr class="comparefield', '<tr class="comparefield comparefielddiff ', $ui);
                 
                 $ui .= '</tr>';
                 

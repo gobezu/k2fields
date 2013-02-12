@@ -2384,16 +2384,6 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 $id = self::value($item, 'id');
-                
-                if ($input->get('layout') == 'compare') {
-//                        if (!$isFirst)
-                                $value = '<div class="compareremovec"><input class="compareremove" type="button" id="id'.$id.'" value="Remove"></div>'.$value;
-                               
-                        $isFirst = false;
-                        
-                        return;
-                }
-                
                 $v = $input->get('items', array(), 'array');
                 
                 $ui = '';
@@ -2477,12 +2467,12 @@ class K2FieldsModelFields extends K2Model {
                 return $isExcluded;
         }
         
-        public function renderFieldValues($values, $field, $fieldRule, $isFormatted = false) {
+        public function renderFieldValues($values, $field, $fieldRule, $isFormatted = false, $isMetaAdded = false) {
                 if (empty($values)) return '';
                 
                 $valid = self::value($field, 'valid');
                 $list = self::value($field, 'list') || is_array($values) && count($values) > 1 ? ' lst' : '';
-                $view = JRequest::getCmd('view');
+                $view = JFactory::getApplication()->input->get('view');
                 $lbl = '';
                 $id = self::value($field, 'id', '');
                 $v = $id;
@@ -2570,16 +2560,13 @@ class K2FieldsModelFields extends K2Model {
                         $rendered = '<span>'.$rendered.'</span>';
                 }
                 
-                $schemaProp = self::value($field, 'schemaprop');
-                if ($schemaProp) $schemaProp = ' itemprop="'.$schemaProp.'"';
-                
-                $ui = '<div class="'.$valid.'"'.$schemaProp.'>';
+                $ui = '<div class="'.$valid.'">';
                 
                 $ui .= ($isPart ? '<div class="'.$id.'">' : '<div class="fvc '.$id.'">');
                 
                 if (empty($lbl)) $ui .= '<div class="nolbl">';
                 
-                if (!$isFormatted) $rendered = self::formatValue($rendered, $fieldRule, $field);
+                if (!$isFormatted) $rendered = self::formatValue($rendered, $fieldRule, $field, true);
                 
                 $ui .= $lbl . '<div class="fv">'.$rendered.'</div>';
                 
@@ -2967,56 +2954,93 @@ class K2FieldsModelFields extends K2Model {
                 ;
         }
         
-        protected static function formatValue($value, $rule, $field = null) {
+        protected static function formatValue($value, $rule, $field = null, $isMetaAdded = false) {
                 $isValueRow = is_object($value);
                 
                 if (is_string($value)) {
                         $val = $txt = $value;
                         $img = '';
-                        $value = new stdClass();
-                        $value->val = $val;
                 } else {
                         $val = self::value($value, 'value');
                         $txt = self::value($value, 'txt', $val);
                         $img = self::value($value, 'img');
                 }
                 
-                $_txt = $txt;
+                $cleanTxt = $txt;
                 $rendered = '';
                 
                 $pre = self::value($field, 'pre', '');
                 
                 if (!empty($pre)) {
-                        $_txt = $pre . $_txt;
+                        $cleanTxt = $pre . $cleanTxt;
                         $rendered .= '<span class="pre">'.$pre.'</span>';
                 }
                 
                 $post = self::value($field, 'post', '');
                 
                 if (!empty($post)) {
-                        $_txt .= $post;
+                        $cleanTxt .= $post;
                 }
                 
                 if (!empty($img)) {
                         // corresponding adjustment is made in jputility.js::loadImage
                         $img = JURI::root().JprovenUtility::loc().'icons/'.$img;
-                        $alt = JprovenUtility::html($_txt);
+                        $alt = JprovenUtility::html($cleanTxt);
                         $img = JHTML::_('image', $img, $alt, array('title'=>$alt));
                 }
                 
-                $format = self::value($field, 'format', (isset($rule['format']) ? $rule['format'] : ''));
+                if (isset($rule['format'])) {
+                        $format = $rule['format'];
+                } else {
+                        $format = self::value($field, 'format');
+                }                
+                
+                $vals = array('%value%' => $val, '%text%' => $txt, '%img%' => $img);
+                $isTxtTurnedImg = false;
                 
                 if (empty($format)) {
                         if (!empty($img)) {
                                 if ($isValueRow) {
                                         $txt = $img;
                                         $img = '';
+                                        $isTxtTurnedImg = true;
                                 } else {
                                         $txt .= $img;
                                 }
                         }
                         
                         $format = '%text%';
+                }
+                
+//                $fId = self::value($field, 'id');
+//                jdbg::p($format, $fId, 84);
+//                jdbg::pe($txt, $fId, 84);
+                
+                
+                if (!$isMetaAdded) {
+                        $schemaProp = self::value($field, 'schemaprop');
+                        
+                        if ($schemaProp) {
+                                $useMeta = self::value($field, 'schemausemeta', 0);
+                                $schemaPropValue = self::value($field, 'schemapropvalue', '%value%');
+                                
+                                if (empty($vals[$schemaPropValue])) {
+                                        if ($schemaPropValue == '%text%') $schemaPropValue = '%value%';
+                                        else if ($schemaPropValue == '%value%') $schemaPropValue = '%text%';
+                                }
+                                
+                                if ($useMeta || $useMeta !== 0 && $format == '%img%' || $isTxtTurnedImg) {
+                                        $format .= '<meta itemprop="'.$schemaProp.'" content="'.$vals[$schemaPropValue].'">';
+                                } else {
+                                        if ($schemaPropValue == '%value%') {
+                                                $val = '<span class="itemprop" itemprop="'.$schemaProp.'">'.$vals['%value%'].'</span>';
+                                        } else if ($schemaPropValue == '%text%') {
+                                                $txt = '<span class="itemprop" itemprop="'.$schemaProp.'">'.$vals['%text%'].'</span>';
+                                        } else if ($schemaPropValue == '%img%') {
+                                                $img = '<span class="itemprop" itemprop="'.$schemaProp.'">'.$vals['%img%'].'</span>';
+                                        }
+                                }
+                        }
                 }
                 
                 $rendered .=  str_ireplace(
@@ -3085,9 +3109,6 @@ class K2FieldsModelFields extends K2Model {
                         }
                 }
                 
-                $schemaProp = self::value($field, 'schemaprop');
-                if ($schemaProp) $schemaProp = ' itemprop="'.$schemaProp.'"';
-                
                 if (!empty($val)) {
                         if (count($val) == 1) {
                                 $val = '<span>'.$val[0].'</span>';
@@ -3104,7 +3125,7 @@ class K2FieldsModelFields extends K2Model {
                                 $cls = $partIndex != -1 ? 'fp fp'.$partIndex : '';
                                 $valid = self::value($field, 'valid');
                                 $rendered .= 
-                                        '<div class="'.$valid.'"'.$schemaProp.'><div class="'.$cls.'"><span class="lbl">'.self::value($field, 'name').'</span>'.
+                                        '<div class="'.$valid.'"><div class="'.$cls.'"><span class="lbl">'.self::value($field, 'name').'</span>'.
                                         '<div class="fv">'.$val.'</div></div></div>'
                                         ;
                         } else {                           
@@ -3142,6 +3163,7 @@ class K2FieldsModelFields extends K2Model {
                 foreach ($values as $listValue)
                         $listValues[] = JprovenUtility::indexBy($listValue, 'partindex');
                 
+                // TODO: Handle embedded schema types
                 foreach ($listValues as $listIndex => $partsValues) {
                         $renderedValues[$listIndex] = '';
                         
@@ -3702,25 +3724,25 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         // mode = collapse || link
         public static function autoTitle($item, $title = '', $mode = 'link') {
                 $view = JRequest::getCmd('view');
+                $schemaProp = 'name';
+                $title = '<span itemprop="'.$schemaProp.'">'.$item->title.'</span>';
                 
                 if ($view == 'itemlist') {
                         if ($item->params->get('catItemTitleLinked')) {
                                 $title = K2FieldsHelperRoute::createItemLink($item, $title, $mode);
-                        } else {
-                                $title = $item->title;
                         }
                         
                         if ($item->params->get('catItemFeaturedNotice') && $item->featured) {
                                 $title .= '<span><sup>'.JText::_('Featured').'</sup></span>';
                         }
                         
-                        $title = '<h3 class="catItemTitle" itemprop="name">'.$title.'</h3>';
+                        $title = '<h3 class="catItemTitle">'.$title.'</h3>';
                 } else {
-                        $title = $item->title;
                         if ($item->params->get('itemFeaturedNotice') && $item->featured) {
                                 $title .= '<span><sup>'.JText::_('Featured').'</sup></span>';
                         }
-                        $title = '<h2 class="itemTitle" itemprop="name">'.$title.'</h2>';
+                        
+                        $title = '<h2 class="itemTitle">'.$title.'</h2>';
                 }
                 
                 return $title;
@@ -3730,7 +3752,15 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $rating = '<div class="catItemRatingBlock" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">';
                 
                 if ($item->nonk2rating) {
-                        $rating .= '<span class="rating_starc"><div class="rating_star_user"><div style="width:' . $item->votingPercentage . '%;">&nbsp;</div></div><span class="ratingDetails"><span itemprop="ratingValue">'.($item->votingPercentage/20).'</span><span itemprop="reviewCount">'.$item->numOfvotes.'</span></span></span>';
+                        $rater = new JcommentsRate();
+                        $definition = $rater->getDefinition('com_k2', $item->id);
+                        $isPercentage = $definition[0][JcommentsRate::COL_SHOWAS] == 'percentage';
+                        $col = $isPercentage ? 'rate_grade' : 'rate';
+                        $rate = $rater->getRate($item->id);
+                        $rateValue = $rate->$col;
+                        $maxs = $definition[0][JcommentsRate::COL_MAXS];
+                        $reviewCount = '(<span class="nofloat" itemprop="reviewCount">'.$rate->count.'</span> '.JText::_('K2_VOTES').')';
+                        $rating .= '<span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxs['maxvalue']).'px;"><div class="rating_star_user"><div style="width:'.($isPercentage ? $rateValue : $rateValue/$maxs['maxvalue'] * 100). '%;">&nbsp;</div></div></span><span class="ratingDetails"><span class="nofloat" itemprop="ratingValue">'.$rateValue.'</span> / <span class="nofloat" itemprop="bestRating">'.$maxs['max'].'</span>'.$reviewCount.'</span><meta itemprop="worstRating" content="'.$maxs['min'].'">';
                 } else {
                         $rating .= '<div class="itemRatingForm">
                                         <ul class="itemRatingList">
@@ -3757,9 +3787,16 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         }
         
         public function renderTitle($item, $values = null, $field = null, $helper = null, $rule = null) {
-                $pv = $item->params->get(JRequest::getCmd('view') == 'item' ? 'itemTitle' : 'catItemTitle');
+                $view = JFactory::getApplication()->input->get('view');
+                $pv = $item->params->get($view == 'item' ? 'itemTitle' : 'catItemTitle');
+                $title = $pv ? self::autoTitle($item) : '';
                 
-                return $pv ? self::autoTitle($item) : '';
+                if ($view == 'itemlist') {
+                        $schemaProp = self::value($field, 'schemaprop', 'url');
+                        $title = str_replace('<a ', '<a itemprop="'.$schemaProp.'" ', $title);
+                }
+                
+                return $title;
         }
         
         public function renderRate($item, $values = null, $field = null, $helper = null, $rule = null) {
@@ -3773,15 +3810,32 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 return $result;
         }
         
+        private static function schemaRenderDateTime($field, $val, &$rendered, $type = '') {
+                $schemaProp = self::value($field, 'schemaprop');
+
+                if ($schemaProp) {
+                        if ($type == '') $type = self::value($field, 'type');
+                        $_val = '';
+                        
+                        if (strpos($type, 'duration') !== false) {
+                                $_val = 'PT'.$val->format('H:i');
+                        } else {
+                                if (strpos($type, 'date') !== false) $_val = $val->format('Y-m-d');
+                                if (strpos($type, 'time') !== false) $fmt .= 'T'.$val->format('H:i');
+                        }
+                        
+                        $rendered = '<time itemprop="'.$schemaProp.'" datetime="'.$_val.'">'.$rendered.'</time>';
+                }
+        }
+        
         private function _renderDatetime($item, $values, $field, $helper, $rule, $inType) {
                 $format = self::setting(strtolower($inType).'Format');
-                
                 $aggr = $this->isAggregateType($field);
                 
                 if ($aggr) $values = $this->_combineValues($values);
                 
                 $val = JprovenUtility::createDate($values[0]->value);
-                $rendered = $val->format($format);                        
+                $rendered = $val->format($format);
                 
                 $repeat = self::value($field, 'repeat');
                 
@@ -3826,6 +3880,8 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                         if ($expire && $val < $now) continue;
                                         
                                         $val = $val->format($repeatFormat);
+                                        $_val = $val;
+                                        self::schemaRenderDateTime($field, $val, $_val);
                                         
                                         if ($renderedCnt == $listmax) {
                                                 $arr[] = '<a href="javascript:void(0)" class="jpcollapse">'.JText::_('Additional').'</a><ul class="datetimelist">';
@@ -3838,9 +3894,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                 
                                 $rendered .= '<ul class="k2flist">'.implode('', $arr).'</ul>';
                         }
+                } else {
+                        self::schemaRenderDateTime($field, $val, $rendered);
                 }
                 
-                if ($aggr) $rendered = $this->renderFieldValues(array($rendered), $field, $rule);
+                if ($aggr) $rendered = $this->renderFieldValues(array($rendered), $field, $rule, false, false);
                 
                 return $rendered;
         }        
