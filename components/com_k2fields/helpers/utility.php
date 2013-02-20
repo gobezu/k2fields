@@ -1837,7 +1837,7 @@ group by vvv.itemid
                         );
                         
                         foreach ($renderedItemRules as $renderedFieldsRule) {
-                                if ($renderedFieldsRule['raw']) {
+                                if (!empty($renderedFieldsRule['raw'])) {
                                         $content->k2f[] = $renderedFieldsRule;
                                         continue;
                                 }

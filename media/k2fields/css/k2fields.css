@@ -8,11 +8,47 @@ $Copyrightcss$
 ul.k2fmapactions { list-style: none; margin:5px 0px; padding:0px; }
 ul.k2fmapactions li { display:inline-block; padding:0px 0.5em; margin:0px; }
 
+/* jQuery tabs */
 .ui-tabs .ui-tabs-hide {
     position: absolute !important;
     left: -9999px;    
     top: -9999px;
     width:auto;
+}
+.ui-tabs{position:relative;padding:.2em;zoom:1}.ui-tabs .ui-tabs-nav{margin:0;padding:.2em .2em 0}.ui-tabs .ui-tabs-nav li{list-style:none;float:left;position:relative;top:0;margin:1px .2em 0 0;border-bottom:0;padding:0;white-space:nowrap}.ui-tabs .ui-tabs-nav li a{float:left;padding:.5em 1em;text-decoration:none}.ui-tabs .ui-tabs-nav li.ui-tabs-active{margin-bottom:-1px;padding-bottom:1px}.ui-tabs .ui-tabs-nav li.ui-tabs-active a,.ui-tabs .ui-tabs-nav li.ui-state-disabled a,.ui-tabs .ui-tabs-nav li.ui-tabs-loading a{cursor:text}.ui-tabs .ui-tabs-nav li a,.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a{cursor:pointer}.ui-tabs .ui-tabs-panel{display:block;border-width:0;padding:1em 1.4em;background:0}
+
+/** Native joomla! tab Styling **/
+dl.tabs {
+	float: left;
+	margin: 10px 0 -1px 0;
+	z-index: 50;
+}
+
+dl.tabs dt {
+	float: left;
+	padding: 4px 10px;
+	border: 1px solid #ccc;
+	margin-left: 3px;
+	background: #e9e9e9;
+	color: #666;
+}
+
+dl.tabs dt.open {
+	background: #F9F9F9;
+	border-bottom: 1px solid #f9f9f9;
+	z-index: 100;
+	color: #000;
+}
+
+div.current {
+	clear: both;
+	border: 1px solid #ccc;
+	padding: 10px 10px;
+}
+
+div.current dd {
+	padding: 0;
+	margin: 0;
 }
 
 .nofloat { display:inline !important; float:none !important; padding:0px !important; }
@@ -97,6 +133,13 @@ input[type=button]:disabled, input[type=submit]:disabled, button.search:disabled
 }
 
 .k2fitemlist { }
+
+/** absoultely positioned form/email field buttons */
+.k2fitem { position:relative; }
+.k2fabsolute { position:absolute; right:0px; top:-25px; }
+.k2fabsolute > div { float:right; }
+.k2fabsolute .fvc { border:none; }
+.k2fabsolute .fvc .nolbl > .fv { width:auto; }
 
 /** item/list/module view field layouts **/
 .fvc { border-bottom:1px solid #2C2B2A; padding:0.5em 0; }

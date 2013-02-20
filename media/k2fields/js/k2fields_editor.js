@@ -180,7 +180,12 @@ var k2fieldseditor = new Class({
                 
                 if (def['search']) search = search == '1' ? 'SEARCH' : 'SEARCH:'+search;
                 
-                document.id('name').set('value', skipped['name']+sec+' / TYPE:'+def['valid']+' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST'));
+                document.id('name').set('value', 
+                        skipped['name']+sec+
+                        ' / TYPE:'+def['valid']+
+                        ' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST')+
+                        (def['col'] != undefined ? ' / COL:' + (def['col'].toInt()+1)+(def['colwidth'] != undefined ? ',WIDTH:'+def['colwidth'] : '') : '')
+                );
                 document.id(this.options.defFldId).set('value', 'k2f---' + subfields + _def + '---' + skipped['name']);
         },
         
@@ -510,7 +515,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
                                         'alias':['id:1451', 'id:1452'],
                                         'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
                                         'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
@@ -656,7 +661,7 @@ var k2fieldseditor = new Class({
                                 'section':'Layout'
                         },
                         '18':{
-                                'name':'Tabular column placement',
+                                'name':'Table column placement',
                                 'optName':'col',
                                 'valid':'range',
                                 'ui':'radio',
@@ -664,6 +669,25 @@ var k2fieldseditor = new Class({
                                 'low':0,
                                 'high':7,
                                 'tip':'Applicable only for tabular layout',
+                                'section':'Layout'
+                        },
+                        '69':{
+                                'name':'Table column width',
+                                'optName':'colwidth',
+                                'valid':'text',
+                                'tip':'Provide unit. Ex. 40%. Available units are px (default) and %.',
+                                'section':'Layout'
+                        },
+                        '70':{
+                                'name':'Clear after this column',
+                                'optName':'colclearafter',
+                                'valid':'verifybox',
+                                'section':'Layout'
+                        },
+                        '71':{
+                                'name':'Clear before this column',
+                                'optName':'colclearbefore',
+                                'valid':'verifybox',
                                 'section':'Layout'
                         },
                         '21':{
@@ -2764,6 +2788,15 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'textarea',
                                 'tip':'Placeholders %title% and %category% can be used and will be replaced automatically when providing the values to your form component by item title and category title respectively',
+                                'section':'Type specific'
+                        },
+                        '2001':{
+                                'name':'Show map as (TBI)',
+                                'optName':'showmapas',
+                                'valid':'text',
+                                'values':['link', 'staticmap', 'map', 'label'],
+                                'ui':'radio',
+                                'tip':'When in itemlist view and field is available in itemlist mode and map layout is not set how should we render map',
                                 'section':'Type specific'
                         }
              };

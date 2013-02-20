@@ -15,7 +15,7 @@ ul.rating_table span.rating_starc { float:right; }
 ul.rating_table .rating_star_user, ul.rating_table .rating_star_editor { cursor: pointer; }
 ul.rating_table span.rating_value { width:60px; float:right; white-space:nowrap; }
 
-.aggrrate { background-color:#eee; }
+#comments div.aggrrate { background-color:#eee; }
 .aggrrate h5 { margin-top:0px; float:left; width:60%; }
 .ratingDetails { }
 

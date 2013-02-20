@@ -13,6 +13,7 @@ class JcommentsRate {
         const COL_SHOWAS = 5;
         const COL_LOCALMAXS = 6;
         const COL_MAXS = 7;
+        const COL_COLLAPSE = 8;
         
         const COL_REQ_INTERVAL = 0;
         const COL_REQ_ACCESS = 1;
@@ -28,6 +29,7 @@ class JcommentsRate {
         
         const CONTENTID_COL = 'object_id';
         const EXTENSIONNAME_COL = 'object_group';
+        const RATEGROUP_COL = 'rategroup';
         const COMMENT_TBL = '#__jcomments';
         const STAR_WIDTH = 16;
         
@@ -87,6 +89,8 @@ class JcommentsRate {
                 
                 if (empty($criteriaGroup)) return;
                 
+                $criteriaGroup = $criteriaGroup[0];
+                
                 $excludedCategories = array();
                         
                 if (count($criteriaGroup) > 1 && !empty($criteriaGroup[1])) $excludedCategories = explode(',', $criteriaGroup[1]);
@@ -95,8 +99,10 @@ class JcommentsRate {
                 
                 $_showAs = count($criteriaGroup) > 2 ? $criteriaGroup[2] : '';
                 if (!empty($_showAs)) $showAs = $_showAs;
-                $isPercentage = $showAs == 'percentage';
-                
+                $isPercentage = $showAs == 'percentage' || $showAs == 'p';
+                $isCollapse = count($criteriaGroup) > 3 ? $criteriaGroup[3] : '0';
+                $isCollapse = trim($isCollapse);
+                $isCollapse = $isCollapse == '1' || $isCollapse == 'yes';
                 $criterias = self::setting($criterias, $criteriaGroup[0], 'all', '', $separator);
                 
                 if (empty($criterias)) return;
@@ -143,6 +149,7 @@ class JcommentsRate {
                         $criteria[JcommentsRate::COL_REQUIRED] = count($criteria) <= 3 ? false : (bool) $criteria[JcommentsRate::COL_REQUIRED];
                         $criteria[JcommentsRate::COL_UI] = trim(count($criteria) <= 4 ? 'select' : $criteria[JcommentsRate::COL_UI]);
                         $criteria[JcommentsRate::COL_SHOWAS] = $isPercentage;
+                        $criteria[JcommentsRate::COL_COLLAPSE] = $isCollapse;
                 }
                 
                 $count = count($criterias);
@@ -233,7 +240,7 @@ class JcommentsRate {
                 
                 $query = 'SELECT * FROM #__content_rate WHERE content_id = ' . $contentId.' AND extension_name = '.$this->_db->quote($extensionName);
                 $this->_db->setQuery($query);
-                $total = $this->_db->loadObject();
+                $total = $this->_db->loadObjectList();
                 $isInitial = empty($total);
                 
                 if ($isInitial) {
@@ -245,6 +252,8 @@ class JcommentsRate {
                         
                         foreach ($cols as $col)
                                 $total->{$col->Field} = '';
+                                
+                        $total = array($total);
                 }
                 
                 return $total;
@@ -321,6 +330,8 @@ class JcommentsRate {
                 $thisRateGrade = $avg[0] * 100;
                 $ratesCols = implode(',', $ratesCols) . ', ' . implode(',', $ratesGradeCols);
                 $rates = implode(',', $rates) . ', ' . implode(',', $ratesGrade);
+                $rateGroup = self::getRateGroup($comment);
+                $rateGroup = $this->_db->quote($rateGroup);
                 
                 $query = 
                         'INSERT INTO #__content_rates(commentid, '.$ratesCols.', rate, rate_grade, rates_count, rate_max) VALUES (' . 
@@ -329,7 +340,8 @@ class JcommentsRate {
                                 $thisRate . ',' .
                                 $thisRateGrade . ',' .
                                 $ratesCount . ',' .
-                                $avg[1] .
+                                $avg[1] . ',' .
+                                $rateGroup .
                         ')';
                 
                 $this->_db->setQuery($query);
@@ -352,9 +364,92 @@ class JcommentsRate {
                 return array($avg, $scale);
         }
         
+        private static $groups;
+        
+        private static function setRateGroups() {
+                if (!isset(self::$groups)) {
+                        $user = false;
+                        $plg = JPluginHelper::getPlugin('jcomments', 'rate');
+                        $params = new JRegistry($plg->params);
+                        $groups = $params->get('rategroups');
+                        
+                        if (!empty($groups)) {
+                                $groups = explode("\n", $groups);
+
+                                foreach ($groups as &$group) {
+                                        $group = explode('%%', $group);
+                                        
+                                        if (isset($group[2])) {
+                                                $group[2] = explode(',', $group[2]);
+                                        } else {
+                                                $group[2] = array('all');
+                                                $group[3] = array('all');
+                                                continue;
+                                        }
+
+                                        if (!isset($group[3]) || trim($group[3]) == '') {
+                                                $group[3] = array('all');
+                                                continue;
+                                        }
+
+                                        $group[3] = explode(',', $group[3]);
+                                }
+                                
+                                self::$groups = $groups;
+                                unset($group);
+                                unset($groups);
+                        }
+                }
+        }
+        
+        public static function getRateGroup($comment = null) {
+                self::setRateGroups();
+                
+                if (empty(self::$groups)) return '';
+                
+                $userId = $comment ? $comment->userid : JUser::getInstance()->id;
+                $reviewerCSS = '';
+                
+                if ($userId) {
+                        foreach (self::$groups as $group) {
+                                if (in_array($userId, $group[3])) {
+                                        $reviewerCSS = $group[1];
+                                        break;
+                                }
+                        }
+
+                        if (!$reviewerCSS) {
+                                $commentor = new JUser($userId);
+                                $commentorViews = $commentor->getAuthorisedViewLevels();
+
+                                foreach (self::$groups as $group) {
+                                        foreach ($commentorViews as $commentorView) {
+                                                if (in_array($commentorView, $group[2])) {
+                                                        $reviewerCSS = $group[1];
+                                                        break;
+                                                }
+                                        }
+                                        if (!empty($reviewerCSS)) break;
+                                }
+                        }
+                }
+
+                if (empty($reviewerCSS)) {
+                        $commentor = 'all';
+
+                        foreach (self::$groups as $group) {
+                                if (in_array($commentor, $group[2])) {
+                                        $reviewerCSS = $group[1];
+                                        break;
+                                }
+                        }       
+                }
+                
+                return $reviewerCSS;
+        }
+        
         public function calculateContentRate($contentId, $extensionName) {
                 $criterias = plgJcommentsRate::$criterias;
-                $total = $this->getRate($contentId, $extensionName);
                 
                 $cols = array('AVG(r.rate) as rate, AVG(r.rate_grade) as rate_grade, COUNT(r.rate) as count');
                 
@@ -362,15 +457,15 @@ class JcommentsRate {
                         $cols[] = 'AVG(r.rate'.($i + 1).') as rates'.($i + 1).', AVG(r.rate'.($i + 1).'_grade) as rates'.($i + 1).'_grade, COUNT(r.rate'.($i + 1).') as counts'.($i + 1);
                 
                 $query = 
-                        'SELECT c.'.self::CONTENTID_COL.', '.implode(', ', $cols) .
+                        'SELECT c.'.self::CONTENTID_COL.', r.'.self::RATEGROUP_COL.', '.implode(', ', $cols) .
                         ' FROM #__content_rates r INNER JOIN '.self::COMMENT_TBL.' c ON r.commentid = c.id ' .
                         ' WHERE c.'.self::CONTENTID_COL.' = '.$contentId.' AND c.'.self::EXTENSIONNAME_COL.' = '.$this->_db->quote($extensionName).' AND c.published = 1 '.
-                        ' GROUP BY c.'.self::EXTENSIONNAME_COL.', c.'.self::CONTENTID_COL;
+                        ' GROUP BY c.'.self::EXTENSIONNAME_COL.', c.'.self::CONTENTID_COL.', r.'.self::RATEGROUP_COL;
                 
                 $this->_db->setQuery($query);
-                $rateRow = $this->_db->loadObject();
+                $rateRows = $this->_db->loadObject();
                 
-                if (empty($rateRow)) {
+                if (empty($rateRows)) {
                         $query = 'DELETE FROM #__content_rate WHERE content_id = '.$contentId.' AND extension_name = '.$this->_db->quote($extensionName);
                         $this->_db->setQuery($query);
                         $this->_db->query();
@@ -387,84 +482,90 @@ class JcommentsRate {
                         return;
                 }
                 
-                $contentId = $rateRow->{self::CONTENTID_COL};
-                $total->rate = $rateRow->rate;
-                $total->rate_grade = $rateRow->rate_grade;
-                $total->count = $rateRow->count;
+                $totals = $this->getRate($contentId, $extensionName);
+                $totals = JprovenUtility::indexBy($totals, 'rategroup');
                 
-                foreach ($criterias as $i => $criteria) {
-                        $rate = $rateRow->{'rates'.($i + 1)};
-                        $isRated = !empty($rate);
-                        
-                        $total->{'rates'.($i + 1)} = $isRated ? $rate : 0;
-                        $total->{'rates'.($i + 1).'_grade'} = $isRated ? $rateRow->{'rates'.($i + 1).'_grade'} : 0;
-                        $total->{'counts'.($i + 1)} = $isRated ? $rateRow->{'counts'.($i + 1)} : 0;
-                }
-                
-                $total = get_object_vars($total);
-                $initial = empty($total['content_id']);
-                $total['content_id'] = $contentId;
-                $total['extension_name'] = $this->_db->quote($extensionName);
-                $total = array_filter($total);
-                
-                if ($initial) {
-                        $values = array_values($total);
-                        $cols = array_keys($total);
-                        $query = 'INSERT INTO #__content_rate('.implode(', ', $cols).') VALUES ('.implode(', ', $values).')';
-                } else {
-                        $query = array();
-                        
-                        foreach ($total as $col => $value) {
-                                if (in_array($col, array('content_id', 'extension_name'))) continue;
-                                
-                                $query[] = $col . ' = ' . $value;
+                foreach ($rateRows as $rateRow) {
+                        $contentId = $rateRow->{self::CONTENTID_COL};
+                        $total = $totlas[$rateRow->rategroup];
+                        $total->rate = $rateRow->rate;
+                        $total->rate_grade = $rateRow->rate_grade;
+                        $total->count = $rateRow->count;
+
+                        foreach ($criterias as $i => $criteria) {
+                                $rate = $rateRow->{'rates'.($i + 1)};
+                                $isRated = !empty($rate);
+
+                                $total->{'rates'.($i + 1)} = $isRated ? $rate : 0;
+                                $total->{'rates'.($i + 1).'_grade'} = $isRated ? $rateRow->{'rates'.($i + 1).'_grade'} : 0;
+                                $total->{'counts'.($i + 1)} = $isRated ? $rateRow->{'counts'.($i + 1)} : 0;
                         }
-                        
-                        $updated = array_keys($total);
-                        
-                        for ($i = 1; $i <= self::MAX_NO_CRITERIAS; $i++) {
-                                if (!in_array('rates'.$i, $updated)) {
-                                        $query[] = 'rates'.$i.' = 0';
-                                        $query[] = 'rates'.$i.'_grade = 0';
-                                        $query[] = 'counts'.$i.' = 0';
-                                }
-                        }
-                        
-                        $query = 'UPDATE #__content_rate SET '.implode(', ', $query);
-                        
-                        $query .= ' WHERE content_id = ' . $contentId.' AND extension_name = '.$total['extension_name'];
-                }
-                
-                $this->_db->setQuery($query);
-                $this->_db->query();
-                
-                $count = $total['count'];
-                $rate = $total['rate_grade'] / 100 * self::RATE_SCALE * $count;
-                
-                if ($extensionName == 'com_k2') {
+
+                        $total = get_object_vars($total);
+                        $initial = empty($total['content_id']);
+                        $total['content_id'] = $contentId;
+                        $total['extension_name'] = $this->_db->quote($extensionName);
+                        $total = array_filter($total);
+
                         if ($initial) {
-                                $query = 'DELETE FROM #__k2_rating WHERE itemID = '.$contentId;
-                                $this->_db->setQuery($query);
-                                $this->_db->query();
-                                
-                                $query = 'INSERT INTO #__k2_rating(itemID, rating_sum, rating_count, lastip) VALUES ('.
-                                        $contentId . ',' .
-                                        $rate . ', '.$count.', ' .
-                                        $this->_db->Quote('') .
-                                ')';
+                                $values = array_values($total);
+                                $cols = array_keys($total);
+                                $query = 'INSERT INTO #__content_rate('.implode(', ', $cols).') VALUES ('.implode(', ', $values).')';
                         } else {
-                                $query = 'UPDATE #__k2_rating SET' .
-                                        ' rating_sum = '.$rate.
-                                        ', rating_count = ' . $count .
-                                        ' WHERE itemID = '.$contentId;
+                                $query = array();
+
+                                foreach ($total as $col => $value) {
+                                        if (in_array($col, array('content_id', 'extension_name'))) continue;
+
+                                        $query[] = $col . ' = ' . $value;
+                                }
+
+                                $updated = array_keys($total);
+
+                                for ($i = 1; $i <= self::MAX_NO_CRITERIAS; $i++) {
+                                        if (!in_array('rates'.$i, $updated)) {
+                                                $query[] = 'rates'.$i.' = 0';
+                                                $query[] = 'rates'.$i.'_grade = 0';
+                                                $query[] = 'counts'.$i.' = 0';
+                                        }
+                                }
+
+                                $query = 'UPDATE #__content_rate SET '.implode(', ', $query);
+
+                                $query .= ' WHERE content_id = ' . $contentId.' AND extension_name = '.$total['extension_name'];
                         }
-                        
+
                         $this->_db->setQuery($query);
                         $this->_db->query();
-                } else if ($extensionName == 'com_content') {
-                        K2Model::addIncludePath(JPATH_SITE.'/components/com_content/models');
-                        $model = K2Model::getInstance('Article', 'ContentModel');
-                        $model->storeVote($contentId, $rate);
+
+                        $count = $total['count'];
+                        $rate = $total['rate_grade'] / 100 * self::RATE_SCALE * $count;
+
+                        if ($extensionName == 'com_k2') {
+                                if ($initial) {
+                                        $query = 'DELETE FROM #__k2_rating WHERE itemID = '.$contentId;
+                                        $this->_db->setQuery($query);
+                                        $this->_db->query();
+
+                                        $query = 'INSERT INTO #__k2_rating(itemID, rating_sum, rating_count, lastip) VALUES ('.
+                                                $contentId . ',' .
+                                                $rate . ', '.$count.', ' .
+                                                $this->_db->Quote('') .
+                                        ')';
+                                } else {
+                                        $query = 'UPDATE #__k2_rating SET' .
+                                                ' rating_sum = '.$rate.
+                                                ', rating_count = ' . $count .
+                                                ' WHERE itemID = '.$contentId;
+                                }
+
+                                $this->_db->setQuery($query);
+                                $this->_db->query();
+                        } else if ($extensionName == 'com_content') {
+                                K2Model::addIncludePath(JPATH_SITE.'/components/com_content/models');
+                                $model = K2Model::getInstance('Article', 'ContentModel');
+                                $model->storeVote($contentId, $rate);
+                        }
                 }
         }
         

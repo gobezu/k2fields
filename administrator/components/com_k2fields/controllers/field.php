@@ -8,7 +8,7 @@ jimport('joomla.application.component.controller');
 class K2FieldsControllerField extends JController {
 	function retrieve() {
                 $model = $this->getModel('fields');
-                $id = JRequest::getInt('id');
+                $id = JFactory::getApplication()->input->get('id', '', 'int');
                 $result = $model->retrieveList($id);
                 echo $result;
                 $app = JFactory::getApplication();

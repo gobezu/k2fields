@@ -54,7 +54,7 @@ class K2FieldsMap {
         public static function render($item, $values, $field, $helper, $rule = null) {
                 $ui = '';
                 
-                $view = JRequest::getCmd('view', 'itemlist');
+                $view = JFactory::getApplication()->input->get('view', 'itemlist');
                 
                 if ($view == 'item' && K2FieldsModelFields::value($field, 'mapstatic')) {
                         $ui = self::renderStaticMap($field, $values, $item);
@@ -118,11 +118,22 @@ window.addEvent("load", function() {
                 if (!isset(self::$map[$proxyFieldId])) 
                         self::$map[$proxyFieldId] = array('params' => self::getParameters($field), 'items' => array());
                 
+                $render = false;
+                
                 if (!isset(self::$map[$proxyFieldId]['items'][$item->id])) {
+                        // TODO even if we are not in a map mode we can optionally render some info about the map
+                        // 1. external map link with the provided label or a generic "MAP" label
+                        // 2. provide only label
+                        // 3. mini static map
+                        if (isset($item->rendered_map)) {
+                                self::$map[$proxyFieldId]['items'][$item->id]['rendered'] = $item->rendered_map;
+                        } else {
+                                $render = true;
+                        }
+                        
                         self::$map[$proxyFieldId]['items'][$item->id] = array(
                                 'points' => array(),
                                 'title' => $item->title,
-                                'rendered' => $view == 'item' ? '' : $item->rendered_map,
                                 'link' => $item->link,
                                 'category' => $view == 'item' ? $item->category->name : $item->categoryname,
                                 'categoryid' => $view == 'item' ? $item->category->id : $item->categoryid,
@@ -130,15 +141,44 @@ window.addEvent("load", function() {
                         );
                 }
                 
+                $rendered = '';
                 foreach ($values as $i => $value) {
                         self::$map[$proxyFieldId]['items'][$item->id]['points'][] = array(
                             'lat' => $value[0]->lat,
                             'lon' => $value[0]->lng,
                             'lbl' => count($value) > 1 ? $value[1]->value : ''
                         );
+                        
+                        if ($render) {
+                                $mapAs = K2FieldsModelFields::value($field, 'showmapas');
+                                $rendered .= ' '.JText::_(count($value) > 1 ? $value[1]->value : 'Map');
+//                                $zoom = K2FieldsModelFields::value($field, 'mapzoom'.$view);
+//                                
+//                                if ($mapAs == 'link' || empty($mapAs)) { 
+//                                        $rendered .= ' <a href="http://maps.google.com/'.$value[0]->lat.','.$value[0]->lon.'">'.JText::_(count($value) > 1 ? $value[1]->value : 'Map').'</a>'; 
+//                                } else if ($mapAs == 'staticmap') {
+//                                        // Use js::k2fieldsmap::drawStaticMap method 
+//                                        $uri = JURI::getInstance();
+//                                        $src = $uri->getScheme()
+//                                                . "://maps.google.com/maps/api/staticmap?center={$value[0]->lat},{$value[0]->lon}&amp;zoom={$zoom}&amp;size={$w}x{$h}&amp;maptype=$type&amp;mobile=true&amp;markers=$markers&amp;sensor=false";
+//                                        $id = $tableView ? '' : "id=\"{$id}\"";
+//                                        $rendered .= "<div $id class=\"gmStaticMap\"><img src=\"$src\" alt=\"static map\" />";
+//                                        $rendered .= "</div>";
+//                                } else if ($mapAs == 'label') {
+//                                        $rendered .= ' <span>';
+//                                }
+                        }
+                }
+                
+                if (!isset(self::$map[$proxyFieldId]['items'][$item->id]['rendered'])) {
+                        self::$map[$proxyFieldId]['items'][$item->id]['rendered'] = trim($rendered);
                 }
                 
                 return;
+                
+                
+                
+                
                 
                 if (!isset(self::$ui['data'][$item->id])) 
                         self::$ui['data'][$item->id] = array('item'=>$item, 'points'=>array());
@@ -316,8 +356,8 @@ window.addEvent("load", function() {
                         }
                 }
                 
-                $option = JRequest::getCmd('option');
-                $view = $option == 'com_k2' ? JRequest::getCmd('view') : '';
+                $option = JFactory::getApplication()->input->get('option');
+                $view = $option == 'com_k2' ? JFactory::getApplication()->input->get('view') : '';
                 $app = JFactory::getApplication();
                 
                 $options['markerfixed'] = 1;
@@ -346,7 +386,7 @@ window.addEvent("load", function() {
                                 $view = 'edit';
                                 $options['markerfixed'] = 0;
                         } else {
-                                $task = JRequest::getCmd('task', false);
+                                $task = JFactory::getApplication()->input->get('task', false);
                                 $view = $task == 'add' || $task == 'edit' ? 'edit' : 'item';
                                 
                                 if ($view == 'item') {

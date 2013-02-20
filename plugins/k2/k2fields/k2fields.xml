@@ -26,7 +26,7 @@
                         </fieldset>
                                 
                         <fieldset name="PLG_K2FIELDS_VARIOUS_OVERRIDE_VALUES">
-                                <field type="spacer" name="overridespacer" label="&lt;style type=&quot;text/css&quot;&gt;li span.spacer label {width:100% !important;} #jform_params_overridespacer-lbl { color:#fff; background:#c61f29; }&lt;/style&gt;By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not mix these with various K2 related modules that make effort of loading K2 item model explicitly through PHP file including or requires.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
+                                <field type="spacer" name="overridespacer" label="&lt;style type=&quot;text/css&quot;&gt;li span.spacer label {width:100% !important;} #jform_params_overridespacer-lbl { color:#fff; background:#c61f29; }&lt;/style&gt;By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not use k2fields with some other K2 related modules. The technical reason for this being that some modules doesn't load models properly through the API which affords us ability to override K2 native models.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
                                 <field name="override_itemmodel" type="radio" default="0" label="Override K2 item model" description="">
                                         <option value="1">JYES</option>
                                         <option value="0">JNO</option>
@@ -36,8 +36,8 @@
                                         <option value="0">JNO</option>
                                 </field>                                
                                 <field name="inheritfromcategory" type="k2fcategories" default="" label="Inherit from this category for all other categories" description="Parameters from this category will override parameters in all other categories except categories excluded below. For all categories excluded parameters will not be overriden." />
-                                <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Exclude to inherit the above categorys parameters for the following categories" />
-                                <field name="dontinheritparams" type="k2fparams" default="" label="Exclude to inherit the following parameters" />
+                                <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Do not inherit the above categories parameters for the following categories" />
+                                <field name="dontinheritparams" type="k2fparams" default="" label="Do not inherit the following parameters" />
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_LAYOUT">
@@ -68,12 +68,12 @@
                                         <option value="BeforeDisplayContent">BeforeDisplayContent</option>
                                         <option value="AfterDisplayContent">AfterDisplayContent</option>
                                 </field>
-                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
+                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list, item)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
                                 <field name="itemlistcatextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list, itemlist)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
-                                <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories" />
-                                <field name="defaultui" type="list" default="tab" label="Default for item view">
+                                <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories. Maps are always appended to applicable list layout." />
+                                <field name="defaultui" type="list" default="tab" label="Default field UI for item view">
                                         <option value="plain">Plain</option>
                                         <option value="headers">Sections with header</option>
                                         <option value="list">List</option>
@@ -82,7 +82,7 @@
                                         <option value="jquerytab">jQuery UI tabs</option>
                                         <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>
-                                <field name="catsui" type="textarea" cols="40" rows="10" default="all%%tab" label="Category specific for item view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="catsui" type="textarea" cols="40" rows="10" default="all%%tab" label="Category specific UI for item view" description="Available values for ui are: plain, headers, list, tab, accordion, jquerytab, jqueryaccordion. For each category provide on each row: category%%ui"/>
                                 <field name="defaultuiitemlist" type="list" default="plain" label="Default for itemlist view">
                                         <option value="plain">Plain</option>
                                         <option value="headers">Sections with header</option>
@@ -92,7 +92,7 @@
                                         <option value="jquerytab">jQuery UI tabs</option>
                                         <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>        
-                                <field name="catsuiitemlist" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for itemlist view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="catsuiitemlist" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific UI for itemlist view" description="Available values for ui are: plain, headers, list, tab, accordion, jquerytab, jqueryaccordion. For each category provide on each row: category%%ui"/>
                                 <field name="defaultuimodule" type="list" default="plain" label="Default for module view">
                                         <option value="plain">Plain</option>
                                         <option value="headers">Sections with header</option>
@@ -102,7 +102,7 @@
                                         <option value="jquerytab">jQuery UI tabs</option>
                                         <option value="jqueryaccordion">jQuery UI sliders</option>
                                 </field>        
-                                <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific for module view" description="Available values for ui are: plain,headers,list,tab,accordion. Format on each row: category%%ui"/>
+                                <field name="catsuimodule" type="textarea" cols="40" rows="10" default="all%%plain" label="Category specific UI for module view" description="Available values for ui are: plain, headers, list, tab, accordion, jquerytab, jqueryaccordion. For each category provide on each row: category%%ui"/>
                                 <field name="comparable" type="k2fmulticategories" default="" label="Categories for which to allow comparison" />
                         </fieldset>
                         <fieldset name="PLG_K2FIELDS_SECTIONS">
@@ -309,7 +309,7 @@
                         -->
                         
                         <fieldset name="PLG_K2FIELDS_MISC">
-                                <field name="paginationmode" type="radio" default="k2" label="Pagination mode. Leading layout is assumed in this case and all other layouts are disregarded.">
+                                <field name="paginationmode" type="radio" default="k2" label="Pagination mode. Leading itemlist layout is assumed in this case and all other layouts are disregarded.">
                                         <option value="ajax">Ajax based button</option>
                                         <option value="k2">K2 page links</option>
                                 </field>  
@@ -337,7 +337,7 @@
                                         <option value="100">100 items</option>
                                 </field>
                                 <field name="formattingspacer" type="spacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_uisection-lbl, #jform_params_uicounts-lbl { color:#fff; background:#000; width:100%; text-align:center; } select[multiple], select[size][multiple] {width:57% !important;}&lt;/style&gt;" />
-                                <field name="accessdefaulthref" type="menuitem" />
+                                <!-- <field name="accessdefaulthref" type="menuitem" label="" /> -->
                                 <field 
                                         name="expirerecords" 
                                         type="textarea" 

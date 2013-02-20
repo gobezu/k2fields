@@ -76,9 +76,11 @@ class plgSystemk2fields extends JPlugin {
                 
                 if ($app->isAdmin()) return;
                 
-                $option = JRequest::getCmd('option');
-                $view = JRequest::getCmd('view');
-                $task = JRequest::getCmd('task');
+                $input = JFactory::getApplication()->input;
+                
+                $option = $input->get('option');
+                $view = $input->get('view');
+                $task = $input->get('task');
                 
                 if ($option != 'com_k2' || $view != 'item' || $task != 'add') return;
                 
@@ -130,7 +132,7 @@ class plgSystemk2fields extends JPlugin {
         }
         
         private static function quotaExceeded($href, $msg) {
-                $tmpl = JRequest::getWord('tmpl');
+                $tmpl = JFactory::getApplication()->input->get('tmpl', '', 'word');
                 $app = JFactory::getApplication();
                 
                 if (is_numeric($href)) {
@@ -266,7 +268,7 @@ class plgSystemk2fields extends JPlugin {
                         $sid = $session->get(self::SESSIONID);
                         
                         if (!empty($sid)) {
-                                $accId = JRequest::getInt('cid');
+                                $accId = JFactory::getApplication()->input->get('cid');
                                 
                                 if (empty($accId)) {
                                         $query = 'SELECT MAX(id) FROM #__k2_extra_fields';
@@ -283,7 +285,7 @@ class plgSystemk2fields extends JPlugin {
                 }
                 
                 if ($task == 'remove') {
-                        $cid = JRequest::getVar('cid');
+                        $cid = JFactory::getApplication()->input->get('cid', '', 'array');
                         foreach ($cid as $i => $id) {
                                 $tbl->load($id);
                                 $tbl->delete($id);
@@ -595,7 +597,7 @@ class plgSystemk2fields extends JPlugin {
                 if ($tmpl == 'component' && $from == 'jpmodal') {
                         $message = $response['error_message'];
                         $return = JRequest::getWord('jpreturn');
-                        $returnURL = $return != 'current' ? JRequest::getString('jpreturnurl') : '';
+                        $returnURL = $return != 'current' ? JFactory::getApplication()->input->get('jpreturnurl', '', 'string') : '';
                         
                         if ($message)
                                 $message = JText::_($message);

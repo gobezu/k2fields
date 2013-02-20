@@ -9,9 +9,9 @@ $lang->load('plg_k2_k2fields');
 
 require_once JPATH_SITE.'/components/com_k2fields/helpers/utility.php';
 
-$option = JRequest::getWord('option');
-$view = JRequest::getWord('view');
-$ctrl = JRequest::getWord('controller');
+$option = JFactory::getApplication()->input->get('option');
+$view = JFactory::getApplication()->input->get('view');
+$ctrl = JFactory::getApplication()->input->get('controller', '', 'word');
 
 if (empty($view) && empty($ctrl)) {
         $app = JFactory::getApplication();

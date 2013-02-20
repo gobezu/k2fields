@@ -35,7 +35,7 @@ class K2fieldsK2Item {
         }
         
         function render($item, $values, $field, $helper, $rule) {
-                $view = JRequest::getCmd('view');
+                $view = JFactory::getApplication()->input->get('view');
                 $as = K2FieldsModelFields::value($field, 'as', '');
                 
                 if ($view != 'item')
@@ -87,7 +87,7 @@ class K2fieldsK2Item {
                 $result = array();
                 
                 if ($as == 'view') {
-                        if (isset($item->breakPluginLoop) && $item->breakPluginLoop == JRequest::getInt('id')) return;
+                        if (isset($item->breakPluginLoop) && $item->breakPluginLoop == JFactory::getApplication()->input->get('id', '', 'int')) return;
 
                         require_once JPATH_SITE.'/components/com_k2fields/controllers/k2item.php';
 
@@ -98,7 +98,7 @@ class K2fieldsK2Item {
                         $view = $controller->getView('k2item', $viewType);
                         $view->setModel($model, true);
 
-                        $saveId = JRequest::getInt('id');
+                        $saveId = JFactory::getApplication()->input->get('id', '', 'int');
                         $contents = array();
 
                         ob_start();
@@ -109,7 +109,7 @@ class K2fieldsK2Item {
                                 $cachable = JprovenUtility::isCachable($id);
 
                                 if ($cachable && $viewType != 'feed') {
-                                        $option = JRequest::getCmd('option');
+                                        $option = JFactory::getApplication()->input->get('option');
                                         $cache = JFactory::getCache($option, 'view');
                                         $cache->get($view, 'display');
                                 } else {

@@ -221,8 +221,9 @@ class plgk2k2fields extends K2Plugin {
                 
                 $pos = K2FieldsModelFields::categorySetting($item->catid, $_view.'catextrafieldsposition');
                 
-                if (!$pos) $pos = self::param($_view.'extrafieldsposition', 'AfterDisplay');
-                else {
+                if (!$pos) {
+                        $pos = self::param($_view.'extrafieldsposition', 'AfterDisplay');
+                } else {
                         $pos = current(current(current($pos)));
                 }
                 
@@ -297,7 +298,6 @@ class plgk2k2fields extends K2Plugin {
                         
                         if (empty($plg)) $plg = '{k2f}';
                 }
-				
                 
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
@@ -564,7 +564,7 @@ class plgk2k2fields extends K2Plugin {
         
         static function getFieldPrefix($tab = null) {
                 if (empty($tab)) {
-                        $type = JRequest::getCmd('type', '');
+                        $type = JFactory::getApplication()->input->get('type', '');
                         
                         if ($type == 'searchfields') {
                                 $tab = 'search';

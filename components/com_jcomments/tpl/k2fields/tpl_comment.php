@@ -9,24 +9,99 @@
  */
 class jtt_tpl_comment extends JoomlaTuneTemplate
 {
+        private static $groups;
 	function render()
 	{
 		$comment = $this->getVar('comment');
-
+                
+//                if (!isset(self::$groups)) {
+//                        $user = false;
+//                        $plg = JPluginHelper::getPlugin('jcomments', 'rate');
+//                        $params = new JRegistry($plg->params);
+//                        $option = JFactory::getApplication()->input->get('option');
+//                        $groups = $params->get($option.'_rategroups');
+//                        
+//                        if (!empty($groups)) {
+//                                $groups = explode("\n", $groups);
+//
+//                                foreach ($groups as &$group) {
+//                                        $group = explode('%%', $group);
+//                                        
+//                                        if (isset($group[2])) {
+//                                                $group[2] = explode(',', $group[2]);
+//                                        } else {
+//                                                $group[2] = array('all');
+//                                                $group[3] = array('all');
+//                                                continue;
+//                                        }
+//
+//                                        if (!isset($group[3]) || trim($group[3]) == '') {
+//                                                $group[3] = array('all');
+//                                                continue;
+//                                        }
+//
+//                                        $group[3] = explode(',', $group[3]);
+//                                }
+//                                
+//                                self::$groups = $groups;
+//                                unset($group);
+//                                unset($groups);
+//                        }
+//                }
+//                
+//                $reviewerCSS = '';
+//                if (self::$groups) {
+//                        if ($comment->userid) {
+//                                foreach (self::$groups as $group) {
+//                                        if (in_array($comment->userid, $group[3])) {
+//                                                $reviewerCSS = $group[1];
+//                                                break;
+//                                        }
+//                                }
+//                                
+//                                if (!$reviewerCSS) {
+//                                        $commentor = new JUser($comment->userid);
+//                                        $commentorViews = $commentor->getAuthorisedViewLevels();
+//                                        
+//                                        foreach (self::$groups as $group) {
+//                                                foreach ($commentorViews as $commentorView) {
+//                                                        if (in_array($commentorView, $group[2])) {
+//                                                                $reviewerCSS = $group[1];
+//                                                                break;
+//                                                        }
+//                                                }
+//                                                if (!empty($reviewerCSS)) break;
+//                                        }
+//                                }
+//                        }
+//                        
+//                        if (empty($reviewerCSS)) {
+//                                $commentor = 'all';
+//                                
+//                                foreach (self::$groups as $group) {
+//                                        if (in_array($commentor, $group[2])) {
+//                                                $reviewerCSS = $group[1];
+//                                                break;
+//                                        }
+//                                }       
+//                        }
+//                }
+                
+                
 		if (isset($comment)) {
+                        $reviewerCSS = $comment->rategroupCSS;
 			if ($this->getVar('get_comment_vote', 0) == 1) {
 				// return comment vote
 			 	$this->getCommentVoteValue( $comment );
-			} else if ($this->getVar('get_comment_body', 0) == 1 || $comment->id == -1) {
+			} else if ($this->getVar('get_comment_body', 0) == 1 || $comment->id <= -1) {
 				// return only comment body (for example after quick edit)
+                                if ($reviewerCSS) echo '<div class="'.$reviewerCSS.'">';
 				echo $comment->comment;
+                                if ($reviewerCSS) echo '</div>';
 			} else {
 				// return all comment item
-?>
-<?php
 				$comment_number = $this->getVar('comment-number', 1);
 				$thisurl = $this->getVar('thisurl', '');
-
 				$commentBoxIndentStyle = ($this->getVar('avatar') == 1) ? ' avatar-indent' : '';
 
 				if ($this->getVar('avatar') == 1) {
@@ -34,6 +109,7 @@ class jtt_tpl_comment extends JoomlaTuneTemplate
 <div class="comment-avatar"><?php echo $comment->avatar; ?></div>
 <?php
 				}
+                if ($reviewerCSS) echo '<div class="'.$reviewerCSS.'">';
 ?>
 <div class="comment-box<?php echo $commentBoxIndentStyle; ?>"<?php echo $comment->id == -1 ? '' : ' itemprop="review" itemscope itemtype="http://schema.org/Review"'; ?>>
 <?php
@@ -97,7 +173,9 @@ class jtt_tpl_comment extends JoomlaTuneTemplate
 <?php
 				}
 ?>
-</div><div class="clear"></div>
+</div>
+<?php if ($reviewerCSS) echo '</div>'; ?>
+<div class="clear"></div>
 <?php
 				// show frontend moderation panel
 				$this->getCommentAdministratorPanel( $comment );

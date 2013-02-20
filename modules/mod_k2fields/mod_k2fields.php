@@ -15,9 +15,8 @@ if (!class_exists('JprovenUtility')) {
 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
 
 $defaultCategory = $params->get('defaultcategory', 0);
-$useItemid = $params->get('useitemid', 'current') == 'current' ? 
-        JRequest::getInt('Itemid') : 
-        $params->get('menuitemid', JRequest::getInt('Itemid'));
+$itemId = JFactory::getApplication()->input->get('Itemid');
+$useItemid = $params->get('useitemid', 'current') == 'current' ? $itemId : $params->get('menuitemid', $itemId);
 
 $exclfldft = $params->get('exclfldft', 0);
 $showfreetextsearch = $params->get('showftsearch', true);
@@ -42,7 +41,7 @@ $acmaxitems = $params->get('acmaxitems', 10);
 $showsearchcount = $params->get('showsearchcount', 1);
 $categoryselectortext = $params->get('categoryselectortext', 'K2_SELECT_CATEGORY');
 
-$ft = JRequest::getString('ft', '');
+$ft = JFactory::getApplication()->input->get('ft', '', 'string');
 
 $excludes = $params->get('excludecategories', array());
 
@@ -78,7 +77,7 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         if (empty($catid)) $catid = $defaultCategory;
         
         $app = JFactory::getApplication();
-        $option = JRequest::getCmd('option');
+        $option = JFactory::getApplication()->input->get('option');
 
         $path = JModuleHelper::getLayoutPath('mod_k2fields', 'default');
         $path = str_replace(JPATH_BASE, JPATH_SITE, $path);

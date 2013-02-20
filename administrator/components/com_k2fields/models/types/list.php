@@ -23,7 +23,7 @@ class K2FieldsList {
 	}
         
         public function render($item, $values, $field, $helper, $rule) {
-                $view = JRequest::getCmd('view') == 'itemlist' ? 'list' : '';
+                $view = JFactory::getApplication()->input->get('view') == 'itemlist' ? 'list' : '';
                 $show = K2FieldsModelFields::value($field, $view.'listformat');
                 
                 if (empty($show) && $view == 'list') 
@@ -154,7 +154,7 @@ class K2FieldsList {
                 
                 if (isset($options[$name])) $val = $options[$name];
                 
-                if ($val == '' && $getFromRequest) $val = JRequest::getString($name);
+                if ($val == '' && $getFromRequest) $val = JFactory::getApplication()->input->get($name, '', 'string');
                 
                 if ($val == '') $val = plgk2k2fields::param($name);
                 

@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
         <li id="orderByContainer">
                 <?= modK2FieldsHelper::getOrderBys(); ?>
                 <label for="k2f_rdir"><?= JText::_('Reverse') ?></label>
-                <input type="checkbox" name="rdir" id="k2f_rdir"<?= JRequest::getBool('rdir', false) ? ' CHECKED' : '' ?>/>
+                <input type="checkbox" name="rdir" id="k2f_rdir"<?= JFactory::getApplication()->input->get('rdir', false, 'bool') ? ' CHECKED' : '' ?>/>
         </li>
         <? endif; ?>
         

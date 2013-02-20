@@ -151,7 +151,8 @@ class K2FieldsHelperRoute {
                         }
                 }
 
-                $qTitle = htmlentities($title, ENT_QUOTES, 'UTF-8');
+                $filter = JFilterInput::getInstance();
+                $qTitle = $filter->clean($title);
 
                 if (in_array('jpcollapse', $mode) || in_array('jpajax', $mode)) {
                         $href = 'javascript:void(0);';

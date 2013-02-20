@@ -18,6 +18,7 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field type="lbl" default="Free text search" />
                                 <field name="showftsearch" type="radio" default="1" label="Show free text search">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
@@ -27,6 +28,7 @@
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
+                                <field type="lbl" default="Free text search (autocompletion)" />
                                 <field name="ftautocomplete" type="radio" default="1" label="Autocomplete free text search input">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
@@ -39,7 +41,7 @@
                                 <field name="acmaxchars" type="text" default="60" label="Maximum number of characters in autocompletion result" />
                                 <field name="acmaxitems" type="text" default="10" label="Maximum number of autocompletion result items" />
                                 <field name="acminchars" type="text" default="3" label="Minimum number of characters in user provided search word before autocompleting" />
-
+                                <field type="lbl" default="Category selector" />
                                 <field name="categoryselector" type="radio" default="1" label="Show category selector">
                                         <option value="2">Menu based</option>
                                         <option value="1">K2 category structure</option>
@@ -56,22 +58,15 @@
                                         <option value="defaultfields">Default fields</option>
                                         <option value="selectcategorymessage">Text message</option>
                                 </field>
-                                <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields." 
-                                        query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as defaultfields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1"
-                                />
                                 <field name="useitemid" type="radio" default="current" label="Itemid to tie results to">
                                         <option value="menu">Selected menu item (choose below)</option>
                                         <option value="current">Current menu item</option>
                                 </field>
                                 <field name="menuitemid" type="menuitem" default="" label="Itemid as per above choice" />
-                                <field name="showorderby" type="radio" default="1" label="Allow user to order by">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                </field>                
-                                <field name="showsearchcount" type="radio" default="1" label="Show search count (TBI)">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                </field>
+                                <field type="lbl" default="Advanced search" />
+                                <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields." 
+                                        query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as defaultfields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1"
+                                />
                                 <field name="whentogglerempty" type="radio" default="inactive" label="When no category is chosen advanced search fields container is">
                                         <option value="inactive">Collapsed</option>
                                         <option value="active">Visible</option>
@@ -79,6 +74,15 @@
                                 <field name="defaultmode" type="radio" default="active" label="Default mode" description="Initial advanced search container state">
                                         <option value="inactive">Collapsed</option>
                                         <option value="active">Visible</option>
+                                </field>
+                                <field type="lbl" default="Misc" />
+                                <field name="showorderby" type="radio" default="1" label="Allow user to order by">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>                
+                                <field name="showsearchcount" type="radio" default="1" label="Show search count (TBI)">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
                                 </field>
                                 <field name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
                                 

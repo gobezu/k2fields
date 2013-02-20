@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `#__content_rates` (
 	`rate9_grade` TINYINT(4) NULL DEFAULT NULL,
 	`rate10_grade` TINYINT(4) NULL DEFAULT NULL,
 	`rates_count` INT(11) NOT NULL DEFAULT '0',
+	`rategroup` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -64,5 +65,6 @@ CREATE TABLE IF NOT EXISTS `#__content_rate` (
 	`counts8` INT(11) NOT NULL DEFAULT '0',
 	`counts9` INT(11) NOT NULL DEFAULT '0',
 	`counts10` INT(11) NOT NULL DEFAULT '0',
+	`rategroup` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`content_id`, `extension_name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

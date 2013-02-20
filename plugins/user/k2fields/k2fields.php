@@ -13,7 +13,8 @@ class plgUserK2fields extends JPlugin {
 
         function onAfterStoreUser($user, $isnew, $success, $msg) {
                 $allowGroup = plgk2k2fields::param('userprofileallowgroup');
-                $task = JRequest::getCmd('task');
+                $input = JFactory::getApplication()->input;
+                $task = $input->get('task');
                 
                 if ($task == 'register_save' && in_array($allowGroup, array('register', 'always'))) {
                         $allowGroup = true;
@@ -41,8 +42,8 @@ class plgUserK2fields extends JPlugin {
                         $row->store();
                 } 
                 
-                $tmpl = JRequest::getWord('tmpl');
-                $from = JRequest::getWord('from');
+                $tmpl = $input->get('tmpl', '', 'word');
+                $from = $input->get('from', '', 'word');
                 
                 if ($tmpl == 'component' && $from == 'jpmodal') {
                         if ($task == 'register_save') {
@@ -58,7 +59,7 @@ class plgUserK2fields extends JPlugin {
                                 $msg = JText::_( 'Your settings have been saved.' );
                         }
                         
-                        $returnURL = JRequest::getString('jpreturnurl');
+                        $returnURL = $input->get('jpreturnurl', '', 'string');
 
                         $res = array('msg'=>$msg, 'url'=>$returnURL, 'failure'=>false);
                         
@@ -68,12 +69,13 @@ class plgUserK2fields extends JPlugin {
         }
         
         function onLoginUser($response, $options) {
-                $tmpl = JRequest::getWord('tmpl');
-                $from = JRequest::getWord('from');
+                $input = JFactory::getApplication()->input;
+                $tmpl = $input->get('tmpl', '', 'word');
+                $from = $input->get('from', '', 'word');
                 
                 if ($tmpl == 'component' && $from == 'jpmodal') {
-                        $message = JRequest::getString('jpmodalmsg');
-                        $returnURL = JRequest::getString('jpreturnurl', isset($options['return']) ? $options['return'] : 'index.php?com_user');
+                        $message = $input->get('jpmodalmsg', '', 'string');
+                        $returnURL = $input->get('jpreturnurl', isset($options['return']) ? $options['return'] : 'index.php?com_user', 'string');
                         
                         if ($message)
                                 $message = JText::_($message);

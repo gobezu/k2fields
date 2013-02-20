@@ -38,7 +38,7 @@ class modK2FieldsHelper {
                     array('value' => 'rand', 'text' => JText::_('Feeling lucky'))
                 );
                 
-                $ord = JRequest::getWord('ord');
+                $ord = JFactory::getApplication()->input->get('ord', '', 'word');
                 
                 return JHTML::_('select.genericlist', $noneFields, 'ord', '', 'value', 'text', $ord);
         }

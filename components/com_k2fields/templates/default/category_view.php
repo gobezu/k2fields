@@ -1,4 +1,9 @@
 <?php
+//$Copyright$
+//
+// Based on components/com_k2/templates/default/category.php of which the original 
+// copyright notice follows below
+
 /**
  * @version		$Id: category.php 569 2010-09-23 12:50:28Z joomlaworks $
  * @package		K2

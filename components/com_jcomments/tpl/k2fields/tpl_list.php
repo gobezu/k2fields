@@ -27,12 +27,16 @@ class jtt_tpl_list extends JoomlaTuneTemplate
 <?php
 			$i = 0;
                         
-                        $comment = array_shift($comments);
-			echo '<div class="aggrrate">'.$comment.'</div>';
 			foreach($comments as $id => $comment) {
+                                if ($id < 0) {
+                                        $comment = trim($comment);
+                                        $comment = preg_replace('/^\<div class="/', '<div id="comment-item-'.$id.'" class="'.($i%2 ? 'odd' : 'even').' ', $comment);
+                                        echo $comment;
+                                } else {
 ?>
 	<div class="<?php echo ($i%2 ? 'odd' : 'even'); ?>" id="comment-item-<?php echo $id; ?>"><?php echo $comment; ?></div>
 <?php
+                                }
 				$i++;
 			}
 ?>

@@ -52,21 +52,28 @@ class plgJcommentsRate extends JPlugin {
                 
                 $document = JFactory::getDocument();
                 $document->addStylesheet(JURI::root().'media/plg_jcomments_rate/rate.css');
+                $content = $input->get('id', '', 'int');
                 
                 if ($view == 'item') {
-                        $document->addScriptDeclaration('
-        window.addEvent("domready", function(){
-                function isContentLoaded() {
-                        if ($$("#comments-list ul.jpcollapsed").length > 0) {
-                                timer = window.setTimeout(isContentLoaded, 500);
-                        } else {
-                                new JPProcessor().accordion("comments-list");
-                                $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
-                        }
+                        self::setAttributes($content, $extensionName, $this->params);
+                        
+                        if (self::$criterias[0][JcommentsRate::COL_COLLAPSE]) {
+                                $document->addScriptDeclaration(
+'
+window.addEvent("domready", function(){
+        function isContentLoaded() {
+                if ($$("#comments-list ul.jpcollapsed").length > 0) {
+                        timer = window.setTimeout(isContentLoaded, 500);
+                } else {
+                        new JPProcessor().accordion("comments-list");
+                        $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
                 }
-                $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
-        });
-        ');
+        }
+        $$("#comments a.refresh").addEvent("click", function() { isContentLoaded(); }.bind(this));
+});
+'
+                                        );
+                        }
                 }
                 
                 if (!(
@@ -77,12 +84,8 @@ class plgJcommentsRate extends JPlugin {
                 $document->addScript(JURI::root().'media/plg_jcomments_rate/rate.js');
                 $document->addScript(JURI::root().'media/plg_jcomments_rate/MooStarRating/Source/moostarrating.js');
                 
-                $content = $input->get('id', '', 'int');
-                
-                self::$criterias = self::$rater->getDefinition($extensionName, $content, $this->params);
-                
-//                self::setAttributes($content, $extensionName, $this->params);
-                
+                self::setAttributes($content, $extensionName, $this->params);
+                                
                 $document->addScriptDeclaration("
                 window.addEvent('domready', function(){ 
                         new JcommentsRate({
@@ -97,35 +100,52 @@ class plgJcommentsRate extends JPlugin {
         
         
         protected static function setAttributes($content, $extensionName, $params) {
+                if (isset(self::$criterias)) return;
+                
                 self::$criterias = self::$rater->getDefinition($extensionName, $content, $params);
         }        
         
         function onJCommentsCommentsPrepare(&$comments) {
                 $contentId = $comments[0]->{JcommentsRate::CONTENTID_COL};
                 $extensionName = $comments[0]->{JcommentsRate::EXTENSIONNAME_COL};
-                $rate = self::$rater->getRate($contentId, $extensionName);
+                $rates = self::$rater->getRate($contentId, $extensionName);
                 $definition = self::$rater->getDefinition($extensionName, $contentId, $this->params);
-                $aggrRate = clone $comments[0];
                 
-                $aggrRate->id = -1;
-                $aggrRate->comment = self::_tmpl($rate, $definition, true);
-                $aggrRate->_skip_prepare = true;
-                $aggrRate->isContent = false;
-                
+                foreach ($rates as $i => $rate) {
+                        $aggrRate = clone $comments[0];
+                        $aggrRate->id = -1 * ($i + 1);
+                        $aggrRate->comment = self::_tmpl($rate, $definition, true);
+                        $aggrRate->_skip_prepare = true;
+                        $aggrRate->isContent = false;
+                        $aggrRate->rategroupCSS = $rate->rategroup.' aggrrate';
+                        
+                        $comments[$aggrRate->id] = $aggrRate;
+                }
+                        
                 $rates = self::$rater->getRates(null, $contentId, $extensionName);
                 
-                foreach ($comments as $comment) {
+                foreach ($comments as $i => &$comment) {
+                        if ($i < 0) continue;
+                        
                         if (isset($rates[$comment->id])) {
                                 $rate = $rates[$comment->id];
+                                $comment->rategroupCSS = $rate->rategroup;
                                 $rate = self::_tmpl($rate, $definition);
-                        } else $rate = '';
+                        } else {
+                                $comment->rategroupCSS = '';
+                                $rate = '';
+                        }
                         
                         $comment->author = JComments::getCommentAuthorName($comment);
                         $comment->comment = $rate.'<div class="comment-body" itemprop="reviewBody">'.$comment->comment.'</div>';
                         $comment->_skip_prepare = true;
                 }
                 
-                array_unshift($comments, $aggrRate);
+                $ids = array_keys($comments);
+                $_comments = $comments;
+                array_multisort($ids, $_comments);
+                $comments = array();
+                foreach ($ids as $i => $id) $comments[$id] = $_comments[$i];
         }
         
         function onJCommentsCommentAfterAdd(&$comment) {
@@ -212,8 +232,10 @@ class plgJcommentsRate extends JPlugin {
 //       ';
 //                }
                         
+                $collapsed = self::$criterias[0][JcommentsRate::COL_COLLAPSE] ? ' jpcollapse' : '';
+                
                 $ui .= $title.'
-        <ul class="rating_table rateoverall jpcollapse">
+        <ul class="rating_table rateoverall'.$collapsed.'">
                 <li itemprop="'.($isContent ? 'aggregateRating' : 'reviewRating').'" itemscope itemtype="http://schema.org/'.($isContent ? 'AggregateRating' : 'Rating').'">
                         <span class="rating_label">'. JText::_('Overall rating') .'&nbsp;</span>
                         <meta itemprop="worstRating" content="'.$min.'">

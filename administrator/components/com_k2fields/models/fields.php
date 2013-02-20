@@ -53,7 +53,7 @@ class K2FieldsModelFields extends K2Model {
         public static function pre($tab = null) {
                 static $rtab;
                 
-                if (empty($rtab)) $rtab = JRequest::getCmd('type', '');
+                if (empty($rtab)) $rtab = JFactory::getApplication()->input->get('type');
 
                 if ($rtab == 'searchfields') $rtab = 'search';
                 
@@ -1251,7 +1251,7 @@ class K2FieldsModelFields extends K2Model {
                 
                 if ($type == 'searchfields') {
                         if (empty($cat) && empty($item)) {
-                                $moduleId = JRequest::getInt('module');
+                                $moduleId = JFactory::getApplication()->input->get('module', '', 'int');
                                 $fields = $this->getFieldsByModule($moduleId, 'search');
                                 
                                 if (empty($fields)) $fields = array();
@@ -1657,7 +1657,7 @@ class K2FieldsModelFields extends K2Model {
                 if (isset($searches['limit'])) {
                         $limit = $searches['limit'];
                         unset($searches['limit']);
-                        $_limit = JRequest::getInt('limit', -1);
+                        $_limit = JFactory::getApplication()->input->get('limit', -1, 'int');
                         JRequest::setVar('limit', $limit);
                 }
                 
@@ -1700,7 +1700,7 @@ class K2FieldsModelFields extends K2Model {
                                                         $params = new JRegistry($module->params);
                                                         
                                                         if ($params->get('useitemid') == 'current') {
-                                                                $itemId = JRequest::getInt('Itemid');
+                                                                $itemId = JFactory::getApplication()->input->get('Itemid', '', 'int');
                                                         } else {
                                                                 $itemId = $params->get('menuitemid');
                                                         }
@@ -1918,6 +1918,7 @@ class K2FieldsModelFields extends K2Model {
                 $inModule = $item->params->get('parsedInModule') || 
                         isset($additionalRules['parsedInModule']) && $additionalRules['parsedInModule'];
                 $inMap = $view == 'itemlist' && isset($item->isItemlistMap) && $item->isItemlistMap;
+                
                 $inCompare = $view == 'itemlist' && $layout == 'compare';
                 
                 if ($inModule) {
@@ -2275,7 +2276,7 @@ class K2FieldsModelFields extends K2Model {
                                                         $rendered.
                                                 '</div>'
                                                 ;
-
+                                        
                                         if ($inMap && !empty($mapFields)) {
                                                 if (count($mapFieldsToShow) > 1) {
                                                         $renderedMap = call_user_func(
@@ -2694,6 +2695,9 @@ class K2FieldsModelFields extends K2Model {
                 foreach ($fieldsByCols as $fieldsByCol) {
                         $_ui = $_uiFolded = '';
                         
+                        $colWidth = '';
+                        $field = null;
+                        
                         foreach ($fieldsByCol as $field) {
                                 $id = self::value($field, 'id');
                                 $isFolded = self::isTrue($field, 'folded');
@@ -2714,7 +2718,22 @@ class K2FieldsModelFields extends K2Model {
                         }
                         
                         if (!empty($_ui)) {
-                                $ui .= '<div class="fieldsValuesCell col col'.($col+1).'">' . $_ui . '</div>';
+                                $colWidth = self::value($field, 'colwidth');
+                                $colWidth = trim($colWidth);
+
+                                if (!empty($colWidth)) {
+                                        if (!JprovenUtility::endWith($colWidth, 'px') && !JprovenUtility::endWith($colWidth, '%')) $colWidth .= 'px';
+                                        $colWidth = ' style="width:'.$colWidth.';"';
+                                }
+                                
+                                $colClearAfter = self::isTrue($field, 'colclearafter');
+                                $colClearBefore = self::isTrue($field, 'colclearbefore');
+                                
+                                $ui .= 
+                                        ($colClearBefore ? '<div class="clr">&nbsp;</div>' : '').
+                                        '<div class="fieldsValuesCell col col'.($col+1).'"'.$colWidth.'>' . $_ui . '</div>'.
+                                        ($colClearAfter ? '<div class="clr">&nbsp;</div>' : '')
+                                        ;
                                 $col++;
                         }
                         
@@ -2747,7 +2766,7 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 $_ui = '<div class="cols cols'.$col.($colFolded > 0 ? ' jpcollapse' : '').'">'.$ui.'<div class="clr">&nbsp;</div></div>';
-                $tmpl = JRequest::getCmd('tmpl');
+                $tmpl = JFactory::getApplication()->input->get('tmpl');
                 
                 if ($isFirst && $tmpl != 'component') {
                         $ui = '<div class="itemListHeading">'.str_replace(' jpcollapse', '', $_ui).'</div>'.$_ui;
@@ -3474,7 +3493,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 if (!empty($data)) {
                         $data = is_array($data) ? $data['k2rec'] : $data;
                 } else {
-                        $data = JRequest::getString('k2rec');
+                        $data = JFactory::getApplication()->input->get('k2rec', '', 'string');
                 }
                 
                 if (isset($results[$data])) return $results[$data];
@@ -3522,7 +3541,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                 if (!$menuItem) return JText::_('K2FIELDS_EMAILFIELD_FORM_MENU_INCORRECT');
 
-                $Itemid = JRequest::getInt('Itemid');
+                $Itemid = JFactory::getApplication()->input->get('Itemid', '', 'int');
 
                 /**
                  * NOTE: we make life easier by assuming that form authors 
@@ -3723,7 +3742,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         
         // mode = collapse || link
         public static function autoTitle($item, $title = '', $mode = 'link') {
-                $view = JRequest::getCmd('view');
+                $view = JFactory::getApplication()->input->get('view');
                 $schemaProp = 'name';
                 $title = '<span itemprop="'.$schemaProp.'">'.$item->title.'</span>';
                 
@@ -3756,11 +3775,17 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $definition = $rater->getDefinition('com_k2', $item->id);
                         $isPercentage = $definition[0][JcommentsRate::COL_SHOWAS] == 'percentage';
                         $col = $isPercentage ? 'rate_grade' : 'rate';
-                        $rate = $rater->getRate($item->id);
-                        $rateValue = $rate->$col;
-                        $maxs = $definition[0][JcommentsRate::COL_MAXS];
-                        $reviewCount = '(<span class="nofloat" itemprop="reviewCount">'.$rate->count.'</span> '.JText::_('K2_VOTES').')';
-                        $rating .= '<span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxs['maxvalue']).'px;"><div class="rating_star_user"><div style="width:'.($isPercentage ? $rateValue : $rateValue/$maxs['maxvalue'] * 100). '%;">&nbsp;</div></div></span><span class="ratingDetails"><span class="nofloat" itemprop="ratingValue">'.$rateValue.'</span> / <span class="nofloat" itemprop="bestRating">'.$maxs['max'].'</span>'.$reviewCount.'</span><meta itemprop="worstRating" content="'.$maxs['min'].'">';
+                        $rates = $rater->getRate($item->id);
+                        
+                        foreach ($rates as $rate) {
+                                $rateValue = $rate->$col;
+                                $maxs = $definition[0][JcommentsRate::COL_MAXS];
+                                $reviewCount = '(<span class="nofloat" itemprop="reviewCount">'.$rate->count.'</span> '.JText::_('K2_VOTES').')';
+                                $reviewerCSS = $rate->rategroup;
+                                if ($reviewerCSS) $reviewerCSS = '<span class="'.$reviewerCSS.'">';
+                                $rating .= $reviewerCSS.'<span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxs['maxvalue']).'px;"><div class="rating_star_user"><div style="width:'.($isPercentage ? $rateValue : $rateValue/$maxs['maxvalue'] * 100). '%;">&nbsp;</div></div></span><span class="ratingDetails"><span class="nofloat" itemprop="ratingValue">'.$rateValue.'</span> / <span class="nofloat" itemprop="bestRating">'.$maxs['max'].'</span>'.$reviewCount.'</span><meta itemprop="worstRating" content="'.$maxs['min'].'">';
+                                if ($reviewerCSS) $rating .= '</span>';
+                        }
                 } else {
                         $rating .= '<div class="itemRatingForm">
                                         <ul class="itemRatingList">
@@ -3800,7 +3825,8 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         }
         
         public function renderRate($item, $values = null, $field = null, $helper = null, $rule = null) {
-                $pv = $item->params->get(JRequest::getCmd('view') == 'item' ? 'itemRating' : 'catItemRating');
+                $pv = JFactory::getApplication()->input->get('view');
+                $pv = $item->params->get($pv == 'item' ? 'itemRating' : 'catItemRating');
                 return $pv ? self::autoRating($item) : '';
         }
         

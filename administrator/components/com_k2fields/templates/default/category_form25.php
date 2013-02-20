@@ -351,6 +351,6 @@ $document->addScriptDeclaration("
 	<input type="hidden" name="id" value="<?php echo $this->row->id; ?>" />
 	<input type="hidden" name="option" value="com_k2" />
 	<input type="hidden" name="view" value="category" />
-	<input type="hidden" name="task" value="<?php echo JRequest::getVar('task'); ?>" />
+	<input type="hidden" name="task" value="<?php echo JFactory::getApplication()->input->get('task'); ?>" />
 	<?php echo JHTML::_('form.token'); ?>
 </form>

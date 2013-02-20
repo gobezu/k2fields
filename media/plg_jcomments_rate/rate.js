@@ -3,15 +3,35 @@
 var JcommentsRate = new Class({
         Implements: [Options],
         
+        options: {
+              'system':'jcomments'
+        },
+        
         initialize: function(options) {
                 this.setOptions(options);
                 this.createRate();
         },
         
+        getItemId: function() {
+                if (this.options.system == 'jcomments') {
+                        return this.getForm().getElements('input[name=object_id]')[0].get('value');
+                } else if (this.options.system == 'komento') {
+                        return Komento.cid;
+                }
+        },
+        
+        getForm: function() {
+                if (this.options.system == 'jcomments') {
+                        return document.id('comments-form');
+                } else if (this.options.system == 'komento') {
+                        return document.id('kmt-form').getElement('form');
+                }
+        },
+        
         createRate: function() {
                 var 
-                        frm = document.id('comments-form'),
-                        itemid, contentidName = 'object_id',
+                        frm = this.getForm(),
+                        itemid,
                         key, lbl, opts, criteria, i, n, sel, selc, opt, ratec, id, ui, width, criterias = [], rEls = [], rEl;
                      
                 if (!frm) {
@@ -25,7 +45,7 @@ var JcommentsRate = new Class({
                         return;
                 }
                 
-                itemid = frm.getElements('input[name='+contentidName+']')[0].get('value');
+                itemid = this.getItemId();
                 ratec = new Element('div', {'class':'ratescontainer'});
                 ratec.inject(frm, 'top');
                 

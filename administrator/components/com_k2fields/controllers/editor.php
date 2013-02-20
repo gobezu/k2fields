@@ -210,7 +210,7 @@ from (
         }
         
         function fields($send = false) {
-                $id = JRequest::getInt('cid');
+                $id = JFactory::getApplication()->input->get('cid', '', 'int');
                 $id = $id ? ' and e.id <> '.$id : '';
                 $query = "
 select eg.id as groupid, eg.name as groupname, e.id as value, 
