@@ -324,7 +324,7 @@ class plgk2k2fields extends K2Plugin {
                 return null;
         }
         
-        // TODO: what happens when we have items from various categories, as in search results?
+        // TODO: what happens when we have items from various categories, as in search results
         private static function setLayout(&$item = null, $cparams = null) {
                 $view = JFactory::getApplication()->input->get('view');
                 

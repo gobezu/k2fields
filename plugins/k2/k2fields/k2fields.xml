@@ -18,26 +18,26 @@
         <config>
                 <fields name="params" addfieldpath="/administrator/components/com_k2fields/elements/">
                         <fieldset name="PLG_K2FIELDS_VARIOUS_DEFAULT_VALUES">
-                                <field name="listmax" type="text" default="10" label="Max allowed elements of multi-valued fields (lists)" description="Max allowed elements of multi-valued fields (lists)" />
-                                <field name="itemlistlimit" type="text" default="10" label="# of items in search" />
+                                <field name="listmax" type="text" default="10" label="Max allowed repetition of field alues" description="" />
+                                <field name="itemlistlimit" type="text" default="10" label="# of items in search result list" />
                                 <field name="jpmodeitemlistlimit" type="text" default="10" label="# of items in k2item as jpajaxlist" />
                                 <field name="alphafieldmaxlength" type="text" default="500" label="Max allowed characters in text fields" description="Overridable through field setting" />
                                 <field name="emptysectionname" type="text" default="Additional info" label="Default section name" description="All fields without section name will be placed in this section" />
                         </fieldset>
                                 
                         <fieldset name="PLG_K2FIELDS_VARIOUS_OVERRIDE_VALUES">
-                                <field type="spacer" name="overridespacer" label="&lt;style type=&quot;text/css&quot;&gt;li span.spacer label {width:100% !important;} #jform_params_overridespacer-lbl { color:#fff; background:#c61f29; }&lt;/style&gt;By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not use k2fields with some other K2 related modules. The technical reason for this being that some modules doesn't load models properly through the API which affords us ability to override K2 native models.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
+                                <field type="lbl" name="overridespacer" default="By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not use k2fields with some other K2 related modules. The technical reason for this being that some modules doesn't load models properly through the API which affords us ability to override K2 native models.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
                                 <field name="override_itemmodel" type="radio" default="0" label="Override K2 item model" description="">
                                         <option value="1">JYES</option>
                                         <option value="0">JNO</option>
                                 </field>                                
-                                <field name="inherit_extrafields" type="radio" default="0" label="Inherit extra fields" description="Allow categories to inherit extra fields group from the category they inherit other parameters from">
+                                <field name="inherit_extrafields" type="radio" default="0" label="Inherit extra fields" description="Allow categories to inherit extra fields group from the category they inherit other parameters from.">
                                         <option value="1">JYES</option>
                                         <option value="0">JNO</option>
                                 </field>                                
-                                <field name="inheritfromcategory" type="k2fcategories" default="" label="Inherit from this category for all other categories" description="Parameters from this category will override parameters in all other categories except categories excluded below. For all categories excluded parameters will not be overriden." />
-                                <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Do not inherit the above categories parameters for the following categories" />
-                                <field name="dontinheritparams" type="k2fparams" default="" label="Do not inherit the following parameters" />
+                                <field name="inheritfromcategory" type="k2fcategories" default="" label="Parameter master category" description="Inherit parameters from this category for all other categories. Parameters from this category will override parameters in all other categories except categories and parameters excluded below." />
+                                <field name="dontinheritcategories" type="k2fmulticategories" default="" label="Excluded categories (categories not inheriting parameters from master category)" />
+                                <field name="dontinheritparams" type="k2fparams" default="" label="Excluded parameters (parameters not propagated to inheriting categories)" />
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_LAYOUT">
@@ -68,8 +68,8 @@
                                         <option value="BeforeDisplayContent">BeforeDisplayContent</option>
                                         <option value="AfterDisplayContent">AfterDisplayContent</option>
                                 </field>
-                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list, item)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
-                                <field name="itemlistcatextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Category specific field insertion position (options see above list, itemlist)" description="On each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position is one of those available in the above drop down list" />
+                                <field name="catextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Field insertion position (category specific)" description="For each category on each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position values available in the above drop down list" />
+                                <field name="itemlistcatextrafieldsposition" type="textarea" cols="40" rows="10" default="" label="Field insertion position (category specific for itemlist)" description="For each category on each row provide: category%%position &lt;br&gt;* category = all refering to all categories or id of category to apply position for&lt;br&gt;* position values available in the above drop down list" />
                                 
                                 <field name="tabularlayout" type="k2fmulticategories" default="" label="Table based itemlist layout for the following categories" />
                                 <field name="maplayout" type="k2fmulticategories" default="" label="Map based itemlist layout for the following categories. Maps are always appended to applicable list layout." />
@@ -134,7 +134,7 @@
                                         cols="40" 
                                         rows="15" 
                                         label="Reconfigure tabs in edit form" 
-                                        description="Here you can choose which K2 tabs to be included and the name each tab should have. For each category provide the following settings with %% between the settings and a new line for each category to reconfigure the set of tabs for:&lt;br/&gt;&lt;br/&gt;* category ID to which the setting should apply, or alternatively [all] to apply to all categories. If you provide category ID please note that it will be applied to all child categories as well&lt;br/&gt;* comma separated list of child categories that should be excluded from this setting or leave it empty if non&lt;br/&gt;* comma separated list of tabs to be included with the format: tab=newtabname. Available tab options are: content, image, gallery, video, extrafields, attachment, plugin&lt;br/&gt;* client this setting should be applied to. Applicable values are site, admin, all or simply leave it empty and it will be applied to all&lt;br/&gt;&lt;br/&gt;Example:all%%%%extrafields=Data%%all&lt;br/&gt;For all categories and in both admin and site clients only the extra fields tab is shown and the tab will be named Data"
+                                        description="Here you can choose which K2 tabs to be included and the name each tab should have. For each category provide the following settings with %% between the settings and a new line for each category to reconfigure the set of tabs for:&lt;br/&gt;&lt;br/&gt;* category ID to which the setting should apply, or alternatively [all] to apply to all categories. If you provide category ID please note that it will be applied to all child categories as well, unless excluded&lt;br/&gt;* comma separated list of child categories that should be excluded from this setting or leave it empty if non&lt;br/&gt;* comma separated list of tabs to be included with the format: tab=newtabname. Available tab options are: content, image, gallery, video, extrafields, attachment, plugin&lt;br/&gt;* client this setting should be applied to. Applicable values are site, admin, all or simply leave it empty and it will be applied to all&lt;br/&gt;&lt;br/&gt;Example:all%%%%extrafields=Data%%all&lt;br/&gt;For all categories and in both admin and site clients only the extra fields tab is shown and the tab will be named Data"
                                 />                                
                         </fieldset>
                         <fieldset name="PLG_K2FIELDS_MEDIA">
