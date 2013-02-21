@@ -26,7 +26,7 @@
                         </fieldset>
                                 
                         <fieldset name="PLG_K2FIELDS_VARIOUS_OVERRIDE_VALUES">
-                                <field type="lbl" name="overridespacer" default="By overriding we will be able to gain performance as we base the code on PHP native json routines and also be able to use the parameter overrides below. The disadvantage is that we can not use k2fields with some other K2 related modules. The technical reason for this being that some modules doesn't load models properly through the API which affords us ability to override K2 native models.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
+                                <field type="lbl" name="overridespacer" default="Overriding is required in order to use the parameter override and also affords you some amount of performance gain. The disadvantage is that we can not use k2fields with some other K2 related modules. The technical reason for this being that some modules doesn't load models properly through the API which affords us ability to override K2 native models.&lt;br/&gt;&lt;br/&gt; If you want to use these overrides please do set the [Override K2 item model] below to [Yes]" />
                                 <field name="override_itemmodel" type="radio" default="0" label="Override K2 item model" description="">
                                         <option value="1">JYES</option>
                                         <option value="0">JNO</option>
