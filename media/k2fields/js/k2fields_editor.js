@@ -457,7 +457,7 @@ var k2fieldseditor = new Class({
         createSpecification: function() {
                 this.specification = {
                         '1':{
-                                'name':'Field name',
+                                'name':'Name',
                                 'optName':'name',
                                 'valid':'text',
                                 'required':'1',
@@ -469,20 +469,37 @@ var k2fieldseditor = new Class({
                                 'optName':'valid',
                                 'valid':'select',
                                 'values':[
-                                        {'value':'k2item','text':'k2item'},
-                                        {'value':'list','text':'list'},
-                                        {'value':'media','text':'media'},
-                                        {'value':'map','text':'map'},
-                                        {'value':'datetime','text':'datetime'},
-                                        {'value':'date','text':'date'},
+                                        {'label':'basic'},
+                                        {'value':'text','text':'text *'},
+                                        {'value':'alpha','text':'alpha *'},
+                                        {'value':'alphanum','text':'alphanum *'},
+                                        {'value':'integer','text':'integer *'},
+                                        {'value':'numeric','text':'numeric *'},
+                                        {'value':'range','text':'range of values *'},
+                                        {'label':'verify'},
+                                        {'value':'yesno','text':'yesno (binary options)'},
+                                        {'value':'verifybox','text':'verify (single option)'},
+                                        {'label':'item parts (view only)'},
                                         {'value':'title','text':'title'},
                                         {'value':'rate','text':'rate'},
-                                        {'value':'time','text':'time'},
-                                        {'value':'duration','text':'duration'},
+                                        {'label':'advanced'},
+                                        {'value':'k2item','text':'k2item'},
+                                        {'value':'list','text':'list *'},
+                                        {'value':'media','text':'media'},
+                                        {'value':'map','text':'map'},
                                         {'value':'complex','text':'complex'},
                                         {'value':'alias','text':'alias'},
+                                        {'label':'date/time'},
+                                        {'value':'datetime','text':'datetime'},
+                                        {'value':'date','text':'date'},
+                                        {'value':'time','text':'time'},
+                                        {'value':'duration','text':'duration'},
+                                        {'value':'days','text':'week days *'},
+                                        {'label':'internet'},
                                         {'value':'email','text':'email'},
                                         {'value':'form','text':'form'},
+                                        {'value':'url','text':'url'},
+                                        {'label':'social'},
                                         {'value':'facebook','text':'facebook'},
                                         {'value':'twitter','text':'twitter'},
                                         {'value':'linkedin','text':'linkedin'},
@@ -490,22 +507,19 @@ var k2fieldseditor = new Class({
                                         {'value':'pinterest','text':'pinterest'},
                                         {'value':'readability','text':'readability'},
                                         {'value':'flattr','text':'flattr'},
-                                        {'value':'numeric','text':'numeric'}, // from here and below check in basic module for parameters to be supported
-                                        {'value':'text','text':'text'},
-                                        {'value':'alpha','text':'alpha'},
-                                        {'value':'alphanum','text':'alphanum'},
-                                        {'value':'integer','text':'integer'},
-                                        {'value':'url','text':'url'},
-                                        {'value':'range','text':'range of integer values'},
-                                        {'value':'days','text':'week days'},
-                                        {'value':'yesno','text':'yesno (binary options)'},
-                                        {'value':'verifybox','text':'verify (single option)'},
+                                        {'label':'misc'},
                                         {'value':'creditcards','text':'creditcards'},
                                         {'value':'phone','text':'phone (TBI: currently limited support)'}
                                 ],
                                 'deps': {
+                                        'text':['id:3'],
+                                        'alpha':['id:3'],
+                                        'alphanum':['id:3'],
+                                        'integer':['id:3'],
+                                        'numeric':['id:3'],
+                                        'days':['id:3'],
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
-                                        'list':['id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
+                                        'list':['id:3', 'id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
                                         'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
@@ -517,7 +531,7 @@ var k2fieldseditor = new Class({
                                         'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
                                         'alias':['id:1451', 'id:1452'],
-                                        'range':['id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
+                                        'range':['id:3', 'id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
                                         'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
                                         'twitter':['id:1651', 'id:1652', 'id:1653', 'id:1654', 'id:1655', 'id:1656'],
                                         'linkedin':['id:1701'],
@@ -530,10 +544,11 @@ var k2fieldseditor = new Class({
                                 'required':'1',
                                 'savevalues':'validtypes',
                                 'sorted':true,
-                                'section':'Basic'
+                                'section':'Basic',
+                                'tip':'Types with * allow you to alter UI. In most cases the type dictates the UI to be used.'
                         },
                         '3':{
-                                'name':'UI',
+                                'name':'User Interface (UI)',
                                 'optName':'ui',
                                 'valid':'select',
                                 'values':[
@@ -544,7 +559,7 @@ var k2fieldseditor = new Class({
                                         {'value':'editor'},
                                         {'value':'select'},
                                         {'value':'slider'},
-                                        {'value':'rangeslider'}
+                                        {'value':'rangeslider', 'text':'range slider (only numerical valued)'}
                                 ],
                                 'deps':{
                                         'select':['id:7', 'id:12', 'id:14', 'id:15', 'id:28'],
@@ -564,12 +579,13 @@ var k2fieldseditor = new Class({
                                         {'value':'conditional', 'text':'Conditional'}
                                 ],
                                 'deps':{
-                                        'normal':['id:5'],
-                                        'conditional':['id:5','id:6','id:26']
+                                        'normal':['id:5', 'id:45', 'id:62'],
+                                        'conditional':['id:5','id:6','id:26', 'id:45', 'id:62']
                                 },
                                 'clearopt':'button',
                                 'sorted':true,
-                                'section':'Basic'
+                                'section':'Basic',
+                                'tip':'Repeatable fields are those where user repeats the instance of the field in order to assign multiple values to the field. Maximum number of repetetions are defined in maximum repetetions below. A conditional repeatable field is one with ability to comment on each repeated instance of the field. Ex. if you have an address field of an item and assuming that the establishment has several branches you would want a conditional repeatable field where as condition/comment you would set a description of each branches particularity.'
                         },
                         '5':{
                                 'name':'Maximum repetitions',
@@ -622,10 +638,10 @@ var k2fieldseditor = new Class({
                                 'valid':'integer'
                         },
                         '14':{
-                                'name':'Save value as',
+                                'name':'Save values as',
                                 'optName':'savevalues',
                                 'valid':'text',
-                                'tip':'Fields following within this group can reuse the values by referring to the name you provide here',
+                                'tip':'Fields created after this field can reuse the values of this field by referring to the name you provide here',
                                 'section':'Values'
                         },
                         '15':{
@@ -639,9 +655,10 @@ var k2fieldseditor = new Class({
                                 'name':'Section',
                                 'optName':'section',
                                 'valid':'text',
-                                'section':'Layout'
+                                'section':'Layout',
+                                'tip':'Sections serve as means of organizing fields in various separate user interface parts. If for a given category the selected UI is tabs then we will create as many tab panels as there are sections and within each panel fields belonging to the same section will be placed. The heading of the tab will be set to the name of the section.'
                         },
-                        '19':{
+                        '17':{
                                 'name':'Section (list)',
                                 'optName':'listsection',
                                 'valid':'text',
@@ -653,39 +670,38 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'section':'Validation'
                         },
-                        '17':{
+                        '18':{
                                 'name':'Folded',
                                 'optName':'folded',
                                 'valid':'verifybox',
-                                'tip':'Applicable only for tabular layout',
+                                'tip':'Applicable only for tabular layout. In tabular layout you are able to place some of your fields in a collapsed layout and becomes visible upon click of any area containing the none folded fields. This is useful in cases where you would like to provide much information without leading the user to the item itself and yet want to maintain a list that is not overly crowded with content.',
                                 'section':'Layout'
                         },
-                        '18':{
+                        '69':{
                                 'name':'Table column placement',
                                 'optName':'col',
                                 'valid':'range',
                                 'ui':'radio',
                                 'shift':1,
                                 'low':0,
-                                'high':7,
-                                'tip':'Applicable only for tabular layout',
+                                'high':10,
                                 'section':'Layout'
                         },
-                        '69':{
+                        '70':{
                                 'name':'Table column width',
                                 'optName':'colwidth',
                                 'valid':'text',
                                 'tip':'Provide unit. Ex. 40%. Available units are px (default) and %.',
                                 'section':'Layout'
                         },
-                        '70':{
-                                'name':'Clear after this column',
+                        '71':{
+                                'name':'Clear after this table column',
                                 'optName':'colclearafter',
                                 'valid':'verifybox',
                                 'section':'Layout'
                         },
-                        '71':{
-                                'name':'Clear before this column',
+                        '72':{
+                                'name':'Clear before this table column',
                                 'optName':'colclearbefore',
                                 'valid':'verifybox',
                                 'section':'Layout'
@@ -703,7 +719,7 @@ var k2fieldseditor = new Class({
                                 'name':'Schema property',
                                 'optName':'schemaprop',
                                 'valid':'text',
-                                'tip':'Based on selected schema type in your title field. If this is a field of type title please leave this empty as the property of it is given.',
+                                'tip':'Based on selected schema type in your title field. If this is a field of type title please leave this empty as the property of title is given.',
                                 'section':'SEO'
                         },
                         '67':{
@@ -760,7 +776,7 @@ var k2fieldseditor = new Class({
                                         {'name':'Field','valid':'text','ui':'select','values':this.options.options['fields']},
                                         {'name':'Negate','valid':'verifybox','tip':'If the above given value is not provided then field is toggled in.'}
                                 ],
-                                'tip':'Fields that depend on (toggled based on) the values of this field. For each value provided the corresponding selected field will be shown. Note that upon toggle assigned values of dependent fields are reset.',
+                                'tip':'Fields that depend on the values of this field, ie. fields that will be toggled in (shown) when the provided value is selected. For each value provided the corresponding selected field will be shown, unless negate is selected in which case the reverse applies.',
                                 'section':'Additional'
                         },
                         '28':{
@@ -845,7 +861,7 @@ var k2fieldseditor = new Class({
                                 'name':'Tab index',
                                 'optName':'tabindex',
                                 'valid':'integer',
-                                'section':'Basic'
+                                'section':'Additional'
                         },
                         '39':{
                                 'name':'Clear option',
@@ -899,7 +915,8 @@ var k2fieldseditor = new Class({
                                 'section':'Basic',
                                 'deps':{
                                         1:['id:46', 'id:65']
-                                }
+                                },
+                                'tip':'Values with many repetitions might not look good when all values are listed explicitly. By making field collapsible repeated instances greater than the limit you provide below will be folded into a hidden holder and are made visible upon user click on the label defined below.'
                         },
                         '46':{
                                 'name':'Collapse limit',
@@ -909,7 +926,7 @@ var k2fieldseditor = new Class({
                                 'default':3
                         },
                         '65':{
-                                'name':'Collapse label',
+                                'name':'Collapse button label',
                                 'optName':'collapselabel',
                                 'valid':'text',
                                 'section':'Basic',
@@ -922,7 +939,8 @@ var k2fieldseditor = new Class({
                                 'section':'Basic',
                                 'deps':{
                                         1:['id:63', 'id:64']
-                                }
+                                },
+                                'tip':'Values with many repetitions might not look good when all values are listed explicitly, especially in itemlist view. By making field collapsible repeated instances greater than the limit you provide below will be folded into a hidden holder and are made visible upon user click on the label defined below.'
                         },
                         '63':{
                                 'name':'Collapse limit (itemlist)',
@@ -932,7 +950,7 @@ var k2fieldseditor = new Class({
                                 'default':3
                         },
                         '64':{
-                                'name':'Collapse label (itemlist)',
+                                'name':'Collapse button label (itemlist)',
                                 'optName':'collapselabelitemlist',
                                 'valid':'text',
                                 'section':'Basic',
@@ -944,7 +962,8 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'list':'normal',
                                 'section':'Additional',
-                                'size':70
+                                'size':70,
+                                'tip':'The listed values'
                         },
                         '48':{
                                 'name':'Cols',
@@ -2264,7 +2283,7 @@ var k2fieldseditor = new Class({
                                         'file':['id:1405']
                                 },
                                 'skip':true,
-                                tip:'Each source need to avail its values in suitable format as specified along with each source type, where value is the least possible and can also include text and image.'
+                                'tip':'Each source need to avail its values in suitable format as specified along with each source type. Value is a required part of each instance.'
                         },
                         '1402':{
                                 'name':'SQL',
@@ -2292,13 +2311,13 @@ var k2fieldseditor = new Class({
                                 'tip':'JSON encoded array with objects which has the members value, text and img'
                         },
                         '1405':{
-                                'name':'File',
+                                'name':'File location',
                                 'optName':'values',
                                 'ui':'text',
                                 'section':'Values',
                                 'valid':'text',
                                 'size':100,
-                                'tip':'File need to be located on site and given relative to site root. Each row in file need to adhere to the following format where only value column is mandatory: value==text==img'
+                                'tip':'File location must be on site and relative to site root. Each row in file need to adhere to the following format where only value column is mandatory: value==text==img'
                         },
                         '1406':{
                                 'name':'Specify',
@@ -2320,7 +2339,7 @@ var k2fieldseditor = new Class({
                                 'section':'Values',
                                 'valid':'text',
                                 'size':100,
-                                'tip':'Either a globally defined function name or a call to statically defined variable name as classname::functionname'
+                                'tip':'Globally accessible function or static class members with absolute calls'
                         },
                         '1451':{
                                 name:'Alias of field',

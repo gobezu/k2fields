@@ -305,9 +305,11 @@ class plgSystemk2fields extends JPlugin {
                 
                 if (JFactory::getApplication()->isSite()) return;
                 
-                $option = JRequest::getCmd('option');
-                $view = JRequest::getCmd('view');
-                $task = JRequest::getCmd('task');
+                $input = JFactory::getApplication()->input;
+                
+                $option = $input->get('option');
+                $view = $input->get('view');
+                $task = $input->get('task');
                 
                 if ($option != 'com_k2' || $view != 'extrafield') return;
                 
@@ -372,20 +374,22 @@ class plgSystemk2fields extends JPlugin {
          * Note: Make sure to set the order of this plugin after K2s system plugin
          */
         private function extendUserForm() {
+                return;
 		$mainframe = &JFactory::getApplication();
 
 		if($mainframe->isAdmin()) return;
                 
                 $this->loadLanguage('com_k2');
+                $input = JFactory::getApplication()->input;
                 
 		$params = &JComponentHelper::getParams('com_k2');
-		$option = JRequest::getCmd('option');
+		$option = $input->get('option');
                 
 		if(!$params->get('K2UserProfile') || $option != 'com_user') return;
                 
-		$view = JRequest::getCmd('view');
-		$task = JRequest::getCmd('task');
-		$layout = JRequest::getCmd('layout');
+		$view = $input->get('view');
+		$task = $input->get('task');
+		$layout = $input->get('layout');
 		$user = &JFactory::getUser();
                 
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', 'PLG_K2FIELDS_PLUGIN_INACTIVE')) return;
@@ -517,8 +521,10 @@ class plgSystemk2fields extends JPlugin {
                 
                 self::upgradeMootools();
                 
-                $option = JRequest::getCmd('option');
-                $view = JRequest::getCmd('view');
+                $input = JFactory::getApplication()->input;
+                
+                $option = $input->get('option');
+                $view = $input->get('view');
                 
                 $this->extendUserForm();
                 $this->addResources();
@@ -527,11 +533,9 @@ class plgSystemk2fields extends JPlugin {
                 
                 if ($app->isSite()) {
                         jimport('joomla.application.component.model');
-                        $sts = K2Model::getInstance('searchterms', 'K2FieldsModel');
+                        K2Model::getInstance('searchterms', 'K2FieldsModel');
                         K2FieldsModelSearchterms::addPathWay();
                 }
-                
-                $task = JRequest::getCmd('task');
                 
                 if ($app->isAdmin() && $option == 'com_k2' && $view == 'items') {
                         jimport('joomla.application.component.model');
@@ -551,21 +555,21 @@ class plgSystemk2fields extends JPlugin {
                 
                 JHTML::_('behavior.mootools');
                 
-                static $editorDone;
+                static $editorDone = false;
 
                 if ($editorDone !== true) {
                         plgk2k2fields::loadResources('editfields');
 
                         JprovenUtility::load('k2fields_editor.js', 'js');
                         
-                        $id = JRequest::getInt('cid');
+                        $id = $input->get('cid', '', 'int');
                         $options = array();
                         
                         if ($id) {
                                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables/');
                                 $tbl = JTable::getInstance('K2ExtraFieldsDefinition', 'Table');
                         
-                                $tbl->load(JRequest::getInt('cid'));
+                                $tbl->load($input->get('cid', '', 'int'));
                                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                                 $options = $model->mapFieldOptions($tbl);
                         }
@@ -590,13 +594,15 @@ class plgSystemk2fields extends JPlugin {
         
         function onLoginFailure($response) {
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2')) return;
+
+                $input = JFactory::getApplication()->input;
                 
-                $tmpl = JRequest::getWord('tmpl');
-                $from = JRequest::getWord('from');
+                $tmpl = $input->get('tmpl', '', 'word');
+                $from = $input->get('from', '', 'word');
                 
                 if ($tmpl == 'component' && $from == 'jpmodal') {
                         $message = $response['error_message'];
-                        $return = JRequest::getWord('jpreturn');
+                        $return = $input->get('jpreturn', '', 'word');
                         $returnURL = $return != 'current' ? JFactory::getApplication()->input->get('jpreturnurl', '', 'string') : '';
                         
                         if ($message)
