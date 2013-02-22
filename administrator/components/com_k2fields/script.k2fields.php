@@ -203,4 +203,3 @@ class Com_K2fieldsInstallerScript {
                 return array('name' => $name.' - '.$ext['name'], 'type' => $type, 'status' => $inst ? true : false);
         }        
 }
-?>

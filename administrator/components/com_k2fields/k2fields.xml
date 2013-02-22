@@ -63,11 +63,7 @@
                 <module name="k2fields" folder="modules/mod_k2fields">search module</module>
                 <module name="k2fields_usertools" folder="modules/mod_k2fields_usertools">user tools - currently mainly submission button</module>
                 <module name="k2fields_contents" folder="modules/mod_k2fields_contents">content presentation</module>
-                <plugin name="widgetkit_k2" folder="plugins/system/widgetkit_k2" group="system" enable="0">slideshow with widgetkit</plugin>
                 <plugin name="rate" folder="plugins/jcomments/rate" group="jcomments" enable="0">rating in jcomments</plugin>
-                <!-- <plugin name="k2fields" folder="plugins/user/k2fields" group="user" enable="0">k2fields auto K2 user group assigning plugin</plugin>
-                <plugin name="slicomments" folder="plugins/k2/slicomments" group="k2" enable="0">sliComments K2 integration</plugin>
-                <plugin name="rate" folder="plugins/slicomments/rate" group="slicomments" enable="0">rating in sliComments</plugin> -->
         </additional>
         <scriptfile>script.k2fields.php</scriptfile>
 </extension>

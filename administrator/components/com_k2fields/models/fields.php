@@ -2588,7 +2588,7 @@ class K2FieldsModelFields extends K2Model {
         }
         
         private function renderUIList($values, $fields, $item, $plgSettings = array(), $headerElement = 'span') {
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, true, '<li>', '</li>');
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, true, '<li>', '</li>');
                 $noSectionTitle = isset($plgSettings['sectiontitle']) && in_array($plgSettings['sectiontitle'], array('false', '0')) || false;
                 
                 foreach ($uis as $section => $_uis) {
@@ -2604,7 +2604,7 @@ class K2FieldsModelFields extends K2Model {
         }
         
         private function renderUIPlain($values, $fields, $item, $plgSettings = array(), $headerElement = 'span') {
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, true);
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, true);
                 $ui = '';
                 $noSectionTitle = self::isFalse($plgSettings, 'sectiontitle', false);
                 
@@ -2625,32 +2625,32 @@ class K2FieldsModelFields extends K2Model {
                         }
                 }
                 
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false, '', '', '', '', 'raw');
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, false, '', '', '', '', 'raw');
                 
                 return $uis;
-                
-                $ui = '';
-                
-                static $isFirst = true;
-                
-                foreach ($uis as $section => $_uis) {
-                        if (empty($section)) $section = JText::_('Additional');
-                        
-                        $class = 'itemCompare '.($isFirst ? 'itemCompareHeading' : '');
-                        $ui .= '<tr class="'.$class.' itemCompareSection"><td><div>'.$section.'</div></td></tr>';
-                        $section = JFile::makeSafe($section);
-                        $section = strtolower($section);
-                        $class .= ' '.$section;
-                        
-                        foreach ($_uis as $i => $_ui) {
-                                $ui .= '<tr class="'.$class.' itemCompare'.$i.' '.($i%2 == 0 ? 'compareeven' : 'compareodd').'"><td>'.$_ui.'</td></tr>';
-                        }
-                }
-                
-                $ui = '<table class="compareitem">'.$ui.'</table>';
-                $isFirst = false;
-                
-                return $ui;
+//                
+//                $ui = '';
+//                
+//                static $isFirst = true;
+//                
+//                foreach ($uis as $section => $_uis) {
+//                        if (empty($section)) $section = JText::_('Additional');
+//                        
+//                        $class = 'itemCompare '.($isFirst ? 'itemCompareHeading' : '');
+//                        $ui .= '<tr class="'.$class.' itemCompareSection"><td><div>'.$section.'</div></td></tr>';
+//                        $section = JFile::makeSafe($section);
+//                        $section = strtolower($section);
+//                        $class .= ' '.$section;
+//                        
+//                        foreach ($_uis as $i => $_ui) {
+//                                $ui .= '<tr class="'.$class.' itemCompare'.$i.' '.($i%2 == 0 ? 'compareeven' : 'compareodd').'"><td>'.$_ui.'</td></tr>';
+//                        }
+//                }
+//                
+//                $ui = '<table class="compareitem">'.$ui.'</table>';
+//                $isFirst = false;
+//                
+//                return $ui;
         }
         
         public static function getRenderUICols($fields) {
@@ -2786,7 +2786,7 @@ class K2FieldsModelFields extends K2Model {
                 static $count = 0;
                 $count++;
                 
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, false);
                 $accId = 'k2f-'.$type.'-'.$count;
                 $ui = '<div id='.$accId.' class="k2f-pane k2f-jquery-ui-accordion">';
                 
@@ -2795,19 +2795,22 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 $ui .= '</div>';
+                
+                K2HelperHTML::loadjQuery(true);
 
-                $params = K2HelperUtilities::getParams('com_k2');
+//                $params = K2HelperUtilities::getParams('com_k2');
+//                
+                
+//                
+//                $backendJQueryHandling = $params->get('backendJQueryHandling', 'remote');
+//                
+//		if ($backendJQueryHandling == 'remote') {
+//			$document->addScript('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js');
+//		} else {
+//			$document->addScript(JURI::root(true).'/media/k2/assets/js/jquery-ui-1.8.16.custom.min.js');
+//		}
                 
                 $document = JFactory::getDocument();
-                
-                $backendJQueryHandling = $params->get('backendJQueryHandling', 'remote');
-                
-		if ($backendJQueryHandling == 'remote') {
-			$document->addScript('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js');
-		} else {
-			$document->addScript(JURI::root(true).'/media/k2/assets/js/jquery-ui-1.8.16.custom.min.js');
-		}
-                
                 $document->addScriptDeclaration('jQuery(document).ready(function(){ jQuery("#'.$accId.'" ).accordion(); });');
                 
                 return $ui;
@@ -2817,7 +2820,7 @@ class K2FieldsModelFields extends K2Model {
                 static $count = 0;
                 $count++;
                 
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, false);
                 $handlers = array();
                 $panels = array();
                 foreach ($uis as $section => $_uis) {
@@ -2860,7 +2863,7 @@ class K2FieldsModelFields extends K2Model {
                 if ($type == 'sliders') $options = array('allowAllClose' => true, 'show' => -1);
                 else $options = array();
                 
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings, false);
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings, false);
                 $pane = JPane::getInstance($type, $options);
                 $ui = $pane->startPane('k2f-'.$type.'-'.$count);
                 
@@ -2889,7 +2892,7 @@ class K2FieldsModelFields extends K2Model {
                 if (!JPluginHelper::importPlugin('content', 'jkefel')) 
                         JError::raiseWarning('ERROR_CODE', JText::_('PLG_K2FIELDS_PLUGIN_JKEFEL_INACTIVE'));
                 
-                $uis = $this->renderUIFoldValuesInSections($values, $plgSettings);
+                $uis = $this->renderUIFoldValuesInSections($values, $fields, $plgSettings);
                 $ui = '';
                 $n = count($uis);
                 $i = 0;
@@ -2918,6 +2921,7 @@ class K2FieldsModelFields extends K2Model {
         
         private function renderUIFoldValuesInSections(
                 $values,
+                $fields,
                 $plgSettings,
                 $glue = false, 
                 $itemGluePre = '', 
@@ -2927,6 +2931,10 @@ class K2FieldsModelFields extends K2Model {
                 $format = 'rendered'
         ) {
                 $uis = array();
+                $view = JFactory::getApplication()->input->get('view') == 'item' ? '' : 'itemlist';
+                $mergeFolded = self::setting('mergeFolded', null, 'yes') == 'yes';
+                $uisFolded = array();
+                $folded = 0;
                 
                 foreach ($values as $value) {
                         if (isset($plgSettings['merge']) && in_array($plgSettings['merge'], array('true', '1'))) {
@@ -2935,17 +2943,48 @@ class K2FieldsModelFields extends K2Model {
                                 $section = $value['section'];
                         }
                         
+                        $isFolded = false;
+                        if (isset($fields[$value['field']])) {
+                                $field = $fields[$value['field']];
+                                $isFolded = self::isTrue($field, 'folded');
+                        }
+                        
                         if (!isset($uis[$section])) 
                                 $uis[$section] = $glue ? '' : array();
                         
-                        if ($glue) 
+                        if ($glue) {
                                 $uis[$section] .= $format == 'rendered' ? $itemGluePre . $value['rendered'] . $itemGluePost : $value;
-                        else 
-                                $uis[$section][$value['field']] = $format == 'rendered' ? $value['rendered'] : $value;
+                        } else {
+                                $val = $format == 'rendered' ? $value['rendered'] : $value;
+                                $f = $value['field'];
+                                
+                                if ($isFolded) {
+                                        if ($mergeFolded) {
+                                                $uisFolded[$section] = 
+                                                        (isset($uisFolded[$section]) ? $uisFolded[$section] : '') . $val;
+                                                continue;
+                                        } else {
+                                                $lbl = self::value($field, $view.'label');
+                                                if (!$lbl) $lbl = self::value($field, 'name');
+                                                $lbl = JText::_('Show ') . $lbl;
+                                                $val = '<a href="javascript:void(0)" class="jpcollapse">'.$lbl.'</a><div>'.$val.'</div>';
+                                        }
+                                }
+                                
+                                $uis[$section][$f] = $val;
+                                
+                        }
                 }
                 
-                if (!empty($gluePre) || !empty($gluePost)) 
+                if (!$glue) {
+                        foreach ($uisFolded as $section => $ui) {
+                                $uis[$section]['folded'] = '<a href="javascript:void(0)" class="jpcollapse mergefolded">'.JText::_('Show additional').'</a><div>'.$ui.'</div>';
+                        }
+                }
+                
+                if (!empty($gluePre) || !empty($gluePost)) {
                         foreach ($uis as &$ui) $ui = $gluePre . $ui . $gluePost;
+                }
                 
                 return $uis;
         }

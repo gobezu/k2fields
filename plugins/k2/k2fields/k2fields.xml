@@ -41,6 +41,10 @@
                         </fieldset>
                         
                         <fieldset name="PLG_K2FIELDS_LAYOUT">
+                                <field name="mergeFolded" type="radio" default="yes" label="Merge folded fields?" description="When folding fields we can place each field in each fold or merge them in one fold within each section.">
+                                        <option value="yes">JYES</option>
+                                        <option value="no">JNO</option>
+                                </field>
                                 <field name="specificLayout" type="radio" default="yes" label="Item/category specific layout" description="please refer to k2fields wiki for instruction on this powerful feature.">
                                         <option value="yes">JYES</option>
                                         <option value="no">JNO</option>
