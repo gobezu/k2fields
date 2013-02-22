@@ -14,6 +14,8 @@ if (!class_exists('JprovenUtility')) {
 
 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
 
+JFactory::getLanguage()->load('mod_k2_tools');
+
 $defaultCategory = $params->get('defaultcategory', 0);
 $itemId = JFactory::getApplication()->input->get('Itemid');
 $useItemid = $params->get('useitemid', 'current') == 'current' ? $itemId : $params->get('menuitemid', $itemId);

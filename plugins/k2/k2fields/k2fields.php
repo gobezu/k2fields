@@ -233,21 +233,6 @@ class plgk2k2fields extends K2Plugin {
                  * NOTE: due to autofields that doesn't carry values checking presence of fields
                  * can't be validation to reject further parsing. Instead make available field processing
                  * efficient
-                $p = is_object($params) ? $params : $item->params;
-                
-                if (is_string($p)) {
-                        $p = new JRegistry($p);
-                }
-                
-                $ef = is_array($item->extra_fields) && count($item->extra_fields) > 0 &&
-                      (
-                        $p->get('parsedInModule') || 
-                        $view == 'itemlist' && $p->get('catItemExtraFields') || 
-                        $view == 'item' && $p->get('itemExtraFields')
-                      )
-                        ;
-                
-                if (!$ef) return;
                  *
                  */
                 
@@ -673,10 +658,6 @@ class plgk2k2fields extends K2Plugin {
                                 'extendables' => self::getExtendables(),
                                 'selfName' => K2FieldsModelFields::JS_VAR_NAME,
                                 'maxListItem' => K2FieldsModelFields::setting('listmax'),
-                                'datetimeFormat' => K2FieldsModelFields::setting('datetimeFormat'),
-                                'dateFormat' => K2FieldsModelFields::setting('dateFormat'),
-                                'timeFormat' => K2FieldsModelFields::setting('timeFormat'),
-                                'weekstartson' => K2FieldsModelFields::setting('weekstartson'),
                                 'autoFields' => K2FieldsModelFields::$autoFieldTypes,
                                 'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength'),
                                 'view'=>  JFactory::getApplication()->input->get('view')

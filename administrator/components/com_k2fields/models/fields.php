@@ -1453,15 +1453,23 @@ class K2FieldsModelFields extends K2Model {
                 $type = $input->get('type');
                 $layout = $input->get('layout');
                 
-                if ($layout == 'category' && $view == 'itemlist') $layout = false;
+                if ($layout == 'category' && $view == 'itemlist') {
+                        $layout = false;
+                }
                 
-                if ($isNegate = (strpos($modeFilter, '-') === 0)) {
+                $isNegate = isset($modeFilter) && strpos($modeFilter, '-') === 0;
+
+                if ($isNegate) {
                         $modeFilter = str_replace('-', '', $modeFilter);
                 }
                 
                 if (isset($modeFilter) && $modeFilter != 'edit') {
-                        if (is_string($modeFilter) && $modeFilter == 'view') {
-                                $modeFilter = array('view' => $layout ? $layout : $view);
+                        if (is_string($modeFilter)) {
+                                if ($modeFilter == 'view') {
+                                        $modeFilter = array('view' => $layout ? $layout : $view);
+                                } else if ($modeFilter != 'search') {
+                                        $modeFilter = array('view' => $modeFilter);
+                                }
                         }
                         
                         $accessMode = 'read';
@@ -1923,13 +1931,13 @@ class K2FieldsModelFields extends K2Model {
                 
                 if ($inModule) {
                         $filterView = 'module';
-                        $modeFilter = array('view' => 'module');
+                        $modeFilter = 'module';
                 } else if ($inMap && !K2FieldsMap::showList()) {
                         $filterView = 'map';
-                        $modeFilter = array('view' => 'map');
+                        $modeFilter = 'map';
                 } else if ($inCompare) {
                         $filterView = strpos($option, 'com_k2') !== false ? 'compare' : null;
-                        $modeFilter = array('view' => 'compare');
+                        $modeFilter = 'compare';
                 } else {
                         $filterView = strpos($option, 'com_k2') !== false ? $view : null;
                         $modeFilter = $filterView ? 'view' : null;
@@ -2313,7 +2321,7 @@ class K2FieldsModelFields extends K2Model {
 
                                                         if ($isItemObj) {
                                                                 $fieldsRendered = JprovenUtility::indexBy($position['rendered'], 'field', 'all', null, true, true);
-
+                                                                
                                                                 foreach ($item->extra_fields as &$ef) {
                                                                         $id = self::value($ef, 'id');
 
@@ -3908,7 +3916,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $repeatList = self::value($field, 'repeatlist', 'list');
                         $repeatFormat  = self::value($field, 'repeatformat', $format);
                         
-                        if ($repeatList == 'words' || $repeatList == 'combined') {
+                        if ($repeatList == 'descriptive' || $repeatList == 'combined') {
                                 $freq = (int) JprovenUtility::getColumn($values, 'value', true, array('partindex' => 2));
                                 $unit = JprovenUtility::getColumn($values, 'value', true, array('partindex' => 3));
 

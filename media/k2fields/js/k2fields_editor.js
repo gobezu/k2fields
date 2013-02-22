@@ -903,10 +903,11 @@ var k2fieldseditor = new Class({
                                 'section':'Basic'
                         },
                         '44':{
-                                'name':'Positioned absolute',
+                                'name':'Absolutely positioned',
                                 'optName':'absolute',
                                 'valid':'verifybox',
-                                'section':'Layout'
+                                'section':'Layout',
+                                'tip':'If you choose to place a field absolute then you will also need to set the final position in your templates custom css file '
                         },
                         '45':{
                                 'name':'Collapsible',
@@ -1562,7 +1563,7 @@ var k2fieldseditor = new Class({
                         
                         // Type::Date
                         '1201':{
-                                'name':'Picker theme',
+                                'name':'Date picker theme',
                                 'optName':'theme',
                                 'valid':'text',
                                 'ui':'select',
@@ -1649,21 +1650,22 @@ var k2fieldseditor = new Class({
                                         {'value':'D, d M Y H:i:s \G\M\T', 'text':'Mon, 19 Nov 2007 23:47:33 GMT'},
                                         {'value':'Y-m-d\TH:i:s\Z', 'text':'2003-12-13T18:30:02Z'}
                                 ],
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'required':1
                         },
                         // TODO: testa hur detta beroende håller än idag
                         '1205':{
                                 'name':'Start time',
                                 'optName':'starttime',
                                 'valid':'integer',
-                                'tip':'Field id of start field',
+                                'tip':'Field id of start field. If you want to restrict the start date of this field based on another fields selected date/time (ie. selectable dates will be greater than the constraining field value) provide here the field id of the constraining field.',
                                 'section':'Type specific'
                         },
                         '1206':{
                                 'name':'End time',
                                 'optName':'endtime',
                                 'valid':'integer',
-                                'tip':'Field id of end field',
+                                'tip':'Field id of start field. If you want to restrict the end date of this field based on another fields selected date/time (ie. selectable dates will be less than the constraining field value) provide here the field id of the constraining field.',
                                 'section':'Type specific'
                         },
                         '1207':{
@@ -1675,17 +1677,15 @@ var k2fieldseditor = new Class({
                                         {'value':'enddate', 'text':'End date'},
                                         {'value':'number', 'text':'Number of days'}                                
                                 ],
-                                'tip':'end of repetition mode - limited by enddate or number of allowed repetitions',
-                                'section':'Type specific'
+                                'clearopt':'button',
+                                'tip':'End of repetition mode - limited by enddate or number of allowed repetitions provided in repetition limit below',
+                                'section':'Type specific',
+                                'deps': {
+                                        'enddate':['id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213'],
+                                        'number':['id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213']
+                                }
                         },
                         '1208':{
-                                'name':'Expire',
-                                'optName':'expire',
-                                'valid':'verifybox',
-                                'tip':'When the last repetition datetime is passed item is marked as unpublished.',
-                                'section':'Type specific'
-                        },
-                        '1211':{
                                 'name':'Combine',
                                 'optName':'combine',
                                 'valid':'verifybox',
@@ -1695,35 +1695,43 @@ var k2fieldseditor = new Class({
                                 'name':'Repeat format',
                                 'optName':'repeatformat',
                                 'valid':'text',
-                                'tip':'Format with which date/time will be shown, overriding the global k2fields plugin setting.',
+                                'tip':'Format with which repeated date/time will be shown.',
                                 'section':'Type specific'
                         },
                         '1210':{
                                 'name':'Repetition limit',
                                 'optName':'repeatlistmax',
                                 'valid':'integer',
-                                'tip':'number of instances to be shown directly, and eventually remaining repetitions will be folded in an accordion',
+                                'tip':'Number of instances to be shown directly, and eventually remaining repetitions will be collapsed and will be available upon click.',
                                 'section':'Type specific'
                         },
-                        '1212':{
+                        '1211':{
                                 'name':'Show only future',
                                 'optName':'repeatexpire',
                                 'valid':'verifybox',
                                 'tip':'Limits shown repetitions to only those in the future.',
                                 'section':'Type specific'
                         },
-                        '1213':{
+                        '1212':{
                                 'name':'Repeat list mode',
                                 'optName':'repeatlist',
-                                'valid':'checkbox',
-                                'values':[ {'value':'word'}, {'value':'list'}],
-                                'section':'Type specific'
+                                'valid':'radio',
+                                'values':[{'value':'descriptive'}, {'value':'list'}, {'value':'combined', 'text':'both'}],
+                                'section':'Type specific',
+                                'tip':'When displaying repeated values you might not want to display the list of repeated values rather provide a descriptive text telling the start and end date and intermediary repetition frequencies: ex. From 2013-01-01 repeated every 2 weeks until 2013-12-31. The option descriptive provides such rendering. You can combine both the list and descriptive too.'
                         },
-                        '1214':{
+                        '1213':{
                                 'name':'Repeat combine',
                                 'optName':'repeatcombine',
                                 'valid':'verifybox',
                                 'tip':'if we have a several repeating instances, in the case where we have a list valued field, and we would want to combine them all to create one single list of event date/times then we would need to provide this option as true',
+                                'section':'Type specific'
+                        },
+                        '1214':{
+                                'name':'Expire',
+                                'optName':'expire',
+                                'valid':'verifybox',
+                                'tip':'When the time of this field is passed (if repeated the last repeated time) item is marked as unpublished.',
                                 'section':'Type specific'
                         },
                         '1215':{

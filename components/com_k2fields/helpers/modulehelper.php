@@ -747,7 +747,7 @@ class K2FieldsModuleHelper {
                                                         $imageFields = array_unique($imageFields);
                                                         $imageFields = (array) $imageFields;
                                                         $fieldsModel = K2Model::getInstance('fields', 'K2FieldsModel');
-                                                        $imageFields = $fieldsModel->getFieldsById($imageFields, array('view' => 'module'));
+                                                        $imageFields = $fieldsModel->getFieldsById($imageFields, 'module');
                                                         K2FieldsModelFields::filterBasedOnView($imageFields, 'module');
                                                         $theImageField = null;
                                                         
@@ -881,7 +881,7 @@ class K2FieldsModuleHelper {
 
                                         //Extra fields
                                         if ($params->get('itemExtraFields')) {
-                                                $item->extra_fields = $model->getItemExtraFields($item->extra_fields);
+                                                $item->extra_fields = $model->getItemExtraFields($item->extra_fields, $item);
                                         }
 
                                         //Comments counter

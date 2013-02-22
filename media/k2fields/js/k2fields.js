@@ -6,9 +6,6 @@ var k2fields = new Class({
         options: {
                 dateMin: new Date('1970-01-01'),
                 dateMax: new Date('2099-12-31'),
-                dateformat:'%Y-%m-%d',
-                timeformat:'%H:%M',
-                datetimeformat:'%Y-%m-%d %H:%M',
                 selectTreshold: 7,
                 base: '',
                 pre: 'K2ExtraField_',
@@ -50,10 +47,6 @@ var k2fields = new Class({
         
         initialize: function(options) {
                 this.setOptions(options);
-                
-                this.options['datetimeFormat'] = this.convertPHPToJSDatetimeFormat(this.options['datetimeFormat']);
-                this.options['dateFormat'] = this.convertPHPToJSDatetimeFormat(this.options['dateFormat']);
-                this.options['timeFormat'] = this.convertPHPToJSDatetimeFormat(this.options['timeFormat']);
                 
                 if (this.isMode('editfields')) return;
                 
@@ -1835,4 +1828,3 @@ var k2fields = new Class({
         
         prt: function(val, varVal, varCond) {this.utility.dbg(val, varVal, varCond);}
 });
-

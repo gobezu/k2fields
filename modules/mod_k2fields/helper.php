@@ -19,7 +19,7 @@ class modK2FieldsHelper {
                         $includeDefaultMenuItem,
                         $categoriesId,
                         false,
-                        JText::_($text),
+                        $text ? JText::_($text) : '',
                         false,
                         false,
                         true

@@ -550,7 +550,6 @@ group by vvv.itemid
 //                        </script>
 //                        ';                
                 
-                
                 $outputJS = '
                         window.addEvent("domready", function() {'.
                                 K2FieldsModelFields::JS_VAR_NAME.'.options.fieldsOptions = '.json_encode($fields).';
@@ -972,6 +971,7 @@ group by vvv.itemid
                 $option = $input->get('option');
                 
                 if ($option == 'com_k2' || $option == 'com_k2fields') $task = $input->get('task');
+                else $task = '';
 
                 foreach ($dirs as $dir) {
                         if ($file !== false) break;
