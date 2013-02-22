@@ -29,4 +29,3 @@
 class NestedSetDbTable_Exception extends Exception
 {
 }
-?>

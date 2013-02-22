@@ -41,5 +41,3 @@ class K2FieldsControllerField extends JController {
         
         
 }
-
-?>

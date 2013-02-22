@@ -51,4 +51,3 @@ class K2FieldsViewItemlist extends JView {
                 parent::display($tpl);
         }
 }
-?>

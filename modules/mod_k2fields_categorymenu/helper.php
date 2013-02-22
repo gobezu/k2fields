@@ -82,4 +82,3 @@ class modK2fieldsCategoryMenuHelper {
                 return $ui;
 	}
 }
-?>

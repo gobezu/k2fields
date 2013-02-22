@@ -186,5 +186,3 @@ class K2fieldsWidgetkitHelper {
                 return true;
         }
 }
-
-?>

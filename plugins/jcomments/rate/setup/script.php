@@ -201,6 +201,3 @@ class plgJcommentsRateInstallerScript {
                 return array('name' => $name.' - '.$ext['name'], 'type' => $type, 'status' => $inst ? true : false);
         }        
 }
-?>
-
-?>

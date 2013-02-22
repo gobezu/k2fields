@@ -10,4 +10,3 @@ class plgContentK2fields extends JPlugin {
                 if ($result === false) return true;
         }
 }
-?>

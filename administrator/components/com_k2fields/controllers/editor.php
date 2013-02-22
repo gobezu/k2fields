@@ -302,5 +302,3 @@ order by groupid, `text`
                 return $settings;
         }
 }
-
-?>

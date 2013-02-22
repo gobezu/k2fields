@@ -1285,5 +1285,3 @@ class K2FieldsModelSearchterms extends K2Model {
                 }
         } 
 }
-
-?>

@@ -615,4 +615,3 @@ class plgSystemk2fields extends JPlugin {
                 }
         }        
 }
-?>

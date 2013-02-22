@@ -594,5 +594,3 @@ class K2FieldsList {
                 return $this->_db->query() !== false;
         }
 }
-
-?>

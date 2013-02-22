@@ -53,4 +53,3 @@ class modK2FieldsHelper {
                 return $output;
         }
 }
-?>

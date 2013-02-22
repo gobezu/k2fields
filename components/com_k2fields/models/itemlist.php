@@ -49,5 +49,3 @@ class K2FieldsModelItemlist extends K2ModelItemlist {
                 return $this->_p ? parent::getTotal() : $this->_sts->getTotal();
         }
 }
-
-?>

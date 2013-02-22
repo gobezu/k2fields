@@ -542,5 +542,3 @@ window.addEvent("load", function() {
         
         
 }
-
-?>

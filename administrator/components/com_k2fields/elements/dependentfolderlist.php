@@ -58,5 +58,3 @@ class JFormFieldDependentFolderList extends JFormFieldFolderList {
                 return parent::getLabel();
         }
 }
-
-?>

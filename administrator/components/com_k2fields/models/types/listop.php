@@ -24,5 +24,3 @@ class K2FieldsListOp extends NestedSetDbTable_Abstract {
                 parent::__construct($dbh);                 
         }
 }
-
-?>

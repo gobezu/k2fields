@@ -12,5 +12,3 @@ class TableK2ExtraFieldsDefinition extends JTable {
 		parent::__construct('#__k2_extra_fields_definition', 'id', $db);
 	}
 }
-
-?>

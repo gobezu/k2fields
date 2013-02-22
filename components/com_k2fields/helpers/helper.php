@@ -136,5 +136,3 @@ class K2FieldsHelper {
                 return !$isOnlyExtraFieldsTab || (int) $cats[$catId][0]->ef > 0;
         }
 }
-
-?>

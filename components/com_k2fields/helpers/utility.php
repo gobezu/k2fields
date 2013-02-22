@@ -2667,4 +2667,3 @@ group by vvv.itemid
                 }
         }
 }
-?>

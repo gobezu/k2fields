@@ -310,4 +310,3 @@ class K2fieldsK2Item {
                 return $query;
         }
 }
-?>

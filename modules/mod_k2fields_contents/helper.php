@@ -91,4 +91,3 @@ class K2fieldsContentsSettings extends JObject {
                 return json_encode($res);
         }
 }
-?>

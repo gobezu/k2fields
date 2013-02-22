@@ -16,5 +16,3 @@ if (!class_exists('K2ModelItem') && JFactory::getApplication()->input->get('opti
 
 class K2FieldsModelItem extends K2ModelItem {
 }
-
-?>

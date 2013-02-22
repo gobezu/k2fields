@@ -624,4 +624,3 @@ class JcommentsRate {
                 return $result;                
         }      
 }
-?>

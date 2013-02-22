@@ -24,5 +24,3 @@ class TableK2ExtraFieldValue extends JTable {
 		parent::__construct('#__k2_extra_fields_values', 'id', $db);
 	}
 }
-
-?>

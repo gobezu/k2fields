@@ -62,4 +62,3 @@ class K2fieldsControllerItemlist extends K2ControllerItemlist {
                 $params->set('num_links', $num);
         }
 }
-?>

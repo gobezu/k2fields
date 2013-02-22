@@ -20,4 +20,3 @@ if ($view == 'fields' || $view == 'field') {
 } else {
         JError::raiseError(404, JText::_('View not found'));
 }
-?>

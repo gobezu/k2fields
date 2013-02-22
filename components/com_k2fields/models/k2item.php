@@ -53,4 +53,3 @@ class K2fieldsModelK2item extends K2ModelItem {
                 return $item;
         }
 }
-?>

@@ -115,4 +115,3 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
                 });");
         }
 }
-?>

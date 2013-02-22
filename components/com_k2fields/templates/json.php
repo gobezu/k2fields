@@ -41,4 +41,3 @@ if (count($this->items)) :
         
         echo json_encode($items);
 endif;
-?>
