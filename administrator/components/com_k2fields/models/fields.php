@@ -546,7 +546,6 @@ class K2FieldsModelFields extends K2Model {
                 if (empty($itemFields)) return;
                 
                 $itemFields = json_decode($itemFields);
-                $cnt = 1;
                 
                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables/');
                 $r = JTable::getInstance('K2ExtraFieldValue', 'Table');
