@@ -210,6 +210,21 @@ var JPUtility = new Class({
                 return result;
         },
         
+        replaceTokens:function(str, to, tokens) {
+                to = Array.from(to);
+                var i, n = to.length, token, isArray = (typeOf(tokens) == 'array');
+                for (i = 0; i < n; i++) {
+                        token = isArray ? tokens[i] : tokens;
+                        str = str.replace(token, to[i]);
+                }
+                return str;
+        },
+                
+        makeSafePath: function(path) {
+                path = path.replace(/(\.){2,}/ig, '').replace(/[^A-Za-z0-9\.\_\- ]/ig, '').replace(/^\./ig, '');
+                return path; 
+        },
+                
         normalizePath: function(path) { return path.replace(/[/\\\\]+/, '/'); },
         
         loadImageAttrs: [],
@@ -228,9 +243,21 @@ var JPUtility = new Class({
                         var tmp = this.options.base + this.options.k2fbase;
                         if (tmp.lastIndexOf('/') != tmp.length - 1) tmp += '/';
                         src = tmp + type + '/' + src;
+                } else {
+                        if (!/http[s]{0,1}\:\/\//.test(src)) src = this.options.base + src;
                 }
                 
+                var m = src.match(/\.([a-z\|]+)$/i), exts = m[1].split('|');
+                
+                if (m[1] == 'all') exts = ['jpg', 'gif', 'png'];
+                
+                src = src.replace(m[0], '.'+exts[0]);
+                delete exts[0];
+                exts = exts.clean();
+                
                 if (!props) props = {};
+                
+                props.exts = exts.join('|');
                 
                 props.ind = ind;
                 
@@ -239,7 +266,21 @@ var JPUtility = new Class({
                         if (into) img.inject(into);
                 }.bind(this);
 
+                var ut = this;
+                
                 props.onerror = function(img) {
+                        var exts = img.get('exts'), src;
+                        
+                        if (exts) {
+                                exts = exts.split('|');
+                                src = img.get('src').replace(/\.[a-z]+$/i, '.'+exts[0]);
+                                delete exts[0];
+                                exts = exts.clean().join('|');
+                                props.exts = exts;
+                                
+                                return new Asset.image(src, props);
+                        }
+                        
                         var ind = img.get('ind'), into = this.loadImageAttrs[ind];
 
                         img = new Element('span', {text: img.get('title') || img.get('alt')});
@@ -249,7 +290,7 @@ var JPUtility = new Class({
                 
                 this.loadImageAttrs[ind] = into;
                 
-                new Asset.image(src, props);                
+                return new Asset.image(src, props);                
         }
 });
 /**

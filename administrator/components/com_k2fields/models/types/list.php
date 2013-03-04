@@ -44,7 +44,7 @@ class K2FieldsList {
                         
                         $values = $_values;
                 }
-                
+                                
                 return $helper->renderGeneric($item, $values, $field, $helper, $rule);
         }
         
@@ -143,7 +143,7 @@ class K2FieldsList {
                 }
                 
                 $fields[$fieldId] = $options;
-                
+
                 return $options;
         }        
         

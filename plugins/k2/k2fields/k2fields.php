@@ -25,6 +25,9 @@ class plgk2k2fields extends K2Plugin {
 
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
+//                $model = K2Model::getInstance('fields', 'K2FieldsModel');
+//                $model->adjustFieldValues($item);
+                
                 $this->normalizeMetatag($item, 'metadesc');
                 $this->normalizeMetatag($item, 'metakey');
                 
@@ -678,13 +681,13 @@ class plgk2k2fields extends K2Plugin {
                         
                         if ($tab == 'search') JprovenUtility::load('jpsearch.js', 'js');
                         
-                        if ($tab == 'extra-fields') {
-                                JprovenUtility::load('lib/markitup/images/style.css', 'css');
-                                JprovenUtility::load('lib/markitup/markitup/jquery.markitup.js', 'js');
-                                JprovenUtility::load('lib/markitup/markitup/sets/default/set.js', 'js');
-                                JprovenUtility::load('lib/markitup/markitup/skins/simple/style.css', 'css');
-                                JprovenUtility::load('lib/markitup/markitup/sets/default/style.css', 'css');
-                        }
+//                        if ($tab == 'extra-fields') {
+//                                JprovenUtility::load('lib/markitup/images/style.css', 'css');
+//                                JprovenUtility::load('lib/markitup/markitup/jquery.markitup.js', 'js');
+//                                JprovenUtility::load('lib/markitup/markitup/sets/default/set.js', 'js');
+//                                JprovenUtility::load('lib/markitup/markitup/skins/simple/style.css', 'css');
+//                                JprovenUtility::load('lib/markitup/markitup/sets/default/style.css', 'css');
+//                        }
                 }        
         }
         

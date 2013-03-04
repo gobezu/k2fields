@@ -557,13 +557,79 @@ var k2fields_type_basic = {
                         }
                 }
                 
+                if (this.chkOpt(proxyField, 'selectchosen', '1')) {
+                        this.utility.load('tag', this.options.base + this.options.k2fbase + 'lib/chosen-with-templates/chosen/chosen.css');
+
+                        this.utility.load(
+                                'tag', 
+                                this.options.base + this.options.k2fbase + 'lib/chosen-with-templates/chosen/chosen.jquery.js', 
+                                'js', 
+                                false, 
+                                '', 
+                                function() { this._createChosen(field[0], proxyField); }.bind(this)
+                        );
+                }
+                        
                 return field;
         },
         
+        _createChosen:function(field, proxyField) {
+                var opts = {}, val;
+                
+                if (val = this.getOpt(proxyField, 'chosen.width'))
+                        if (val = val.toInt())
+                                field.setStyle('width', val);
+                
+                if (val = this.getOpt(proxyField, 'chosen.data-placeholder')) {
+                        field.set('data-placeholder', val);
+                        
+                        var options = field.getElements('option'), i, n = options.length;
+                        
+                        for (i = 0; i < n; i++) {
+                                if (!options[i].get('value')) {
+                                        field.getElements('option')[i].dispose();
+                                        break;
+                                }
+                        }
+                }
+                
+                if (val = this.getOpt(proxyField, 'chosen.no_results_text')) opts['no_results_text'] = val;
+                
+                if (val = this.getOpt(proxyField, 'chosen.max_selected_options')) opts['max_selected_options'] = val;
+                
+                if (val = this.getOpt(proxyField, 'chosen.allow_single_deselect')) opts['allow_single_deselect'] = true;
+                
+                if (val = this.getOpt(proxyField, 'chosen.template')) {
+                        field.set('data-template', val);
+                        opts['template'] = function(text, value, templateData) {
+                                var img = templateData['img'] ? '<img src="'+templateData['img']+'"></img>' : '';
+                                var template = document.id(this).get('data-template');
+                                template = template.replace(/%img%/g, img).replace(/%text%/g, text).replace(/%value%/g, value);
+                                return [template].join('');
+                        }.bind(field);                        
+                }
+                
+                if (val = this.getOpt(proxyField, 'chosen.templateSelected')) {
+                        field.set('data-templateSelected', val);
+                        opts['templateSelected'] = function(text, value, templateData) {
+                                var img = templateData['img'] ? templateData.img : '';
+                                var template = document.id(this).get('data-template');
+                                if (img) {
+                                        img = img.replace(/\.([^\.]+)$/, '_selected.$1');
+                                        img = '<img src="'+img+'"></img>'
+                                }
+                                template = template.replace(/%img%/, img).replace(/%text%/, text).replace(/%value%/, value);
+                                return [template].join('');
+                        }.bind(field);                        
+                }
+                
+                jQuery(field).chosen(opts);
+        },
+                
         _basicValues:{},
         
         _orderValues:function(proxyField) {
-                if (this.chkOpt(proxyField, 'sorted', ['true', true])) return;
+                if (this.chkOpt(proxyField, 'sorted', ['true', true, '1', 1])) return;
                 
                 var values = this.getOpt(proxyField, 'values');
                 

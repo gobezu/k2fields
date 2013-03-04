@@ -1131,26 +1131,32 @@ var k2fields = new Class({
                 }
                 
                 if (this.getOpt(proxyField, 'excludevalues'+this.options.mode) && values && values.length) {
-                        var dels = this.getOpt(proxyField, 'excludevalues'+this.options.mode);
+                        var dels = this.getOpt(proxyField, 'excludevalues'+this.options.mode), del, val, di, dn, vi, vn;
                         
-                        dels = dels.toLowerCase();
-                        dels = dels.split(this.options.valueSeparator);
+                        if (typeof dels == 'string') {
+                                dels = dels.toLowerCase();
+                                dels = dels.split(this.options.valueSeparator);
+                        }
                         
-                        dels.each(function(d) {
-                                if (!d) return;
+                        for (var di = 0, dn = dels.length; di < dn; di++) {
+                                del = dels[di];
                                 
-                                for (var i = 0, n = values.length; i < n; i++) {
-                                        if (d == values[i].value.toLowerCase() || d == values[i].text.toLowerCase()) {
-                                                delete values[i];
+                                if (!del) continue;
+                                
+                                for (var vi = 0, vn = values.length; vi < vn; vi++) {
+                                        val = values[vi];
+                                        
+                                        if (val['value'] && del == val['value'] || val['text'] && del == val['text']) {
+                                                delete values[vi];
+                                                values = values.clean();
                                                 break;
                                         }
-                                } 
-                        }.bind(this));
-                        
-                        values = values.clean();
+                                }
+                        }
                 }
                 
                 if (type == 'select') {
+                        var imgFolder = this.getOpt(proxyField, 'imgfolder');
                         field = this.createListSelect(
                                 values, 
                                 opts['valueName'] ? opts['valueName'] : '', 
@@ -1159,7 +1165,8 @@ var k2fields = new Class({
                                 opts['first'], 
                                 opts['multiple'], 
                                 opts['size'],
-                                into
+                                into,
+                                imgFolder
                         );
                 } else {
                         opts['id'] = id;
@@ -1249,7 +1256,7 @@ var k2fields = new Class({
                 }
                 
                 if (type == 'textarea' && this.getOpt(proxyField, 'show_editor')) {
-                        if( typeof tinymce != 'undefined') {
+                        if (typeof tinymce != 'undefined') {
                                 if(tinyMCE.get(field[0].get('id'))) {
                                         tinymce.EditorManager.remove(tinyMCE.get(field[0].get('id')));
                                 }

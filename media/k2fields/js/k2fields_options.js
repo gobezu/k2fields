@@ -347,7 +347,18 @@ var k2fieldsoptions = new Class({
                         opts.listmax = parseInt(opts.listmax);
                 }
                 
-                if (opts['searchui'] && this.isMode('search')) opts['ui'] = opts['searchui'];
+                //if (opts['searchui'] && this.isMode('search')) opts['ui'] = opts['searchui'];
+                
+                var re = new RegExp('^'+this.options.mode+'..'), newOptName;
+                
+                for (var optName in opts) {
+                        if (re.test(optName)) {
+                                newOptName = optName.replace(re, '');
+                                opts[newOptName] = opts[optName];
+                        }
+                }
+                
+                if (opts['valuesorder'] && opts['valuesorder'] == 'sorted') opts['sorted'] = true;
                 
                 return opts;
         },

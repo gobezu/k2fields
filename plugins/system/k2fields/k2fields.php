@@ -187,7 +187,7 @@ class plgSystemk2fields extends JPlugin {
                 
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $model->resetValues();
-                $model->adjustUnpublishDates();
+                //$model->adjustUnpublishDates();
         }
         
         private static function saveFieldDefinition($task, $step) {
