@@ -538,7 +538,7 @@ var JPForm = new Class({
                                         img = this.utility.loadImage(img);
                                 }
                         }
-                        if (img) opt.set('data-img', img.src);
+                        if (img) opt.set('data-img', img.get('_id_'));
                 } else {
                         if (!attrs) {
                                 attrs = {};

@@ -70,9 +70,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         $limit = K2FieldsHelper::getItemlistLimit($catid);
                         
                         $this->_db->setQuery($query, $limitstart, $limit);
-                        
-//                        jdbg::pe($this->_db->getQuery());
-                        
+//                        jdbg::pe($query);
                         if ($mode == 'id') {
                                 $result = $this->_db->loadResultArray();
                         } else {
@@ -513,19 +511,23 @@ class K2FieldsModelSearchterms extends K2Model {
                 
                 if (in_array($op, array('eq', 'gt', 'lt', 'le', 'ge')) || K2FieldsModelFields::isNumeric($def) || K2FieldsModelFields::isDatetimeType($def)) {
                         $q = '';
-                        $value = explode(',', $value);
+                        
+                        if (!is_array($value)) $value = explode(',', $value);
                         
                         if (in_array($value[0], array('now', 'today', 'tomorrow', 'thisevening', 'nextweek', 'thisweek', 'thisweekend'))) {
                                 $op = 'interval';
                         }
                         
-                        $value = implode(',', $value);
+//                        $value = implode(',', $value);
                         if ($op == 'interval') {
                                 if (K2FieldsModelFields::isNumeric($def)) {
+                                        $value = $value[0];
                                         $value = explode(';', $value);
+                                        
                                         if (is_numeric($value[0])) {
                                                 $q = $tbl.'value >= '.(int)$value[0];
                                         }
+                                        
                                         if (is_numeric($value[1])) {
                                                 $q .= ($q ? ' AND ' : '') . $tbl.'value <= '.$value[1];
                                         }

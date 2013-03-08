@@ -19,14 +19,13 @@ class plgk2k2fields extends K2Plugin {
         
         function plgk2k2fields(&$subject, $params) {
                 parent::__construct($subject, $params);
-//                JPlugin::loadLanguage('plg_k2_k2fields', JPATH_ADMINISTRATOR);
                 $this->loadLanguage('', JPATH_ADMINISTRATOR);
         }
 
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
-//                $model = K2Model::getInstance('fields', 'K2FieldsModel');
-//                $model->adjustFieldValues($item);
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
+                $model->adjustFieldValues($item);
                 
                 $this->normalizeMetatag($item, 'metadesc');
                 $this->normalizeMetatag($item, 'metakey');
@@ -217,7 +216,7 @@ class plgk2k2fields extends K2Plugin {
         private static function processExtrafields($caller, &$item, &$params, $limitstart) {
                 if (K2FieldsModelFields::value($item, 'k2item')) return;
                 
-                $view = JFactory::getApplication()->input->get('view');
+               $view = JFactory::getApplication()->input->get('view');
                 $_view = $view;
                 
                 if ($_view != 'itemlist') $_view = '';

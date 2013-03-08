@@ -32,6 +32,7 @@ class K2FieldsList {
                 if (!empty($show)) {
                         $leaf = count($values);
                         $levels = $helper->value($field, 'levels');
+                        $levels = (array) $levels;
                         $search = array_merge(array('root', 'leaf', 'parent'), $levels);
                         $replace = array_merge(array(1, $leaf, $leaf-1), range(1, count($levels)));
                         $show = str_replace($search, $replace, $show);

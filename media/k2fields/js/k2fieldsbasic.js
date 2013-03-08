@@ -42,7 +42,7 @@ var k2fields_type_basic = {
                                         else return '';
                                 },
                                 test: function(element, props){
-                                        if (typeOf(props.minValue) != 'null') return (Number.from(element.get('value')) >= (Number.from(props.minValue) || -Infinity));
+                                        if (typeOf(props.minValue) != 'null') return element.get('value') === "" || (Number.from(element.get('value')) >= (Number.from(props.minValue) || -Infinity));
                                         else return true;
                                 }
                         }],
@@ -53,7 +53,7 @@ var k2fields_type_basic = {
                                         else return '';
                                 },
                                 test: function(element, props){
-                                        if (typeOf(props.maxValue) != 'null') return (Number.from(element.get('value')) <= (Number.from(props.maxValue) || Infinity));
+                                        if (typeOf(props.maxValue) != 'null') return element.get('value') === "" || (Number.from(element.get('value')) <= (Number.from(props.maxValue) || Infinity));
                                         else return true;
                                 }
                         }],
@@ -325,19 +325,42 @@ var k2fields_type_basic = {
         
         createRange: function(holder, proxyField, value, condition) {
                 var 
-                        i = this.getOpt(proxyField, 'low', undefined, 1), 
-                        h = this.getOpt(proxyField, 'high'), 
-                        s = this.getOpt(proxyField, 'step', undefined, 1), 
+                        i, 
+                        is = this.getOpt(proxyField, 'low.statement'), 
+                        h, 
+                        hs = this.getOpt(proxyField, 'high.statement'),
+                        s,
+                        ss = this.getOpt(proxyField, 'step.statement'),
                         va = this.getOpt(proxyField, 'show', false),
-                        shift = this.getOpt(proxyField, 'shift', 0),
+                        shift = Number(this.getOpt(proxyField, 'shift', 0)),
                         values = []
                         ;
+                
+                if (!ss) eval('ss = function() {return arguments[0]+arguments[1]; };');
+                else eval('ss = function(v,s) {'+ss+'};');
+                
+                s = Number(this.getOpt(proxyField, 'step', undefined, 1));
+                
+                if (is) {
+                        is = 'i = function() {'+is.trim()+'}();';
+                        eval(is);
+                }
+                
+                if (!i) i = Number(this.getOpt(proxyField, 'low', undefined, 1));
+                
+                if (hs) {
+                        hs = 'h = function() {'+hs.trim()+'}();';
+                        eval(hs);
+                }
+                
+                if (!h) h = Number(this.getOpt(proxyField, 'high'));
                 
                 h -= shift;
                 
                 while (i <= h) {
                         values.push({value:i,img:va=='img'?'n'+i+'.png':'',text:i+shift});
-                        i += s;
+                        i = ss(i,s);
+                        //i += s;
                 }
                 
                 if (values.length <= 0) return;
@@ -417,7 +440,6 @@ var k2fields_type_basic = {
                 } else {
                         def.from = this.getOpt(proxyField, 'min');
                         def.to = this.getOpt(proxyField, 'max');
-                        
                 }
                 
                 if (!value) {
@@ -428,10 +450,11 @@ var k2fields_type_basic = {
                 
                 // Assumes equidistant steps and thereby scale
                 if (val = this.getOpt(proxyField, 'step')) def.step = val.toNumber();
-                else def.step = values[1].value.toNumber() - values[0].value.toNumber();
+                else if (values && Number(values[1].value) != NaN && Number(values[0].value) != NaN) def.step = Number(values[1].value) - Number(values[0].value);
+                //else def.step = 1;
                 
-                def.from = def.from.toNumber();
-                def.to = def.to.toNumber();
+                def.from = Number(def.from);
+                def.to = Number(def.to);
                 
                 if (val = this.getOpt(proxyField, 'post')) def.dimension = val;
                 
@@ -599,12 +622,20 @@ var k2fields_type_basic = {
                 
                 if (val = this.getOpt(proxyField, 'chosen.allow_single_deselect')) opts['allow_single_deselect'] = true;
                 
+                var k2f = this;
+                
                 if (val = this.getOpt(proxyField, 'chosen.template')) {
                         field.set('data-template', val);
                         opts['template'] = function(text, value, templateData) {
-                                var img = templateData['img'] ? '<img src="'+templateData['img']+'"></img>' : '';
+                                var img = templateData['img'], valuec = k2f.utility.makeSafePath(value), textc = k2f.utility.makeSafePath(text);
+                                if (img) {
+                                        img = k2f.utility.getImg(img);
+                                        img = '<img src="'+img.get('src')+'"></img>';
+                                } else {
+                                        img = '';
+                                }
                                 var template = document.id(this).get('data-template');
-                                template = template.replace(/%img%/g, img).replace(/%text%/g, text).replace(/%value%/g, value);
+                                template = template.replace(/%img%/g, img).replace(/%textc%/g, textc).replace(/%valuec%/g, valuec).replace(/%text%/g, text).replace(/%value%/g, value);
                                 return [template].join('');
                         }.bind(field);                        
                 }
@@ -612,18 +643,24 @@ var k2fields_type_basic = {
                 if (val = this.getOpt(proxyField, 'chosen.templateSelected')) {
                         field.set('data-templateSelected', val);
                         opts['templateSelected'] = function(text, value, templateData) {
-                                var img = templateData['img'] ? templateData.img : '';
-                                var template = document.id(this).get('data-template');
+                                var img = templateData['img'];
                                 if (img) {
-                                        img = img.replace(/\.([^\.]+)$/, '_selected.$1');
-                                        img = '<img src="'+img+'"></img>'
+                                        img = k2f.utility.getImg(img);
+                                        img = img.get('src').replace(/\.([^\.]+)$/, '_selected.$1');
+                                        img = '<img src="'+img+'"></img>';
+                                } else {
+                                        img = '';
                                 }
-                                template = template.replace(/%img%/, img).replace(/%text%/, text).replace(/%value%/, value);
+                                var template = document.id(this).get('data-template');
+                                template = template.replace(/%img%/g, img).replace(/%text%/g, text).replace(/%value%/g, value);
                                 return [template].join('');
                         }.bind(field);                        
                 }
                 
-                jQuery(field).chosen(opts);
+                jQuery(field).chosen(opts).change(function() {
+                        var el = document.id(this);
+                        el.fireEvent('change', [el]);
+                });
         },
                 
         _basicValues:{},
@@ -732,9 +769,10 @@ var k2fields_type_basic = {
                                                         this.addFormElementComplete(
                                                                 '_initiateFieldDependency', 
                                                                 tt, 
-                                                                [field, false], 
+                                                                [field, false],
                                                                 tt
-                                                        );                                                                
+                                                        );
+                                                        
                                                         continue;
                                                 }
                                         }

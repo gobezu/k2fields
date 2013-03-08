@@ -3,6 +3,7 @@ $Copyrightcss$
 TODO: Make it all k2fields specific
 */
 .chzn-results img, .chzn-choices img { vertical-align:middle; }
+.chzn-container-multi .chzn-choices .search-choice span { padding:5px; padding-right:15px; }
 .itemprop { display:none; }
 #extraFieldsContainer { display:none; }
 .mapContainer { width:100%; height:500px; }
@@ -298,7 +299,9 @@ textarea.condition { }
 .jptoggler-inactive:hover, .jptoggler-inactive { background: url(../icons/jptoggler-inactive.png) no-repeat scroll -5px 50% transparent; }
 .jptoggler-active:hover, .jptoggler-active { background: url(../icons/jptoggler-active.png) no-repeat scroll 0px 50% transparent; }
 /* overflow visible required in order to allow chosen elements remain visible in advanced search */
-.jpelement { padding:0 5px; overflow:visible !important; }
+.jpelement { padding:0 5px; }
+#searchFormContainer .jpelement { overflow:visible !important; }
+ 
 .jpmodal { padding-left: 17px; background: url(../icons/jpmodal.png) 0 40% no-repeat; }
 .jpreadmore { display:block; float:right; clear:both; width:98%; text-align:center; margin:0.5em; padding:0; }
 
@@ -462,6 +465,7 @@ div.emptysearchresult p { padding-top: 50px; }
 
 .itemExtraFields .itemExtraFieldsValue > div > div > .lbl { display:none; }
 
+table.adminFormK2Container table.extraFields { width:100%; }
 div.K2AdminViewExtrafield table.admintable, div.K2AdminViewExtrafield table.admintable td.key { background:#B0392E; color:#FAFAFA; }
 div.K2AdminViewExtrafield table.admintable { padding:10px 0px; width:600px; }
 div.K2AdminViewExtrafield table.admintable td.key { width:210px; }

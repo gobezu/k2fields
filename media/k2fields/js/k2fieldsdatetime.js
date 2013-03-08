@@ -317,6 +317,8 @@ var k2fields_type_datetime = {
 //                        ),
                         minDep = this.getOpt(proxyField, 'starttime'),
                         maxDep = this.getOpt(proxyField, 'endtime'),
+                        minDepStmt = this.getOpt(proxyField, 'starttimestatement'),
+                        maxDepStmt = this.getOpt(proxyField, 'endtimestatement'),
                         label = this.getOpt(proxyField, 'label', null, this.getOpt(proxyField, 'name', null, '')),
                         el,
                         now = (new Date()).format(format),
@@ -393,7 +395,8 @@ var k2fields_type_datetime = {
                         }.bind(this),*/
                         timeWheelStep: 5,
                         timePicker: timePicker,
-                        startDay: this.getOpt(proxyField, 'weekstartson', null, 1).toInt()
+                        startDay: this.getOpt(proxyField, 'weekstartson', null, 1).toInt(),
+                        onSelect:function(date, input) { this.datePickerSelected(date, input); }.bind(this)
 		};
                 
                 if (!isNaN(el.getStyle('width').toInt())) {
@@ -416,16 +419,16 @@ var k2fields_type_datetime = {
                 if (minDep)
                         this.addFormElementComplete(
                                 'enforceDateDependency',
-                                this.options.pre+minDep,
-                                [Date.parse(el.get('value')), minDep, 'min'],
+                                proxyField.get('id'),
+                                [el.get('id'), minDep, minDepStmt, 'min'],
                                 this.options.pre+minDep
                         );
                 
                 if (maxDep)
                         this.addFormElementComplete(
                                 'enforceDateDependency',
-                                this.options.pre+maxDep,
-                                [Date.parse(el.get('value')), maxDep, 'max'],
+                                proxyField.get('id'),
+                                [el.get('id'), maxDep, maxDepStmt, 'max'],
                                 this.options.pre+maxDep
                         );
                                 
@@ -552,31 +555,73 @@ var k2fields_type_datetime = {
 
         createDate: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
         
-        enforceDateDependency: function(date, dep, minOrMax) {
+        enforceDateDependency: function(fld, dep, depJS, minOrMax) {
                 if (dep) {
-                        dep = document.id(dep) 
-                        || document.id(this.options.pre+dep)
-                        || this.getCell(this.options.pre+dep).getElement('input[customvalueholder=true]')
+                        var _fld = fld;
+                        
+                        if (typeof _fld == 'string') {
+                                _fld = /^\d+$/.test(fld) ? this.options.pre+_fld : _fld;
+                        }
+                        
+                        _fld = document.id(_fld);
+                        
+                        if (_fld.get('customvalueholder') != 'true') {
+                                _fld = this.getCell(_fld.get('id')).getElement('input[customvalueholder=true]');
+                        }
+                                
+                        var _dep = /^\d+$/.test(dep) ? this.options.pre+dep : dep;
+                        
+                        _dep = document.id(_dep);
+                        
+                        if (_dep.get('customvalueholder') != 'true') {
+                                _dep = this.getCell(_dep.get('id')).getElement('input[customvalueholder=true]');
+                        }
+                        
+                        var 
+                                picker = this.datePickers[_fld.get('id')], 
+                                curr,
+                                input,
+                                depPicker = this.datePickers[_dep.get('id')],
+                                v = new Date(depPicker.inputs[0].get('value')),
+                                lim
                         ;
                         
-                        var picker = this.datePickers[dep.get('id')], curr, input;
+                        if (depJS) {
+                                eval('lim = function(v) {'+depJS+'};');
+                        } else {
+                                lim = v;
+                        }
                         
-                        picker.options[minOrMax == 'min' ? 'minDate' : 'maxDate'] =
-                                new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+                        picker.options[minOrMax == 'min' ? 'minDate' : 'maxDate'] = lim;
 
+                        if (!depPicker.deps) depPicker.deps = {};
+                        
+                        input = (!picker.options.updateAll && picker.input) ? [picker.input] : picker.inputs;
+                        input = input[0];
+                        
+                        depPicker.deps[input.get('id')] = [picker, minOrMax, depJS];
+                        
                         if (picker.options.pickOnly != 'time') {
-                                input = (!picker.options.updateAll && picker.input) ? [picker.input] : picker.inputs;
-                                input = input[0];
+                                if (input.get('value')) curr = Date.parse(input.get('value'));
 
-                                if (input.get('value'))
-                                        curr = Date.parse(input.get('value'));
-
-                                if (!curr || minOrMax == 'min' && curr < date || minOrMax == 'max' && curr > date) {
-                                        picker.select(date);
+                                if (!curr || minOrMax == 'min' && curr < lim || minOrMax == 'max' && curr > lim) {
+                                        picker.select(lim);
                                 }
                         }
                 }
         },
+        
+        datePickerSelected: function(date, input) {
+                var deps = this.datePickers[input.get('id')].deps, i, n, dep;
+                
+                if (!deps) return;
+                
+                for (var fldId in deps) {
+                        dep = deps[fldId];
+                        this.enforceDateDependency(fldId, input.get('id'), dep[2], dep[1]);
+                }
+        },
+                
         convertPHPToJSDatetimeFormat: function(fmt) {
                 return fmt.replace(/F/, 'B').replace(/M/, 'b').replace(/i/, 'M').replace(/s/, 'S').replace(/j/, 'e').replace(/([a-zA-Z])/g, '%$1');
         }

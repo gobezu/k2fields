@@ -462,7 +462,8 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'required':'1',
                                 'skip':true,
-                                'section':'Basic'
+                                'section':'Basic',
+                                'size':60
                         },
                         '2':{
                                 'name':'Type',
@@ -515,14 +516,14 @@ var k2fieldseditor = new Class({
                                         'text':['id:3'],
                                         'alpha':['id:3'],
                                         'alphanum':['id:3'],
-                                        'integer':['id:3'],
-                                        'numeric':['id:3'],
+                                        'integer':['id:3', 'id:1214', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
+                                        'numeric':['id:3', 'id:1214', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'days':['id:3'],
                                         'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:3', 'id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
                                         'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
-                                        'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
-                                        'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
+                                        'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1222', 'id:1223', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215', 'id:1216', 'id:1217', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
+                                        'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1222', 'id:1223', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215', 'id:1216', 'id:1217', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
                                         'duration':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
                                         'email':['id:1251', 'id:1252', 'id:1253', 'id:1254', 'id:1256', 'id:1257', 'id:1258'],
@@ -531,7 +532,7 @@ var k2fieldseditor = new Class({
                                         'complex':['id:1051', 'id:1052'],
                                         'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
                                         'alias':['id:1451', 'id:1452'],
-                                        'range':['id:3', 'id:1501', 'id:1502', 'id:1503', 'id:1504', 'id:1505'],
+                                        'range':['id:3', 'id:1501', 'id:15011', 'id:1502', 'id:15021', 'id:1503', 'id:15031', 'id:1504', 'id:1505'],
                                         'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
                                         'twitter':['id:1651', 'id:1652', 'id:1653', 'id:1654', 'id:1655', 'id:1656'],
                                         'linkedin':['id:1701'],
@@ -562,9 +563,9 @@ var k2fieldseditor = new Class({
                                         {'value':'rangeslider', 'text':'range slider (only numerical valued)'}
                                 ],
                                 'deps':{
-                                        'select':['id:7', 'id:12', 'id:14', 'id:15', 'id:28'],
-                                        'radio':['id:7', 'id:14', 'id:15', 'id:39'],
-                                        'checkbox':['id:7', 'id:14', 'id:15', 'id:28'],
+                                        'select':['id:12', 'id:14', 'id:15', 'id:28', 'id:73'],
+                                        'radio':['id:14', 'id:15', 'id:28', 'id:39'],
+                                        'checkbox':['id:14', 'id:15', 'id:28'],
                                         'textarea':['id:48', 'id:49']
                                 },
                                 'savevalues':'uis',
@@ -630,7 +631,8 @@ var k2fieldseditor = new Class({
                                 'optName':'multiple',
                                 'deps':{
                                         '1':['id:13']
-                                }
+                                },
+                                'section':'Basic'
                         },
                         '13':{
                                 'name':'Multiple size',
@@ -705,6 +707,78 @@ var k2fieldseditor = new Class({
                                 'optName':'colclearbefore',
                                 'valid':'verifybox',
                                 'section':'Layout'
+                        },
+                        '73':{
+                                'name':'Chosen',
+                                'optName':'selectchosen',
+                                'valid':'verifybox',
+                                'section':'Basic',
+                                'deps':{1:['id:74', 'id:75', 'id:76', 'id:77', 'id:78', 'id:79', 'id:80']}
+                        },
+                        '74':{
+                                'name':'Chosen width',
+                                'optName':'chosen.width',
+                                'valid':'integer',
+                                'section':'Basic',
+                                'tip':'Provide unit in pixels'
+                        },
+                        '75':{
+                                'name':'Chosen No Results Text',
+                                'optName':'chosen.no_results_text',
+                                'valid':'text',
+                                'size':'60',
+                                'section':'Basic'
+                        },
+                        '76':{
+                                'name':'Chosen Limit Selected Options',
+                                'optName':'chosen.max_selected_options',
+                                'valid':'integer',
+                                'section':'Basic'
+                        },
+                        '77':{
+                                'name':'Chosen Allow Deselect on Single Selects',
+                                'optName':'chosen.allow_single_deselect',
+                                'valid':'verifybox',
+                                'section':'Basic'
+                        },
+                        '78':{
+                                'name':'Chosen Template',
+                                'optName':'chosen.template',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'When providing template use the placeholders %img%, %text%, %value%',
+                                'section':'Basic'
+                        },
+                        '79':{
+                                'name':'Chosen Template Selected',
+                                'optName':'chosen.templateSelected',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'When providing template use the placeholders %img%, %text%, %value%',
+                                'section':'Basic'
+                        },
+                        '80':{
+                                'name':'Chosen Placeholder',
+                                'optName':'chosen.data-placeholder',
+                                'valid':'text',
+                                'size':60,
+                                'section':'Basic'
+                        },
+                        '81':{
+                                'name':'Value image folder',
+                                'optName':'imgFolder',
+                                'valid':'text',
+                                'size':60,
+                                'section':'Values',
+                                'tip':'Ex. images/site/%value%.png where %value% is replaced with actual value. You have the following placeholders at your disposal: %value%, %text%, %valuec%, %textc% where those appended with c are safe path alternatives of value and text respectively.'
+                        },
+                        '99':{
+                                'name':'Note',
+                                'optName':'field_notes',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'section':'Basic',
+                                'tip':'When dealing with many fields over time you may forget the original intention of a field. Instead of going through a reverse engineering process to discover the idea you can put short notes about the actual intended use and other related notes as reference.'
                         },
                         '21':{
                                 'name':'Format',
@@ -786,7 +860,8 @@ var k2fieldseditor = new Class({
                                 'ui':'radio',
                                 'values':[
                                         {'value':'value'},
-                                        {'value':'text'}
+                                        {'value':'text'},
+                                        {'value':'sorted', 'text':'do NOT order'}
                                 ],
                                 'section':'Values'
                         },
@@ -978,14 +1053,6 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'section':'Basic'
                         },
-                        '66':{
-                                'name':'Note',
-                                'optName':'field_notes',
-                                'valid':'text',
-                                'ui':'textarea',
-                                'section':'Basic',
-                                'tip':'When dealing with many fields over time you may forget the original intention of a field. Instead of going through a reverse engineering process to discover the idea you can put short notes about the actual intended use and other related notes as reference.'
-                        },
                         '52':{
                                 'name':'Search operator',
                                 'optName':'search',
@@ -1030,15 +1097,113 @@ var k2fieldseditor = new Class({
                                 'optName':'searchtip',
                                 'valid':'text',
                                 'ui':'textarea',
-                                'section':'Search'
+                                'section':'Tooltips...'
                         },
                         '57':{
                                 'name':'Search UI',
-                                'optName':'searchui',
+                                'optName':'search..ui',
                                 'valid':'text',
                                 'ui':'select',
                                 'values':'values:uis',
+                                'section':'Search',
+                                'deps':{
+                                        'select':['id:2100', 'id:2102', 'id:2103'],
+                                        'radio':['id:2102'],
+                                        'checkbox':['id:2102'],
+                                        slider:['id:2111'],
+                                        rangeslider:['id:2111']
+                                },
+                                'excludevalueseditfields':['textarea', 'editor']
+                        },
+                        '2100':{
+                                'name':'Multiple select',
+                                'valid':'verifybox',
+                                'optName':'search..multiple',
+                                'deps':{
+                                        '1':['id:2101']
+                                },
                                 'section':'Search'
+                        },
+                        '2101':{
+                                'name':'Multiple size',
+                                'optName':'search..size',
+                                'valid':'integer',
+                                'section':'Search'
+                        },
+                        '2102':{
+                                'name':'Order of values',
+                                'optName':'search..valuesorder',
+                                'valid':'text',
+                                'ui':'radio',
+                                'values':[
+                                        {'value':'value'},
+                                        {'value':'text'},
+                                        {'value':'sorted', 'text':'do NOT order'}
+                                ],
+                                'section':'Search'
+                        },
+                        '2103':{
+                                'name':'Chosen',
+                                'optName':'search..selectchosen',
+                                'valid':'verifybox',
+                                'section':'Search',
+                                'deps':{1:['id:2104', 'id:2105', 'id:2106', 'id:2107', 'id:2108', 'id:2109', 'id:2110']}
+                        },
+                        '2104':{
+                                'name':'Chosen width',
+                                'optName':'search..chosen.width',
+                                'valid':'integer',
+                                'section':'Search',
+                                'tip':'Provide unit in pixels'
+                        },
+                        '2105':{
+                                'name':'Chosen No Results Text',
+                                'optName':'search..chosen.no_results_text',
+                                'valid':'text',
+                                'size':'60',
+                                'section':'Search'
+                        },
+                        '2106':{
+                                'name':'Chosen Limit Selected Options',
+                                'optName':'search..chosen.max_selected_options',
+                                'valid':'integer',
+                                'section':'Search'
+                        },
+                        '2107':{
+                                'name':'Chosen Allow Deselect on Single Selects',
+                                'optName':'search..chosen.allow_single_deselect',
+                                'valid':'verifybox',
+                                'section':'Search'
+                        },
+                        '2108':{
+                                'name':'Chosen Template',
+                                'optName':'search..chosen.template',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'When providing template use the placeholders %img%, %text%, %value%',
+                                'section':'Search'
+                        },
+                        '2109':{
+                                'name':'Chosen Template Selected',
+                                'optName':'search..chosen.templateSelected',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'When providing template use the placeholders %img%, %text%, %value%',
+                                'section':'Search'
+                        },
+                        '2110':{
+                                'name':'Chosen Placeholder',
+                                'optName':'search..chosen.data-placeholder',
+                                'valid':'text',
+                                'size':60,
+                                'section':'Search'
+                        },
+                        '2111':{
+                                'name':'Adapt min/max',
+                                'optName':'adaptminmax',
+                                'valid':'verifybox',
+                                'section':'Search',
+                                'default':1
                         },
                         '58':{
                                 'name':'Future only (applicable to date/time searches)',
@@ -1657,15 +1822,19 @@ var k2fieldseditor = new Class({
                         '1205':{
                                 'name':'Start time',
                                 'optName':'starttime',
-                                'valid':'integer',
+                                'valid':'int',
+                                ui:'select',
                                 'tip':'Field id of start field. If you want to restrict the start date of this field based on another fields selected date/time (ie. selectable dates will be greater than the constraining field value) provide here the field id of the constraining field.',
+                                values:this.options.options['fields'],
                                 'section':'Type specific'
                         },
                         '1206':{
                                 'name':'End time',
                                 'optName':'endtime',
-                                'valid':'integer',
+                                'valid':'int',
+                                ui:'select',
                                 'tip':'Field id of start field. If you want to restrict the end date of this field based on another fields selected date/time (ie. selectable dates will be less than the constraining field value) provide here the field id of the constraining field.',
+                                values:this.options.options['fields'],
                                 'section':'Type specific'
                         },
                         '1207':{
@@ -1731,7 +1900,7 @@ var k2fieldseditor = new Class({
                                 'name':'Expire',
                                 'optName':'expire',
                                 'valid':'verifybox',
-                                'tip':'When the time of this field is passed (if repeated the last repeated time) item is marked as unpublished.',
+                                'tip':'If the field type is date - then the unpublishing date of the item is set to the value of this field (if several expiring fields are available then the latest date value is considered. If the type of field is a number then the unpublishing date is computed to be the publishing date offset by a number of days of the value of this field. Latest expiring field is considered.',
                                 'section':'Type specific'
                         },
                         '1215':{
@@ -1751,6 +1920,93 @@ var k2fieldseditor = new Class({
                                 'sorted':true,
                                 'section':'Type specific'
                         },
+                        '1216':{
+                                'name':'Show count down (diff)',
+                                'optName':'showdiff',
+                                'valid':'verifybox',
+                                'section':'Type specific'
+                        },
+                        '1217':{
+                                'name':'Count down format',
+                                'optName':'diffformat',
+                                'valid':'text',
+                                'size':60,
+                                'section':'Type specific',
+                                'tip':'%COUNT%, %DATE% are available placeholders'
+                        },
+                        '1218':{
+                                name:'Adjust field',
+                                optName:'adjustfield',
+                                valid:'int',
+                                ui:'select',
+                                selectchosen:1,
+                                values:this.options.options['fields'],
+                                sorted:true,
+                                section:'Type specific',
+                                tip:'Same as expire except instead of unpublishing we adjust value of a field upon condition met to expire. You will need to either set the value in the following setting or indicate to be deleted.'
+                        },
+                        
+                        '1219':{
+                                'name':'Adjust field to value',
+                                'optName':'adjustfieldvalue',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'section':'Type specific'
+                        },
+                        '1220':{
+                                'name':'Adjust field (delete)',
+                                'optName':'adjustfielddelete',
+                                'valid':'verifybox',
+                                'section':'Type specific'
+                        },
+                        '1221':{
+                                'name':'Adjust field to statement',
+                                'optName':'adjustfieldstatement',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'section':'Type specific',
+                                tip:'Provide a set of PHP statements where the following variables can be assumed and the last statment must return the result'
+                        },
+                        '1222':{
+                                'name':'Start time statement',
+                                'optName':'starttimestatement',
+                                'valid':'text',
+                                ui:'textarea',
+                                'tip':'Provide a set of javascript statements with return value being the last one. Statement has higher presedence, ie. if you provide both start time field and statement then statement will be chosen.',
+                                'section':'Type specific'
+                        },
+                        '1223':{
+                                'name':'End time statement',
+                                'optName':'endtimestatement',
+                                'valid':'text',
+                                ui:'textarea',
+                                'tip':'Provide a set of javascript statements with return value being the last one. Statement has higher presedence, ie. if you provide both start time field and statement then statement will be chosen.',
+                                'section':'Type specific'
+                        },
+                        '1224':{
+                                name:'Adjustment condition statement',
+                                optName:'adjustmentcondition',
+                                valid:'text',
+                                ui:'textarea',
+                                tip:'$val current value of field, $now is the current time, 2 fields that can be assumed in your PHP statement that must end with a return for the condition.',
+                                section:'Type specific'
+                        },
+                        /*
+                        '1225':{
+                                name:'Adjustments',
+                                optName:'adjustments',
+                                subfields:[
+                                        {name:'Field', valid:'int', ui:'select', values:this.options.options['fields'], sorted:true},
+                                        {name:'Operator', valid:'text', ui:'radio', values:['>', '>=', '<', '<=', '='], clearopt:'button'},
+                                        {name:'Value', valid:'text'},
+                                        {name:'Value statement', valid:'text', ui:'textarea'},
+                                        {name:'Delete', valid:'verifybox'}
+                                ],
+                                valid:'complex',
+                                section:'Type specific',
+                                list:'normal',
+                                tip:'Fields to adjust as a result of time shift. Provide the field and the '
+                        },*/
                         '1251':{
                                 'name':'Email as',
                                 'optName':'emailformat',
@@ -2371,17 +2627,41 @@ var k2fieldseditor = new Class({
                                 valid:'integer',
                                 section:'Type specific'
                         },
+                        '15011':{
+                                name:'Low JavaScript statement',
+                                optName:'low.statement',
+                                valid:'text',
+                                ui:'textarea',
+                                section:'Type specific',
+                                tip:'Provide a set of javascript statements with return value being the last one. Statement has higher presedence, ie. if you provide both value and statement then statement will be chosen.'
+                        },
                         '1502':{
                                 name:'High',
                                 optName:'high',
                                 valid:'integer',
                                 section:'Type specific'
                         },
+                        '15021':{
+                                name:'High JavaScript statement',
+                                optName:'high.statement',
+                                valid:'text',
+                                ui:'textarea',
+                                section:'Type specific',
+                                tip:'Provide a set of javascript statements with return value being the last one. Statement has higher presedence, ie. if you provide both value and statement then function will be chosen.'
+                        },
                         '1503':{
                                 name:'Step',
                                 optName:'step',
                                 valid:'integer',
                                 section:'Type specific'
+                        },
+                        '15031':{
+                                name:'Step JavaScript statement',
+                                optName:'step.statement',
+                                valid:'text',
+                                ui:'textarea',
+                                section:'Type specific',
+                                tip:'Provide a set of javascript statements with return value being the last one. You can use the variables v which is the current value to be stepped and s which is the step value you may or may not provide above. Statement has higher presedence, ie. if you provide both value and statement then function will be chosen.'
                         },
                         '1504':{
                                 name:'Shift',

@@ -2008,7 +2008,7 @@ group by vvv.itemid
                 return $result;
         }
         
-        public static function getRow(&$array, $criterias = array(), $leave = true) {
+        public static function getRow(&$array, $criterias = array(), $leave = true, $isKey = false) {
                 if (empty($criterias)) return $array;
                 
                 $result = array();
@@ -2025,7 +2025,7 @@ group by vvv.itemid
                                                 }
                                         }
                                         if ($passed) {
-                                                $result[] = $item;
+                                                $result[] = $isKey ? $k : $item;
                                                 if (!$leave) unset($array[$k]);
                                         }
                                 } elseif (is_object($item)) {
@@ -2037,7 +2037,7 @@ group by vvv.itemid
                                                 }
                                         }
                                         if ($passed) {
-                                                $result[] = $item;
+                                                $result[] = $isKey ? $k : $item;
                                                 if (!$leave) unset($array[$k]);
                                         }
                                 }

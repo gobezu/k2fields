@@ -276,9 +276,9 @@ var JPUtility = new Class({
                                 src = img.get('src').replace(/\.[a-z]+$/i, '.'+exts[0]);
                                 delete exts[0];
                                 exts = exts.clean().join('|');
-                                props.exts = exts;
-                                
-                                return new Asset.image(src, props);
+                                img.set('exts', exts);
+                                img.set('src', src);
+                                this.addImg(img);
                         }
                         
                         var ind = img.get('ind'), into = this.loadImageAttrs[ind];
@@ -290,7 +290,31 @@ var JPUtility = new Class({
                 
                 this.loadImageAttrs[ind] = into;
                 
-                return new Asset.image(src, props);                
+                var img = new Asset.image(src, props);
+                
+                this.addImg(img);
+                
+                return img;
+        },
+        _imgsLoaded:{},
+        addImg: function(img) {
+                var id = img.get('_id_');
+                
+                if (!id) {
+                        var keys = new Hash(this._imgsLoaded).getKeys();
+                        
+                        id = 'id' + keys.length;
+                        img.set('_id_', id);
+                }
+                
+                if (this._imgsLoaded[id] == undefined) this._imgsLoaded[id] = [];
+                
+                this._imgsLoaded[id].push(img);
+        },
+        getImg:function(img) {
+                img = typeof img == 'string' ? img : img.get('_id_');
+                var imgs = this._imgsLoaded[img];
+                return imgs[imgs.length - 1];
         }
 });
 /**

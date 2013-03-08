@@ -38,6 +38,22 @@ class K2FieldsModelFields extends K2Model {
                 foreach (self::$extendedTypes as $type) $this->loadType($type);
                 
                 self::$defaultSection = JText::_('DEFAULT_SECTION');
+                
+        }
+        
+        static private function getMinMax($field) {
+                static $minMax = array();
+                
+                if (empty(self::$minMax)) {
+                        $query = 'SELECT fieldid, MIN(value) as `min`, MAX(value) as `max` FROM #__k2_extra_fields_values GROUP BY fieldid';
+                        $db = JFactory::getDbo();
+                        $db->setQuery($query);
+                        $minMax = $db->loadObjectList('fieldid');
+                }
+                
+                if (!is_numeric($field)) $field = self::value($field, 'id');
+                
+                return isset($minMax[$field]) ? $minMax[$field] : '';
         }
         
         private function loadType($type) {
@@ -48,6 +64,28 @@ class K2FieldsModelFields extends K2Model {
                 if (JLoader::load($cls) !== false) return $cls;
                 
                 return false;
+        }
+        
+        public static function isSearch() {
+                static $result;
+                
+                if (!isset($result)) {
+                        $app = JFactory::getApplication();
+                        
+                        if ($app->isAdmin()) {
+                                $result = false;
+                                return $result;
+                        }
+                        
+                        $input = $app->input;
+                        $option = $input->get('option');
+                        $task = $input->get('task');
+
+                        $result = ($option == 'com_k2' || $option == 'com_k2fields') && in_array($task, array('edit', 'add', 'save'));
+                        $result = !$result;
+                }
+                
+                return $result;
         }
         
         public static function pre($tab = null) {
@@ -187,6 +225,7 @@ class K2FieldsModelFields extends K2Model {
                 $limit = null;
                 
                 foreach ($fields as $fieldId => $field) {
+                        $currentLimit = null;
                         if (K2FieldsModelFields::isTrue($field, 'expire')) {
                                 $isDatetime = K2FieldsModelFields::isDatetimeType($field);
                                 $query = $isDatetime ? 'datum' : 'value';
@@ -197,12 +236,14 @@ class K2FieldsModelFields extends K2Model {
                                 if (!$max) continue;
                                 
                                 if ($isDatetime) {
-                                        $limit = JprovenUtility::createDate($max);
+                                        $currentLimit = JprovenUtility::createDate($max);
                                 } else if (K2FieldsModelFields::isNumeric($field)) {
                                         $diff = new DateInterval('P'.$max.'D');
-                                        $limit = $publishUp->add($diff);
+                                        $currentLimit = $publishUp->add($diff);
                                 }
                         }
+                        
+                        if ($currentLimit > $limit) $limit = $currentLimit;
                 }
                 
                 // If not expired by field value then try based on k2fields plugin setting
@@ -237,6 +278,130 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 return false;
+        }
+        
+        /**
+         * If 
+         * 1. there exists a field that is numeric or date 
+         * 2. is set as expiring
+         * 3. expiring action field is set
+         * 4. expiring action field value is set
+         */
+        public function adjustFieldValues($item) {
+                $itemId = $item->id;
+                $fields = $this->getFieldsByItem($itemId);
+                $now = JprovenUtility::createDate();
+                $db = $this->_db;
+                
+                foreach ($fields as $fieldId => $field) {
+                        if ($adjustField = K2FieldsModelFields::value($field, 'adjustfield')) {
+                                $isDatetime = K2FieldsModelFields::isDatetimeType($field);
+                                $query = $isDatetime ? 'datum' : 'value';
+                                $query = 'SELECT max('.$query.') FROM #__k2_extra_fields_values WHERE itemid = '.$itemId.' AND fieldid = '.$fieldId;
+                                $db->setQuery($query);
+                                $val = $db->loadResult();
+                                
+                                if (!$val) continue;
+                                
+                                if ($isDatetime) {
+                                        $val = JprovenUtility::createDate($val);
+                                } else if (K2FieldsModelFields::isNumeric($field)) {
+                                        $diff = new DateInterval('P'.$val.'D');
+                                        $val = $publishUp->add($diff);
+                                }
+                                
+                                $cond = false;
+                                $adjustmentCondition = self::value($field, 'adjustmentcondition', 'return $val <= $now;');
+                                $adjustmentCondition = trim($adjustmentCondition);
+                                $cond = eval($adjustmentCondition);
+                                
+                                if ($cond) {
+                                        $filter = 
+                                                ' (isadjusted IS NULL OR (isadjusted <> '.$db->quote($fieldId).
+                                                ' AND isadjusted NOT LIKE '.$db->quote($fieldId.',%').
+                                                ' AND isadjusted NOT LIKE '.$db->quote('%,'.$fieldId.',%').')) '
+                                                ;
+                                        
+                                        $adjustValues = $this->itemValues($item->id, $adjustField, $filter);
+                                        $adjustValues = JprovenUtility::first($adjustValues);
+                                        
+                                        if ($adjustValues) {
+                                                $newValue = self::value($field, 'adjustfieldvalue');
+                                                $newPHP = self::value($field, 'adjustfieldstatement');
+                                                $newPHP = trim($newPHP);
+                                                $deleteValue = self::isTrue($field, 'adjustfielddelete');
+                                                
+                                                if ($newPHP) $newValue = eval($newPHP);
+                                        
+                                                $adjustField = JprovenUtility::getRow($fields, array('id'=>$adjustField));
+                                                $adjustField = $adjustField[0];
+                                                
+                                                if ($deleteValue) {
+                                                        $query = 'DELETE FROM #__k2_extra_fields_values';
+                                                } else {
+                                                        $query = 'UPDATE #__k2_extra_fields_values SET value = '.$db->quote($newValue);
+                                                        
+                                                        if (isset($adjustField->values) && is_array($adjustField->values)) {
+                                                                $val = JprovenUtility::getRow($adjustField->values, array('value'=>$newValue));
+                                                                
+                                                                if ($val) {
+                                                                        $val = $val[0];
+                                                                        $valT = self::value($val, 'text');
+                                                                        $valI = self::value($val, 'img');
+                                                                        
+                                                                        if (!$valT) $valT = '';
+                                                                        if (!$valI) $valI = '';
+                                                                        
+                                                                        $query .= ', txt = ' . $db->quote($valT);
+                                                                        $query .= ', img = ' . $db->quote($valI);
+                                                                }
+                                                        } else if (K2FieldsModelFields::isDatetimeType($adjustField)) {
+                                                                $format = $adjustField->{$adjustField->valid.'format'};
+                                                                $newValue = JprovenUtility::createDate($newValue);
+                                                                $newValue = $newValue->format($format);
+                                                                $query .= ', datum = ' . $db->quote($newValue);
+                                                        } else {
+                                                                // ?
+                                                        }
+                                                                
+                                                        $query .= ', isadjusted = CONCAT(IF(isadjusted IS NULL, "", isadjusted), IF(isadjusted IS NULL OR isadjusted = "", "", ","), '.$fieldId.')';
+                                                }
+                                                
+                                                $adjustValueIds = JprovenUtility::getColumn($adjustValues, 'id', true);
+                                                $adjustValueIds = (array) $adjustValueIds;
+                                                
+                                                JprovenUtility::toInt($adjustValueIds);
+                                                
+                                                $query .= ' WHERE id IN ('.implode(', ', $adjustValueIds).')';
+                                                
+                                                $db->setQuery($query);
+
+                                                if ($db->query()) {
+                                                        $tbl = JTable::getInstance('K2Item', 'Table');
+                                                        $tbl->load($item->id);
+                                                        
+                                                        $fs = $tbl->extra_fields;
+                                                        $fs = json_decode($fs);
+                                                        $f = JprovenUtility::getRow($fs, array('id'=>$adjustField->id), true, true);
+                                                        $f = JprovenUtility::first($f);
+
+                                                        if ($deleteValue) {
+                                                                unset($fs[$f]);
+                                                                $fs = array_filter($fs);
+                                                        } else {
+                                                                foreach ($adjustValues as $v) {
+                                                                        $fs[$f]->value = str_replace($v->value, $newValue, $fs[$f]->value);
+                                                                }
+                                                        }
+                                                        
+                                                        sort($fs);
+                                                        $tbl->extra_fields = json_encode($fs);
+                                                        $tbl->store();
+                                                }
+                                        }
+                                }
+                        }
+                }
         }
         
         private static function expire($item, $isNew) {
@@ -766,6 +931,8 @@ class K2FieldsModelFields extends K2Model {
                                                         } else {
                                                                 $r->id = null;
                                                         }
+                                                        
+                                                        $r->isadjusted = 0;
                                                         
                                                         if ((!empty($r->value) || $r->value === 0 || $r->value === '0' || $fieldData['isMedia']) && !$r->store()) {
                                                                 $item->setError($r->getError());
@@ -1407,6 +1574,10 @@ class K2FieldsModelFields extends K2Model {
                 }
         }
         
+        /**
+         * While editing an item if the user doesn't have sufficient access according 
+         * to field settings then we will revert the value to earlier value.
+         */
         function resetValues() {
                 $input = JFactory::getApplication()->input;
                 $task = $input->get('task');
@@ -1606,11 +1777,15 @@ class K2FieldsModelFields extends K2Model {
                 
                 $f = array('itemid = '.$itemId, !empty($fieldIds) ? 'fieldid IN ('.implode(',', $fieldIds).')' : '');
                 
-                foreach ($filters as $key => $filter) {
-                        $op = is_array($filter) && count($filter) > 1 ? $filter[0] : ' = ';
-                        $val = $this->_db->quote(is_array($filter) && count($filter) > 1 ? $filter[1] : $filter);
-                        $key = $this->_db->nameQuote($key);
-                        $f[] = $key.$op.$val;
+                if (is_array($filters)) {
+                        foreach ($filters as $key => $filter) {
+                                $op = is_array($filter) && count($filter) > 1 ? $filter[0] : ' = ';
+                                $val = $this->_db->quote(is_array($filter) && count($filter) > 1 ? $filter[1] : $filter);
+                                $key = $this->_db->nameQuote($key);
+                                $f[] = $key.$op.$val;
+                        }
+                } else if (!empty($filters)) {
+                        $f[] = ' '.$filters;
                 }
                 
                 $f = array_filter($f);
@@ -1624,7 +1799,6 @@ class K2FieldsModelFields extends K2Model {
                         ;
                 
                 $this->_db->setQuery($query);
-                
                 $fieldsValues = $this->_db->loadObjectList();
                 $fieldsValues = JprovenUtility::indexBy($fieldsValues, 'fieldid');
                 
@@ -4007,18 +4181,20 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 				$active='';
 		}
                 
-		if (isset($item)){
-			//$currentValues=json_decode($item->extra_fields);
-                        $currentValues=json_decode($item->extra_fields);
+                $isSearch = !isset($item);
+		if (!$isSearch){
+                        static $currentValues = array();
                         
-			if (count($currentValues)){
-				foreach ($currentValues as $value){
-					if ($value->id==$extraField->id){
-						if($extraField->type=='textarea'){
-							$active[0]=$value->value;
-						}
-						else
-							$active=$value->value;
+                        if (!isset($currentValues[$item->id])) $currentValues[$item->id] = json_decode($item->extra_fields);
+                        
+                        $_currentValues = $currentValues[$item->id];
+                        
+			if (count($_currentValues)) {
+				foreach ($_currentValues as $value){
+					if ($value->id == $extraField->id){
+						if ($extraField->type == 'textarea') $active[0] = $value->value;
+						else $active = $value->value;
+                                                break;
 					}
 
 				}
@@ -4032,7 +4208,6 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 }
                 
                 // value assignment based on k2fields type
-                
                 switch ($extraField->valid) {
                         case 'k2item':
                                 if ($active) {
@@ -4048,10 +4223,16 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                 }
                                 break;
                         default:
-                                if (!isset($item)) {
-                                        if (is_array($active)) array_unshift ($active, '');
-                                        else $active = array('', $active);
-                                        $active = self::implodeValues(array($active), $extraField);
+                                if ($isSearch) {
+                                        $active = (array) $active;
+                                        $active = JprovenUtility::flatten($active);
+                                        $active = implode(self::MULTI_VALUE_SEPARATOR, $active);
+                                        $active = array($active);
+                                        array_unshift($active, '');
+                                        $active = array($active);
+//                                        if (is_array($active)) array_unshift($active, '');
+//                                        else $active = array('', $active);
+                                        $active = self::implodeValues($active, $extraField);
                                 }
                                 break;
                 }
@@ -4061,6 +4242,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 		switch ($extraField->type){
 			case 'textfield':
                         $output='<textarea name="'.$pre.$extraField->id.'" id="'.$pre.$extraField->id.'" rows="10" cols="40">'.$active.'</textarea>';
+                                
 			//$output='<input type="text" name="'.$pre.$extraField->id.'" value="'.$active.'"/>';
 			break;
 
@@ -4509,7 +4691,21 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                         break;
                                 }
                         }
-                }                
+                }
+                
+                if (self::isSearch()) {
+                        if (isset($options['search..ui']) && ($options['search..ui'] == 'slider' || $options['search..ui'] == 'rangeslider' || $options['adaptminmax'])) {
+                                if (!isset($options['min'])) {
+                                        $minMax = self::getMinMax($options);
+                                        if ($minMax) $options['min'] = $minMax->min;
+                                }
+                                if (!isset($options['max'])) {
+                                        $minMax = self::getMinMax($options);
+                                        if ($minMax) $options['max'] = $minMax->max;
+                                }
+                        }
+                }
+                
         }
         
         /**

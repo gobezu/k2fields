@@ -168,6 +168,7 @@ var k2fields = new Class({
                         url: url,
                         method: 'get',
                         async: false,
+                        noCache:task != 'search',
                         update: this.containerEl(),
                         onSuccess: function(response){
                                 if (task != 'search' && typeof initExtraFieldsEditor == 'function') {
@@ -978,7 +979,7 @@ var k2fields = new Class({
                         }
                 }
                 
-                if (this.isPartOf(callForElement)) this.createdFields[callForElement] = createdFields;
+                if (this.isPartOf(callForElement) && createdFields) this.createdFields[callForElement] = createdFields;
         },
         
         addFormElementComplete: function(action, id, el, exists, args) {
@@ -987,6 +988,8 @@ var k2fields = new Class({
                 if (!this.formCompleteElements[action]) this.formCompleteElements[action] = [];
                 
                 this.formCompleteElements[action][id] = [el, exists, args];
+                
+                //this.onFormElementComplete(id, false);
         },
         
         isPartOf: function(field) {
