@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_values` (
         `datum` DATETIME NULL DEFAULT NULL,
 	`related` INT(11) NULL DEFAULT NULL,
 	`duration` INT(11) NULL DEFAULT NULL,
+        `isadjusted` VARCHAR(255) NULL DEFAULT NULL,
         PRIMARY KEY (`id`),
         INDEX `idx_values_itemid` (`itemid`),
         INDEX `idx_values_fieldid` (`fieldid`),
