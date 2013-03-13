@@ -7,7 +7,9 @@ defined('_JEXEC') or die('Restricted access');
 class JFormFieldK2FSearchmodule extends JFormField {
         function getInput(){
                 jimport('joomla.plugins.helper');
+                
                 JPluginHelper::importPlugin('k2', 'k2fields');
+                
                 $module = JprovenUtility::getModule('mod_k2fields', false, 'site');
 		$module->module = preg_replace('/[^A-Z0-9_\.-]/i', '', $module->module);
 		$path = JPATH_SITE.'/modules/'.$module->module.'/'.$module->module.'.php';

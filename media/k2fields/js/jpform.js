@@ -291,7 +291,7 @@ var JPForm = new Class({
                                         el.checked = true;
                                 }
                         }.bind(this));
-                } else {
+                } else if (el.get('type') != 'file') {
                         el.set('value', val);
                         
                         // need of manual propagation as change event isn't applied on hidden fields

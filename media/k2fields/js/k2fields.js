@@ -465,6 +465,8 @@ var k2fields = new Class({
                                 if (!this.isMode('search') && this.isAutoField(fld)) {
                                         if (this.isTitle(fld)) {
                                                 var title = this.fieldsOptions[fld.get('name')]['label'];
+                                                
+                                                if (!title) title = this.fieldsOptions[fld.get('name')]['name'];
 
                                                 if (title) {
                                                         $$('label[for=title]')[0].set('html', title);

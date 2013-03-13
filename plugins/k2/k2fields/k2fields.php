@@ -571,6 +571,8 @@ class plgk2k2fields extends K2Plugin {
                 
                 if ($tab != 'search') K2FieldsMap::loadResources($item, null, true);
                 
+                if ($tab == 'menu') K2HelperHTML::loadjQuery();
+                
                 if (!$includeDone) {
                         JprovenUtility::load('k2fields.css', 'css');
                         $includeDone = true;

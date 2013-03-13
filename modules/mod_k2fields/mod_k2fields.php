@@ -86,15 +86,16 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         
         require $path;
         
+        if (!isset($tab)) $tab = 'search';
+        
         if (JPluginHelper::importPlugin('k2', 'k2fields')) {
-                plgk2k2fields::loadResources('search', null, array('module'=>$module->id));
+                plgk2k2fields::loadResources($tab, null, array('module'=>$module->id));
         }
         
-        $document = JFactory::getDocument();
-        
-        $whentogglerempty = $params->get('whentogglerempty', 'inactive');
-        
         if ($showfreetextsearch) {
+                $whentogglerempty = $params->get('whentogglerempty', 'inactive');
+                $document = JFactory::getDocument();
+
                 $arr = array(
                     'postUrl'=>'index.php?option=com_k2fields&task=search&view=itemlist&format=json&tmpl=component&exclfldft='.$exclfldft.'&acmc='.$acmaxchars.'&limit='.$acmaxitems.'&module='.$module->id.'&Itemid='. $useItemid,
                     'moreResultsUrl'=>'index.php?option=com_k2fields&task=search&view=itemlist&Itemid='.$useItemid.'&module='.$module->id.'&exclfldft='.$exclfldft,

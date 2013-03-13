@@ -70,7 +70,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         $limit = K2FieldsHelper::getItemlistLimit($catid);
                         
                         $this->_db->setQuery($query, $limitstart, $limit);
-//                        jdbg::pe($query);
+                        
                         if ($mode == 'id') {
                                 $result = $this->_db->loadResultArray();
                         } else {
@@ -593,10 +593,11 @@ class K2FieldsModelSearchterms extends K2Model {
                                 
                                 if (is_object($field)) {
                                         $notWildcarded = K2FieldsModelFields::isFalse($field, 'wildcard');
-                                } else if ($field == 'freetext') {
+                                } else if (is_string($field) && $field == 'freetext') {
                                         $notWildcarded = false;
                                 }
-                                $value = $this->q('"'.$this->esc($value, true).(!$notWildcarded ? '*' : '').'"', false);
+                                
+                                $value = $this->q($this->esc($value, true).(!$notWildcarded ? '*' : ''), false);
                         }
                         
                         foreach ($cols as &$col) $col = $tbl.$col;

@@ -32,10 +32,17 @@ if (!$this->row->id && !empty($catId)) {
 }
 
 if ($catId) {
-        $pat = '#\<option\s+value=([\"\'])'.$catId.'\1[^\>]+\>([^\<]+)\<\/option\>#i';
-        preg_match($pat, $this->lists['categories'], $catTitle);
-        $catTitle = str_replace(array('&nbsp;', '- '), '', $catTitle[2]);
-        $catTitle = JprovenUtility::nize($catTitle, 1);
+        $category = JTable::getInstance('K2Category', 'Table');
+        $category->load($catId);
+        $catTitle = $category->name;
+        $catImage = $category->image;
+        if ($catImage) {
+                $catImage = '<img style="display:inline;margin:0px;vertical-align:middle;" src="'.JURI::root(true).'/media/k2/categories/'.$category->image.'" alt="'.$category->name.'" class="k2AdminImage" />';
+        }
+//        $pat = '#\<option\s+value=([\"\'])'.$catId.'\1[^\>]+\>([^\<]+)\<\/option\>#i';
+//        preg_match($pat, $this->lists['categories'], $catTitle);
+//        $catTitle = str_replace(array('&nbsp;', '- '), '', $catTitle[2]);
+//        $catTitle = JprovenUtility::nize($catTitle, 1);
 }
 
 $canPublish = $app->isSite() ? K2HelperPermissions::canPublishItem($catId) : true;
@@ -151,7 +158,8 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 				</tr>
 			</table>
 			<div id="k2FrontendEditToolbar">
-				<h2 class="header icon-48-k2">
+				<h2 class="header<?php echo $catImage ? '' : ' icon-48-k2'; ?>">
+                                        <?php if ($catImage):  echo $catImage; endif; ?>
 					<?php echo str_replace('Item', $catTitle, ($_input->get('cid', '', 'int')) ? JText::_('K2_EDIT_ITEM') : JText::_('K2_ADD_ITEM')); ?>
 				</h2>
 			</div>

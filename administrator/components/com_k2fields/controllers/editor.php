@@ -91,6 +91,7 @@ from (
                         "ppgallery" => "pPgallery",
                         "jcemediabox" => "JCE Mediabox - thumb",
                         "img" => "Image (HTML-tag)",
+                        "imglinked" => "Image (HTML-tag) linked to item",
                         "source" => "Source for consumption elsewhere"                        
                     ), 
                     'provider' => array(
@@ -115,7 +116,7 @@ from (
                 $query = 'SELECT element, folder, enabled FROM #__extensions WHERE element IN (' . implode(',', $_plgs) . ') AND folder IN ("content", "system")';
                 $db->setQuery($query);
                 $folders = $db->loadObjectList('element');
-                $natives = array('img', 'source');
+                $natives = array('img', 'source', 'imglinked');
                 
                 foreach ($res as $mt => &$plgs) {
                         foreach ($plgs as &$plg) {

@@ -32,9 +32,7 @@ class K2FieldsModelFields extends K2Model {
         
         function __construct($config = array()) {
                 parent::__construct($config);
-                
-                // JprovenUtility::checkPluginActive('k2fields', 'k2', 'PLG_K2FIELDS_PLUGIN_INACTIVE');
-                
+                                
                 foreach (self::$extendedTypes as $type) $this->loadType($type);
                 
                 self::$defaultSection = JText::_('DEFAULT_SECTION');
@@ -45,8 +43,18 @@ class K2FieldsModelFields extends K2Model {
                 static $minMax = array();
                 
                 if (empty(self::$minMax)) {
-                        $query = 'SELECT fieldid, MIN(value) as `min`, MAX(value) as `max` FROM #__k2_extra_fields_values GROUP BY fieldid';
                         $db = JFactory::getDbo();
+                        $now = JFactory::getDate()->toMySQL();
+                        $user = JFactory::getUser();
+                        $nullDate = $db->getNullDate();
+                        
+                        $query = 'SELECT id FROM #__k2_items AS i WHERE i.published = 1 AND i.trash = 0 AND ';
+                        $query .= ' (i.publish_up = '.$db->quote($nullDate).' OR i.publish_up <= '.$db->quote($now).') AND ';
+                        $query .= ' (i.publish_down = '.$db->quote($nullDate).' OR i.publish_down >= '.$db->quote($now).') AND ';
+                        $query .= ' i.access IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
+                        
+                        $query = 'SELECT v.fieldid, MIN(v.value) as `min`, MAX(v.value) as `max`, COUNT(v.value) as cnt FROM #__k2_extra_fields_values AS v WHERE v.itemid IN ('.$query.') GROUP BY fieldid';
+                        
                         $db->setQuery($query);
                         $minMax = $db->loadObjectList('fieldid');
                 }
@@ -2202,7 +2210,9 @@ class K2FieldsModelFields extends K2Model {
                                         if (!isset($position['rendered'])) $position['rendered'] = array();
 
                                         $fieldRule = $fieldRules[0];
-                                        $fieldRule['rendered'] = $this->renderFieldValues(array(''), $fld, $fieldRule);
+                                        //$fieldRule['rendered'] = $this->renderFieldValues(array(''), $fld, $fieldRule);
+                                        $fieldRule['rendered'] = self::isTrue($fld, 'dontshowempty') ? '' : $this->renderFieldValues(array(''), $fld, $fieldRule);
+                                        self::setValue($fld, 'isempty', true);
                                         $position['rendered'][] = $fieldRule;
                                 }
                                 
@@ -2903,7 +2913,7 @@ class K2FieldsModelFields extends K2Model {
                                 $colWidth = trim($colWidth);
 
                                 if (!empty($colWidth)) {
-                                        if (!JprovenUtility::endWith($colWidth, 'px') && !JprovenUtility::endWith($colWidth, '%')) $colWidth .= 'px';
+                                        if ($colWidth != 'auto' && !JprovenUtility::endWith($colWidth, 'px') && !JprovenUtility::endWith($colWidth, '%')) $colWidth .= 'px';
                                         $colWidth = ' style="width:'.$colWidth.';"';
                                 }
                                 
@@ -3194,6 +3204,10 @@ class K2FieldsModelFields extends K2Model {
         }
         
         protected static function formatValue($value, $rule, $field = null, $isMetaAdded = false) {
+                if (self::isTrue($field, 'isempty')) {
+                        $value = self::value($field, 'placeholder.value', '');
+                }
+                
                 $isValueRow = is_object($value);
                 
                 if (is_string($value)) {
@@ -3313,11 +3327,12 @@ class K2FieldsModelFields extends K2Model {
                 $collapseLabel = self::value($field, 'collapselabel'.($view == 'item' ? '' : 'itemlist'), 'Additional');
                 
                 $id = self::value($field, 'subfieldid');
-                
+                $fid = self::value($field, 'id');
+                //jdbg::pe($values, $fid, 13);
                 foreach ($values as $j => $value) {
                         $v = self::value($value, 'value');
                         
-                        if (!empty($v)) {
+                        if ($v != '') {
                                 if ($value->partindex == -1) {
                                         $rendered .= '<span class="condition">' . $v . '</span>';
                                         continue;
@@ -4071,11 +4086,13 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         }
                         
                         $rendered = '<time itemprop="'.$schemaProp.'" datetime="'.$_val.'">'.$rendered.'</time>';
+                } else {
+                        
                 }
         }
         
         private function _renderDatetime($item, $values, $field, $helper, $rule, $inType) {
-                $format = self::setting(strtolower($inType).'Format');
+                $format = self::value($field, strtolower($inType).'format');
                 $aggr = $this->isAggregateType($field);
                 
                 if ($aggr) $values = $this->_combineValues($values);
@@ -4694,14 +4711,25 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 }
                 
                 if (self::isSearch()) {
-                        if (isset($options['search..ui']) && ($options['search..ui'] == 'slider' || $options['search..ui'] == 'rangeslider' || $options['adaptminmax'])) {
-                                if (!isset($options['min'])) {
+                        $ui = self::value($options, 'search..ui');
+                        
+                        if (in_array($ui, array('slider', 'rangeslider'))) {
+                                $adaptMinMax = self::isTrue($options, 'adaptminmax');
+                                $id = self::value($options, 'id');
+                                
+                                
+                                if (!isset($options['min']) || $adaptMinMax) {
                                         $minMax = self::getMinMax($options);
-                                        if ($minMax) $options['min'] = $minMax->min;
+                                        if ($minMax) {
+                                                $options['min'] = $minMax->cnt > 1 && $minMax->min < $minMax->max ? $minMax->min : $options['min'];
+                                        }
                                 }
-                                if (!isset($options['max'])) {
+                                
+                                if (!isset($options['max']) || $adaptMinMax) {
                                         $minMax = self::getMinMax($options);
-                                        if ($minMax) $options['max'] = $minMax->max;
+                                        if ($minMax) {
+                                                $options['max'] = $minMax->cnt > 1 && $minMax->min < $minMax->max ? $minMax->max : $options['max'];
+                                        }
                                 }
                         }
                 }

@@ -349,8 +349,8 @@ class plgSystemk2fields extends JPlugin {
                         $add .= ($debug ? '-uncompressed' : '') . '.js';
                 
                 foreach ($removes as &$remove)
-                        $remove .= ($debug ? '-uncompressed' : '') . '.js';
-                
+                        $remove .= (JFactory::getConfig()->get('debug') ? '-uncompressed' : '') . '.js';
+
                 JprovenUtility::replaceResourcesInDocument('js', $removes, $adds, 'document', null, '', false);
                 
                 $loaded = true;
@@ -516,7 +516,7 @@ class plgSystemk2fields extends JPlugin {
         
         function onAfterDispatch() {
 //                JprovenUtility::reverseFromValues(95, 12);
-                
+                //jdbg::pe('tadiasss');
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
                 
                 self::upgradeMootools();

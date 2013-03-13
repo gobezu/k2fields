@@ -604,6 +604,21 @@ var k2fieldseditor = new Class({
                                 'list':'normal',
                                 'section':'Basic'
                         },
+                        '8':{
+                                'name':'Placeholder value',
+                                'optName':'placeholder.value',
+                                'valid':'text',
+                                'ph':'Provide suitable value to be shown when no value is assigned',
+                                'size':'60',
+                                'section':'Values'
+                        },
+                        '9':{
+                                'name':'Do not show when empty',
+                                'optName':'dontshowempty',
+                                'valid':'verifybox',
+                                'ph':'Should we exclude to show field if no value',
+                                'section':'Values'
+                        },
                         '10':{
                                 'name':'Default',
                                 'optName':'default',

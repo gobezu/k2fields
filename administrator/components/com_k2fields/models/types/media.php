@@ -1503,7 +1503,7 @@ class K2FieldsMedia {
         }
         
         protected static function getPlugin($field, $mediaType, $overrideView = '') {
-                $nonePlugins = array('widgetkit_k2', 'img', 'source');
+                $nonePlugins = array('widgetkit_k2', 'img', 'imglinked', 'source');
                 $input = JFactory::getApplication()->input;
                 
                 if ($overrideView !== '') {
@@ -1558,6 +1558,11 @@ class K2FieldsMedia {
                 return $ui;
         }
         
+        protected static function renderImgLinked($medias, $mediaType, $plugin, $item, $field) {
+                K2FieldsModelFields::setValue($field, 'imglinked', true);
+                return self::renderImg($medias, $mediaType, $plugin, $item, $field);
+        }
+        
         protected static function renderImg($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
                 $view = self::getView($item);
@@ -1583,9 +1588,12 @@ class K2FieldsMedia {
                 self::normalizeLocation($medias);
                 
                 $src = $view == 'list' ? self::THUMBSRCPOS : self::SRCPOS;
+                $isLinked = $view == 'list' && K2FieldsModelFields::isTrue($field, 'imglinked');
+                $linkPre = $isLinked ? '<a href="'.$item->link.'">' : '';
+                $linkPost = $isLinked ? '</a>' : '';
                 
                 foreach ($medias as $media) {
-                        $ui .= "<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />";
+                        $ui .= $linkPre."<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />".$linkPost;
                 }
                 
                 return $ui;
@@ -1610,14 +1618,20 @@ class K2FieldsMedia {
         // TODO: testa J2.5 kompatibel plugins o i plugin setting behåll endast de som är kompatibla alt. markera de som kompatibla
         protected static function renderPlugin($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
+                
                 if (is_object($field)) $field = get_object_vars($field);
+                
                 $DIR = self::getStorageDirectory($field, $item, false);
                 $DIR = str_replace(JPath::clean(JPATH_SITE, '/') . '/', '', $DIR);
                 $params =  K2HelperUtilities::getParams('com_k2');
+                
                 self::normalizeLocation($medias);
+                
                 $mediasId = $mediaType.'_'.$item->id;
                 
                 if (count($medias)) $mediasId .= '_'.$medias[0][0]->fieldid;
+                
+                $input = JFactory::getApplication()->input;
                 
                 $view = self::getView($item);
                 $view = $view == 'itemlist' ? 'list' : '';
