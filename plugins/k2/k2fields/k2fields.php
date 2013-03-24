@@ -30,8 +30,10 @@ class plgk2k2fields extends K2Plugin {
                 $this->normalizeMetatag($item, 'metadesc');
                 $this->normalizeMetatag($item, 'metakey');
                 
-                if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1')
+                if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1') {
                         JprovenUtility::normalizeK2Parameters($item);
+                }
+//                else jdbg::pe('words, personalities and plots');
 
                 if (!isset($item->category) || !is_object($item->category)) {
                         $query = 'SELECT * FROM #__k2_categories WHERE id = '.(int) $item->catid;
@@ -345,28 +347,35 @@ class plgk2k2fields extends K2Plugin {
                         $params = JprovenUtility::getK2Params();
                         
                         if (!empty($item) && empty($cparams)) {
-                                if (isset($item->categoryparams)) {
-                                        $cparams = $item->categoryparams;
-                                } else if (isset($item->category) && is_object ($item->category)) {
-                                        $cparams = $item->category->params;
+                                if ($item->category instanceof TableK2Category) {
+                                        JprovenUtility::normalizeK2Parameters($item->category);
+                                        $params = $item->category->params;
+                                        
+                                        if (is_string($params)) $params = new JRegistry($params);
                                 } else {
-                                        $query = 'SELECT params FROM #__k2_categories WHERE id = '.$item->catid;
-                                        $db = JFactory::getDBO();
-                                        $db->setQuery($query);
-                                        $cparams = $db->loadResult();
-                                }
-                                
-                                if (!empty($cparams)) {
-                                        if (is_string($cparams))
-                                                $cparams = new JRegistry($cparams);
-
-                                        if ($cparams->get('inheritFrom')) {
-                                                $masterCategory = &JTable::getInstance('K2Category', 'Table');
-                                                $masterCategory->load($cparams->get('inheritFrom'));
-                                                $cparams = new JRegistry($masterCategory->params);
+                                        if (isset($item->categoryparams)) {
+                                                $cparams = $item->categoryparams;
+                                        } else if (isset($item->category) && is_object ($item->category)) {
+                                                $cparams = $item->category->params;
+                                        } else {
+                                                $query = 'SELECT params FROM #__k2_categories WHERE id = '.$item->catid;
+                                                $db = JFactory::getDBO();
+                                                $db->setQuery($query);
+                                                $cparams = $db->loadResult();
                                         }
 
-                                        $params = $cparams;
+                                        if (!empty($cparams)) {
+                                                if (is_string($cparams))
+                                                        $cparams = new JRegistry($cparams);
+
+                                                if ($cparams->get('inheritFrom')) {
+                                                        $masterCategory = &JTable::getInstance('K2Category', 'Table');
+                                                        $masterCategory->load($cparams->get('inheritFrom'));
+                                                        $cparams = new JRegistry($masterCategory->params);
+                                                }
+
+                                                $params = $cparams;
+                                        }
                                 }
                         } else if (!empty($cparams)) {
                                 if (is_string($cparams))

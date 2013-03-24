@@ -383,7 +383,9 @@ class K2FieldsMedia {
                                 }
                         }
                         
-                        if (self::getPlugin($field, 'pic')->name == 'widgetkit_k2') {
+                        $plg = self::getPlugin($field, 'pic');
+                        
+                        if (isset($plg->name) && $plg->name == 'widgetkit_k2') {
                                 require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/models/types/widgetkithelper.php';
                                 K2fieldsWidgetkitHelper::delete($item, $field);
                         }
@@ -1520,7 +1522,8 @@ class K2FieldsMedia {
                 
                 $plugin = K2FieldsModelFields::value($field, $view.$mediaType.'plg');
                 
-                if (empty($plugin)) return self::error('Media plugin setting missing.');
+                if (JFactory::getApplication()->isSite() && empty($plugin)) 
+                        return self::error('Media plugin setting missing.');
                 
                 if (in_array($plugin, $nonePlugins)) {
                         $result = new stdClass();

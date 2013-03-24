@@ -32,6 +32,7 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
                 if (($option == 'com_k2' || $option == 'com_k2fields') && !in_array($task, array('edit', 'add', 'save'))) {
                         K2Model::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
                         K2Model::getInstance('item', 'K2Model');
+                        K2Model::getInstance('itemlist', 'K2Model');
                 }
         }
         

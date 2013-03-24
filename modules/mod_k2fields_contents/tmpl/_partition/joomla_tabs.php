@@ -5,7 +5,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 echo JHtml::_('tabs.start', "cat-pane-".$module->id);
-$partitionIds = 0;
+$partitionI = 0;
 foreach ($itemList as $catId => $list) {
         $partitionId = $partitionIds[$partitionI];
         $partitionI++;

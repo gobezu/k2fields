@@ -5,6 +5,14 @@
 defined('_JEXEC') or die('Restricted access');
 
 class K2FieldsModuleHelper {
+        public static function getCategoryItems($items) {
+                $result = array();
+                foreach ($items as $item) {
+                        if ($item->id) $result[] = $item;
+                }
+                return $result;
+        }
+        
         public static function renderCategoryLabel($items, &$params, &$access, $imgOnly = false) {
                 $item = $items[0];
                 
@@ -37,8 +45,129 @@ class K2FieldsModuleHelper {
 	}
         
         private static $categories = array(), $categoryTree = array(), $categoryParents = array(), $categoriesData, $_items = array();
+
+        private static function _getTree($category, $items, $params, $nth) {
+                $categoryItems = isset($items[$category]) ? $items[$category] : array();
+                $category = self::$categories[$category];
+                
+                // TODO: check if category is current and open it or if not close it
+                // Option tree_category_show_icon
+                if ($nth && $params->get('tree_nth_open') && $nth == $params->get('tree_nth_open') || $params->get('tree_initial') == 'open') {
+                        $class = ' class="open"';
+                }
+                
+                $tree = '<li'.$class.'>';
+                
+                if ($params->get('tree_category_link'))
+                        $tree .= '<a href="'
+                                . urldecode(JRoute::_(K2FieldsHelperRoute::getCategoryRoute($category->id.':'.urlencode($category->alias))))
+                                . '" title="'.JprovenUtility::html($category->name).'">'
+                        ;
+                
+                $tree .= $category->name;
+                if ($params->get('tree_category_show_count')) {
+                        $fmt = !isset($options['tree_category_show_count_format']) ? ' (%d)' : $params->get('tree_category_show_count_format');
+                        $cnt = count($categoryItems);
+                        $tree .= sprintf($fmt, $cnt);
+                }
+                
+                if ($params->get('tree_category_link')) $tree .= '</a>';
+                
+                if (empty($categoryItems) || !$params->get('tree_show_items') || !$categoryItems[0]->id) return $tree . '</li>';
+                
+                $itemsList = '<ul>';
+                
+                foreach ($categoryItems as $categoryItem) {
+                        $itemsList .= '<li>';
+                        
+                        if ($params->get('tree_item_link'))
+                                $itemsList .= '<a href="'.$categoryItem->link.'" title="'.JprovenUtility::html($categoryItem->title).'">'
+                                ;
+                        
+                        $itemsList .= $categoryItem->title;
+                        
+                        if ($params->get('tree_item_link')) $itemsList .= '</a>';
+                        
+                        $itemsList .= '</li>';
+                }
+                
+                $itemsList .= '</ul>';
+                
+                $children = isset(self::$categoryTree[$category->id]) ? self::$categoryTree[$category->id] : array();
+                $branches = '';
+                
+                if (!empty($children)) {
+                        $branches .= '<ul>';
+                        $_nth = 0;
+                        foreach ($children as $child) {
+                                $_nth++;
+                                $branches .= self::_getTree($child, $items, $params, $nth.'.'.$_nth);
+                        }
+                        $branches .= '</ul>';
+                }
+                
+                if ($params->get('tree_items_order') == 'items') {
+                         $tree .= $itemsList . $branches;
+                } else {
+                        $tree .= $branches . $itemsList;
+                }
+                
+                $tree .= '</li>';
+                
+                return $tree;
+        }
         
-        private static function getCategoryChildren($ids, $excludeIds, $depth = -1, $clear = false) {
+        public static function getTree($treeId, $items, $params) {
+                $options = $params->toArray();
+                
+                $btns = '';
+                
+                if ($params->get('tree_show_buttons') != 'none') {
+                        $btns = '
+<div id="'.$treeId.'_control" class="tree_btns" style="white-space:nowrap;font-size:10px;border:1px solid #ddd;padding:2px;text-align:center">
+        <a title="Collapse the entire tree below" href="#"><img src="'.$params->get('dir').'images/minus.gif" /> Collapse All</a>
+        <a title="Expand the entire tree below" href="#"><img src="'.$params->get('dir').'images/plus.gif" /> Expand All</a>
+        <a title="Toggle the tree below, opening closed branches, closing open branches" href="#"><img src="'.$params->get('dir').'images/toggle.gif" /> Toggle All</a>
+</div>
+';
+                }
+                
+                $tree = '';
+
+                if ($params->get('tree_show_buttons') == 'top') $tree .= $btns;
+                
+                $tree .= '<ul id="'.$treeId.'" class="'.$params->get('tree_class').'">';
+                
+                $nth = 0;
+                $itemsList = '';
+                $branches = '';
+                
+                foreach (self::$categoryTree as $parent => $children) {
+                        $nth++;
+                        
+                        if (isset($items[$parent])) {
+                                $itemsList .= self::_getTree($parent, $items, $params);
+                        }
+                        
+                        foreach ($children as $child) {
+                                $branches .= self::_getTree($child, $items, $params, $nth);
+                        }
+                }
+                
+                if ($params->get('tree_items_order') == 'items') {
+                         $tree .= $itemsList . $branches;
+                } else {
+                        $tree .= $branches . $itemsList;
+                }
+                
+                $tree .= '</ul>';
+                
+                if ($params->get('tree_show_buttons') == 'bottom') $tree .= $btns;
+                
+                return $tree;
+        }
+        
+        private static function getCategoryChildren($ids, $excludeIds, $depth = -1, $clear = false, $recurring = false) {
                 static $currDepth = 1;
                 
                 if ($clear) {
@@ -68,20 +197,19 @@ class K2FieldsModuleHelper {
                 $query .= " ORDER BY c.ordering";
                 
                 $db->setQuery($query);
-                $rows = $db->loadObjectList();
+                $cats = $db->loadObjectList('id');
                 $catsWithChildren = array();
 
-                foreach ($rows as $row) {
-                        self::$categories[$row->id] = $row;
+                foreach ($cats as $catId => $cat) {
+                        self::$categories[$catId] = $cat;
                         
-                        if (!isset(self::$categoryTree[$row->parent])) 
-                                self::$categoryTree[$row->parent] = array();
+                        if (!isset(self::$categoryTree[$cat->parent])) 
+                                self::$categoryTree[$cat->parent] = array();
                         
-                        self::$categoryTree[$row->parent][] = $row->id;
-                        self::$categoryParents[$row->id] = $row->parent;
+                        self::$categoryTree[$cat->parent][] = $catId;
+                        self::$categoryParents[$catId] = $cat->parent;
                         
-                        if ($row->cnt > 0) 
-                                $catsWithChildren[] = $row->id;
+                        if ($cat->cnt > 0) $catsWithChildren[] = $catId;
                 }
                 
                 $currDepth++;
@@ -89,7 +217,17 @@ class K2FieldsModuleHelper {
                 if (!empty($catsWithChildren)) 
                         self::getCategoryChildren($catsWithChildren, $excludeIds, $depth, false);
                 
-                return self::$categories;                
+                $_cats = array_keys(self::$categories);
+                $_cats = array_diff($ids, $_cats);
+                
+                if ($_cats) {
+                        $query = "SELECT * FROM #__k2_categories c WHERE c.id IN (".(implode(", ", $_cats)).") AND c.published=1 AND c.trash=0 AND c".$access." ORDER BY c.ordering";
+                        $db->setQuery($query);
+                        $_cats = $db->loadObjectList();
+                        foreach ($_cats as $cat) self::$categories[$cat->id] = $cat;
+                }
+                
+                return $cats;                
         }
         
         public static function getItemLayout($item, $ext, $extType, $layoutDir, $extLayoutDir) {
@@ -193,7 +331,8 @@ class K2FieldsModuleHelper {
                                         $depth = $childrenMode == 2 ? 1 : -1;
                                         $childrenCategories = self::getCategoryChildren($categories, $excludeCategories, $depth, true);
                                         $childrenCategories = array_keys($childrenCategories);
-                                        $categories = array_merge($categories, $childrenCategories);
+                                        if ($childrenMode == 2) $categories = $childrenCategories;
+                                        else $categories = array_merge($categories, $childrenCategories);
                                 }
                                 
                                 $categories = JprovenUtility::toIntArray($categories);
@@ -390,27 +529,13 @@ class K2FieldsModuleHelper {
 
                 if ($ordering == 'comments') $query .= ", COUNT(comments.id) AS numOfComments";
 
-                $queryFrom = " FROM #__k2_items as i LEFT JOIN #__k2_categories c ON c.id = i.catid";
+                $innerQueryWhere = 
+                        " WHERE ii.published = 1 AND ii{$access} AND ii.trash = 0"
+                        . " AND ( ii.publish_up = ".$nullDate." OR ii.publish_up <= ".$now." )"
+                        . " AND ( ii.publish_down = ".$nullDate." OR ii.publish_down >= ".$now." )"
+                        ;
 
-                if ($ordering == 'best') $queryFrom .= " LEFT JOIN #__k2_rating r ON r.itemID = i.id";
-
-                if ($ordering == 'comments') $queryFrom .= " LEFT JOIN #__k2_comments comments ON comments.itemID = i.id";
-
-                $queryWhere = " WHERE i.published = 1 AND i{$access} AND i.trash = 0 AND c.published = 1 AND c{$access} AND c.trash = 0";
-                $queryWhere .= " AND ( i.publish_up = ".$nullDate." OR i.publish_up <= ".$now." )";
-                $queryWhere .= " AND ( i.publish_down = ".$nullDate." OR i.publish_down >= ".$now." )";
-
-                if ($params->get('FeaturedItems') == '0')
-                        $queryWhere .= " AND i.featured != 1";
-
-                if ($params->get('FeaturedItems') == '2')
-                        $queryWhere .= " AND i.featured = 1";
-
-                if ($params->get('imagesOnly') && ($imageFields = $params->get('imagefield'))) {
-                        $imageFields = JprovenUtility::toIntArray((array) $imageFields, true);
-                        
-                        $queryFrom .= ' INNER JOIN #__k2_extra_fields_values AS efvimgs ON i.id = efvimgs.itemid AND efvimgs.fieldid IN ('.$imageFields.') AND efvimgs.partindex = '.(K2FieldsMedia::SRCPOS-1).' AND efvimgs.value <> "" AND efvimgs.value IS NOT NULL';
-                }
+                $queryWhere = " WHERE c.published = 1 AND c{$access} AND c.trash = 0";
                 
                 if ($ordering == 'comments')
                         $queryWhere .= " AND comments.published = 1";
@@ -448,7 +573,7 @@ class K2FieldsModuleHelper {
                                 break;
 
                         case 'hits':
-                                if ($params->get('popularityRange')){
+                                if ($params->get('popularityRange')) {
                                         $datenow = &JFactory::getDate();
                                         $date = $datenow->toMySQL();
                                         $queryWhere .= " AND i.created > DATE_SUB('{$date}',INTERVAL ".$params->get('popularityRange')." DAY) ";
@@ -481,6 +606,26 @@ class K2FieldsModuleHelper {
                         default:
                                 $orderby = 'i.id DESC';
                                 break;
+                }
+                
+                $allowEmpty = (bool) $params->get('allow_empty_partitions', 0);
+                
+                $queryFrom = " FROM (SELECT * FROM #__k2_items AS ii ".$innerQueryWhere.") AS i ".($allowEmpty ? 'RIGHT' : 'LEFT')." JOIN #__k2_categories AS c ON c.id = i.catid";
+
+                if ($ordering == 'best') $queryFrom .= " LEFT JOIN #__k2_rating AS r ON r.itemID = i.id";
+
+                if ($ordering == 'comments') $queryFrom .= " LEFT JOIN #__k2_comments AS comments ON comments.itemID = i.id";
+
+                if ($params->get('FeaturedItems') == '0')
+                        $innerQueryWhere .= " AND ii.featured != 1";
+
+                if ($params->get('FeaturedItems') == '2')
+                        $innerQueryWhere .= " AND ii.featured = 1";
+
+                if ($params->get('imagesOnly') && ($imageFields = $params->get('imagefield'))) {
+                        $imageFields = JprovenUtility::toIntArray((array) $imageFields, true);
+                        
+                        $queryFrom .= ' INNER JOIN #__k2_extra_fields_values AS efvimgs ON i.id = efvimgs.itemid AND efvimgs.fieldid IN ('.$imageFields.') AND efvimgs.partindex = '.(K2FieldsMedia::SRCPOS-1).' AND efvimgs.value <> "" AND efvimgs.value IS NOT NULL';
                 }
                 
                 $timeRange = $params->get('timerange');
@@ -553,7 +698,7 @@ class K2FieldsModuleHelper {
 
                                 $sql = @implode(',', $cat);
 
-                                $queries[] = "(" . $q . " AND i.catid IN ({$sql}) ORDER BY " . $orderby . " LIMIT 0, ".$cnts[$c] . ")";
+                                $queries[] = "(" . $q . " AND c.id IN ({$sql}) ORDER BY " . $orderby . " LIMIT 0, ".$cnts[$c] . ")";
                         }
                         
                         // TODO: group by instead of union
@@ -587,19 +732,20 @@ class K2FieldsModuleHelper {
                         }
                 }
                 
-                if ($partBy == 'category') $indexBy = 'catid';
+                if ($partBy == 'category') $indexBy = 'categoryid';
                 else if ($partBy == 'author') $indexBy = 'created_by';
-                else $indexBy = 'catid';
+                else $indexBy = 'categoryid';
                 
                 $items = JprovenUtility::indexBy($items, $indexBy);
                 
                 if (!$itemsProvided && $childrenMode == 2 && isset($categories)) {
+                        $rootCategory = JprovenUtility::firstKey(self::$categoryTree);
                         $rootChildren = self::$categoryTree[$rootCategory];
                         $_items = array();
                         
                         foreach ($items as $c => $itemsPerCat) {
                                 $pc = $c;
-                                
+
                                 while (!in_array($pc, $rootChildren)) {
                                         $pc = self::$categoryParents[$pc];
                                 }
@@ -621,9 +767,9 @@ class K2FieldsModuleHelper {
                 }
                 
                 $items = self::prepareList($items, $params, $componentParams, $format);
-                
+
                 if (empty($partBy)) $items = JprovenUtility::flatten($items);
-                
+
                 if ($moduleId) self::$_items[$moduleId] = $items;
                 
                 return $items;
@@ -729,7 +875,10 @@ class K2FieldsModuleHelper {
                         
 			foreach ($items as $catId => &$itemsPerCat) {
                                 foreach ($itemsPerCat as &$item) {
+                                        if (!$item->id) continue;
+                                        
                                         $notEmpty = !empty($item->introtext);
+                                        
                                         if ($cats) $item->category = $cats[$catId];
                                         
                                         JprovenUtility::loadK2SpecificResources($catId, $item->id);

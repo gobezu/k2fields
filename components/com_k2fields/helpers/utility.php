@@ -941,7 +941,11 @@ group by vvv.itemid
         }
                 
         private static function subCreateTemplateFileName($view, $theme = 'default', $type = '', $addId = -1) {
-                if (empty($theme)) $theme = JFactory::getApplication()->input->get('theme', 'default', 'word');
+                if (empty($theme) || $theme == 'default') {
+                        $theme = JFactory::getApplication()->input->get('theme', 'default', 'word');
+                        
+                        if (empty($theme)) $theme = 'default';
+                }
                 
                 $template = JFactory::getApplication()->getTemplate();
                 
@@ -1127,7 +1131,6 @@ group by vvv.itemid
                 }
                 
                 $params->merge($cparams);
-                
                 JprovenUtility::normalizeK2Parameters($category, $params);
                 
                 $theme = $params->get('theme', 'default');

@@ -282,7 +282,11 @@
                                         <option value="alpha">Alphabetical (TBI)</option>
                                 </field>
                                 <field name="partition_template" type="filelist" default="joomla_tabs" hide_none="true" label="PARTITION_TEMPLATE" directory="modules/mod_k2fields_contents/tmpl/_partition" stripext="true" />
-                                <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION">
+                                <field name="allow_empty_partitions" type="radio" default="0" label="Allow empty categories" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="within_partition" type="list" default="item" label="WITHIN_PARTITION (TBI)">
                                         <option value="item">Individual items</option>
                                 </field>
                                 <field name="module_width" type="text" default="auto" label="MODULE WIDTH" description="MODULE WIDTH DESC"></field>
@@ -1269,15 +1273,60 @@ Default value is empty.-->
                                         <option value="1">YES</option>
                                 </field>    
                         </fieldset>     
-                        
+                        <fieldset name="partition_treeviewoptions">
+                                <field name="tree_class" type="list" default="folder" label="Tree look" description="">
+                                        <option value="folder">Folder</option>
+                                        <option value="treeview-red">Red</option>
+                                        <option value="treeview-black">Black</option>
+                                        <option value="treeview-gray">Gray</option>
+                                        <option value="treeview-famfamfam">famfamfam</option>
+                                        <option value="filetree">Filetree</option>
+                                </field>
+                                <field name="tree_show_buttons" type="radio" default="top" label="Show toggle buttons" description="">
+                                        <option value="none">Don't show</option>
+                                        <option value="top">Top</option>
+                                        <option value="bottom">Bottom</option>
+                                </field>
+                                <field name="tree_persistency" type="radio" default="cookie" label="Persistency" description="">
+                                        <option value="none">Don't persist</option>
+                                        <option value="cookie">Cookie</option>
+                                        <option value="location">URL sensitive</option>
+                                </field>
+                                <field name="tree_category_link" type="radio" default="1" label="Link category" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="tree_category_show_count" type="radio" default="0" label="Show count of items in category" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="tree_category_show_count_format" type="text" default=" (%d)" size="30" label="Show count format" description="" />
+                                <field name="tree_show_items" type="radio" default="1" label="Show items" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="tree_item_link" type="radio" default="1" label="Link item" description="">
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                <field name="tree_items_order" type="radio" default="subcategories" label="Orders in which subcategories and items are shown" description="">
+                                        <option value="subcategories">Subcategories first</option>
+                                        <option value="items">Items first</option>
+                                </field>
+                                <field name="tree_initial" type="radio" default="close" label="Initial tree state" description="">
+                                        <option value="close">Closed</option>
+                                        <option value="open">Open</option>
+                                </field>
+                                <field name="tree_nth_open" type="text" default="" size="30" label="(TBI) nth tree node initally" description="" />
+                        </fieldset>
                         <fieldset name="advanced">
                                 <field name="addJQuery" type="radio" default="0" label="Add jQuery">
-                                        <option value="0">NO</option>
-                                        <option value="1">YES</option>
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
                                 </field>                                 
                                 <field name="addJQueryEasing" type="radio" default="0" label="Add jQuery easing">
-                                        <option value="0">NO</option>
-                                        <option value="1">YES</option>
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
                                 </field>                                 
 				<field
 					name="moduleclass_sfx"

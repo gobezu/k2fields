@@ -92,6 +92,7 @@ if (!empty($itemList) && count($itemList) > 0) {
         
         if ($isPartitioned) {
                 $partitionTemplate = $params->get('partition_template', 'joomla_tabs');
+                $allowEmpty = (bool) $params->get('allow_empty_partitions', false);
                 
                 if ($partitionTemplate != $templateName) {
                         $partitionMediaFolder = 'media/mod_'.$module->name.'/'.$partitionTemplate.'/';

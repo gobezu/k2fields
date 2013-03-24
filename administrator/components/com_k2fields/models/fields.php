@@ -721,7 +721,7 @@ class K2FieldsModelFields extends K2Model {
                 $itemFields = json_decode($itemFields);
                 
                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/tables/');
-                $r = JTable::getInstance('K2ExtraFieldValue', 'Table');
+                $r = JTable::getInstance('K2ExtraFieldsValues', 'Table');
                 $r->itemid = $item->id;
                 $db = $this->_db;
                 $query = 'SELECT * FROM #__k2_extra_fields_values WHERE itemid = '.(int)$item->id . ' ORDER BY fieldid, listindex, partindex, '.$db->nameQuote('index');
@@ -1033,7 +1033,7 @@ class K2FieldsModelFields extends K2Model {
                 $db->setQuery($query);
                 $db->query();
                 
-                $r = JTable::getInstance('K2ExtraFieldValue', 'Table');
+                $r = JTable::getInstance('K2ExtraFieldsValues', 'Table');
                 
                 $r->itemid = $item->id;
                 $r->fieldid = $r->related = $fieldId;
