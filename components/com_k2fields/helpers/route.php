@@ -241,7 +241,7 @@ class K2FieldsHelperRoute {
 		if ($item = self::_findItem($needles)) {
 			$link .= '&Itemid='.$item->id;
 		}
-		else if(K2_USERS_ITEMID) {
+		else if(defined(K2_USERS_ITEMID)) {
 			$link .= '&Itemid='.K2_USERS_ITEMID;
 		}                
 
