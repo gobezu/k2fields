@@ -728,18 +728,57 @@ group by vvv.itemid
                         } else {
                                 $file = JURI::root() . $file;
                         }
+                        
+                        if (self::isRendered()) {
+                                JprovenUtility::replaceResourcesInDocument(
+                                        $type, 
+                                        array(), 
+                                        array($file), 
+                                        'response', 
+                                        null, 
+                                        '', 
+                                        false
+                                );
+                        } else {
+                                $document = JFactory::getDocument();
 
-                        $document = JFactory::getDocument();
-
-                        if ($type == 'js') {
-                                $document->addScript($file);
-                        } else if ($type == 'css') {
-                                $document->addStylesheet($file);
+                                if ($type == 'js') {
+                                        $document->addScript($file);
+                                } else if ($type == 'css') {
+                                        $document->addStylesheet($file);
+                                }
                         }
                 }
                 
                 return $result;
-        }        
+        }
+        
+        public static function addDeclaration($declaration, $type = 'script') {
+                $type = strtolower($type);
+                
+                if (self::isRendered()) {
+                        $html = JResponse::getBody();
+                        $declaration = JString::trim($declaration);
+                        if (strpos($declaration, '<'.$type.' ') === false) {
+                                if ($type == 'style') {
+                                        $declaration = '<style type="text/css">'.$declaration.'</style>';
+                                } else {
+                                        $declaration = '<script type="text/javascript">'.$declaration.'</script>';
+                                }
+                        }
+                        $html = str_ireplace('</head>', $declaration.'</head>', $html);
+                        JResponse::setBody($html);
+                } else {
+                        $document = JFactory::getDocument();
+                        $type = 'add'.ucfirst($type).'Declaration';
+                        call_user_func(array($document, $type), $declaration);
+                }
+        }
+        
+        public static function isRendered() {
+                $body = JResponse::getBody();
+                return !empty($body);
+        }
         
         public static function isAjaxCall($url = null) {
                 if (empty($url)) $url = JFactory::getApplication()->input->get('jpmode', '', 'string');

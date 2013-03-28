@@ -29,6 +29,7 @@ class K2FieldsModelFields extends K2Model {
         private static $defaultSection = self::DEFAULT_UI_SECTION;
         public static $autoFieldTypes = array('title', 'rate', 'facebook', 'form', 'pinterest', 'linkedin', 'twitter', 'googleplus', 'readability', 'form');
         private static $autoFieldTypesRendered = array();
+        private static $renderedTypes = array();
         
         function __construct($config = array()) {
                 parent::__construct($config);
@@ -1069,6 +1070,7 @@ class K2FieldsModelFields extends K2Model {
                                 $options['values'] = array(
                                         array('img'=>'', 'value'=>7, 'text'=>'All days'),
                                         array('img'=>'', 'value'=>8, 'text'=>'Weekend'),
+                                        array('img'=>'', 'value'=>9, 'text'=>'Weekdays'),
                                         array('img'=>'', 'value'=>1, 'text'=>'Monday'),
                                         array('img'=>'', 'value'=>2, 'text'=>'Tuesday'),
                                         array('img'=>'', 'value'=>3, 'text'=>'Wednesday'),
@@ -2250,7 +2252,7 @@ class K2FieldsModelFields extends K2Model {
                                 }
                                 
                                 $rendered = '';
-
+                                
                                 if ($this->isAggregateType($fld)) {
                                         $rendered = call_user_func($renderer, $item, $fieldValues, $fld, $this, $fieldRule);
                                 } else {
@@ -2275,6 +2277,8 @@ class K2FieldsModelFields extends K2Model {
                                         
                                         $rendered = $this->renderFieldValues($renderedValues, $fld, $fieldRule, is_array($renderer) && $renderer[1] == 'renderGeneric');
                                 }
+                                
+                                self::fieldRendered($fld);
                                 
                                 $fieldRule['rendered'] = $rendered;
                                 
@@ -3390,6 +3394,28 @@ class K2FieldsModelFields extends K2Model {
                 return $rendered;
         }
         
+        private static function fieldRendered($field) {
+                $valid = self::value($field, 'valid');
+                if (!$valid || in_array($valid, self::$renderedTypes)) return;
+                self::$renderedTypes[] = $valid;
+        }
+        
+        public static function isRenderedTypes($types) {
+                if (JFactory::getApplication()->isAdmin()) return true;
+                
+                $types = (array) $types;
+                
+                foreach ($types as $type)
+                        if (in_array($type, self::$renderedTypes))
+                                return true;
+                        
+                return false;
+        }
+        
+        public static function isFieldsRendered() {
+                return !empty(self::$renderedTypes);
+        }
+        
         public function getRenderer($field) {
                 $valid = self::value($field, 'valid');
                 $mtd = empty($valid) ? 'renderGeneric' : 'render'.ucfirst($valid); 
@@ -3960,7 +3986,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         }
 
         public function renderDays($item, $values, $field, $helper, $rule = null) {
-                static $map = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'All days', 'Weekend');
+                static $map = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'All days', 'Weekend', 'Weekdays');
                 $values = JprovenUtility::getColumn($values, 'txt', true);
                 $values = (array) $values;
                 $rendered = $this->renderFieldValues($values, $field, $rule);

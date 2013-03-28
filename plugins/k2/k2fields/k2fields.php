@@ -574,24 +574,29 @@ class plgk2k2fields extends K2Plugin {
         }
         
         public static function loadResources($tab = null, $item = null, $addParams = null) {
-                static $jsDone = false, $jsK2fDone = false, $includeDone = false, $itemDone = false, $compressedLoaded = false;
+//                if ($tab != 'search' && !K2FieldsModelFields::isFieldsRendered()) return;
                 
-                $document = JFactory::getDocument();
+                static $jsK2fDone = false, $jsDone = false, $cssDone = false, $compressedLoaded = false;
                 
-                if ($tab != 'search') K2FieldsMap::loadResources($item, null, true);
+                //  && K2FieldsModelFields::isRenderedTypes('map')
+                if ($tab != 'search') {
+                        K2FieldsMap::loadResources($item, null, true);
+                }
                 
                 if ($tab == 'menu') K2HelperHTML::loadjQuery();
                 
-                if (!$includeDone) {
+                if (!$cssDone) {
                         JprovenUtility::load('k2fields.css', 'css');
-                        $includeDone = true;
+                        $cssDone = true;
                 }
                 
                 if (!$jsDone) {
-                        JprovenUtility::loc(true, true, 'lib/datepicker.js', true);
-                        //$theme = JprovenUtility::plgParam('k2fields', 'k2', 'datepickertheme', 'datepicker_dashboard');
-                        $theme = 'datepicker_dashboard';
-                        JprovenUtility::loc(true, true, 'lib/datepicker/'.$theme.'/'.$theme.'.css', true, 'css');
+//                        if (K2FieldsModelFields::isRenderedTypes(array('date', 'datetime', 'duration'))) {
+                                JprovenUtility::loc(true, true, 'lib/datepicker.js', true);
+                                $theme = 'datepicker_dashboard';
+                                // TODO: Pick the theme from the field
+                                JprovenUtility::loc(true, true, 'lib/datepicker/'.$theme.'/'.$theme.'.css', true, 'css');
+//                        }
                         
                         // Loading order here is important as there is dependency
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
@@ -601,7 +606,9 @@ class plgk2k2fields extends K2Plugin {
                         
                         JprovenUtility::loc(true, true, 'lib/autocompleter.js', true);
                         
-                        if ($tab == 'menu') JprovenUtility::load('jpmenuitemhandler.js', 'js');
+                        if ($tab == 'menu') {
+                                JprovenUtility::load('jpmenuitemhandler.js', 'js');
+                        }
                         
                         if (JFile::exists(JPATH_SITE.'/media/k2fields/js/k2fields.all.js')) {
                                 $ver = "$Ver$";
@@ -640,47 +647,27 @@ class plgk2k2fields extends K2Plugin {
                         
                         $returnvalue = array(array(JURI::root(true).'/logout', JURI::root(true).'/index.php?option=com_user&task=logout', $returnvalue));
                         
-                        $document->addScriptDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });');
+                        JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });');
                         
                         $jsDone = true;
                 }
                 
-                if (in_array($tab, array('extra-fields', 'search', 'menu', 'editfields')) && !$jsK2fDone) {
-                        $document = JFactory::getDocument();
-                        
+                if (in_array($tab, array('force', 'extra-fields', 'search', 'menu', 'editfields')) && !$jsK2fDone) {
                         if (!$compressedLoaded && JprovenUtility::plgParam('k2fields', 'k2', 'preloadjsmodules', true) && $tab != 'k2fields-editor') {
-                                static $modules = array('basic', 'complex', 'list', 'map', 'media', 'k2item');
+                                static $modules = array('complex', 'list', 'map', 'media', 'k2item');
+                                
+                                JprovenUtility::load('k2fieldsbasic.js', 'js');
                                 
                                 foreach ($modules as $module) {
-                                        JprovenUtility::load('k2fields'.$module.'.js', 'js');
+//                                        if (K2FieldsModelFields::isRenderedTypes('list')) {
+                                                JprovenUtility::load('k2fields'.$module.'.js', 'js');
+//                                        }
                                 }
                         }
                         
                         K2Model::getInstance('searchterms', 'k2fieldsmodel');
                         
-                        $params = array(
-                                'listItemSeparator' => K2FieldsModelFields::LIST_ITEM_SEPARATOR,
-                                'listConditionSeparator' => K2FieldsModelFields::LIST_CONDITION_SEPARATOR,
-                                'valueSeparator' => K2FieldsModelFields::VALUE_SEPARATOR,
-                                'multiValueSeparator' => K2FieldsModelFields::MULTI_VALUE_SEPARATOR,
-                                'userAddedValuePrefix' => K2FieldsModelFields::USERADDED,
-                                'base' => JURI::root(),
-                                'k2fbase' => JprovenUtility::loc(),
-                                'mode' => self::getMode($tab),
-                                'pre' => self::getFieldPrefix($tab),
-                                'extendables' => self::getExtendables(),
-                                'selfName' => K2FieldsModelFields::JS_VAR_NAME,
-                                'maxListItem' => K2FieldsModelFields::setting('listmax'),
-                                'autoFields' => K2FieldsModelFields::$autoFieldTypes,
-                                'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength'),
-                                'view'=>  JFactory::getApplication()->input->get('view')
-                        );
-                        
-                        if (isset($addParams)) $params = array_merge($params, $addParams);
-                        
-                        $params = json_encode($params);
-                        
-                        $document->addScriptDeclaration('var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields('.$params.');');
+                        $params = self::addJSParams($tab, $addParams);
                         
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Form.AutoGrow.js', true);
@@ -689,16 +676,46 @@ class plgk2k2fields extends K2Plugin {
                         
                         $jsK2fDone = true;
                         
-                        if ($tab == 'search') JprovenUtility::load('jpsearch.js', 'js');
-                        
-//                        if ($tab == 'extra-fields') {
-//                                JprovenUtility::load('lib/markitup/images/style.css', 'css');
-//                                JprovenUtility::load('lib/markitup/markitup/jquery.markitup.js', 'js');
-//                                JprovenUtility::load('lib/markitup/markitup/sets/default/set.js', 'js');
-//                                JprovenUtility::load('lib/markitup/markitup/skins/simple/style.css', 'css');
-//                                JprovenUtility::load('lib/markitup/markitup/sets/default/style.css', 'css');
-//                        }
+                        if ($tab == 'search') {
+                                JprovenUtility::load('jpsearch.js', 'js');
+                        }
                 }        
+        }
+        
+        public static function addJSParams($tab, $addParams = null) {
+                static $isAdded = false;
+                
+                if ($isAdded) return;
+                
+                $params = array(
+                        'listItemSeparator' => K2FieldsModelFields::LIST_ITEM_SEPARATOR,
+                        'listConditionSeparator' => K2FieldsModelFields::LIST_CONDITION_SEPARATOR,
+                        'valueSeparator' => K2FieldsModelFields::VALUE_SEPARATOR,
+                        'multiValueSeparator' => K2FieldsModelFields::MULTI_VALUE_SEPARATOR,
+                        'userAddedValuePrefix' => K2FieldsModelFields::USERADDED,
+                        'base' => JURI::root(),
+                        'k2fbase' => JprovenUtility::loc(),
+                        'mode' => self::getMode($tab),
+                        'pre' => self::getFieldPrefix($tab),
+                        'extendables' => self::getExtendables(),
+                        'selfName' => K2FieldsModelFields::JS_VAR_NAME,
+                        'maxListItem' => K2FieldsModelFields::setting('listmax'),
+                        'autoFields' => K2FieldsModelFields::$autoFieldTypes,
+                        'maxFieldLength' => K2FieldsModelFields::setting('alphafieldmaxlength'),
+                        'view'=>  JFactory::getApplication()->input->get('view')
+                );
+
+                if (isset($addParams)) $params = array_merge($params, $addParams);
+
+                $params = json_encode($params);
+
+                $params = 'var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields('.$params.');';
+                
+                JprovenUtility::addDeclaration($params, 'script');
+                        
+                $isAdded = true;
+                
+                return $params;
         }
         
         static function getExtendables() {

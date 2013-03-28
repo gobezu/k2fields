@@ -650,8 +650,9 @@ class K2FieldsModelSearchterms extends K2Model {
                         $q = range($s, $e);
                 }
                 
-                // Weekend or All days
+                // Weekend or All days / Week days only
                 if (in_array(5, $q) || in_array(6, $q)) $q[] = 8;
+                else $q[] = 9;
                 
                 $q[] = 7; 
                 $q = $tbl.'.value IN ('.implode(',', $q).')';

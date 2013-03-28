@@ -551,7 +551,11 @@ var k2fields_type_datetime = {
         
         createTime: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
         
-        createDuration: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
+        createDuration: function(holder, proxyField, value, condition) { 
+                var format = this.getOpt(proxyField, 'timeformat');
+                this.setOpt(proxyField, 'durationformat', format);
+                return this.createDatetime(holder, proxyField, value, condition); 
+        },
 
         createDate: function(holder, proxyField, value, condition) { return this.createDatetime(holder, proxyField, value, condition); },
         
@@ -574,7 +578,11 @@ var k2fields_type_datetime = {
                         _dep = document.id(_dep);
                         
                         if (_dep.get('customvalueholder') != 'true') {
-                                _dep = this.getCell(_dep.get('id')).getElement('input[customvalueholder=true]');
+                                if (this.getOpt(_dep, 'subfieldof')) {
+                                        _dep = this.getComplexRep(_dep)
+                                } else {
+                                        _dep = this.getCell(_dep.get('id')).getElement('input[customvalueholder=true]');
+                                }
                         }
                         
                         var 

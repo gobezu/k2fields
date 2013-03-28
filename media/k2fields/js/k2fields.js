@@ -56,8 +56,11 @@ var k2fields = new Class({
                 if (this.isMode('search')) this.assignName = true;
                 
                 window.addEvent('load', function(){
+                        this.utility = new JPUtility({base:this.options.base, k2fbase:this.options.k2fbase});
+                        
+                        if (!this.isMode('search') && $$('input[name=id]').length == 0) return;
+                        
                         this.options['isNew'] = !this.isMode('search') && $$('input[name=id]')[0].value == '';
-                        this.utility = new JPUtility({base:this.options.base,k2fbase:this.options.k2fbase});
                         
                         var c = this.categoryEl();
                         
@@ -677,6 +680,15 @@ var k2fields = new Class({
 
         getValueHolder: function(field) {
                 return document.id(field).getParent('[valueholder=true]');
+        },
+                
+        getComplexRep:function(field) {
+                if (!this.getOpt(field, 'subfieldof')) field;
+                field = this.getProxyFieldId(field);
+                var el = this.getValueRow(field);
+                if (!el) return;
+                field = el.getElements('[id^='+field+']');
+                return field;
         },
 
         setProxyFieldValue: function(k2field, overrideValue) {

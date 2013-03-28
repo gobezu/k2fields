@@ -209,6 +209,7 @@ var k2fields_type_basic = {
                 values = [
                         {value:7,text:'All days'},
                         {value:8,text:'Weekend'},
+                        {value:9,text:'Weekdays'},
                         {value:1,text:'Monday'},
                         {value:2,text:'Tuesday'},
                         {value:3,text:'Wednesday'},

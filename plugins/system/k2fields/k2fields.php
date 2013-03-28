@@ -320,6 +320,9 @@ class plgSystemk2fields extends JPlugin {
         }
         
         function onAfterRender() {
+                $option = JFactory::getApplication()->input->get('option');
+                if (strpos($option, 'com_k2') !== 0) return;
+                plgk2k2fields::loadResources('force');
         }
         
         private static function upgradeMootools($debug = null) {
@@ -517,7 +520,6 @@ class plgSystemk2fields extends JPlugin {
         
         function onAfterDispatch() {
 //                JprovenUtility::reverseFromValues(95, 12);
-                //jdbg::pe('tadiasss');
                 if (!JprovenUtility::checkPluginActive('k2fields', 'k2', '')) return;
                 
                 self::upgradeMootools();
