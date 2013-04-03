@@ -16,11 +16,17 @@ class K2FieldsControllerEditor extends JController {
                 $pkg['fields'] = $this->fields();
                 $pkg['aclviewgroups'] = $this->aclviewgroups();
                 $pkg['widgetkit_k2'] = $this->widgetkitparams($field);
+                $pkg['icon_themes'] = $this->iconThemes();
                 // aclviewgroups
                 if (!$send) return $pkg;
                 echo json_encode($pkg);
                 JFactory::getApplication()->close();
 	}
+        
+        function iconThemes() {
+                $folders = JFolder::folders(JPath::clean(JPATH_SITE, '/') . '/' . JprovenUtility::loc() . 'icons/themes/');
+                return $folders;
+        }
         
         function listslevels($send = false) {
                 $query = "

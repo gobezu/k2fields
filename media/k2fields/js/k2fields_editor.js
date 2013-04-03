@@ -530,7 +530,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:13990', 'id:1389', 'id:1390', 'id:1391', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
                                         'alias':['id:1451', 'id:1452'],
                                         'range':['id:3', 'id:1501', 'id:15011', 'id:1502', 'id:15021', 'id:1503', 'id:15031', 'id:1504', 'id:1505'],
                                         'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
@@ -2451,11 +2451,23 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '1388':{
+                                'name':'Map icon type',
+                                'optName':'mapicontype',
+                                'valid':'text',
+                                'ui':'select',
+                                'values':[
+                                        {'value':'', 'text':'None'},
+                                        {'value':'number_', 'text':'Numeric'},
+                                        {'value':'letter_', 'text':'Alpha'}
+                                ],
+                                'section':'Type specific'
+                        },
+                        '13990':{
                                 'name':'Map icon color (editor)',
                                 'optName':'mapiconcolor',
                                 'valid':'text',
                                 'ui':'select',
-                                'values':['orange'],
+                                'values':this.options.options['icon_themes'],
                                 'section':'Type specific',
                                 'tip':'Draggable numerical icons'
                         },

@@ -11,7 +11,6 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
         
         JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
         JLoader::register('K2FieldsHelper', JPATH_SITE.'/components/com_k2fields/helpers/helper.php');
-        
         JLoader::register('K2Table', JPATH_ADMINISTRATOR.'/components/com_k2/tables/table.php');
         JLoader::register('K2Model', JPATH_ADMINISTRATOR.'/components/com_k2/models/model.php');
         JLoader::register('K2View', JPATH_ADMINISTRATOR.'/components/com_k2/views/view.php');

@@ -16,6 +16,7 @@ class K2FieldsMap {
         const MAP_TYPE = 1;     // road
         const MAP_CONTAINER_CLASS = 'mapContainer';
         const MAP_ICON_COLOR = 'orange';
+        const MAP_ICON_TYPE = '';
         
         /**
          * Field definition:
@@ -302,6 +303,7 @@ window.addEvent("load", function() {
                 $options['showmapeditor'] = K2FieldsModelFields::setting('showmapeditor', $options);
                 $options['locationprovider'] = K2FieldsModelFields::setting('locationprovider', $options, 'browser');
                 $options['locationproviderfunction'] = K2FieldsModelFields::setting('locationproviderfunction', $options);
+                $options['mapicontype'] = K2FieldsModelFields::setting('mapicontype', $options, K2FieldsMap::MAP_ICON_TYPE);
                 $options['mapiconcolor'] = K2FieldsModelFields::setting('mapiconcolor', $options, K2FieldsMap::MAP_ICON_COLOR);
                 $options['mapiconlocation'] = K2FieldsModelFields::setting('mapiconlocation', $options);
                 $options['mapiconlocationhover'] = K2FieldsModelFields::setting('mapiconhover', $options);
@@ -313,7 +315,7 @@ window.addEvent("load", function() {
                 if ($options['mapiconcolor']) {
                         jimport('joomla.filesystem.folder');
                         
-                        $icon = JFolder::files($root.JprovenUtility::loc().'icons/numbers/', $options['mapiconcolor'].'.png', false, true);
+                        $icon = JFolder::files($root.JprovenUtility::loc().'icons/themes/'.$options['mapiconcolor'].'/', $options['mapicontype'].'([a-z]+|[0-9]+).png', false, true);
                         
                         if (!empty($icon)) {
                                 $icon = JPath::clean($icon[0], '/');

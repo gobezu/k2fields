@@ -40,30 +40,42 @@ var k2fields_type_map = {
         mapIconHoverSize:[32,37],
         mapEditors:{},
 
-        getMapIcon:function(proxyField, icon, alterWith) {
-                icon = this.getOpt(proxyField, 'mapicon'+icon);
+        getMapIcon:function(proxyField, iconType, alterWith) {
+                var icon = this.getOpt(proxyField, 'mapicon'+iconType);
                 
                 if (!icon) return false;
                 
-                if (!alterWith) alterWith = '';
+                if (!alterWith) return icon;
                 
-                var ind = icon.lastIndexOf('.');
+                var it = this.getOpt(proxyField, 'mapicontype');
                 
-                return icon.substring(0, ind)+alterWith+icon.substring(ind);
+                if (!it) return icon;
+                
+                var re = new RegExp('(' + it + ')(' + (it == 'number_' ? '[0-9]+' : '[a-z]+') + ')(|-active)\.(png|jpg|gif|jpeg)$');
+                
+                icon = icon.replace(re, '$1' + alterWith + '.$3');
+                
+//                var m = icon.match(new RegExp(pre));
+//                
+//                var sep = icon.lastIndexOf('_') > -1 ? '_' : '.';
+//                
+//                icon = icon.substring(0, icon.lastIndexOf(sep) + 1) + alterWith + icon.substring(icon.lastIndexOf('.'));
+//                
+                return icon;
         },
         
-        getMapIconColor:function(proxyField, icon, alterWith) {
-                icon = this.getOpt(proxyField, 'mapicon'+icon);
-                
-                if (!icon) return false;
-                
-                if (!alterWith) alterWith = '';
-                
-                var ind = icon.lastIndexOf('.');
-                
-                return icon.substring(0, ind)+alterWith+icon.substring(ind);
-        },
-        
+//        getMapIconColor:function(proxyField, icon, alterWith) {
+//                icon = this.getOpt(proxyField, 'mapicon'+icon);
+//                
+//                if (!icon) return false;
+//                
+//                if (!alterWith) alterWith = '';
+//                
+//                var ind = icon.lastIndexOf('.');
+//                
+//                return icon.substring(0, ind)+alterWith+icon.substring(ind);
+//        },
+//        
         getMapIconSize:function(proxyField, icon) {
                 if (!this.getMapIcon(proxyField, icon)) return;
                 
@@ -130,7 +142,7 @@ var k2fields_type_map = {
                         point = new mxn.LatLonPoint(parseFloat(lat), parseFloat(lon)),
                         ms = map.markers, 
                         cnt = ms.length + 1,
-                        icon = this.getMapIcon(proxyField, 'colorfile', (cnt > 9 ? cnt : '0'+cnt)),
+                        icon = this.getMapIcon(proxyField, 'colorfile', cnt),
                         marker = new mxn.Marker(point)
                         ;
                 
@@ -154,6 +166,12 @@ var k2fields_type_map = {
                 
                 geo[0].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
                 geo[1].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
+                
+                var btn = geo[0].getParent('.k2fcontainer').getElement('.removebtn');
+                
+                if (btn) btn.addEvent('click', function() { 
+                        this.redrawMapEditor(proxyField);
+                }.bind(this));
 
                 return marker;
         },
@@ -414,11 +432,12 @@ var k2fields_type_map = {
                 var
                         maptype = this.getOpt(proxyField, 'maptype'),
                         itemPoints, m, el, items = this.mapItems[proxyField], i, n, itemId, item, a,
-                        ips = new Element('ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs,
+                        ips = new Element(view == 'item' ? 'ol' : 'ul', {'class':'mapips'}), agoto, preIp, ipsItem, ipsItemC, attrs,
                         createIPs = this.getOpt(proxyField, 'mapcreateips'),
                         ctrls = this.getOpt(proxyField, 'mapcontrols'),
                         showInMapBtn = this.getOpt(proxyField, 'mapshowinmapbtn'),
-                        cont
+                        cont,
+                        lbl
                         ;
                         
                 map.setMapType(maptype);
@@ -460,17 +479,22 @@ var k2fields_type_map = {
                                         
                                         ipsItem = new Element('ul').inject(ipsItem);
                                 }
+                        } else if (view != 'item') {
+                                ips = new Element(n > 1 ? 'ol' : 'span', {'class':'showinmapbtns'});
                         }
                         
                         for (i = 0; i < n; i++) {
                                 m = new mxn.Marker(new mxn.LatLonPoint(itemPoints[i].lat, itemPoints[i].lon));
                                 el = new Element('div', {'html':item.rendered});
-                                
                                 attrs = {'href':'#', 'text':preIp};
                                 
-                                if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = item.title+' '+(i+1);
+                                if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = item.title;
                                 
                                 if (itemPoints[i].lbl) attrs['text'] += (preIp ? ' - ' : '') + itemPoints[i].lbl;
+                                
+                                if (view == 'item') el.set('html', '');
+                                
+                                lbl = itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text'];
                                 
                                 if (createIPs) {
                                         ipsItemC = n == 1 ? ipsItem : new Element('li').inject(ipsItem);
@@ -506,12 +530,17 @@ var k2fields_type_map = {
                                         }
                                 }
                                 
-                                cont = $$('.catitem'+itemId).length > 0 ? $$('.catitem'+itemId) : $$('.item'+itemId);
-                                cont = cont && cont.length > 0 ? cont[0] : false;
+                                if (view == 'item') {
+                                        cont = document.id(map.currentElement);
+                                } else {
+                                        cont = view == 'item' ? $$('.item'+itemId) : $$('.catitem'+itemId);
+                                        cont = cont && cont.length > 0 ? cont[0] : false;
+                                }
                                 
                                 if (cont) {
                                         cont.store('ip', [proxyField, itemId, i]);
-                                        
+                                        cont.addClass('ipstore');
+
                                         if (view != 'item') {
                                                 if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
                                                         cont.addEvent('mouseover', function(e) { this.openIP(e); }.bind(this));
@@ -522,20 +551,20 @@ var k2fields_type_map = {
                                                         ;
                                                 }
                                         }
-                                        
+
                                         if (showInMapBtn) {
                                                 new Element('a', {
-                                                        'text':'» Show in map', 
+                                                        'text':lbl,
+                                                        'title':'Click to see '+lbl+' in map', 
                                                         'href':'#',
-                                                        'class':'showinmapbtn',
-                                                        'events':{ 'click':function(e) { this.showInMap(e); }.bind(this) }
-                                                }).inject(cont.getParent());
+                                                        'events':{ 'click':function(e) { this.showInMap(e); return false; }.bind(this) }
+                                                }).inject(ips.get('tag') == 'ul' || ips.get('tag') == 'ol' ? new Element('li').inject(ips) : ips);
                                         }
                                 }
                 
                                 new Element(view != 'item'? 'a' : 'span', {
                                         'href':item.link, 
-                                        'text':itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text']
+                                        'text':lbl
                                 }).inject(view != 'item' && el.getElement('.k2fmap') ? el.getElement('.k2fmap') : el, 'top');
                                 
                                 m.setInfoBubble(el);
@@ -550,8 +579,10 @@ var k2fields_type_map = {
                                 
                                 m.proxyField = proxyField;
                                 
+                                iconSize = this.getMapIconSize(proxyField, 'location');
+                                
                                 map.addMarkerWithData(m, {
-                                        'icon':this.getMapIcon(proxyField, 'location'),
+                                        'icon':this.getMapIcon(proxyField, 'location', view == 'item' ? i+1 : null),
                                         'iconSize':this.getMapIconSize(proxyField, 'location')
                                 });
                                 
@@ -559,11 +590,14 @@ var k2fields_type_map = {
                                 
                                 this.mapItems[proxyField][itemId]['points'][i]['marker'] = m;
                         }
+                        
+                        if (view != 'item' && !createIPs) ips.inject(cont);
                 }
                 
                 this.autoCenterAndZoom(map, proxyField);
                 
                 if (createIPs) ips.inject(container, 'after');
+                else if (view == 'item') ips.inject(cont, 'after').addClass('showinmapbtns').setStyle('padding-left', '50px');
                 
                 var actions = this.getOpt(proxyField, 'mapactions');
                 
@@ -621,7 +655,6 @@ var k2fields_type_map = {
         
         openIP:function(a) {
                 this.closeIP(a);
-                
                 var ip = this.getIP(a);
                 ip.openBubble();
                 this.currentIp = ip;
@@ -635,14 +668,17 @@ var k2fields_type_map = {
         },
         
         getIP: function(a) {
-                var ip;
-                if (this.options.view == 'item') {
-                        ip = document.id('k2Container').getParent();
+                var ip = this._tgt(a);
+                ip = ip.retrieve('ip');
+                if (ip) return this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
+                ip = this._tgt(a);
+                if (ip.getParent('.ipstore')) {
+                        ip = ip.getParent('.ipstore');
                 } else {
-                        ip = this._tgt(a);
-                }
-                if (ip.getParent('.itemContainer')) {
-                        ip = ip.getParent('.itemContainer').getChildren()[0];
+                        ip = $$('.ipstore');
+                        if (ip) {
+                                ip = ip[0];
+                        } else return;
                 }
                 ip = ip.retrieve('ip');
                 ip = this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
