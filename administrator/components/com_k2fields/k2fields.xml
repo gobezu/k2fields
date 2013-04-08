@@ -63,7 +63,7 @@
                 <module name="k2fields" folder="modules/mod_k2fields">search module</module>
                 <module name="k2fields_usertools" folder="modules/mod_k2fields_usertools">user tools - currently mainly submission button</module>
                 <module name="k2fields_contents" folder="modules/mod_k2fields_contents">content presentation</module>
-                <plugin name="rate" folder="plugins/jcomments/rate" group="jcomments" enable="0">rating in jcomments</plugin>
+                <plugin name="rate" folder="plugins/k2/k2komento" group="k2" enable="0">rating in komento</plugin>
         </additional>
         <scriptfile>script.k2fields.php</scriptfile>
 </extension>

@@ -2367,21 +2367,6 @@ class K2FieldsModelFields extends K2Model {
                 }
                 
                 $_plgSettings = array('merge'=>'', 'mergesection'=>'', 'sectiontitle'=>'');
-                
-//                $review = '';
-//                if (false && !$isK2item && $item->params->get('itemComments') && JprovenUtility::checkPluginActive('jcomments', 'k2')) {
-//                        $dispatcher = JDispatcher::getInstance();
-//                        JPluginHelper::importPlugin ('k2');
-//                        $limitstart = JRequest::getInt('limitstart', 0);
-//                        $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
-//                        $item->event->K2CommentsCounter = trim(implode("\n", $results));
-//                        if ($view == 'item') {
-//                                $results = $dispatcher->trigger('onK2CommentsBlock', array ( & $item, &$params, $limitstart));
-//                                $item->event->K2CommentsBlock = '';
-//                                $review = trim(implode("\n", $results));
-//                                $item->params->set('itemComments', false);
-//                        }
-//                }
 
                 foreach ($rules as $fieldId => &$_rules) {
                         $ui = '';
@@ -4032,19 +4017,19 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $rating = '<div class="catItemRatingBlock" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">';
                 
                 if ($item->nonk2rating) {
-                        $rater = new JcommentsRate();
+                        $rater = new KomentoRate();
                         $definition = $rater->getDefinition('com_k2', $item->id);
-                        $isPercentage = $definition[0][JcommentsRate::COL_SHOWAS] == 'percentage';
+                        $isPercentage = $definition[0][KomentoRate::COL_SHOWAS] == 'percentage';
                         $col = $isPercentage ? 'rate_grade' : 'rate';
                         $rates = $rater->getRate($item->id);
                         
                         foreach ($rates as $rate) {
                                 $rateValue = $rate->$col;
-                                $maxs = $definition[0][JcommentsRate::COL_MAXS];
+                                $maxs = $definition[0][KomentoRate::COL_MAXS];
                                 $reviewCount = '(<span class="nofloat" itemprop="reviewCount">'.$rate->count.'</span> '.JText::_('K2_VOTES').')';
                                 $reviewerCSS = $rate->rategroup;
                                 if ($reviewerCSS) $reviewerCSS = '<span class="'.$reviewerCSS.'">';
-                                $rating .= $reviewerCSS.'<span class="rating_starc" style="width:'.(JcommentsRate::STAR_WIDTH*$maxs['maxvalue']).'px;"><div class="rating_star_user"><div style="width:'.($isPercentage ? $rateValue : $rateValue/$maxs['maxvalue'] * 100). '%;">&nbsp;</div></div></span><span class="ratingDetails"><span class="nofloat" itemprop="ratingValue">'.$rateValue.'</span> / <span class="nofloat" itemprop="bestRating">'.$maxs['max'].'</span>'.$reviewCount.'</span><meta itemprop="worstRating" content="'.$maxs['min'].'">';
+                                $rating .= $reviewerCSS.'<span class="rating_starc" style="width:'.(KomentoRate::STAR_WIDTH*$maxs['maxvalue']).'px;"><div class="rating_star_user"><div style="width:'.($isPercentage ? $rateValue : $rateValue/$maxs['maxvalue'] * 100). '%;">&nbsp;</div></div></span><span class="ratingDetails"><span class="nofloat" itemprop="ratingValue">'.$rateValue.'</span> / <span class="nofloat" itemprop="bestRating">'.$maxs['max'].'</span>'.$reviewCount.'</span><meta itemprop="worstRating" content="'.$maxs['min'].'">';
                                 if ($reviewerCSS) $rating .= '</span>';
                         }
                 } else {

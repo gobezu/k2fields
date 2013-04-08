@@ -16,12 +16,12 @@ class plgk2k2fields extends K2Plugin {
         var $pluginNameHumanReadable = 'Extending K2';
         
         const AUTO_METATAG_SEPARATOR = 'K2FIELDSAUTOGEN:';
-        
+
         function plgk2k2fields(&$subject, $params) {
                 parent::__construct($subject, $params);
                 $this->loadLanguage('', JPATH_ADMINISTRATOR);
         }
-
+        
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
@@ -50,7 +50,7 @@ class plgk2k2fields extends K2Plugin {
                 }
                 
                 if ($item->params->get('itemComments') && $item->params->get('itemRating'))
-                        $item->nonk2rating = JPluginHelper::importPlugin('k2', 'jcomments') && JPluginHelper::importPlugin('jcomments', 'rate');
+                        $item->nonk2rating = JPluginHelper::importPlugin('k2', 'k2komento');
                 
                 self::setLayout($item);
                 
