@@ -1,0 +1,24 @@
+<?php
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+// No direct access
+defined('_JEXEC') or die('Restricted access');
+?>
+<div id="<@= commentId @>-edit" class="editForm kmt-edit-form">
+	<form>
+		<div class="kmt-edit-form-body">
+			<textarea class="editInput kmt-edit-form-input"><@= commentText @></textarea>
+		</div>
+		<input type="button" class="cancelEditButton kmt-btn kmt-edit-cancel" value="<?php echo JText::_( 'COM_KOMENTO_FORM_CANCEL' ); ?>" />
+		<input type="button" class="saveEditButton kmt-btn kmt-edit-save" value="<?php echo JText::_( 'COM_KOMENTO_FORM_SAVE' ); ?>" />
+	</form>
+</div>
