@@ -1,6 +1,9 @@
+download 
+========
+[download available here as github doesn't allow build downloads](https://bitbucket.org/gobezu/k2fields/downloads)
+
 k2fields 
 ========
-[https://bitbucket.org/gobezu/k2fields/downloads](download available here as github doesn't allow build downloads)
 
 (wip, please refer to issues list)
 
