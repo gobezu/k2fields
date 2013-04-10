@@ -173,7 +173,7 @@ class K2FieldsModelFields extends K2Model {
          * 3. assign proper expiry setting
          */
         public function save(&$item, $isNew) {
-                $fields = $this->getFieldsByItem($item->id);
+                $fields = $this->getFieldsByItem($item);
                 
                 $this->maintain($item, $fields, 1);
                 
@@ -230,7 +230,7 @@ class K2FieldsModelFields extends K2Model {
                 $publishUp = $item->publish_up != $nullDate ? JprovenUtility::createDate($item->publish_up) : null;
                 
                 // Expire based on field values
-                $fields = $this->getFieldsByItem($itemId);
+                $fields = $this->getFieldsByItem($item);
                 $limit = null;
                 
                 foreach ($fields as $fieldId => $field) {
@@ -298,7 +298,7 @@ class K2FieldsModelFields extends K2Model {
          */
         public function adjustFieldValues($item) {
                 $itemId = $item->id;
-                $fields = $this->getFieldsByItem($itemId);
+                $fields = $this->getFieldsByItem($item);
                 $now = JprovenUtility::createDate();
                 $db = $this->_db;
                 
@@ -432,7 +432,7 @@ class K2FieldsModelFields extends K2Model {
                 
                 /** Auto expire based on field values **/
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
-                $fields = $model->getFieldsByItem($itemId);
+                $fields = $model->getFieldsByItem($item);
                 $fieldsValues = $model->itemValues($itemId);
                 $field = null;
                 
@@ -1469,18 +1469,27 @@ class K2FieldsModelFields extends K2Model {
                 return $this->getFields($fieldId, 'id', $modeFilter, false, $preserveOrder);
         }
         
-        public function getFieldsByItem($itemId, $modeFilter = null) {
-                return $this->getFields($itemId, 'item', $modeFilter, true);
+        public function getFieldsByItem($item, $modeFilter = null) {
+                if (is_object($item) || is_array($item)) {
+                        $catId = self::value($item, 'catid');
+                } else {
+                        $query = 'SELECT catid FROM #__k2_items WHERE id = ' . (int) $item;
+                        $this->_db->setQuery($query);
+                        $catId = $this->_db->loadResult();
+                }
+                
+                return $this->getFieldsByGroup($catId, 'group', $modeFilter);
         }
         
         public function getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
-//                $cache = JFactory::getCache('com_k2fields');
-//                $result = $cache->call(array($this, '_getFields'), $value, $mode, $modeFilter, $objectify, $preserveOrder); 
-                $result = $this->_getFields($value, $mode, $modeFilter, $objectify, $preserveOrder);
-                return $result;
+                $cache = JFactory::getCache('com_k2fields', 'callback');
+                $fields = $cache->call(array($this, '_getFieldsDB'), $value, $mode, $preserveOrder); 
+                $filters = $this->_getFieldsFilter($mode, $modeFilter);
+                $fields = $cache->call(array($this, '_getFieldsMap'), $filters, $value, $fields, $mode, $objectify, $preserveOrder, $onlyDefinitions); 
+                return $fields;
         }
         
-        function _getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
+        function _getFieldsDB($value = null, $mode = 'group', $preserveOrder = false) {
                 if (empty($value) || $mode != 'id' && $mode != 'group' && $mode != 'item') return array();
                 
                 $accValue = $value;
@@ -1540,10 +1549,155 @@ class K2FieldsModelFields extends K2Model {
                 
                 $fields = $this->_db->loadObjectList('id');
                 
+                return $fields;
+        }
+        
+        private function _getFieldsFilter($mode = 'group', $modeFilter = null) {
+                $app = JFactory::getApplication();
+                $input = $app->input;
+                $view = $input->get('view');
+                $task = $input->get('task');
+                $type = $input->get('type');
+                $layout = $input->get('layout');
+                
+                $result = array('usefilter'=>$modeFilter == 'search');
+                
+                if ($layout == 'category' && $view == 'itemlist') {
+                        $layout = false;
+                }
+                
+                $isNegate = isset($modeFilter) && strpos($modeFilter, '-') === 0;
+
+                if ($isNegate) {
+                        $modeFilter = str_replace('-', '', $modeFilter);
+                }
+                
+                if (isset($modeFilter) && $modeFilter != 'edit') {
+                        if (is_string($modeFilter)) {
+                                if ($modeFilter == 'view') {
+                                        $modeFilter = array('view' => $layout ? $layout : $view);
+                                } else if ($modeFilter != 'search') {
+                                        $modeFilter = array('view' => $modeFilter);
+                                }
+                        }
+                        
+                        $accessMode = 'read';
+                } else if (!isset($modeFilter)) {
+                        if ($app->isAdmin() || $task == 'edit' || $task == 'retrieve' && $type == 'fields') {
+                                $accessMode = 'edit';
+                        } else {
+                                $accessMode = 'read';
+                        }
+                } else {
+                        $accessMode = $modeFilter;
+                }
+                
+                $result['negate'] = $isNegate;
+                $result['mode'] = $modeFilter;
+                $result['access'] = $accessMode;
+                
+                return $result;
+        }
+        
+        function _getFieldsMap($filters, $value, $fields, $mode = 'group', $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
                 if ($onlyDefinitions) return $fields;
                 
-                $fields = $this->mapFieldsOptions($fields, $modeFilter == 'search');
-                $fields = $this->__getFields($fields, $mode, $accValue, $modeFilter, $objectify, $preserveOrder);
+                $accValue = $value;
+                
+                $useFilter = $filters['usefilter'];
+                $isNegate = $filters['negate'];
+                $accessMode = $filters['access'];
+                $modeFilter = $filters['mode'];
+                $user = JFactory::getUser();
+                
+                foreach ($fields as $id => &$field) {
+                        $field->isK2Field = $this->isK2Field($field->definition, true);
+                        $field->isEditableList = $this->isEditableList($field);
+                        $field->isK2NativeList = $this->isK2NativeList($field);
+
+                        if ($field->isK2NativeList) {
+                                $field->value = json_decode($field->value);
+                        }
+                        
+                        if (!$field->isK2Field) {
+                                $field = get_object_vars($field);
+                                continue;
+                        }
+                        
+                        $field = $this->mapFieldOptions($field, $id, $useFilter);
+                        
+                        $field['isMedia'] = $field['valid'] == 'media';
+                        $field['isMap'] = $field['valid'] == 'map';
+                        $field['isList'] = $field['valid'] == 'list';
+                        
+
+                        if (!empty($modeFilter) && !empty($field)) {
+                                $field['filters'] = $this->filterFieldOptions($field, $modeFilter);
+                                
+                                if ($modeFilter == 'search') {
+                                        if ($field['filters'] === false) {
+                                                unset($fields[$id]);
+                                        } else if (is_array($field['filters'])) {
+                                                foreach ($field['filters'] as $j => $f) {
+                                                        if ($f === false || isset($f[$modeFilter]) && $f[$modeFilter] === false) {
+                                                                unset($field['subfields'][$j]);
+                                                        }
+                                                }
+                                        }
+                                }
+                                
+                                if (isset($field['subfields'])) {
+                                        $sfs = &$field['subfields'];
+                                        
+                                        foreach ($sfs as &$sf) {
+                                                $sf['filters'] = $this->filterFieldOptions($sf, $modeFilter);
+                                        }
+                                }
+                        }
+                        
+                        $access = self::value($field, 'access');
+                        
+                        if ($access && isset($access[$accessMode]) && !empty($access[$accessMode])) {
+                                $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
+                                
+                                if (!$allowed) {
+                                        if ($access['edit'] == -1) {
+                                                $type = JFactory::getApplication()->input->get('type', 'fields', 'word');
+                                                
+                                                if ($type == 'fields' && $mode != 'item') {     // New item
+                                                        $allowed = true;
+                                                } else if ($mode == 'item') {
+                                                        if (is_numeric($accValue) && $accValue > 0) {
+                                                                $row = JTable::getInstance('K2Item', 'Table');
+                                                                $row->load($accValue);
+                                                                $allowed = $user->id == $row->created_by || $user->authorise('core.admin');
+                                                        }
+                                                }
+                                        }
+                                }
+                                
+                                if ($allowed && $isNegate || !$allowed && !$isNegate) unset($fields[$i]);
+                        } else if ($isNegate) unset($fields[$i]);
+                }
+                
+                if ($mode == 'id' && is_numeric($accValue)) {
+                        reset($fields);
+                        $key = key($fields);
+                        $fields = $fields[$key];
+                }
+                
+                if ($objectify)
+                        foreach ($fields as &$field) $field = JprovenUtility::toObject($field);
+                
+                if ($preserveOrder && is_array($fields) && $mode == 'id') {
+                        $result = array();
+                        foreach ($accValue as $val) {
+                                if (isset($fields[$val]) && $fields[$val]) {
+                                        $result[$val] = $fields[$val];
+                                }
+                        }
+                        return $result;
+                }
                 
                 return $fields;
         }
@@ -1623,163 +1777,6 @@ class K2FieldsModelFields extends K2Model {
                                 }
                         }
                 }
-        }
-        
-        private function __getFields($fields, $mode, $value, $modeFilter, $objectify = false, $preserveOrder = false) {
-                $app = JFactory::getApplication();
-                $input = $app->input;
-                $view = $input->get('view');
-                $task = $input->get('task');
-                $type = $input->get('type');
-                $layout = $input->get('layout');
-                
-                if ($layout == 'category' && $view == 'itemlist') {
-                        $layout = false;
-                }
-                
-                $isNegate = isset($modeFilter) && strpos($modeFilter, '-') === 0;
-
-                if ($isNegate) {
-                        $modeFilter = str_replace('-', '', $modeFilter);
-                }
-                
-                if (isset($modeFilter) && $modeFilter != 'edit') {
-                        if (is_string($modeFilter)) {
-                                if ($modeFilter == 'view') {
-                                        $modeFilter = array('view' => $layout ? $layout : $view);
-                                } else if ($modeFilter != 'search') {
-                                        $modeFilter = array('view' => $modeFilter);
-                                }
-                        }
-                        
-                        $accessMode = 'read';
-                } else if (!isset($modeFilter)) {
-                        if ($app->isAdmin() || $task == 'edit' || $task == 'retrieve' && $type == 'fields') {
-                                $accessMode = 'edit';
-                        } else {
-                                $accessMode = 'read';
-                        }
-                } else {
-                        $accessMode = $modeFilter;
-                }
-                
-                $user = JFactory::getUser();
-                
-                foreach ($fields as $i => &$field) {
-                        if (!empty($modeFilter) && !empty($field)) {
-                                $field['filters'] = $this->filterFieldOptions($field, $modeFilter);
-                                
-                                if ($modeFilter == 'search') {
-                                        if ($field['filters'] === false) {
-                                                unset($fields[$i]);
-                                        } else if (is_array($field['filters'])) {
-                                                foreach ($field['filters'] as $j => $f) {
-                                                        if ($f === false || isset($f[$modeFilter]) && $f[$modeFilter] === false) {
-                                                                unset($field['subfields'][$j]);
-                                                        }
-                                                }
-                                        }
-                                }
-                                
-                                if (isset($field['subfields'])) {
-                                        $sfs = &$field['subfields'];
-                                        
-                                        foreach ($sfs as &$sf) {
-                                                $sf['filters'] = $this->filterFieldOptions($sf, $modeFilter);
-                                        }
-                                }
-                        }
-                        
-                        $access = self::value($field, 'access');
-                        
-                        if ($access && isset($access[$accessMode]) && !empty($access[$accessMode])) {
-                                $allowed = in_array($access[$accessMode], $user->getAuthorisedViewLevels());
-                                
-                                if (!$allowed) {
-                                        if ($access['edit'] == -1) {
-                                                $type = JFactory::getApplication()->input->get('type', 'fields', 'word');
-                                                
-                                                if ($type == 'fields' && $mode != 'item') {     // New item
-                                                        $allowed = true;
-                                                } else if ($mode == 'item') {
-                                                        if (is_numeric($value) && $value > 0) {
-                                                                $row = JTable::getInstance('K2Item', 'Table');
-                                                                $row->load($value);
-                                                                $allowed = $user->id == $row->created_by || $user->authorise('core.admin');
-                                                        }
-                                                }
-                                        }
-                                }
-                                
-                                if ($allowed && $isNegate || !$allowed && !$isNegate) unset($fields[$i]);
-                                
-//                                $notAllowed = !in_array($access[$accessMode], $user->getAuthorisedViewLevels());
-//                                
-//                                if ($notAllowed) {
-//                                        if ($access['edit'] == -1) {
-//                                                $type = JFactory::getApplication()->input->get('type', 'fields', 'word');
-//                                                
-//                                                if ($type == 'fields' && $mode != 'item') {     // New item
-//                                                        $notAllowed = false;
-//                                                } else if ($mode == 'item') {
-//                                                        if (is_numeric($value) && $value > 0) {
-//                                                                $row = JTable::getInstance('K2Item', 'Table');
-//                                                                $row->load($value);
-//                                                                $notAllowed = !($user->id == $row->created_by || $user->authorise('core.admin'));
-//                                                        }
-//                                                }
-//                                        }
-//                                }
-//                                
-//                                if (!$isNegate && $notAllowed || $isNegate && !$notAllowed) unset($fields[$i]);
-                        } else if ($isNegate) unset($fields[$i]);
-                }
-                
-                if ($mode == 'id' && is_numeric($value)) {
-                        reset($fields);
-                        $key = key($fields);
-                        $fields = $fields[$key];
-                }
-                
-                if ($objectify)
-                        foreach ($fields as &$field) $field = JprovenUtility::toObject($field);
-                
-                if ($preserveOrder && is_array($fields) && $mode == 'id') {
-                        $result = array();
-                        foreach ($value as $val) {
-                                if (isset($fields[$val]) && $fields[$val]) {
-                                        $result[$val] = $fields[$val];
-                                }
-                        }
-                        return $result;
-                }
-                
-                return $fields;                
-        }
-        
-        private function mapFieldsOptions($fields, $useFilter = false) {
-                foreach ($fields as $id => &$field) {
-                        $field->isK2Field = $this->isK2Field($field->definition, true);
-                        $field->isEditableList = $this->isEditableList($field);
-                        $field->isK2NativeList = $this->isK2NativeList($field);
-
-                        if ($field->isK2NativeList) {
-                                $field->value = json_decode($field->value);
-                        }
-                        
-                        if (!$field->isK2Field) {
-                                $field = get_object_vars($field);
-                                continue;
-                        }
-                        
-                        $field = $this->mapFieldOptions($field, $id, $useFilter);
-                        
-                        $field['isMedia'] = $field['valid'] == 'media';
-                        $field['isMap'] = $field['valid'] == 'map';
-                        $field['isList'] = $field['valid'] == 'list';
-                }
-                
-                return $fields;
         }
         
         public function itemValues($itemId, $fieldIds = null, $filters = array()) {
@@ -1965,7 +1962,7 @@ class K2FieldsModelFields extends K2Model {
         }
         
         public function generateMeta($item, $property, $glue) {
-                $fields = $this->getFieldsByItem($item->id);
+                $fields = $this->getFieldsByItem($item);
                 $mFields = array();
                 
                 foreach ($fields as $field) {
@@ -2133,7 +2130,7 @@ class K2FieldsModelFields extends K2Model {
                 } else if ($allRules && isset($item)) {
                         $fields = $this->getFieldsByGroup($item->catid, $modeFilter);
                 } else {
-                        $fields = $allRules ? $this->getFieldsByItem($itemId, $modeFilter) : $this->getFieldsById($fields, $modeFilter);
+                        $fields = $allRules ? $this->getFieldsByItem($item, $modeFilter) : $this->getFieldsById($fields, $modeFilter);
                 }
                 
                 if ($item->k2item && isset($position['fold']) && !(bool) $position['fold'] && isset($position['foldfields'])) {

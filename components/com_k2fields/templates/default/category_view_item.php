@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 // Define default image size (do not change)
 K2HelperUtilities::setDefaultImage($this->item, 'itemlist', $this->params);
-
+jdbg::pfile('category_view_item');
 ?>
 
 <!-- Start K2 Item Layout -->

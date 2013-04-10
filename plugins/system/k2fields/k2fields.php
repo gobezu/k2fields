@@ -21,14 +21,15 @@ if (JprovenUtility::checkPluginActive('k2fields', 'k2', '')) {
                 $task = $input->get('task');
 
                 if (empty($task)) {
-                        $uri = clone JURI::getInstance();
                         $router = $app->getRouter();
+                        $uri = JFactory::getURI();
+                        $uri = clone $uri;
                         $req = $router->parse($uri);
                         $task = isset($req['task']) ? $req['task'] : '';
                         $option = isset($req['option']) ? $req['option'] : '';
                 }
                 
-                if (($option == 'com_k2' || $option == 'com_k2fields') && !in_array($task, array('edit', 'add', 'save'))) {
+                if (($option == 'com_k2' || $option == 'com_k2fields') && !in_array($task, array('edit', 'add', 'save')) || !($option == 'com_k2' || $option == 'com_k2fields')) {
                         K2Model::addIncludePath(JPATH_SITE.'/components/com_k2fields/models/k2');
                         K2Model::getInstance('item', 'K2Model');
                         K2Model::getInstance('itemlist', 'K2Model');

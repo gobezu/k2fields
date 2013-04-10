@@ -315,11 +315,37 @@ window.addEvent("load", function() {
                 if ($options['mapiconcolor']) {
                         jimport('joomla.filesystem.folder');
                         
-                        $icon = JFolder::files($root.JprovenUtility::loc().'icons/themes/'.$options['mapiconcolor'].'/', $options['mapicontype'].'([a-z]+|[0-9]+).png', false, true);
+                        static $icons = array();
+                        
+                        if (!isset($icons[$options['mapiconcolor']])) {
+                                $icons[$options['mapiconcolor']] = array();
+                        }
+                        
+                        $icon = $iconSize = null;
+                        
+                        if (!isset($icons[$options['mapiconcolor']][$options['mapicontype']])) {
+                                $loc = $root.JprovenUtility::loc().'icons/themes/'.$options['mapiconcolor'].'/'.$options['mapicontype'];
+                                
+                                if ($options['mapicontype'] == 'number_') {
+                                        $loc .= '1';
+                                } else if ($options['mapicontype'] == 'letter_') {
+                                        $loc .= 'a';
+                                }
+                                
+                                $loc .= '.png';
+                                
+                                if (JFile::exists($loc)) {
+                                        $icon = JPath::clean($loc, '/');
+                                        $iconSize = getimagesize($icon);
+                                }
+                                
+                                $icons[$options['mapiconcolor']][$options['mapicontype']] = array($icon, $iconSize);
+                        } else {
+                                $icon = $icons[$options['mapiconcolor']][$options['mapicontype']][0];
+                                $iconSize = $icons[$options['mapiconcolor']][$options['mapicontype']][1];
+                        }
                         
                         if (!empty($icon)) {
-                                $icon = JPath::clean($icon[0], '/');
-                                $iconSize = getimagesize($icon);
                                 $options['mapiconcolorfilesize'] = array($iconSize[0], $iconSize[1]);
                                 $options['mapiconcolorfile'] = str_replace($root, JURI::root(), $icon);
                         } else {
