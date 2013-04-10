@@ -1,0 +1,290 @@
+	/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+
+
+#all{text-align:right!important;direction:rtl;}
+
+
+/* =reset styling
+****************************************/
+
+#section-kmt .float-li > li,
+#section-kmt .float-wrapper > span{
+	float:right;
+}
+
+
+
+
+/* =fame tabs styling
+****************************************/
+
+#section-kmt #kmt-fame .kmt-fame-tabs li + li{
+	margin:0 -1px 0 0;
+	border-left:0;
+	border-right:1px solid #ccc;
+}
+
+
+
+
+
+/* =toolbar styling
+****************************************/
+
+#section-kmt .kmt-toolbar li + li{
+	margin:0;
+}
+#section-kmt .kmt-toolbar li.kmt-subs-rss{
+	float:left;
+}
+#section-kmt .kmt-toolbar li.kmt-sort-oldest a{
+	border-radius:0 2px 2px 0;
+	-moz-border-radius:0 2px 2px 0;
+	-webkit-border-radius:0 2px 2px 0;
+}
+#section-kmt .kmt-toolbar li.kmt-sort-latest a{
+	border-left:1px solid #aaa;
+	border-right:0;
+	border-radius:2px 0 0 2px;
+	-moz-border-radius:2px 0 0 2px;
+	-webkit-border-radius:2px 0 0 2px;
+}
+
+
+
+
+/* =comments styling
+****************************************/
+
+#section-kmt .kmt-avatar,
+#section-kmt .kmt-avatar *{
+	float:right;
+}
+#section-kmt .kmt-avatar + .kmt-content{
+	margin-left:0;
+	margin-right:60px;
+}
+#section-kmt .kmt-text blockquote{
+	border-right:2px solid #ddd;
+	border-left:0;
+}
+#section-kmt .kmt-option{
+	left:0;
+	right:auto;
+}
+#section-kmt .kmt-option > span + span{
+	margin:0 3px 0 0;
+}
+#section-kmt .kmt-option > span.kmt-admin-wrap > ul{
+	left:0;
+	right:auto;
+}
+#section-kmt .kmt-option > span.kmt-admin-wrap > ul li a{
+	padding:0 8px 0 30px;
+}
+#section-kmt .kmt-meta{
+	margin:0 0 0 150px;
+}
+#section-kmt .kmt-time{
+	padding-left:0;
+	padding-right:20px;
+	background-position:right center;
+}
+#section-kmt .kmt-control-user{
+	left:0;
+	right:auto;
+}
+#section-kmt .kmt-control-user > span{
+	margin:0 5px 0 0;
+}
+#section-kmt .kmt-like-wrap > a,
+#section-kmt .kmt-like-wrap > b{
+	float:left;
+}
+#section-kmt .kmt-share-wrap .kmt-share-balloon{
+	left:-5px;
+	right:auto;
+}
+#section-kmt .kmt-share-wrap .kmt-share-balloon > span > i{
+	left:11px;
+	right:auto;
+}
+#section-kmt .kmt-share-balloon .kmt-share-social{
+	padding:10px 10px 0 0;
+}
+#section-kmt .kmt-share-balloon .kmt-share-social > i > a{
+	float:right;
+	margin:2px 2px 10px 12px;
+}
+
+
+
+
+
+/* =in-reply to;
+****************************************/
+
+.kmt-item .parentContainer .kmt-text{
+	margin:5px 55px 0 0;
+}
+.kmt-item .parentContainer .kmt-time{
+	margin:0 10px 0 0;
+}
+
+
+
+
+
+/* =attachments;
+****************************************/
+#section-kmt .icon-mime{
+	float:right;
+	margin:0 0 0 5px;
+}
+#section-kmt .kmt-attachments-list li a.attachmentDetail{
+	margin:0 25px 0 0;
+}
+#section-kmt .kmt-attachments-list li a.attachmentDelete{
+	left:auto;
+	right:0;
+}
+
+
+
+
+
+/* =comment form
+****************************************/
+
+#section-kmt div.kmt-form-author .kmt-avatar{
+	margin:0 0 0 10px;
+}
+#section-kmt .kmt-form-editor > div{
+	padding: 0 0 0 20px;
+}
+#section-kmt .kmt-form-content .kmt-form-addon > div{
+	margin:0 10px 0 0;
+}
+#section-kmt .kmt-upload-push .uploadLimit{
+	float:left;
+}
+#section-kmt .kmt-upload-list > div > a{
+	float:right;
+	margin:1px 10px 0 0;
+}
+#section-kmt .kmt-upload-list > div > b{
+	margin:0 35px 0 100px;
+}
+#section-kmt .kmt-upload-list > div > i{
+	float:left;
+	margin:0 0 0 10px;
+}
+#section-kmt .kmt-btn-submit{
+	float:left!important;
+}
+
+
+
+
+
+/* =theme styling : elego;
+****************************************/
+
+#section-kmt.theme-elego .kmt-body > i{
+	background:url(../../elego/images/bubble.rtl.png) right 0;
+	left:auto;
+	right:-1px;
+}
+
+
+
+
+
+/* =theme styling : bubbo;
+****************************************/
+
+#section-kmt.theme-bubbo .kmt-avatar{
+	margin:0 0 0 15px;
+}
+#section-kmt.theme-bubbo .kmt-body > i{
+	background:url(../../bubbo/images/bubble.rtl.png) right 0;
+	left:auto;
+	right:48px;
+}
+#section-kmt.theme-bubbo .kmt-meta{
+	margin:0 10px 0 150px;
+}
+
+
+
+
+
+/* =profile;
+****************************************/
+
+#section-kmt .kmt-profile-avatar{
+	float:right;
+}
+#section-kmt .kmt-profile-avatar + .kmt-profile-info{
+	margin:0 70px 0 0;
+}
+#section-kmt .kmt-profile-account span{
+	background-position:right center!important;
+	padding:0 22px 0 0;
+}
+#section-kmt .kmt-profile-account span + span{
+	margin:0 15px 0 0;
+}
+#section-kmt .kmt-profile-activity li + li{
+	border-left:0;
+	border-right:1px solid #ccc;
+}
+#section-kmt .kmt-profile-tab li + li{
+	margin:0 15px 0 0;
+}
+
+#section-kmt .kmt-stream .stream-head{
+	margin:2px 55px 0 0;
+}
+#section-kmt .kmt-stream .stream-head .stream-type{
+	left:auto;
+	right:0;
+}
+#section-kmt .kmt-stream .stream-body{
+	border-left:0;
+	border-right:1px solid #ddd;
+	margin:7px 55px 7px 0;
+	padding:0 15px 0 0;
+}
+#section-kmt .kmt-stream .stream-foot{
+	background-position:right center;
+	margin:0 55px 0 0;
+	padding:0 24px 0 0;
+}
+
+
+
+
+
+/* =tooltips;
+****************************************/
+
+#section-kmt .kmt-tip{
+	left:auto;
+	right:0;
+}
+#section-kmt .kmt-tip > i{
+	left:auto;
+	right:10px;
+}

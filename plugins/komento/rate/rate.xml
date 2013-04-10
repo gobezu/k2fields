@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="komento" method="upgrade">    
+        <name>Komento - rate</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description><![CDATA[
+                <p>Rating with Komento, multicategorized and with multicriterias.</p>
+                <p>Setting up:
+                <ul>
+                        <li>enable plugins mentioned below</li>
+                        <li>Provide rating categories and criterias. If you need help in doing this please refer to <a target="_blank" href="http://jproven.com/k2fields/extension/rating">help site</a> where you will find further info.</li>
+                </ul>
+                Enable the following plugins:
+                <ul>
+                        <li>ratefix in the system folder</li>
+                        <li>this plugin (rate) in the K2 folder</li>
+                        <li>Enable the K2 / Komento integration in Komento settings</li>
+                </ul>
+                </p>
+                ]]>
+        </description>
+	<files>
+		<filename plugin="rate">rate.php</filename>
+                <folder>setup</folder>
+		<filename>rate.class.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<media destination="plg_komento_rate" folder="media">
+		<folder>MooStarRating</folder>
+                <filename>index.html</filename>
+                <filename>rate.css</filename>
+                <filename>rate.js</filename>
+                <filename>rating_stars.png</filename>
+	</media>
+        <languages folder="language">
+                <language tag="en-GB">en-GB.plg_komento_rate.ini</language>
+        </languages>
+        <install>
+		<sql>
+			<file driver="mysql" charset="utf8">setup/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">setup/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>        
+        <config>
+                <fields name="params">
+                        <fieldset name="PLG_KOMENTO_RATE_RATE_K2">
+                                <field name="com_k2_ratingcriterias" type="textarea" default="" cols="40" rows="20" label="PLG_KOMENTO_RATE_RATINGCRITERIAS_LBL" description="PLG_KOMENTO_RATE_RATINGCRITERIAS_DESC" />
+                                <field name="com_k2_ratingcategories" type="textarea" default="" cols="40" rows="10" label="PLG_KOMENTO_RATE_RATINGCATEGORIES_LBL" description="PLG_KOMENTO_RATE_RATINGCATEGORIES_DESC" />
+                                <field name="com_k2_separator" type="text" size="10" default="%%" label="PLG_KOMENTO_RATE_SEPARATOR_LBL"  />
+                                <field name="com_k2_showas" type="radio" default="percentage" label="PLG_KOMENTO_RATE_SHOWAS_LBL">
+                                        <option value="value">value</option>
+                                        <option value="percentage">percentage</option>
+                                </field>
+                        </fieldset>
+                        <fieldset name="PLG_KOMENTO_RATE_RATE_COMMON">
+                                <field name="rategroups" type="textarea" default="" cols="40" rows="20" label="PLG_KOMENTO_RATE_RATEGROUPS_LBL" description="" />
+                        </fieldset>
+                </fields>
+        </config>
+        <scriptfile>setup/script.php</scriptfile>
+</extension>
