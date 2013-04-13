@@ -6,6 +6,8 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
+JLoader::register('K2fieldsFieldType', dirname(__FILE__) . '/types/fieldtype.php');
+
 class K2FieldsModelFields extends K2Model {
         const JS_VAR_NAME = 'k2fs';
         const USERADDED = 'useradded:';
@@ -37,7 +39,6 @@ class K2FieldsModelFields extends K2Model {
                 foreach (self::$extendedTypes as $type) $this->loadType($type);
                 
                 self::$defaultSection = JText::_('DEFAULT_SECTION');
-                
         }
         
         static private function getMinMax($field) {
@@ -66,13 +67,19 @@ class K2FieldsModelFields extends K2Model {
         }
         
         private function loadType($type) {
+                static $types = array();
+
                 $cls = 'K2Fields'.ucfirst($type);
                 
+                if (isset($types[$cls])) return $types[$cls];
+
                 JLoader::register($cls, dirname(__FILE__) . '/types/'.$type.'.php');
                 
-                if (JLoader::load($cls) !== false) return $cls;
+                if (JLoader::load($cls) === false) return false;
                 
-                return false;
+                $types[$cls] = new $cls($this->_db);
+
+                return $types[$cls];
         }
         
         public static function isSearch() {
@@ -1249,7 +1256,9 @@ class K2FieldsModelFields extends K2Model {
                 return $fields[$field];
         }
         
-        public function isK2Field($field, $isName = false) {
+        public function isK2Field($field) {
+                // , $isName = false
+                $isName = true;
                 if (!$isName) {
                         $field = $this->getField($field);
                         
@@ -1478,10 +1487,10 @@ class K2FieldsModelFields extends K2Model {
                         $catId = $this->_db->loadResult();
                 }
                 
-                return $this->getFieldsByGroup($catId, 'group', $modeFilter);
+                return $this->getFieldsByGroup($catId, $modeFilter);
         }
         
-        public function getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
+        private function getFields($value = null, $mode = 'group', $modeFilter = null, $objectify = false, $preserveOrder = false, $onlyDefinitions = false) {
                 $cache = JFactory::getCache('com_k2fields', 'callback');
                 $fields = $cache->call(array($this, '_getFieldsDB'), $value, $mode, $preserveOrder); 
                 $filters = $this->_getFieldsFilter($mode, $modeFilter);
@@ -1574,7 +1583,7 @@ class K2FieldsModelFields extends K2Model {
                 
                 if (isset($modeFilter) && $modeFilter != 'edit') {
                         if (is_string($modeFilter)) {
-                                if ($modeFilter == 'view') {
+                                if ($modeFilter == 'view' || $modeFilter == 'group') {
                                         $modeFilter = array('view' => $layout ? $layout : $view);
                                 } else if ($modeFilter != 'search') {
                                         $modeFilter = array('view' => $modeFilter);
@@ -4629,7 +4638,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                 $clsOptions = call_user_func(array($cls, $mtd), $options);
                                 
                                 if ($useFilter) {
-                                        $cls = get_class_vars($cls);
+                                        $cls = get_object_vars($cls);
                                         if (isset($cls['fieldParameterFilters'])) {
                                                 $filters = $cls['fieldParameterFilters'];
 
