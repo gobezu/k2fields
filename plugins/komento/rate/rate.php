@@ -21,7 +21,6 @@ class plgkomentorate extends JPlugin {
         
         public function onAfterSaveComment($comment) {
 //                if (JFactory::getApplication()->isAdmin()) return;
-                jdbg::pfile('onAfterSaveComment');
                 $cmt = $comment['comment'];
                 self::$rater->rate($cmt);
         }

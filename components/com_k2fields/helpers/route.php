@@ -21,8 +21,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.helper');
 
 class K2FieldsHelperRoute {
-
-        function getItemRoute($id, $catid = 0) {
+        public static function getItemRoute($id, $catid = 0) {
                 $needles = array(
                     'item' => (int) $id,
                     'itemlist' => (int) $catid,
@@ -291,7 +290,7 @@ class K2FieldsHelperRoute {
                 return $match;
         }
 
-        function _findItem($needles, $option = 'com_k2') {
+        protected static function _findItem($needles, $option = 'com_k2') {
                 $match = null;
 
                 if ($option == 'com_k2fields') {
@@ -299,8 +298,8 @@ class K2FieldsHelperRoute {
                         return $match;
                 }
 
-                $component = & JComponentHelper::getComponent('com_k2');
-                $menus = & JApplication::getMenu('site', array());
+                $component = JComponentHelper::getComponent('com_k2');
+                $menus = JFactory::getApplication()->getMenu('site');
                 $items = $menus->getItems('component_id', $component->id);
 
                 $match = null;

@@ -729,18 +729,6 @@ class plgk2k2fields extends K2Plugin {
                 return $files;
         }
         
-        static function getK2Fields($value = null, $mode = 'group', $modeFilter = null) {
-                if (is_object($value)) {
-                        $value = $value->catid;
-                        $mode = 'group';
-                }
-
-                $model = K2Model::getInstance('fields', 'K2FieldsModel');
-                $fields = $model->getFields($value, $mode, $modeFilter);
-                
-                return $fields;
-        }
-        
         function processSearchPlugins(&$item) {
                 $searchRecord = K2FieldsModelFields::categorySetting($item->catid, 'autorelatedlistgenerate');
                 $o = new stdClass();

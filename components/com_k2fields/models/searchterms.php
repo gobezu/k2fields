@@ -1174,7 +1174,7 @@ class K2FieldsModelSearchterms extends K2Model {
         }
         
         public static function isMenuSearch($view) {
-                $menus = JSite::getMenu();
+                $menus = JFactory::getApplication()->getMenu('site');
                 $menu = $menus->getItem(JFactory::getApplication()->input->get('Itemid', '', 'int'));
                 $menuItems = parse_url($menu->link);
                 parse_str($menuItems['query'], $menuItems);
@@ -1218,7 +1218,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         $app = JFactory::getApplication();
                         
                         if ($view == 'item') {
-                                $menus = JSite::getMenu();
+                                $menus = JFactory::getApplication()->getMenu('site');
                                 $menu = $menus->getActive();
                                 if (@$menu->query['option'] == 'com_k2fields') {
                                         $last = array_pop($pathwayArr);
@@ -1232,7 +1232,7 @@ class K2FieldsModelSearchterms extends K2Model {
                         return;
                 }
                 
-                $menus = JSite::getMenu();
+                $menus = JFactory::getApplication()->getMenu('site');
                 $k2Item = $option == 'com_k2' && $view == 'item';
                 $k2fieldsSearch = 
                         $option == 'com_k2fields' && 

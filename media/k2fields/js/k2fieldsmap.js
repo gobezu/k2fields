@@ -697,7 +697,7 @@ var k2fields_type_map = {
                                 jQuery(mapEl.getParent('.k2f-jquery-ui-tab')).accordion('activate', i);
                         }
                 }
-                document.location.hash='#'+map.element;
+                new Fx.Scroll(window).toElement(document.id(map.element));
                 map.setCenterAndZoom(ip.location, map.getZoom());
                 this.openIP(a);
         },

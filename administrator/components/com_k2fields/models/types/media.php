@@ -9,7 +9,7 @@ require_once JPATH_SITE . '/media/k2fields/lib/mime.php';
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
                 
-class K2FieldsMedia {
+class K2FieldsMedia extends K2fieldsFieldType {
         const CAPTIONPOS = 0;
         const SRCTYPEPOS = 1; 
         const MEDIATYPEPOS = 2; 

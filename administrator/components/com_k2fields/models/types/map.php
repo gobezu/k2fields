@@ -4,7 +4,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class K2FieldsMap {
+class K2FieldsMap extends K2fieldsFieldType {
         const MAP_MAPSTRACTION_FOLDER = 'lib/mxn2.0.0';
         const MAP_MAPSTRACTION_DEV = ''; // Add -min for production run
         const MAP_CONTAINER_ID = 'mapContainer';

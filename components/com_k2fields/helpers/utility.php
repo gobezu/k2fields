@@ -204,7 +204,7 @@ group by vvv.itemid
                         }
                         
                         if (isset($catid) && $isBasedOnMenu) {
-                                $menu = JSite::getMenu();
+                                $menu = JFactory::getApplication()->getMenu('site');
                                 $default = $menu->getDefault();
                                 $menuItems = $menu->getItems('menutype', $default->menutype);
                                 $found = false;
@@ -2091,7 +2091,7 @@ group by vvv.itemid
         
         public static function getK2Params($option = 'com_k2') {
                 $app = JApplication::getInstance('site');
-                $params = &$app->getParams($option);
+                $params = $app->getParams($option);
                 return $params;
         }
         
@@ -2535,7 +2535,7 @@ group by vvv.itemid
                 
                 $query = "SELECT {$cols}, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc{$auth}) AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c{$auth}";
                 
-                $app = &JFactory::getApplication();
+                $app = JFactory::getApplication();
                 
                 if ($app->isSite() && $app->getLanguageFilter()) {
                         $languageTag = JFactory::getLanguage()->getTag();

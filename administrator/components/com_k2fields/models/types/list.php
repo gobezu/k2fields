@@ -4,7 +4,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class K2FieldsList {
+class K2FieldsList extends K2fieldsFieldType {
         var 
                 $_name = '#__k2_extra_fields_list_values', 
                 $_primary = 'id', 
@@ -12,14 +12,11 @@ class K2FieldsList {
                 $_right = 'rgt', 
                 $_value = 'val',
                 $_image = 'img',
-                $_db = null,
                 $_levelIndicator = '> '; 
         
 	public function __construct($db = null) {
-                if (empty($db)) $db = JFactory::getDBO();
-                
-                $this->_db = $db;
-                $this->_name = $db->replacePrefix($this->_name);
+                parent::__construct($db);
+                $this->_name = $this->_db->replacePrefix($this->_name);
 	}
         
         public function render($item, $values, $field, $helper, $rule) {

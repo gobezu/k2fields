@@ -5,7 +5,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class K2fieldsK2Item {
+class K2fieldsK2Item extends K2fieldsFieldType {
         private static $folded = array();
         
         public static function getParameters($field = null, $options = null) {
