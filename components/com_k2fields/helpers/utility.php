@@ -14,7 +14,7 @@ class JprovenUtility {
                 $_REQUEST[$name] = $value;
                 if ($hash) {
                         $hash = strtoupper($hash);
-                        
+
                         switch ($hash) {
                                 case 'GET':
                                         $_GET[$name] = $value;
@@ -22,20 +22,20 @@ class JprovenUtility {
                                 case 'POST':
                                         $_POST[$name] = $value;
                                         break;
-                        }                        
+                        }
                 }
                 return $previous;
         }
-        
+
         public static function getRequest() {
                 $result = JFactory::getApplication()->input->getArray($_REQUEST);
                 return $result;
         }
-        
+
         public static function html($txt) { return htmlentities($txt, ENT_QUOTES, 'UTF-8'); }
-        
+
         /**
-         * assists in overwriting values in items table by taking values from 
+         * assists in overwriting values in items table by taking values from
          * extra_fields_values for a certain field and category by aggregating it back
          */
         static public function reverseFromValues($fieldId, $catId) {
@@ -56,13 +56,13 @@ group by vvv.itemid
                 $db = JFactory::getDBO();
                 $db->setQuery($query);
                 $items = $db->loadObjectList('itemid');
-                
+
                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
                 $row = JTable::getInstance('K2Item', 'Table');
-                
+
                 foreach ($items as $itemId => $item) {
                         $vals = json_decode($item->oef);
-                        
+
                         foreach ($vals as $val) {
                                 if ($val->id == $fieldId) {
                                         $val->value = $item->ef;
@@ -85,7 +85,7 @@ group by vvv.itemid
         static public function loader($extension, $defaultView, $forceAdmin = false) {
                 jimport('joomla.filesystem.file');
                 jimport('joomla.filesystem.path');
-                
+
                 $app = JFactory::getApplication();
                 $controller = $app->input->get('controller', $defaultView, 'word');
                 $controller = $app->input->get('view', $controller, 'word');
@@ -104,15 +104,15 @@ group by vvv.itemid
                         $controller->redirect();
                 }
         }
-        
+
         public static function buildUrl($query, $excludes = array()) {
                 $url = array();
-                foreach ($query as $k => $v) 
+                foreach ($query as $k => $v)
                         if (!in_array($k, $excludes))
                                 $url[] = $k.'='.$v;
                 return implode('&', $url);
         }
-        
+
         public static function getK2PostCategoriesSelector($selectorID, $firstElement) {
                 $module = JprovenUtility::getModule('mod_k2fields', false);
                 $params = $module->params;
@@ -128,27 +128,27 @@ group by vvv.itemid
                 }
 
                 $categories_options = JprovenUtility::getK2CategoriesSelector(
-                        $categoryselector, 
-                        $defaultCategory, 
-                        $excludes, 
+                        $categoryselector,
+                        $defaultCategory,
+                        $excludes,
                         $includedefaultmenuitem,
                         $selectorID,
                         true,
                         $firstElement,
                         false,
                         true
-                ); 
-                
+                );
+
                 return $categories_options;
         }
-        
+
         public static function getPage($order = 1, $isClass = true) {
                 $menus = JSite::getMenu();
                 $active = $menus->getActive();
-                
+
                 if (isset($active) && $active->menutype == 'mainmenu') {
                         $items = $menus->getItems('menutype', 'mainmenu');
-                        
+
                         if ($order == 'default') {
                                 $default = $menus->getDefault();
                         } else if ($order == 'first' || $order == 1) {
@@ -158,7 +158,7 @@ group by vvv.itemid
                         } else if ($order <= count($items)) {
                                 $default = $items[$order - 1];
                         }
-                        
+
                         if (isset($default) && $active->id == $default->id) {
                                 return $isClass ? 'target-page' : true;
                         } else {
@@ -168,24 +168,24 @@ group by vvv.itemid
                         return $isClass ? 'no-target-page' : false;
                 }
         }
-        
+
         public static function getK2CurrentCategory($defaultCategory, $isBasedOnMenu = true, $includeDefaultMenuItem = false, $excludes = array()) {
                 $input = JFactory::getApplication()->input;
                 $option = $input->get('option');
-                
+
                 if ($isBasedOnMenu && $option == 'com_k2') {
                         $view = $input->get('view');
                         $task = $input->get('task');
-                        
+
                         if ($view == 'item') {
                                 $isK2item = $input->get('k2item', false, 'bool');
-                                
+
                                 if ($isK2item) {
                                         $catid = $input->get('k2cat', '', 'int');
                                 } else if ($task == 'add' || $task == 'edit') {
                                         K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/models');
                                         $id = $input->get('cid', '', 'int');
-                                        
+
                                         if ($id) {
                                                 $item = K2Model::getInstance('item', 'K2Model');
                                                 $item = $item->getData();
@@ -202,19 +202,19 @@ group by vvv.itemid
                         } else if ($task == 'category') {
                                 $catid = $input->get('id', '', 'int');
                         }
-                        
+
                         if (isset($catid) && $isBasedOnMenu) {
                                 $menu = JFactory::getApplication()->getMenu('site');
                                 $default = $menu->getDefault();
                                 $menuItems = $menu->getItems('menutype', $default->menutype);
                                 $found = false;
                                 $c = '';
-                                
+
                                 foreach ($menuItems as $menuItem) {
                                         if (!$includeDefaultMenuItem && $menuItem->id == $default->id) continue;
-                                        
+
                                         if (empty($menuItem->query)) continue;
-                                        
+
                                         if ($menuItem->component == 'com_k2' && $menuItem->query['view'] == 'itemlist') {
                                                 $c = $menuItem->query['id'];
                                         } else if ($menuItem->component == 'com_k2fields' && $menuItem->query['view'] == 'itemlist') {
@@ -229,11 +229,11 @@ group by vvv.itemid
                                         }
                                         if ($found = ($c == $catid)) break;
                                 }
-                                
+
                                 if (!$found) $catid = null;
                         }
                 }
-                
+
                 if (!isset($catid)) {
                         if ($option == 'com_k2') {
                                 $view = $input->get('view');
@@ -268,19 +268,19 @@ group by vvv.itemid
                                 $catid = $input->get('cid', $defaultCategory, 'int');
                         }
                 }
-                
+
                 if (isset($catid) && in_array($catid, $excludes)) $catid = '';
-                
+
                 if (empty($catid)) $catid = $defaultCategory;
-                
+
                 return $catid;
         }
-        
+
         protected static function getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission, $excludes) {
                 $component = $menuItem->component;
-                
+
                 $selected = false;
-                
+
                 if ($component == 'com_k2' && $menuItem->query['view'] == 'itemlist') {
                         $catId = $menuItem->query['id'];
                         $state = '';
@@ -293,7 +293,7 @@ group by vvv.itemid
                                 $srs = json_decode($srs);
                                 if (isset($srs->cid)) $catId = $srs->cid;
                                 else $catId = '';
-                        }                        
+                        }
                         $state = self::buildUrl($menuItem->query, array('option', 'view', 'task', 'layout', 'cid'));
                         //$state = str_replace('index.php?option=com_k2fields&view=itemlist&task=search&', '', $menuItem->link);
                 } else if ($includeNonK2) {
@@ -303,22 +303,22 @@ group by vvv.itemid
                 } else {
                         return '';
                 }
-                
+
                 if (in_array($catId, $excludes)) return;
-                
+
                 $name = explode(' || ', $menuItem->title);
-                
+
                 if ($checkPermission && $catId != '' && !K2HelperPermissions::canAddItem($catId)) {
                         return '';
                 }
-                
+
                 $itemId = JFactory::getApplication()->input->get('Itemid');
                 $currentItemId = $menuItem->id;
                 $selected = $selected && !empty($currentCatid) && $currentCatid == $catId;
-                
-                return 
+
+                return
                         array(
-                            $catId ? array($catId, $name[0]) : '', 
+                            $catId ? array($catId, $name[0]) : '',
                             '<option value="'.$catId.'" init-state="'.$state.'" init-itemid="'.$menuItem->id.'" '.
                                 ($selected ? ' selected="selected" ' : '').
                                 ($menuItem->type == 'separator' ? ' disabled="disabled" ' : '').
@@ -327,12 +327,12 @@ group by vvv.itemid
                                 '</option>'
                         );
         }
-        
+
         public static function getK2CategoriesSelector(
-                $categoryselector, 
-                $defaultCategory, 
-                $excludes, 
-                $includeDefaultMenuItem, 
+                $categoryselector,
+                $defaultCategory,
+                $excludes,
+                $includeDefaultMenuItem,
                 $categoriesId = 'cid',
                 $checkPermission = false,
                 $firstElement = '',
@@ -340,23 +340,23 @@ group by vvv.itemid
                 $overrideSelector = true,
                 $hiddenIfOne = false
         ) {
-                if ($categoriesId == 'cid' || $categoriesId == 'catid') 
+                if ($categoriesId == 'cid' || $categoriesId == 'catid')
                         $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem, $excludes);
-                else 
+                else
                         $currentCatid = '';
-                
+
                 $cats = array();
                 $excludes = (array) $excludes;
-                
+
                 $prefix = '&nbsp;&nbsp;- ';
                 $maintainMenuHierarchy = true;
                 $includeNonK2 = false;
                 $user = JFactory::getUser();
-                
+
                 // if not public and if backend access
-                
+
                 if ($overrideSelector && $user->authorise('core.admin', 'com_k2')) $categoryselector = 1;
-                
+
                 if ($categoryselector == 2) {
                         $menu = JApplication::getMenu('site');
                         $default = $menu->getDefault();
@@ -364,13 +364,13 @@ group by vvv.itemid
                         $menuItems = JprovenUtility::indexBy($menuItems, 'id');
                         $menuItems = JprovenUtility::getColumn($menuItems, 0, false, array(), true);
                         $menuItemsOrdered = array();
-                        
+
                         foreach ($menuItems as $itemId => $menuItem) {
                                 if ($menuItem->parent_id == 1) {
                                         $menuItemsOrdered[$itemId] = $menuItem;
                                         unset($menuItems[$itemId]);
                                 }
-                                
+
                                 foreach ($menuItems as $_itemId => $_menuItem) {
                                         if ($_menuItem->parent_id == $itemId) {
                                                 $menuItemsOrdered[$_itemId] = $_menuItem;
@@ -378,27 +378,27 @@ group by vvv.itemid
                                         }
                                 }
                         }
-                        
+
                         $menuItems = $menuItemsOrdered;
                         $categories = array();
-                        
+
                         foreach ($menuItems as $itemId => $menuItem) {
                                 if (!$includeDefaultMenuItem && $menuItem->id == $default->id) continue;
-                                
+
                                 $option = self::getK2CategoriesSelectorMenuItem($menuItem, $currentCatid, $prefix, $includeNonK2, $checkPermission, $excludes);
-                                
+
                                 if (empty($option)) continue;
-                                
+
                                 $categories[$itemId] = $option[1];
                                 $cats[] = $option[0];
                         }
-                        
+
                         if ($firstElement) array_unshift($categories, '<option value=""'.(empty($currentCatid) ? ' selected="selected"' : '').'>'.JText::_($firstElement).'</option>');
-                        
+
                         if ($onlyValues) return array_filter($cats);
-                        
+
                         $categories = '<select id="'.$categoriesId.'" name="'.$categoriesId.'">'.implode('', $categories).'</select>';
-                        
+
                         return $categories;
                 } else {
                         jimport('joomla.application.component.model');
@@ -406,12 +406,12 @@ group by vvv.itemid
                         $categoriesModel = K2Model::getInstance('categories', 'K2Model');
                         $categories = $categoriesModel->categoriesTree(null, true);
                 }
-                
+
                 $foundExcluded = false;
                 $parentDepth = -1;
                 $remove = '&nbsp;&nbsp;&nbsp;';
                 $cats = array();
-                
+
                 foreach ($categories as $i => $category) {
                         $category->text = preg_replace('#^'.$remove.'#', '', $category->text);
                         $parts = explode($prefix, $category->text);
@@ -426,9 +426,9 @@ group by vvv.itemid
                                 $parentDepth = -1;
                         }
                 }
-                
+
                 if ($onlyValues) return $cats;
-                
+
                 if ($hiddenIfOne && count($cats) == 1) {
                         $categories = '<input type="hidden" name="'.$categoriesId.'" id="'.$categoriesId.'" value="'.$cats[0]->value.'" />';
                 } else {
@@ -439,27 +439,27 @@ group by vvv.itemid
 
                         $categories = JHTML::_('select.genericlist', $cats, $categoriesId, '', 'value', 'text', $currentCatid);
                 }
-                
+
                 return $categories;
-        }        
+        }
 
         public static function renderK2fieldsForm($fields, $type, $addJSToDoc = false, $cat = null, $item = null) {
                 $output = '';
-                
+
                 if (count($fields) > 0) {
                         $counter = 0;
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
 
                         if ($type == 'searchfields') {
                                 $output .= '<ul class="admintable" id="extraFields">';
-                                
+
                                 if (count($fields)){
                                         foreach ($fields as $field){
                                                 if (!K2FieldsModelFields::isFormField($field)) continue;
-                                                
+
                                                 $output .= '<li><label class="key">'.$field->name.'</label>';
                                                 $output .= '<span>'.$model->renderField($field, null, 'search').'</span></li>';
-                                                
+
                                                 $counter++;
                                         }
                                 }
@@ -467,59 +467,59 @@ group by vvv.itemid
                         } else {
                                 if (count($fields)){
                                         $output = array();
-                                        
+
                                         foreach ($fields as $field){
                                                 if (!K2FieldsModelFields::isFormField($field)) continue;
-                                                
+
                                                 $section = K2FieldsModelFields::value($field, 'section');
-                                                
+
                                                 if (empty($section))
                                                         $section = K2FieldsModelFields::setting('emptysectionname');
-                                                
-                                                if (!isset($output[$section])) 
+
+                                                if (!isset($output[$section]))
                                                         $output[$section] = '';
-                                                
+
                                                 $output[$section] .=
                                                          '<tr><td align="right" class="key">'.$field->name.'</td>'
                                                         .'<td>'.$model->renderField($field, $item, $type).'</td></tr>';
-                                                
+
                                                 $counter++;
                                         }
-                                        
+
                                         foreach ($output as $section => &$out) {
                                                 $sectionId = preg_replace('#[^a-z0-9]#i', '', $section);
                                                 $sectionId = strtolower($sectionId);
                                                 $section = JText::_($section);
                                                 $out = '<table class="admintable extraFields" id="section_'.$sectionId.'" section="'.  htmlentities($section).'">'.$out.'</table>';
                                         }
-                                        
+
                                         if (!$cat && $item) {
                                                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
                                                 $row = JTable::getInstance('K2Item', 'Table');
                                                 $row->load($item);
                                                 $cat = $row->catid;
                                         }
-                                        
+
                                         if ($cat) {
                                                 $sectionsOrder = K2FieldsModelFields::categorySetting($cat, 'sectionsorder');
-                                                
+
                                                 if ($sectionsOrder) {
                                                         $key = self::firstKey($sectionsOrder);
                                                         $sectionsOrder = self::first($sectionsOrder);
                                                         $sectionsOrder = $sectionsOrder[0];
                                                         $ordered = array();
-                        
+
                                                         foreach ($sectionsOrder as $ord) {
                                                                 if (isset($output[$ord])) {
                                                                         $ordered[$ord] = $output[$ord];
                                                                         unset($output[$ord]);
                                                                 }
                                                         }
-                                                        
+
                                                         $output = array_merge($ordered, $output);
                                                 }
                                         }
-                                        
+
                                         $output = implode('', $output);
                                 } else {
                                         $output .= '<table class="admintable extraFields"></table>';
@@ -536,53 +536,53 @@ group by vvv.itemid
                                 $output = '<dl id="system-message"><dt class="notice">Notice</dt><dd class="notice message fade"><ul><li>'.JText::_(K2_PLEASE_SELECT_A_CATEGORY_FIRST_TO_RETRIEVE_ITS_RELATED_EXTRA_FIELDS).'</li></ul></dd></dl>';
                         }
                 }
-                
+
 //                jdbg::p($fields);
-                
+
                 self::removeProperties($fields, K2FieldsModelFields::$dontSend);
-                
+
 //                jdbg::pe($fields);
-                
-//                $outputJS = 
+
+//                $outputJS =
 //                        '
 //                        <script type="text/javascript">'.
 //                        K2FieldsModelFields::JS_VAR_NAME.'.options.fieldsOptions = '.json_encode($fields).';
 //                        </script>
-//                        ';                
-                
+//                        ';
+
                 $outputJS = '
                         window.addEvent("domready", function() {'.
                                 K2FieldsModelFields::JS_VAR_NAME.'.options.fieldsOptions = '.json_encode($fields).';
                         });
                         ';
-                
+
                 if ($addJSToDoc) {
                         $doc = JFactory::getDocument();
                         $doc->addScriptDeclaration($outputJS);
                         $outputJS = '';
                 } else {
-                        $outputJS = 
+                        $outputJS =
                                 '
                                 <script type="text/javascript">'.$outputJS.'</script>
                                 ';
                 }
-                
+
                 return $outputJS.$output;
         }
-        
+
         public static function getK2Controller($useTrace = false, $view = '') {
                 static $controller = false;
 
                 if ($controller === false) {
                         if (empty($view)) $view = strtolower(JFactory::getApplication()->input->get('view'));
-                        
+
                         if (empty($view)) return;
-                        
+
                         if ($useTrace) {
                                 $trcs = debug_backtrace();
                                 $classes = JprovenUtility::getColumn($trcs, 'class');
                                 $class = 'K2fieldsController'.ucfirst($view);
-                                
+
                                 if (($ind = array_search($class, $classes)) !== false) {
                                         $controller = $trcs[$ind]['object'];
                                 } else {
@@ -590,17 +590,17 @@ group by vvv.itemid
 
                                         if (($ind = array_search($class, $classes)) !== false) {
                                                 $controller = $trcs[$ind]['object'];
-                                        }                        
-                                }                                
+                                        }
+                                }
                         }
-                        
+
                         if (!$controller) {
                                 $ctrls = array(
                                         'item' => array('K2fieldsControllerItem', 'K2ControllerItem'),
                                         'itemlist' => array('K2fieldsControllerItemlist', 'K2ControllerItemlist'),
                                         'category' => array('K2ControllerCategory')
                                 );
-                                
+
                                 foreach ($ctrls[$view] as $ctrl) {
                                         if (class_exists($ctrl)) {
                                                 $base = strtolower(str_ireplace('controller'.$view, '', $ctrl));
@@ -609,7 +609,7 @@ group by vvv.itemid
                                                 break;
                                         }
                                 }
-                                
+
                                 if (!$controller) {
                                         $base = JPATH_BASE . '/components/com_k2fields';
                                         $path = $base . '/controllers/' . $view . '.php';
@@ -628,17 +628,17 @@ group by vvv.itemid
                                         require_once $path;
 
                                         $ctrl .= ucfirst($view);
-                                        $controller = new $ctrl(array('base_path' => $base));                                        
+                                        $controller = new $ctrl(array('base_path' => $base));
                                 }
                         }
                 }
-                
-                               
+
+
 //                if ($controller === false) {
 //                        if ($useTrace) {
 //                                $trcs = debug_backtrace();
 //                                $controller = null;
-//                                
+//
 //                                for ($i = 0, $n = count($trcs); $i < $n; $i++) {
 //                                        if (isset($trcs[$i]['class']) && preg_match('#K2(fields|)ControllerItem(list)?#', $trcs[$i]['class'])) {
 //                                                $controller = $trcs[$i]['object'];
@@ -646,7 +646,7 @@ group by vvv.itemid
 //                                        }
 //                                }
 //                        }
-//                        
+//
 //                        if (!$controller) {
 //                                if (empty($view)) {
 //                                        // Adapted from /components/com_k2/k2.php
@@ -666,60 +666,60 @@ group by vvv.itemid
 //                                                $task = 'users';
 //                                        }
 //                                }
-//                                
+//
 //                                $base = JPATH_SITE . '/components/com_k2fields';
 //                                $path = $base . '/controllers/' . $view . '.php';
 //                                $prefix = 'K2fieldsController';
-//                                
+//
 //                                jimport('joomla.filesystem.file');
-//                                
+//
 //                                if (!JFile::exists($path)) {
 //                                        $base = JPATH_SITE . '/components/com_k2';
 //                                        $path = $base . '/controllers/'.$view.'.php';
 //                                        $prefix = 'K2Controller';
 //                                }
-//                                
+//
 //                                if (!JFile::exists($path)) return;
-//                                
+//
 //                                require_once $path;
-//                                
+//
 //                                $config = array('base_path' => $base);
 //                                $classname = $prefix . $view;
 //                                $controller = new $classname($config);
 //                        }
 //                }
-                
+
                 return $controller;
         }
-        
+
         public static function nize($word, $n = 0) {
                 require_once JPATH_SITE.'/media/k2fields/lib/inflector/inflector.php';
-                                
+
                 return $n > 1 ? KInflector::pluralize($word) : KInflector::singularize($word);
         }
-        
+
         public static function load($file, $type) {
                 self::loc(true, true, $file, true, $type);
         }
-        
+
         public static function loc($isUrl = true, $isAbsolute = false, $file = '', $addToDocument = false, $type = 'js', $root = '') {
                 static $loc = 'media/k2fields/';
-                
+
                 $result = empty($root) ? $loc : $root;
-                
+
                 if ($isAbsolute) $result = ($isUrl ? JURI::root() : JPATH_SITE . '/') . $loc;
-                
+
                 if (empty($type) && !empty($file)) {
                         jimport('joomla.filesystem.file');
                         $type = JFile::getExt($file);
                         $type = strtolower($type);
                 }
-                
+
                 if (!empty($file)) {
                         $parts = explode('/', $file);
                         $result .= (count($parts) == 1 ? $type . '/' : '') . $file;
                 }
-                
+
                 if ($addToDocument && !empty($file)) {
                         $file = $result;
 
@@ -728,15 +728,15 @@ group by vvv.itemid
                         } else {
                                 $file = JURI::root() . $file;
                         }
-                        
+
                         if (self::isRendered()) {
                                 JprovenUtility::replaceResourcesInDocument(
-                                        $type, 
-                                        array(), 
-                                        array($file), 
-                                        'response', 
-                                        null, 
-                                        '', 
+                                        $type,
+                                        array(),
+                                        array($file),
+                                        'response',
+                                        null,
+                                        '',
                                         false
                                 );
                         } else {
@@ -749,13 +749,13 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 return $result;
         }
-        
+
         public static function addDeclaration($declaration, $type = 'script') {
                 $type = strtolower($type);
-                
+
                 if (self::isRendered()) {
                         $html = JResponse::getBody();
                         $declaration = JString::trim($declaration);
@@ -774,26 +774,26 @@ group by vvv.itemid
                         call_user_func(array($document, $type), $declaration);
                 }
         }
-        
+
         public static function isRendered() {
                 $body = JResponse::getBody();
                 return !empty($body);
         }
-        
+
         public static function isAjaxCall($url = null) {
                 if (empty($url)) $url = JFactory::getApplication()->input->get('jpmode', '', 'string');
-                
+
                 return preg_match('#[\?\&]jpmode=.+#i', $url);
         }
-        
+
         public static function createDate($date = 'now') {
                 jimport('joomla.utilities.date');
-                
+
                 $tzoffset = JFactory::getConfig()->getValue('config.offset');
-                
+
                 return new JDate($date, $tzoffset);
         }
-        
+
         public static function normalizeK2Parameters(&$item = null, &$params = null) {
                 if ((!$item || !isset($item->params) || !is_object($item->params)) && $params && is_object($params)) {
                         $result = clone $params;
@@ -802,96 +802,96 @@ group by vvv.itemid
                 } else {
                         $result = new JRegistry($item->params);
                 }
-                
+
                 if (JprovenUtility::isAjaxCall()) {
                         $disableParams = array(
-                            'itemEmailButton', 'itemFontResizer', 'itemPrintButton', 
+                            'itemEmailButton', 'itemFontResizer', 'itemPrintButton',
                             'itemDateCreated', 'itemTitle', 'itemAuthor',
                             'itemSocialButton', 'itemVideoAnchor',
                             'itemImageGalleryAnchor', 'itemCommentsAnchor',
-                            'itemRating', 'itemDateModified', 'itemRelated', 
+                            'itemRating', 'itemDateModified', 'itemRelated',
                             'itemComments'
                         );
-                        
+
                         foreach ($disableParams as $p) $result->set($p, 0);
                 }
-                
+
                 static $inheritFromCategory, $inheritFrom, $excludeInheritance;
-                
+
                 if (!isset($inheritFrom)) {
                         $cat = self::setting('inheritfromcategory', 'k2fields', 'k2');
-                        
+
                         if (!empty($cat)) {
                                 $db = JFactory::getDBO();
                                 $db->setQuery('SELECT params, extraFieldsGroup FROM #__k2_categories WHERE id = '.(int)$cat);
                                 $inheritFromCategory = $db->loadObject();
-                                $inheritFrom = $inheritFromCategory->params; 
+                                $inheritFrom = $inheritFromCategory->params;
                         }
-                        
+
                         if (!empty($inheritFrom)) {
                                 $inheritFrom = new JRegistry($inheritFrom);
                                 $excludeInheritance = self::setting('dontinheritcategories', 'k2fields', 'k2', null, array());
                         }
-                        
+
                         $excludeInheritParams = self::setting('dontinheritparams', 'k2fields', 'k2', null, array());
-                        
+
                         $view = JFactory::getApplication()->input->get('view', 'itemlist', 'cmd');
-                        
+
                         foreach ($excludeInheritParams as $param) {
                                 $param = preg_replace('#^'.$view.'#', '', $param);
                                 $inheritFrom->set($param, '');
                         }
                 }
-                
+
                 if (empty($item)) {
                         $id = JFactory::getApplication()->input->get('id', '', 'int');
                         $id = JFactory::getApplication()->input->get('cid', $id, 'int');
                 } else {
                         $id = $item instanceof TableK2Category ? $item->id : $item->catid;
                 }
-                
+
                 if ($inheritFrom instanceof JRegistry && !in_array($id, $excludeInheritance)) {
                         $inherit = clone $inheritFrom;
-                        
+
                         $result->merge($inherit);
                 }
-                
+
                 if (isset($item->params) && is_object($item->params)) $item->params = $result;
                 else $item->params = $result->toString ('INI');
-                
+
                 if ($params) $params = $result;
-                
+
                 if ($inheritFromCategory && self::setting('inherit_extrafields', 'k2fields', 'k2', null, false)) {
                         $params->extraFieldsGroup = $inheritFromCategory->extraFieldsGroup;
                 }
         }
-        
+
         public static function setLayout($theme = '', $file = null, $view = null, $type = null, $addId = -1) {
                 if (empty($file)) $file = self::createTemplateFileName($theme, $type, $addId);
-                
+
                 if ($file) {
                         $controller = self::getK2Controller();
-                        
+
                         if (empty($view)) $view = JFactory::getApplication()->input->get('view', '', 'word');
-                
+
                         $dir = dirname($file);
                         $layout = str_replace('.php', '', basename($file));
                         $document = JFactory::getDocument();
                         $viewType = $document->getType();
-                        
+
                         if (!defined('JPATH_COMPONENT')) {
                                 $option = JFactory::getApplication()->input->get('option');
                                 $controller->_addPath('view', JPATH_BASE.'/components/'.$option.'/views');
                         }
-                        
+
                         $view = $controller->getView($view, $viewType);
                         $view->addTemplatePath($dir);
                         $view->setLayout($layout);
-                        
+
                         return $layout;
-                }               
+                }
         }
-        
+
         public static function isCachable($id) {
                 // Adapted from K2ControllerItem::display
                 $user = JFactory::getUser();
@@ -909,116 +909,116 @@ group by vvv.itemid
                         $category = JTable::getInstance('K2Category', 'Table');
                         $category->load($row->catid);
                         if ($category->access > 0) $cache = false;
-		}  
+		}
                 return $cache;
         }
-        
+
         public static function getReferer() {
                 return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
         }
-        
+
         public static function isK2EditMode() {
                 $input = JFactory::getApplication()->input;
                 $option = $input->get('option');
-                
+
                 if ($option != 'com_k2') return false;
-                
+
                 $app = JFactory::getApplication();
-                
+
                 $view = $input->get('view', '', 'word');
                 $task = $input->get('task', '', 'cmd');
-                
+
                 return $app->isAdmin() && ($view == 'item' || $view == 'category') || $task == 'edit' || $task == 'add';
         }
-        
+
         private static function _createTemplateFileName($prefix, $dir, $ids = array(), $postfix = '', $ext = 'php') {
                 jimport('joomla.filesystem.path');
                 jimport('joomla.filesystem.file');
-                
+
                 $file = false;
                 $ids = (array) $ids;
-                
+
                 foreach ($ids as $id) {
                         $file = JPath::clean(
-                                $dir . 
-                                $prefix . 
-                                ($id != -1 ? '_' . $id : '') . 
-                                (!empty($postfix) ? '_' . $postfix : '') . 
-                                '.'.$ext, 
+                                $dir .
+                                $prefix .
+                                ($id != -1 ? '_' . $id : '') .
+                                (!empty($postfix) ? '_' . $postfix : '') .
+                                '.'.$ext,
                                 '/'
                         );
-                        
+
                         if (JFile::exists($file)) break;
 
                         if (!empty($postfix)) {
                                 $file = JPath::clean(
-                                        $dir . 
-                                        $prefix . 
-                                        ($id != -1 ? '_' . $id : '') . 
-                                        '.'.$ext, 
+                                        $dir .
+                                        $prefix .
+                                        ($id != -1 ? '_' . $id : '') .
+                                        '.'.$ext,
                                         '/'
                                 );
-                                
+
                                 if (JFile::exists($file)) break;
                         }
-                        
+
                         $file = false;
                 }
 
                 if ($file == false) {
                         $file = JPath::clean(
-                                $dir . 
-                                $prefix . 
-                                '.'.$ext, 
+                                $dir .
+                                $prefix .
+                                '.'.$ext,
                                 '/'
                         );
 
                         if (!JFile::exists($file)) $file = false;
                 }
-                
+
                 return $file;
         }
-                
+
         private static function subCreateTemplateFileName($view, $theme = 'default', $type = '', $addId = -1) {
                 if (empty($theme) || $theme == 'default') {
                         $theme = JFactory::getApplication()->input->get('theme', 'default', 'word');
-                        
+
                         if (empty($theme)) $theme = 'default';
                 }
-                
+
                 $template = JFactory::getApplication()->getTemplate();
-                
+
                 $dirs = array(
                     JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/templates/'.$theme.'/',
                     JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/'
                 );
-                
+
 //                $dir = JPATH_BASE . '/components/com_k2fields/templates/' . $theme . '/';
-                
+
                 $input = JFactory::getApplication()->input;
-                
+
                 $layout = '';
-                
+
                 if ($view == 'itemlist') $layout = self::setting('listLayout', 'k2fields', 'k2', null, '');
-                
+
                 $layout = $input->get('layout', $layout, 'word');
-                
+
                 $id = $input->get('id', -1, 'int');
                 $isForm = self::isK2EditMode();
                 $post = ($isForm ? '_form25' : '_view').(empty($type) ? '' : '_'. $type);
-                
+
                 if ($isForm && $view == 'item') $dirs[1] = JPATH_SITE . '/components/com_k2fields/templates/default/';
-                
+
                 $file = false;
                 $ext = $type == 'fields' ? 'fld' : 'php';
                 $option = $input->get('option');
-                
+
                 if ($option == 'com_k2' || $option == 'com_k2fields') $task = $input->get('task');
                 else $task = '';
 
                 foreach ($dirs as $dir) {
                         if ($file !== false) break;
-                        
+
                         if ($view == 'item') {
                                 if (is_array($addId)) {
                                         $ids = $addId;
@@ -1032,7 +1032,7 @@ group by vvv.itemid
                                                 $ids = array();
                                         }
                                 }
-                                
+
                                 $file = JprovenUtility::_createTemplateFileName('item'.$post, $dir, $ids, '', $ext);
                         } else if ($view == 'itemlist' && $task == 'category' || $view == 'module') {
                                 if (is_array($addId)) {
@@ -1042,15 +1042,15 @@ group by vvv.itemid
 
                                         if ($addId != -1) $ids[] = 'i'.$addId;
 
-                                        if ($option == 'com_k2fields' && $id == -1) 
+                                        if ($option == 'com_k2fields' && $id == -1)
                                                 $id = $input->get('cid', -1, 'int');
 
                                         if ($id != -1) $ids[] = 'c'.$id;
                                 }
-                                
+
                                 if ($view == 'module')
                                         $file = JprovenUtility::_createTemplateFileName('module'.$post, $dir, $ids, $layout, $ext);
-                                
+
                                 if ($file === false)
                                         $file = JprovenUtility::_createTemplateFileName('category'.$post, $dir, $ids, $layout, $ext);
                         } else {
@@ -1063,46 +1063,46 @@ group by vvv.itemid
 //                        if ($file === false) {
 //                                $dir = str_replace($theme, '', $dir);
 //
-//                                if ($view == 'item') 
+//                                if ($view == 'item')
 //                                        $file = JprovenUtility::_createTemplateFileName('generic_item'.$post, $dir, $id, '', $ext);
-//                                else if ($view == 'itemlist' || $view == 'category') 
+//                                else if ($view == 'itemlist' || $view == 'category')
 //                                        $file = JprovenUtility::_createTemplateFileName('generic_category', $dir, $id, $listLayout, $ext);
 //
-//                                if ($file === false) 
+//                                if ($file === false)
 //                                        $file = JprovenUtility::_createTemplateFileName('generic'.$post, $dir, -1, $listLayout, $ext);
 //                        }
                 }
-                
+
                 return $file;
         }
-        
+
         public static function createTemplateFileName($theme = 'default', $type = '', $addId = -1, $viewOverrides = array()) {
                 $file = '';
-                
+
                 if (!empty($viewOverrides)) {
                         foreach ($viewOverrides as $view) {
                                 $file = self::subCreateTemplateFileName($view, $theme, $type, $addId);
-                                
-                                if (!empty($file)) 
+
+                                if (!empty($file))
                                         break;
                         }
                 }
-                
+
                 if (empty($file)) {
                         $option = JFactory::getApplication()->input->get('option');
-                        
+
                         if ($option == 'com_k2' || $option == 'com_k2fields') {
                                 $view = JFactory::getApplication()->input->get('view', '', 'word');
                         } else if ($type == 'fields') {
                                 $view = 'item';
                         }
-                        
+
                         $file = self::subCreateTemplateFileName($view, $theme, $type, $addId);
                 }
-                
+
                 return $file;
         }
-        
+
         public static function findSubTemplate($templateFile, $item) {
                 $dir = dirname($templateFile).'/';
                 $fileName = basename($templateFile);
@@ -1122,14 +1122,14 @@ group by vvv.itemid
                 }
                 return '';
         }
-        
+
         public static function loadK2SpecificResources($cid = null, $id = null) {
                 static $processed = array('cid'=>array(), 'id'=>array());
-                
+
                 if (!empty($id) && in_array($id, $processed['id']) || !empty($cid) && in_array($cid, $processed['cid'])) return;
-                
+
                 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2/tables');
-                
+
                 if (empty($cid) && !empty($id)) {
                         $tbl = JTable::getInstance('K2Item', 'Table');
                         $tbl->load($id);
@@ -1141,7 +1141,7 @@ group by vvv.itemid
                         $cid = $id = null;
 
                         if ($option != 'com_k2' && $option != 'com_k2fields') return;
-                        
+
                         if ($option == 'com_k2fields') {
                                 $cid = $input->get('cid', '', 'int');
                         } else if ($view == 'item') {
@@ -1153,53 +1153,53 @@ group by vvv.itemid
                                 $cid = $input->get('id', '', 'int');
                         }
                 }
-                
+
                 if (!empty($id) && in_array($id, $processed['id']) || !empty($cid) && in_array($cid, $processed['cid'])) return;
-                
+
                 if (empty($id) && empty($cid)) return;
-                
+
                 $params = JComponentHelper::getParams('com_k2');
                 $category = JTable::getInstance('K2Category', 'Table');
                 $category->load($cid);
                 $cparams = new JRegistry($category->params);
-                
+
                 if ($cparams->get('inheritFrom')) {
                         $masterCategory = JTable::getInstance('K2Category', 'Table');
                         $masterCategory->load($cparams->get('inheritFrom'));
                         $cparams = new JRegistry($masterCategory->params);
                 }
-                
+
                 $params->merge($cparams);
                 JprovenUtility::normalizeK2Parameters($category, $params);
-                
+
                 $theme = $params->get('theme', 'default');
-                
+
                 jimport('joomla.filesystem.file');
 
                 $app = JFactory::getApplication();
                 $tmpl = $app->getTemplate();
 
-                $dirs = array(                    
+                $dirs = array(
                         JPATH_SITE.'/templates/'.$tmpl.'/html/com_k2fields/'.$theme,
                         JPATH_SITE.'/templates/'.$tmpl.'/html/com_k2fields/templates/'.$theme,
                         JPATH_SITE.'/components/com_k2fields/templates/'.$theme,
-                    
+
                         JPATH_SITE.'/templates/'.$tmpl.'/html/com_k2/'.$theme,
                         JPATH_SITE.'/templates/'.$tmpl.'/html/com_k2/templates/'.$theme,
                         JPATH_SITE.'/components/com_k2/templates/'.$theme
                 );
-                
+
                 // check first item specific file if in item view
                 $file = null;
-                
+
                 if (!empty($id)) $file = self::_css($dirs, 'i'.$id);
-                
+
                 if (!$file && !empty($cid))
                         $file = self::_css($dirs, $cid);
-                
+
                 if (!$file)
                         $file = self::_css($dirs);
-                
+
                 if ($file) {
                         $document = JFactory::getDocument();
                         $file = str_replace(JPATH_SITE.DS, '', $file);
@@ -1207,14 +1207,14 @@ group by vvv.itemid
                         $file = JURI::root().$file;
                         $document->addStylesheet($file);
                 }
-                
+
                 if (!empty($id)) $processed['id'][] = $id;
                 if (!empty($cid)) $processed['cid'][] = $cid;
         }
-        
+
         protected static function _css($dirs, $parts = '') {
                 jimport('joomla.filesystem.path');
-                
+
                 $parts = (array) $parts;
 
                 foreach ($parts as $part) {
@@ -1222,12 +1222,12 @@ group by vvv.itemid
                                 return $file;
                         }
                 }
-                
+
                 return false;
-        }        
-                
+        }
+
         private static $json;
-        
+
         public static function jsonArrize($value) {
                 $result = array();
                 foreach ($value as $ind => $val)
@@ -1242,10 +1242,10 @@ group by vvv.itemid
                         if (function_exists('json_encode')) return json_encode($value);
 
                         if (empty(self::$json)) self::jsonDefine();
-                        
+
                         $result = self::$json->encode($value);
                 }
-                
+
                 return $result;
         }
 
@@ -1259,17 +1259,17 @@ group by vvv.itemid
 
         private static function jsonDefine() {
                 require_once JPATH_SITE . '/media/k2fields/lib/JSON.php';
-                self::$json = new Services_JSON;                        
+                self::$json = new Services_JSON;
                 return true;
         }
-        
+
         public static function removeValuesFromArray(&$arr, $valuesToRemove, $basedOnKey = false, $basedOnValuesAsKeys = false, $returnDiff = false) {
                 $diff = array();
-                
+
                 if (empty($arr) || empty($valuesToRemove)) return $returnDiff ? $diff : $arr;
-                
+
                 $valuesToRemove = (array) $valuesToRemove;
-                
+
                 foreach ($valuesToRemove as $valKey => $removeVal) {
                         foreach ($arr as $key => $val) {
                                 if ($basedOnKey && $key == $valKey || !$basedOnKey && !$basedOnValuesAsKeys && $val == $removeVal || $basedOnValuesAsKeys && $removeVal == $key) {
@@ -1278,17 +1278,17 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 return $returnDiff ? $diff : $arr;
         }
 
         public static function removeProperties(&$arr, $toRemove) {
                 if (empty($arr) || empty($toRemove)) return $arr;
-                
+
                 $toRemove = (array) $toRemove;
                 $keys = array_keys($arr);
                 $isArray = is_array($arr[$keys[0]]);
-                
+
                 foreach ($arr as &$_arr) {
                         foreach ($toRemove as $attr) {
                                 if ($isArray) {
@@ -1312,13 +1312,13 @@ group by vvv.itemid
                         if (is_array($val) && !in_array($key, $filters)) {
                                 if (!empty($val) && $maxDepth == -1 || $depth < $maxDepth) {
                                         $val = self::filterArray($val, $filters, $maxDepth, $depth + 1);
-                                        if (!empty($val)) $result[$key] = $val; 
+                                        if (!empty($val)) $result[$key] = $val;
                                 }
                         } else if (in_array($key, $filters)) {
-                                $result[$key] = $val; 
+                                $result[$key] = $val;
                         }
                 }
-                
+
                 return $result;
         }
 
@@ -1335,7 +1335,7 @@ group by vvv.itemid
                         }
                 } else $obj = $array;
                 return $obj;
-        }  
+        }
 
         public static function isPrefixed($value, $prefix) {
                 return strpos(strtolower($value), strtolower($prefix)) === 0;
@@ -1343,49 +1343,49 @@ group by vvv.itemid
 
         public static function isJ16() {
                 return version_compare(JVERSION, '1.6.0', 'ge');
-        }    
-        
+        }
+
         public static function checkPluginActive($plugin, $folder, $warn = '', $enable = false) {
                 jimport('joomla.plugin.helper');
-                
+
                 if (JPluginHelper::importPlugin($folder, $plugin)) return true;
-                
+
                 if (!empty($warn)) {
                         $plugin = self::getPlugin($plugin, $folder, 'id');
-                        
+
                         if (self::isJ16()) {
                                 $a = "index.php?option=com_plugins&task=plugin.edit&extension_id=".$plugin;
                         } else {
                                 $a = "index.php?option=com_plugins&view=plugin&client=site&task=edit&cid[]=".$plugin;
                         }
-                        
+
                         $warn = JText::sprintf($warn, $a);
-                        
+
                         self::throwError(JLog::WARNING, $warn);
                 }
-                
+
                 if ($enable) {
                         $db = JFactory::getDbo();
                         $db->setQuery('UPDATE #__extensions SET enabled = 1 WHERE type = '.$db->quote('plugin').' AND element = '.$db->quote($plugin).' AND folder = '.$db->quote($folder));
                         $db->query();
                         return JPluginHelper::importPlugin($folder, $plugin);
                 }
-                
+
                 return false;
         }
-        
+
         /**
          * For +2.5
          * @param type $code = JLog::consts
          * @param type $msg
          * @param type $type = Any of the PHP predefined exceptions, custom exception class or simply Exception
-         * @throws type 
-         * 
+         * @throws type
+         *
          * For 1.5
          * @param type $code = Error code of application as per J1.5 convnention
          * @param type $msg
          * @param type $type = Error, Notice, Warning
-         * @throws type 
+         * @throws type
          */
         public static function throwError($code, $msg, $type = '') {
                 if (false && self::isJ16()) {
@@ -1400,32 +1400,32 @@ group by vvv.itemid
                         call_user_func_array(array('JError', $function), array($code, $msg));
                 }
         }
-        
+
         public static function getPlugin($plugin, $folder, $attr = '') {
                 $db = JFactory::getDBO();
-                
-                if ($attr == '') { 
+
+                if ($attr == '') {
                         $_attr = '*';
                 } else {
                         if ($attr == 'id' && self::isJ16()) {
                                 $attr = 'extension_id';
                         }
-                        
+
                         $_attr = $db->nameQuote($attr);
                 }
-                
+
                 if (self::isJ16()) {
                         $query = 'SELECT '.$_attr.' FROM `#__extensions` WHERE type = '.$db->quote('plugin').' AND folder = '.$db->quote($folder).' AND element = '.$db->quote($plugin);
                 } else {
                         $query = 'SELECT '.$_attr.' FROM `#__plugins` WHERE folder = '.$db->quote($folder).' AND element = '.$db->quote($plugin);
                 }
-                
+
                 $db->setQuery($query);
                 $plugin = $db->loadObject();
-                
+
                 return !empty($attr) && isset($plugin->$attr) ? $plugin->$attr : $plugin;
         }
-        
+
         public static function getModule($module, $render = false, $client = null) {
                 // Slightly customized version of joomla.application.module.helper._load to load a specific module
                 $app = JFactory::getApplication();
@@ -1440,13 +1440,13 @@ group by vvv.itemid
                                 $client = (int) $client;
                         }
                 }
-                
+
 		$user = JFactory::getUser();
 		$db = JFactory::getDBO();
                 $access = 'IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
-                
+
                 $mod = (int) $module;
-                
+
                 // Note: If only module name is provided then we select the first one
                 if ($mod) {
                         $mod = ' m.id = ' . $mod;
@@ -1454,7 +1454,7 @@ group by vvv.itemid
                         $mod = strpos($module, 'mod_') !== 0 ? 'mod_'.$module : $module;
                         $mod = ' m.module = "'.$mod.'"';
                 }
-                
+
                 $query = 'SELECT id, title, module, position, content, showtitle, params'
                         . ' FROM #__modules AS m'
                         . ' WHERE m.published = 1'
@@ -1464,7 +1464,7 @@ group by vvv.itemid
                         . ' ORDER BY position, ordering LIMIT 1';
 
 		$db->setQuery( $query );
-                
+
 		if (null === ($module = $db->loadObject())) {
                         JError::raiseWarning( 'SOME_ERROR_CODE', JText::_( 'Error loading given module' ).' (<em>'.$module .'</em>)');
                         return false;
@@ -1478,15 +1478,15 @@ group by vvv.itemid
                 $module->name		= $custom ? $module->title : substr( $file, 4 );
                 $module->style		= null;
                 $module->position	= strtolower($module->position);
-                
+
                 jimport('joomla.html.parameter');
                 $module->params         = new JRegistry($module->params);
-                
+
                 if ($render) $module->rendered = JModuleHelper::renderModule($module);
-                
+
                 return $module;
-        }        
-        
+        }
+
         public static function sendMail($subject, $msg, $recipients = array(), $addAdmins = false) {
                 if (is_numeric($recipients)) {
                         $query = 'SELECT email, name FROM #__users WHERE id = '.$recipients;
@@ -1497,10 +1497,10 @@ group by vvv.itemid
                                 JError::raiseError(500, $db->stderr(true));
                                 return;
                         }
-                        
+
                         $recipients = $db->loadObject();
                 }
-                
+
                 if (is_object($recipients)) {
                         $recipients = array($recipients);
                 }
@@ -1514,34 +1514,34 @@ group by vvv.itemid
                                 JError::raiseError(500, $db->stderr(true));
                                 return;
                         }
-                        
+
                         $recipients = array_merge($recipients, $db->loadObjectList());
                 }
 
                 $uri = JURI::getInstance(JURI::base());
                 $uri = $uri->toString(array('host', 'port'));
-                
+
                 jimport('joomla.utilities.date');
                 $time = new JDate();
                 $time = $time->toFormat();
-                
+
                 $subject = str_replace(array('%DATE%', '%DOMAIN%'), array($time, $uri), $subject);
                 $msg = str_replace(array('%DATE%', '%DOMAIN%'), array($time, $uri), $msg);
 
                 $config = JFactory::getConfig();
                 $from = $config->getValue('mailfrom');
                 $fromName = $config->getValue('fromname');
-                
+
                 foreach ($recipients as $recipient)
                         JUtility::sendMail($from, $fromName, $recipient->email, $subject, $msg);
         }
-        
+
         public static function _setting($val, $assertedKeys, $sep, $allKey = 'all', $name = '') {
-                if (!empty($assertedKeys) && !is_array($assertedKeys)) 
+                if (!empty($assertedKeys) && !is_array($assertedKeys))
                         $assertedKeys = array($assertedKeys);
-                
+
                 $isAllKeyValue = false;
-                
+
                 if (!empty($assertedKeys)) {
                         if (is_string($val)) {
                                 $result = array();
@@ -1571,33 +1571,33 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 if (!empty($assertedKeys)) {
                         if (empty($result)) $result = null;
                         return $result;
                 }
-                
+
                 return $val;
         }
-        
+
         public static function setting(
-                $name, 
+                $name,
                 $plgName,
                 $folder,
-                $options = null, 
+                $options = null,
                 $default = null,
-                $assertedKeys = null, 
+                $assertedKeys = null,
                 $sep = '::',
                 $allKey = 'all',
                 $alternativeName = '') {
-                
+
                 $val = self::value($options, $name);
-                
+
                 if (!empty($val)) return $val;
-                
+
                 $val = self::plgParam($plgName, $folder, $name);
-                $val = self::_setting($val, $assertedKeys, $sep, $allKey, $name);                
-                
+                $val = self::_setting($val, $assertedKeys, $sep, $allKey, $name);
+
                 if (empty($val)) {
                         if ($alternativeName) {
                                 $val = self::setting($alternativeName, $plgName, $folder, $options, $default, $assertedKeys, $sep, $allKey);
@@ -1605,34 +1605,34 @@ group by vvv.itemid
                                 $val = $default;
                         }
                 }
-                
+
                 return $val;
-        }        
-        
+        }
+
         public static function setValue(&$options, $name, $value) {
                 if (is_array($options)) {
                         $options[$name] = $value;
                 } else if (is_object($options)) {
                         $options->$name = $value;
                 }
-        }  
-        
+        }
+
         public static function value($options, $name, $default = '') {
                 if (is_array($options) && isset($options[$name])) {
                         $result = $options[$name];
                 } else if (is_object($options) && property_exists($options, $name)) {
                         $result = $options->$name;
                 }
-                
+
                 return !isset($result) ? $default : $result;
-        }  
-        
+        }
+
         public static function mergeValues($from, $to, $ignoreEmpty = true, $except = array(), $prefix = '', $postfix = '') {
-                if (is_object($from)) 
+                if (is_object($from))
                         $from = get_object_vars($from);
-                
+
                 $except = (array) $except;
-                
+
                 if (is_object($to)) {
                         foreach ($from as $key => $value) {
                                 if ((!$ignoreEmpty || $ignoreEmpty && !empty($value)) && !in_array($key, $except)) {
@@ -1646,50 +1646,50 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 if (!empty($prefix) || !empty($postfix)) {
                         if (is_object($to)) $vals = get_object_vars ($to);
                         else $vals = $to;
-                        
+
                         foreach ($vals as $key => $value) {
                                 $fkey = $prefix.$key.$postfix;
-                                
+
                                 if (!empty($from[$fkey])) {
                                         if (is_object($to)) $to->$key = $from[$fkey];
                                         else $to[$key] = $from[$fkey];
                                 }
                         }
                 }
-                
+
                 return $to;
         }
-        
+
         public static function mergeK2FieldValues($from, $to) {
                 return self::mergeValues($from, $to, true, array('name', 'reverse'), 'reverse_');
         }
-        
+
         public static function redirectToPlg($plgName, $folder, $msg = '') {
                 $app = JFactory::getApplication();
-                
+
                 if (!$app->isAdmin()) return;
-                
+
                 $db = JFactory::getDBO();
                 $folder = $db->quote($folder);
                 $plgName = $db->quote($plgName);
-                
+
                 $query = 'SELECT extension_id AS id FROM #__extensions WHERE type = "plugin" AND folder = '.$folder.' AND element = '.$plgName.' LIMIT 1';
-                
+
                 $db->setQuery($query);
                 $plgId = $db->loadResult();
-                
+
                 $url = "index.php?option=com_plugins&task=plugin.edit&extension_id=".$plgId;
-                
+
                 $app->redirect($url, !empty($msg) ? $msg : JText::_('No component setting, redirected to corresponding plugin setting page'), 'info');
         }
-        
+
         public static function plgParam($plgName, $folder, $name, $value = '', $dir = 'get') {
                 static $plgs = array(), $j16;
-                
+
                 $plgsKey = $folder.'-'.$plgName;
 
                 if (!isset($plgs[$plgsKey])) {
@@ -1710,9 +1710,9 @@ group by vvv.itemid
                         $plgs[$plgsKey]['params'] = new JRegistry($plgs[$plgsKey]['plg']->params);
                         $plgs[$plgsKey]['values'] = array();
                 }
-                
+
                 $values =& $plgs[$plgsKey]['values'];
-                
+
                 if ($dir == 'set') {
                         if ($value instanceof JRegistry) {
                                 $plgs[$plgsKey]['params'] = $value;
@@ -1737,7 +1737,7 @@ group by vvv.itemid
                                 if (is_string($values[$name])) {
                                         $values[$name] = trim($values[$name]);
                                 }
-                                
+
                                 if (!isset($values[$name]) || is_string($values[$name]) && empty($values[$name])) {
                                         $values[$name] = $value;
                                 }
@@ -1745,16 +1745,16 @@ group by vvv.itemid
 
                         return $values[$name];
                 }
-        }         
+        }
 
         public static function cleanPlugins($text) {
                 return preg_replace("#{(.*?)}(.*?){/(.*?)}#s", '', $text);
         }
-        
+
         /**
          * Plugin syntax:
          * <$plgStart><$plgName>[ name=value]*<$plgEnd>
-         * 
+         *
          * Syntax rules:
          * 1. characters not allowed within a plugin definition are the $plgStart and $plgEnd
          * 2. in addition characters not allowed in names are = and <space>
@@ -1763,11 +1763,11 @@ group by vvv.itemid
          * 5. no delimiter is required between name and value
          */
         public static function parsePluginValues(
-                $content, 
-                $plgName, 
-                $groupBy = false, 
-                $groupByAllKeySubstitute = array(), 
-                $plgStart = '{', 
+                $content,
+                $plgName,
+                $groupBy = false,
+                $groupByAllKeySubstitute = array(),
+                $plgStart = '{',
                 $plgEnd = '}'
         ) {
                 $values = array();
@@ -1785,7 +1785,7 @@ group by vvv.itemid
                         $values[$p]['_plg_'] = $explodeBy.$def.$plgEnd;
                         $parts = explode('=', $def);
                         $name = trim(array_shift($parts));
-                        $i = 0; 
+                        $i = 0;
                         $n = count($parts);
 
                         while ($i < $n) {
@@ -1794,7 +1794,7 @@ group by vvv.itemid
                                 if (isset($values[$p][$name])) {
                                         if (!is_array($values[$p][$name]))
                                                 $values[$p][$name] = array($values[$p][$name]);
-                                        
+
                                         $values[$p][$name][] = $value;
                                 } else {
                                         $values[$p][$name] = $value;
@@ -1803,7 +1803,7 @@ group by vvv.itemid
                                 $name = trim(substr($parts[$i], $pos+1));
                                 $i++;
                         }
-                        
+
                         if ($i - 1 >= 0) {
                                 $value = substr($parts[$i-1], 0);
                                 if (is_array($values[$p][$pname])) {
@@ -1813,7 +1813,7 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 if (!$groupBy) return $values;
                 $values = self::indexBy($values, (array) $groupBy, 'all', $groupByAllKeySubstitute);
                 return $values;
@@ -1828,97 +1828,97 @@ group by vvv.itemid
                 $text = $content;
                 $textAttr = '';
 
-                if (is_object($text)) { 
+                if (is_object($text)) {
                         // $content instanceof TableK2Item
                         $textAttr = 'text';
                         $text = $content->text;
 
-                        if (!$provided) 
+                        if (!$provided)
                                 $itemId = $content->id;
                 }
-                
+
                 $option = JFactory::getApplication()->input->get('option', '', 'cmd');
                 $view = JFactory::getApplication()->input->get('view', '', 'cmd');
-                
+
                 if (!$provided)
-                        if (!empty($itemId)) 
+                        if (!empty($itemId))
                                 $item = $itemId;
-                        else if ($option == 'com_k2' && $view == 'item') 
+                        else if ($option == 'com_k2' && $view == 'item')
                                 $item = JFactory::getApplication()->input->get('id', '', 'int');
-                
+
                 $item = empty($item) ? null : $item;
                 $rules = self::parsePluginValues($text, $plgName, array('item', 'fields'), array($item));
-                
+
                 if (empty($rules)) return false;
-                
+
                 if ($provided && empty($item)) {
                         $item = key($rules);
                         $rules = self::parsePluginValues($text, $plgName, array('item', 'fields'), array($item));
                 }
-                
+
                 // rules with no applicable itemid are removed
                 if (isset($rules['all'])) {
                         $alls = $rules['all'];
                         unset($rules['all']);
-                        
+
                         foreach ($alls as $item => $itemRules)
                                 foreach ($itemRules as $fieldsRule)
                                         $text = str_replace($fieldsRule['_plg_'], '', $text);
                 }
-                
+
                 jimport('joomla.application.component.model');
                 K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
-                
+
                 $content->k2f = array();
-                
+
                 foreach ($rules as $item => $itemRules) {
                         $renderedItemRules = call_user_func_array(
-                                array($model, 'render'.ucfirst($plgName)), 
+                                array($model, 'render'.ucfirst($plgName)),
                                 array(is_object($content) ? $content : $item, $itemRules, $text, $content, $additionalRules)
                         );
-                        
+
                         foreach ($renderedItemRules as $renderedFieldsRule) {
                                 if (!empty($renderedFieldsRule['raw'])) {
                                         $content->k2f[] = $renderedFieldsRule;
                                         continue;
                                 }
-                                
+
                                 foreach ($renderedFieldsRule as $renderedFieldRule) {
                                         $text = str_replace(
-                                                $renderedFieldRule['_plg_'], 
+                                                $renderedFieldRule['_plg_'],
                                                 $renderedFieldRule['rendered'],
                                                 $text
                                         );
                                 }
                         }
                 }
-                
+
                 if (is_object($content) && !empty($textAttr)) {
                         $content->$textAttr = $text;
                 } else {
                         $content = $text;
                 }
-                
+
                 return $content;
         }
-        
+
         public static function createComparisonMatrix($items) {
                 $_items = array();
-                
+
                 foreach ($items as $item) {
                         $_fields = $item->k2f;
                         $_fields = $_fields[key($_fields)];
-                        
+
                         foreach ($_fields as $k => $__fields) {
                                 if ((string) $k == 'raw') continue;
-                                
+
                                 $itemId = $__fields['item'];
 
                                 if (!isset($_items[$itemId])) $_items[$itemId] = array();
 
                                 $___fields = $__fields['rendered'];
-                                
+
                                 foreach ($___fields as $section => $fields) {
                                         if (!isset($_items[$itemId][$section])) $_items[$itemId][$section] = array();
 
@@ -1926,34 +1926,34 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 array_unshift($_items, $_items[key($_items)]);
-                
+
                 $_flds = $_items[0];
-                
+
                 $matrix = array();
-                
+
                 foreach ($_flds as $section => $flds) {
                         $matrix[$section] = array();
-                        
+
                         foreach ($flds as $fldi => $fld) {
                                 $fieldId = $fld['field'];
-                                
+
                                 foreach ($_items as $i => $_item) {
                                         $itemId = $i == 0 ? 'heading' : $_item[$section][$fldi]['item'];
-                                        
+
                                         if (!isset($matrix[$section][$fieldId])) $matrix[$section][$fieldId] = array();
-                                        
+
                                         if (!isset($matrix[$section][$fieldId][$itemId])) $matrix[$section][$fieldId][$itemId] = array();
-                                        
+
                                         $matrix[$section][$fieldId][$itemId] = $_item[$section][$fldi]['rendered'];
                                 }
                         }
                 }
-                
+
                 return $matrix;
         }
-        
+
         protected static function renderComparisonSection($section, $fieldCnt, $rowCnt, $cols) {
                 static $_section;
 
@@ -1961,43 +1961,43 @@ group by vvv.itemid
                         $_section = $section;
                         return '';
                 }
-                
+
                 if (empty($_section) && $fieldCnt > 0) return '';
-                
+
                 if (!empty($_section)) {
                         $section = $_section;
                         $_section = '';
                 }
-                
+
                 $ui = '<tr class="comparesection"><th colspan="'.$cols.'">'.$section.'</th></tr>';
-                
+
                 return $ui;
         }
-        
+
         public static function renderComparisonActions($items) {
                 $itemIds = array_keys($items);
-                
+
                 array_shift($itemIds);
-                
+
                 $ui = '<tr class="compareaction"><th><input class="comparecancel" type="button" value="'.JText::_('Cancel').'" /></th>';
-                
+
                 foreach ($itemIds as $itemId) {
                         $ui .= '<th><input class="compareremove" type="button" value="'.JText::_('Remove').'" item="'.$itemId.'" /></th>';
                 }
-                
+
                 $ui .= '</tr>';
-                
+
                 return $ui;
         }
-        
+
         public static function renderComparisonRow($field, $fieldCnt, $rowCnt, $section) {
                 $cols = count($field);
                 $ui = '';
-                
+
                 if ($rowCnt == 0) $ui .= self::renderComparisonActions($field);
-                
+
                 $ui .= self::renderComparisonSection($section, $fieldCnt, $rowCnt, $cols) . '<tr class="comparefield'.($rowCnt == 0 ? ' comparetitle' : '').'">';
-                
+
                 foreach ($field as $itemi => $itemValues) {
                         if ($itemi == 'heading' && $fieldCnt == 0) {
                                 $ui .= '<th></th>';
@@ -2005,56 +2005,56 @@ group by vvv.itemid
                         }
 
                         $tag = $fieldCnt == 0 || $itemi == 'heading' ? 'th' : 'td';
-                        
+
                         if ($itemi == 'heading') {
                                 $itemValues .= '<a href="#" class="comparehidefield" title="'.JText::_('Hide this row').'">-<a/>';
                         }
-                        
+
                         $ui .= '<'.$tag.'>'.$itemValues.'</'.$tag.'>';
                 }
-                
+
                 $ui .= '</tr>';
-                
+
                 return $ui;
         }
-        
+
         public static function contains($inArray, $needles, $ignore = array()) {
                 if (empty($inArray) || empty($needles)) return false;
-                
+
                 foreach ($needles as $needle => $value) {
-                        if (!in_array($needle, $ignore) && (!isset($inArray[$needle]) || $inArray[$needle] != $value)) 
+                        if (!in_array($needle, $ignore) && (!isset($inArray[$needle]) || $inArray[$needle] != $value))
                                 return false;
                 }
-                
+
                 return true;
         }
-        
-        // Note: that earlier $array indexes are all replaced with new consecutive 
+
+        // Note: that earlier $array indexes are all replaced with new consecutive
         // numeric keys
         public static function flatten($array, $caller = '') {
                 if (!is_array($array)) return false;
-                
+
                 $result = array();
-                
+
                 foreach ($array as $el) {
                         if (!$el) continue;
-                        
+
                         if (is_array($el)) {
                                 $el = self::flatten($el);
-                                if ($el) $result = array_merge($result, $el); 
+                                if ($el) $result = array_merge($result, $el);
                         } else {
                                 $result[] = $el;
                         }
                 }
-                
+
                 return $result;
         }
-        
+
         public static function getRow(&$array, $criterias = array(), $leave = true, $isKey = false) {
                 if (empty($criterias)) return $array;
-                
+
                 $result = array();
-                
+
                 if (is_array($array)) {
                         foreach ($array as $k => $item) {
                                 $passed = true;
@@ -2085,48 +2085,48 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
-                return $result;                
+
+                return $result;
         }
-        
+
         public static function getK2Params($option = 'com_k2') {
                 $app = JApplication::getInstance('site');
                 $params = $app->getParams($option);
                 return $params;
         }
-        
+
         public static function makeOptions($array, $sepCol, $sepLblCol = '', $lblName = 'label', $append = '') {
                 $isArray = is_array($array[0]);
                 $options = array();
                 $curr = $prev = '';
-                
+
                 if (empty($sepLblCol)) $sepLblCol = $sepCol;
-                
+
                 $array = self::indexBy($array, $sepCol);
-                
+
                 foreach ($array as $opts) {
                         $lbl = $append . ($isArray ? $opts[0][$sepLblCol] : $opts[0]->$sepLblCol);
                         $opt = $isArray ? array($lblName => $lbl) : new stdClass();
-                        
+
                         if (!$isArray) $opt->$lblName = $lbl;
-                        
+
                         array_unshift($opts, $opt);
-                        
+
                         $options = array_merge($options, $opts);
                 }
-                
+
                 return $options;
         }
 
         /**
-         * customized version of JArrayHelper with ability to get column 
+         * customized version of JArrayHelper with ability to get column
          * of array with arbitrary key sets
          */
         public static function getColumn($array, $index, $unique = false, $criterias = array(), $maintainIndex = false) {
                 $result = array();
-                
+
                 $array = self::getRow($array, $criterias);
-                
+
                 if (is_array($array)) {
                         foreach ($array as $arrInd => $item) {
                                 $passed = true;
@@ -2137,14 +2137,14 @@ group by vvv.itemid
                                 }
                         }
                 }
-                
+
                 if ($unique) {
                         $result = array_unique($result);
                 }
 
                 return count($result) == 1 ? $result[0] : $result;
         }
-        
+
         public static function toInt(&$value, $filterEmpty = true, $emptyDefault = null) {
                 if (!is_array($value)) {
                         if (!is_object($value)) {
@@ -2158,14 +2158,14 @@ group by vvv.itemid
                 for ($i = 0, $n = count($value); $i < $n; $i++) self::toInt($value[$i], $filterEmpty, $emptyDefault);
                 if ($filterEmpty && $emptyDefault === null) array_filter($value);
         }
-        
+
         public static function endWith($str, $end) {
                 return $end != '' && substr($str, -strlen($end)) == $end;
         }
 
         public static function beginWith($str, $begin) {
                 return $begin != '' && strpos($str, $begin) === 0;
-        }        
+        }
 
         public static function indexBy($values, $keys, $genericKey = 'all', $keySubstitute = null, $unique = true, $flat = false) {
                 $result = array();
@@ -2173,7 +2173,7 @@ group by vvv.itemid
                 if (empty($keys) || empty($values)) return $values;
 
                 $keys = (array) $keys;
-                
+
                 foreach ($values as $item) {
                         $res =& $result;
 
@@ -2186,13 +2186,13 @@ group by vvv.itemid
                                         $key = $item->$key;
                                 } else if (isset($keySubstitute[$k])) {
                                         $val = $keySubstitute[$k];
-                                        
+
                                         if (is_array($item)) {
                                                 $item[$key] = $val;
                                         } else if (is_object($item)) {
                                                 $item->$key = $val;
                                         }
-                                        
+
                                         $key = $val;
                                 } else {
                                         $key = $genericKey;
@@ -2205,8 +2205,8 @@ group by vvv.itemid
                                         } else {
                                                 $res =& $res[$key];
                                         }
-                                        
-                                        if (($k == $kn - 1) && ($unique && !in_array($item, $res) || !$unique)) 
+
+                                        if (($k == $kn - 1) && ($unique && !in_array($item, $res) || !$unique))
                                                 $res[] = $item;
                                 } else {
                                         $res[$key] = $item;
@@ -2215,16 +2215,16 @@ group by vvv.itemid
                 }
 
                 return $result;
-        }        
-        
+        }
+
         public static function isEmpty($val) {
                 $isEmpty = true;
-                
+
                 if (is_object($val)) $val = get_object_vars ($val);
-                
+
                 if (is_array($val)) {
                         $isEmpty = true;
-                        
+
                         foreach ($val as $v) {
                                 if (!empty($v)) {
                                         $isEmpty = false;
@@ -2233,10 +2233,10 @@ group by vvv.itemid
                 } else {
                         $isEmpty = empty($val);
                 }
-                
+
                 return $isEmpty;
         }
-        
+
         public static function arraySort(&$array, $sortBy, $dir = SORT_ASC) {
                 $col = self::getColumn($array, $sortBy);
                 array_multisort($col, $dir, $array);
@@ -2244,9 +2244,9 @@ group by vvv.itemid
 
         public static function chunkArray($array, $by, $emptyKey = '') {
                 if (empty($array)) return array();
-                
+
                 if (empty($by)) return $array;
-                        
+
                 $n = count($array);
                 $cnt = 0;
                 $result = array();
@@ -2254,14 +2254,14 @@ group by vvv.itemid
                 $keys = self::getColumn($array, $by, true);
                 if (!is_array($keys)) $keys = array($keys);
                 $result = array_fill_keys($keys, array());
-                
+
                 foreach ($array as $key => $el) {
                         $key = $isArray ? $el[$by] : $el->$by;
                         if ($key == '' && $emptyKey != '') $key = $emptyKey;
                         $result[$key][] = $el;
                 }
-                
-                return $result;                        
+
+                return $result;
         }
 
         public static function toIntArray($value, $implode = false) {
@@ -2457,173 +2457,173 @@ group by vvv.itemid
                 return chop($response_content);
 
                 fclose($socket);
-        }  
-        
+        }
+
         public static function getPath($needle, $valueCol, $parentCol, $tbl, $criterias = array(), $logicalOp = 'AND', $includeSelf = true) {
                 $db = JFactory::getDBO();
                 $query = 'SELECT '.$db->nameQuote($valueCol).', '.$db->nameQuote($parentCol).' FROM '.$tbl;
                 $cols = array();
-                
+
                 foreach ($criterias as $col => $criteria) {
                         $op = is_array($criteria) ? $criteria[0] : '=';
                         $val = is_array($criteria) ? $criteria[1] : $criteria;
                         $cols[] = ' ' . $db->nameQuote($col) . ' ' . $op . ' ' . $val;
                 }
-                
+
                 $where = implode(' ' . $logicalOp, $cols);
-                
+
                 if (!empty($where))
                         $query .= ' WHERE ' . $where;
-                
+
                 $db->setQuery($query);
                 $values = $db->loadObjectList($valueCol);
                 $path = array();
-                
-                if ($includeSelf) 
+
+                if ($includeSelf)
                         $path[] = $needle;
-                
+
                 if (isset($values[$needle])) {
                         while (!empty($values[$needle]->$parentCol)) {
                                 $path[] = $values[$needle]->$parentCol;
                                 $needle = $values[$needle]->$parentCol;
                         }
                 }
-                
+
                 return $path;
-        } 
-        
+        }
+
         public static function getK2CategoryPath($needle, $checkAccess = true) {
                 $criterias = array('published' => 1, 'trash' => 0);
-                
+
                 if ($checkAccess) {
                         $user = JFactory::getUser();
-                        
+
                         $aid = $user->authorisedLevels();
                         $aid = '('.implode(',', $aid).')';
                         $criterias['access'] = array('IN', $aid);
                 }
-                
+
                 return self::getPath($needle, 'id', 'parent', '#__k2_categories', $criterias);
         }
-        
+
         public static function isK2CategoryChild($category, $structure) {
                 $category = is_numeric($category) ? $category : $category->id;
         }
-        
+
         public static function getK2CategoryChildren($ids, $depth = -1, $clear = false, $onlyIds = true, $orderby = 'id ASC', $includeItemCounts = false) {
                 static $currDepth = 0, $categories = array(), $categoryTree = array(), $categoryParents = array();
-                
+
                 if ($clear) {
                         $categories = array();
                         $categoryTree = array();
                         $categoryParents = array();
                         $currDepth = 0;
                 }
-                
+
                 if (($depth != -1 && $currDepth > $depth) || $ids === null || $ids === '') return $categories;
-                
+
                 $ids = (array) $ids;
                 $user = JFactory::getUser();
                 $auth = ".access IN (" . implode(',', $user->getAuthorisedViewLevels()) . ")";
                 $db = JFactory::getDBO();
                 $ids = array_unique($ids);
                 $cols = $onlyIds ? 'id, parent' : '*';
-                
+
                 if ($includeItemCounts) {
                         $cols .= ", (SELECT COUNT(id) FROM #__k2_items i WHERE i.catid = c.id AND i{$auth} AND i.published = 1 AND i.trash = 0) AS itemsCnt";
                 }
-                
+
                 $query = "SELECT {$cols}, (SELECT COUNT(*) FROM #__k2_categories cc WHERE cc.parent = c.id AND cc.published=1 AND cc.trash=0 AND cc{$auth}) AS cnt FROM #__k2_categories c WHERE c.parent IN (".(implode(", ", $ids)).") AND c.published=1 AND c.trash=0 AND c{$auth}";
-                
+
                 $app = JFactory::getApplication();
-                
+
                 if ($app->isSite() && $app->getLanguageFilter()) {
                         $languageTag = JFactory::getLanguage()->getTag();
                         $query .= " AND language IN (".$db->Quote($languageTag).", ".$db->Quote('*').") ";
                 }
 
                 $query .= " ORDER BY c." .(!empty($orderby) ? $orderby : "ordering");
-                
+
                 $db->setQuery($query);
                 $rows = $db->loadObjectList();
                 $catsWithChildren = array();
-                
+
                 foreach ($rows as $row) {
                         if ($onlyIds) {
                                 $categories[] = $row->id;
                         } else {
                                 $categories[$row->id] = $row;
                         }
-                        
-                        if (!isset($categoryTree[$row->parent])) 
+
+                        if (!isset($categoryTree[$row->parent]))
                                 $categoryTree[$row->parent] = array();
-                        
+
                         $categoryTree[$row->parent][] = $row->id;
                         $categoryParents[$row->id] = $row->parent;
-                        
-                        if ($row->cnt > 0) 
+
+                        if ($row->cnt > 0)
                                 $catsWithChildren[] = $row->id;
                 }
-                
+
                 $currDepth++;
-                
-                if (!empty($catsWithChildren)) 
+
+                if (!empty($catsWithChildren))
                         self::getK2CategoryChildren($catsWithChildren, $depth, false, $onlyIds);
-                
+
                 return array('cats'=>$categories, 'children'=>$categoryTree, 'parents'=>$categoryParents);
-        }       
-        
+        }
+
         public static function first($array) {
                 if (empty($array)) return;
                 $key = self::firstKey($array);
                 return $array[$key];
         }
-        
+
         public static function firstKey($array) {
                 $keys = array_keys($array);
                 $index = 0;
                 if ($keys[$index] == 'all' && count($keys) > 1 && !empty($array[$keys[1]])) $index = 1;
                 return $keys[$index];
         }
-        
+
         public static function replaceInDocument($search, $replace, $exceptTasks = array(), $inApp = '') {
                 $app = JFactory::getApplication();
-                
+
                 if ($inApp == 'site' && !$app->isSite() || $inApp == 'admin' && !$app->isAdmin()) return;
-                
+
                 $task = JFactory::getApplication()->input->get('task', '', 'cmd');
                 $exceptTasks = (array) $exceptTasks;
 
                 if (in_array($task, $exceptTasks)) return;
-                
+
                 $html = JResponse::getBody();
-                
+
                 $parts = explode($search, $html);
-                
+
                 if (count($parts) > 1) {
                         $html = implode($replace, $parts);
                         JResponse::setBody($html);
                 }
         }
-        
+
         public static function replaceResourcesInDocument(
                 $resourceType,
-                $removes, 
-                $adds = '', 
-                $mtd = 'document', 
-                $exceptTasks = array(), 
+                $removes,
+                $adds = '',
+                $mtd = 'document',
+                $exceptTasks = array(),
                 $inApp = '',
                 $onlyReplace = true
         ) {
                 $app = JFactory::getApplication();
 
                 if ($inApp == 'site' && !$app->isSite() || $inApp == 'admin' && !$app->isAdmin()) return;
-                
+
                 $task = JFactory::getApplication()->input->get('task', '', 'cmd');
                 $exceptTasks = (array) $exceptTasks;
 
                 if (in_array($task, $exceptTasks)) return;
-                
+
                 $removes = (array) $removes;
                 $adds = (array) $adds;
 
@@ -2632,34 +2632,34 @@ group by vvv.itemid
                         $present = array();
                         $arr = null;
                         $isJs = $resourceType == 'js';
-                        
+
                         if ($isJs) $arr = &$document->_scripts;
                         else $arr = &$document->_styleSheets;
-                        
+
                         foreach ($removes as $i => $remove) {
                                 if (isset($arr[$remove])) {
                                         $present[] = $i;
                                         unset($arr[$remove]);
                                 }
                         }
-                        
+
                         $addArr = array();
-                        
+
                         $jsProp = self::isJ16() ? array('mime'=>'text/javascript', 'defer'=>false, 'async'=>false) : 'text/javascript';
-                        
+
                         foreach ($adds as $i => $add) {
                                 if ((!$onlyReplace || in_array($i, $present)) && !empty($add)) {
                                         $addArr[$add] = $isJs ? $jsProp : array('mime'=>'text/css', 'media'=>null, 'attribs'=>array());
                                 }
                         }
-                        
+
                         if ($isJs) $document->_scripts = array_merge($addArr, $document->_scripts);
                         else $document->_styleSheets = array_merge($addArr, $document->_styleSheets);
                 } else if ($mtd == 'response' || $mtd == 'body') {
                         // TODO: removing stylesheets from response to be implemented
-                        
+
                         $html = JResponse::getBody();
-                        
+
                         if ($resourceType == 'js') {
                                 if ($onlyReplace) {
                                         foreach ($removes as $i => $remove) {
@@ -2704,8 +2704,8 @@ group by vvv.itemid
                                                 $html = str_ireplace('</head>', $css.'</head>', $html);
                                 }
                         }
-                        
-                        JResponse::setBody($html);  
+
+                        JResponse::setBody($html);
                 }
         }
 }

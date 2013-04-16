@@ -53,7 +53,6 @@ class KomentoRate {
                 $criterias = $params->get($extensionName.'_ratingcriterias');
                 $separator = $params->get($extensionName.'_separator');
                 $showAs = $params->get($extensionName.'_showas');
-                
                 $definition = self::parseCriterias($content->catid, $groups, $criterias, $separator, $showAs);
                 
                 return $definition;
@@ -247,7 +246,6 @@ class KomentoRate {
                 $document->addStyleSheet(JURI::root().'media/plg_komento_rate/rate.css');
                 $document->addScript(JURI::root().'media/plg_komento_rate/rate.js');
                 $document->addScript(JURI::root().'media/plg_komento_rate/MooStarRating/Source/moostarrating.js');
-                
                 $criterias = $this->getDefinition();
                 
                 $document->addScriptDeclaration("
