@@ -1203,7 +1203,7 @@ var k2fields = new Class({
                                 for (var vi = 0, vn = values.length; vi < vn; vi++) {
                                         val = values[vi];
 
-                                        if (val['value'] && del == val['value'] || val['text'] && del == val['text']) {
+                                        if (val['value'] && del == val['value'].toLowerCase() || val['text'] && del == val['text'].toLowerCase()) {
                                                 delete values[vi];
                                                 values = values.clean();
                                                 break;
