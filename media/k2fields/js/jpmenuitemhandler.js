@@ -13,7 +13,7 @@ var JPMenuItemHandler = new Class({
                 var srs = this.srs(), cid = srs['cid'];
                 if (cid && cid != -1) {
                         srs.erase('cid');
-                        srs = srs.toQueryString();
+                        srs = srs._toQueryString();
                         var c = this.k2f.categoryEl();
                         document.id(c.options[cid]).set('init-state', srs);
                         c.addEvent('processingEnd', function() {
@@ -33,20 +33,20 @@ var JPMenuItemHandler = new Class({
                 return new Hash(srs);
         },
         build:function() {
-                var 
-                        srs = {}, val, 
+                var
+                        srs = {}, val,
                         els = this.k2f.containerEl().getElements('[name^='+this.k2f.options.pre+']'),
                         cat = this.k2f.categoryEl()
                         ;
-                
+
                 els.push(cat);
-                
+
                 els.each(function(el) {
                         val = this.k2f.getValue(el);
                         if (val == this.k2f.options.listConditionSeparator) val = '';
                         if (val) srs[el.get('name')] = val;
                 }.bind(this));
-                
+
                 document.id('jform_request_srs').set('value', JSON.stringify(srs));
         }
 });

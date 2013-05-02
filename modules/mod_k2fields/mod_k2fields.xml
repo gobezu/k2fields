@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension version="2.5" type="module" method="upgrade" client="site"> 
+<extension version="2.5" type="module" method="upgrade" client="site">
         <name>k2fields search</name>
         <author>$Author$</author>
         <creationDate>$Date$</creationDate>
@@ -64,7 +64,7 @@
                                 </field>
                                 <field name="menuitemid" type="menuitem" default="" label="Itemid as per above choice" />
                                 <field type="lbl" default="Advanced search" />
-                                <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields." 
+                                <field name="defaultfields" type="msql" default="" label="Select one or more global search fields (category have higher presedence if selected) (TBI)" description="Select a set of fields to act as global search fields and are presented to user whenever user has not chosen any active category for which to fetch fields."
                                         query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as defaultfields FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1"
                                 />
                                 <field name="whentogglerempty" type="radio" default="inactive" label="When no category is chosen advanced search fields container is">
@@ -75,17 +75,23 @@
                                         <option value="inactive">Collapsed</option>
                                         <option value="active">Visible</option>
                                 </field>
+                                <field type="lbl" default="Search count" />
+                                <field name="showsearchcount" type="radio" default="0" label="Show search count">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="showsearchcountliveupdate" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes searchc criteria">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="searchcountmax" type="textarea" cols="40" rows="10" default="all%%10" label="Restrict submission (per category)" description="Disallow search query unless count is less than the provided value (per category)" />
                                 <field type="lbl" default="Misc" />
                                 <field name="showorderby" type="radio" default="1" label="Allow user to order by">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
-                                </field>                
-                                <field name="showsearchcount" type="radio" default="1" label="Show search count (TBI)">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
                                 </field>
                                 <field name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
-                                
+
                         </fieldset>
 			<fieldset name="advanced">
 				<field
@@ -109,7 +115,7 @@
 					type="text"
 					default="900"
 					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
-					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />                                            
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
                         </fieldset>
 		</fields>
 	</config>

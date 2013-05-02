@@ -17,7 +17,7 @@ a.mergefolded { display:block; width:100%; text-align:center; }
 /* jQuery tabs */
 .ui-tabs .ui-tabs-hide {
     position: absolute !important;
-    left: -9999px;    
+    left: -9999px;
     top: -9999px;
     width:auto;
 }
@@ -59,7 +59,7 @@ div.current dd {
 
 .nofloat { display:inline !important; float:none !important; padding:0px !important; }
 
-/* 
+/*
 clearing
 credit:http://nicolasgallagher.com/micro-clearfix-hack/ */
 /* For modern browsers */
@@ -68,7 +68,7 @@ credit:http://nicolasgallagher.com/micro-clearfix-hack/ */
 /* For IE 6/7 (trigger hasLayout) */
 .cf { zoom:1; }
 
-/* 
+/*
 TODO: update to new version
 credit: twitter bootstrap
 note: customized version
@@ -77,15 +77,15 @@ note: customized version
         cursor: pointer;
         display: inline-block;
         background-repeat: no-repeat;
-        background-color: #333435; 
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#2C2B2A", endColorstr="#333435"); 
-        background-image: -khtml-gradient(linear, left top, left bottom, from(#2C2B2A), to(#333435)); 
-        background-image: -moz-linear-gradient(top, #2C2B2A, #333435); 
-        background-image: -ms-linear-gradient(top, #2C2B2A, #333435); 
-        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2C2B2A), color-stop(100%, #333435)); 
-        background-image: -webkit-linear-gradient(top, #2C2B2A, #333435); 
-        background-image: -o-linear-gradient(top, #2C2B2A, #333435); 
-        background-image: linear-gradient(#2C2B2A, #333435); 
+        background-color: #333435;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#2C2B2A", endColorstr="#333435");
+        background-image: -khtml-gradient(linear, left top, left bottom, from(#2C2B2A), to(#333435));
+        background-image: -moz-linear-gradient(top, #2C2B2A, #333435);
+        background-image: -ms-linear-gradient(top, #2C2B2A, #333435);
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2C2B2A), color-stop(100%, #333435));
+        background-image: -webkit-linear-gradient(top, #2C2B2A, #333435);
+        background-image: -o-linear-gradient(top, #2C2B2A, #333435);
+        background-image: linear-gradient(#2C2B2A, #333435);
         padding: 0em 2em;
         color: #FFF;
         font-size: 1em;
@@ -104,8 +104,8 @@ note: customized version
         -ms-transition: 0.1s linear all;
         -o-transition: 0.1s linear all;
         transition: 0.1s linear all;
-        
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.16); 
+
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.16);
         -webkit-font-smoothing: antialiased;
         text-decoration:none !important;
 }
@@ -135,7 +135,7 @@ input[type=button]:disabled, input[type=submit]:disabled, button.search:disabled
         opacity: 0.65;
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
-        box-shadow: none;  
+        box-shadow: none;
 }
 
 .k2fitemlist { }
@@ -162,8 +162,8 @@ input[type=button]:disabled, input[type=submit]:disabled, button.search:disabled
 
 /** field type specific layouts **/
 /* list */
-ul.k2flist > li .fp > .fv > span, 
-ul.k2flist > li > div, 
+ul.k2flist > li .fp > .fv > span,
+ul.k2flist > li > div,
 ul.k2flist li
 { display:inline-block; padding:0px 0.5em 0px 0px; margin:0px 3px 3px 0px; }
 
@@ -214,8 +214,8 @@ table.compare > tbody > tr.comparefielddiff > th { background-color:#fff2d8 !imp
 .itemListTabular .fieldsValuesCell .fvc, .itemListTabular .col .fvc, .itemListTabular .itemContainerFirst .itemListHeading .col .lbl { width:100%; }
 .itemListTabular .itemContainer .colsFolded .fvc > .lbl { display:block; }
 /*.itemListTabular .catItemView .jptoggler-active:hover, .itemListTabular .jptoggler-active, .itemListTabular .catItemView .jptoggler-inactive:hover, .itemListTabular .catItemView .jptoggler-inactive { background:inherit; }*/
-.itemListTabular .catItemView .k2fitemlist > .jptoggler-active:hover, 
-.itemListTabular .k2fitemlist > .jptoggler-active, 
+.itemListTabular .catItemView .k2fitemlist > .jptoggler-active:hover,
+.itemListTabular .k2fitemlist > .jptoggler-active,
 .itemListTabular .catItemView .k2fitemlist > .jptoggler-inactive:hover,
 .itemListTabular .catItemView .k2fitemlist > .jptoggler-inactive { background:inherit; }
 /*.itemListTabular .catItemView .jptoggler { margin: inherit; font-size: inherit; padding: inherit; color: inherit; }*/
@@ -288,11 +288,11 @@ textarea.autogrow {
         -webkit-transition-property: height;
         -moz-transition-property: height;
         -o-transition-property: height;
-        transition-property: height;        
+        transition-property: height;
 }
 
 textarea.condition { }
-  
+
 /* k2item link handling */
 .jptoggler { cursor:pointer; margin: 0; padding:5px; font-size:14px; color: #595959;padding-left: 20px; background-repeat:no-repeat; }
 .itemList .jptoggler { padding-left:0px; }
@@ -302,11 +302,13 @@ textarea.condition { }
 /* overflow visible required in order to allow chosen elements remain visible in advanced search */
 .jpelement { padding:0 5px; }
 #searchFormContainer .jpelement { overflow:visible !important; }
- 
+
 .jpmodal { padding-left: 17px; background: url(../icons/jpmodal.png) 0 40% no-repeat; }
 .jpreadmore { display:block; float:right; clear:both; width:98%; text-align:center; margin:0.5em; padding:0; }
 
 /*search and non-table form layout */
+#k2fsearchcount span { display:inline-block; }
+#k2fsearchcount span:first-child + span { padding-left: 20px; font-weight:bold; }
 ul#searchFormContainer, ul#extraFields { list-style: none; margin: 0px; padding: 0px; }
 ul#searchFormContainer li, ul#extraFields li { padding:3px; }
 ul#searchFormContainer li ul#extraFields li { padding:0px; }
@@ -345,7 +347,7 @@ ul.autocompleter-choices-search li, ul.autocompleter-choices li {
 	margin:	-2px 0 0 0;
 	padding: 0.2em 1.5em 0.2em 1em;
 	display: block;
-	float: none !important; 
+	float: none !important;
 	cursor: pointer;
 	font-weight: normal;
 	/*white-space: nowrap;
@@ -381,7 +383,7 @@ ul.autocompleter-choices-search li.header, ul.autocompleter-choices-search li.fo
 	line-height: 30px;
 	background: #333435;
 	color: #FFFFFF;
-	font-size: 18px;        
+	font-size: 18px;
 }
 ul.autocompleter-choices-search li.header {
         border-bottom: none;
@@ -389,21 +391,21 @@ ul.autocompleter-choices-search li.header {
 ul.autocompleter-choices-search li.footer {
 	border-top: none;
 	font-size: 14px;
-	background: #333435 url(../icons/searchbox_more_icon.png) 15px 50% no-repeat;        
+	background: #333435 url(../icons/searchbox_more_icon.png) 15px 50% no-repeat;
 }
 ul.autocompleter-choices-search li.footer a {
         padding-left: 15px;
         color: #FFFFFF;
 }
-ul.autocompleter-choices-search li.footer:hover { 
+ul.autocompleter-choices-search li.footer:hover {
         background-color: #FFF;
 }
-ul.autocompleter-choices-search li.header { 
+ul.autocompleter-choices-search li.header {
         height: 30px;
 	line-height: 30px;
 	background: #333435;
 	color: #FFFFFF !important;
-	font-size: 18px;        
+	font-size: 18px;
 }
 
 ul.autocompleter-choices-search li:hover, ul.autocompleter-choices-search li:hover a:link, ul.autocompleter-choices-search li:visited {
@@ -413,10 +415,10 @@ ul.autocompleter-choices-search li:hover, ul.autocompleter-choices-search li:hov
 .jptip { border-bottom:1px dashed #B0392E; cursor:pointer; }
 td.key .jptip { border-bottom-color: #0B55C4; }
 td.key > span { display:block; }
-	
-.emails { 
+
+.emails {
         display: inline-block;
-        background-image: url(../icons/emails.png); 
+        background-image: url(../icons/emails.png);
 	height: 45px;
 	width: 45px;
 	margin-right: 5px;
@@ -440,12 +442,12 @@ td.key > span { display:block; }
 .formular-inline table td, .formular-inline table th { padding:0px; }
 
 div.tip-wrap { z-index:100; background:transparent; border:none; }
-div.tip-wrap .tip { 
-        width:auto; 
-        background-color: #fff; 
-        float:none; 
+div.tip-wrap .tip {
+        width:auto;
+        background-color: #fff;
+        float:none;
         background-color:#ccc;
-        border:5px solid #ccc; 
+        border:5px solid #ccc;
         -moz-border-radius: 10px;
         -webkit-border-radius: 10px;
         border-radius: 10px;
@@ -470,7 +472,7 @@ table.adminFormK2Container table.extraFields { width:100%; }
 div.K2AdminViewExtrafield table.admintable, div.K2AdminViewExtrafield table.admintable td.key { background:#B0392E; color:#FAFAFA; }
 div.K2AdminViewExtrafield table.admintable { padding:10px 0px; width:600px; }
 div.K2AdminViewExtrafield table.admintable td.key { width:210px; }
-.K2AdminViewExtrafield div#extraFieldsContainer ul.extraFields { list-style:none; margin:0px; padding:0px; }
+.K2AdminViewExtrafield div#extraFieldsContainer ul.extraFields { clear:both; list-style:none; margin:0px; padding:0px; }
 .K2AdminViewExtrafield div#extraFieldsContainer ul.extraFields > li { overflow:auto; padding:0px; margin:0px; width:800px; }
 .K2AdminViewExtrafield div#extraFieldsContainer ul.extraFields > li:nth-child(odd) { }
 .K2AdminViewExtrafield #extraFieldsContainer { width:900px; }

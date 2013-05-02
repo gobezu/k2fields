@@ -2,29 +2,29 @@
 
 var JPUtility = new Class({
         Implements: [Events, Options],
-        
+
         options: {
                 base: ''
         },
-        
+
         initialize: function(options) {
                 this.setOptions(options);
         },
-        
+
         toBody: function(method, code, type, isSync, fnc) {
                 if (code != '') {
-                        var 
-                                appendNode = document.id(method == 'tag' ? document : document.body), 
+                        var
+                                appendNode = document.id(method == 'tag' ? document : document.body),
                                 el = (method == 'tag' ? appendNode : appendNode.ownerDocument).createElement(type == 'js' ?  'script' : 'link');
-                               
+
                         el.type = type == 'js' ?  "text/javascript" : "text/css";
-                        
+
                         if (type == 'css') el.rel = 'stylesheet';
-                        
+
                         if (method == 'tag') {
                                 el[type == 'js' ? 'src' : 'href'] = code;
                                 document.id(el).setProperty('async', !isSync);
-                                
+
                                 if (fnc) {
                                         el.onreadystatechange = el.onload = function() {
                                                 var state = el.readyState;
@@ -38,15 +38,15 @@ var JPUtility = new Class({
                         } else {
                                 el.text = code;
                         }
-                        
+
                         (method == 'tag' ? appendNode.documentElement : appendNode).appendChild(el);
-                        
+
                         return true;
                 }
-                
+
                 return false;
         },
-        
+
         loaded: {'tag':[], 'request':[]},
 
         /**
@@ -58,52 +58,52 @@ var JPUtility = new Class({
                 var counter = 0, self = this, src, type, i, n, result;
 
                 if (!method) method = 'tag';
-                
+
                 if (typeof srcs == 'string') srcs = [srcs];
-                
+
                 if (evtOnce == undefined) evtOnce = true;
-                
+
                 n = srcs.length;
 
                 if (isSync == undefined) {
                         isSync = true;
                 }
-                
+
                 if (typeOf(types) != 'array') {
                         type = types;
                         types = [];
-                        
+
                         for (i = 0; i < n; i++) {
                                 types.push(type);
                         }
                 }
-                
+
                 for (i = 0; i < n; i++) {
                         src = srcs[i];
-                        
+
                         type = types[i];
-                        
+
                         if (!type) {
                                 type = src.substr(src.lastIndexOf('.') + 1);
-                                
+
                                 if (!['css', 'js'].contains(type)) {
                                         continue;
                                 }
                         }
-                        
+
                         if (this.isLoaded(src, type)) {
                                 if (evtFn) evtFn();
                                 counter++;
                                 continue;
                         }
-                        
+
                         if (method == 'tag') {
                                 if (result == undefined) {
                                         result = self.toBody(method, src, type, isSync, evtOnce ? (i == 0 ? evtFn : null) : evtFn);
                                 } else {
                                         result &= self.toBody(method, src, type, isSync, evtOnce ? (i == 0 ? evtFn : null) : evtFn);
                                 }
-                                
+
                                 self.loaded['tag'].push(src);
                         } else if (method == 'request') {
                                 new Request({
@@ -122,28 +122,28 @@ var JPUtility = new Class({
                                                 }
 
                                                 counter++;
-                                                
+
                                                 self.loaded['request'].push(this.options.url);
                                         },
                                         onFailure: function() {
                                                 result = false;
                                         }
-                                }).send();                                
+                                }).send();
                         }
                 }
-                
+
                 if (isSync) {
                         return result;
                 } else {
                         return false;
                 }
-        },        
-        
+        },
+
         isLoaded: function(src, type, method) {
                 if (!method) method = 'tag';
-                
+
                 if (method == 'request') return this.loaded[method].contains(src);
-                
+
                 var scripts = document.id(document).getElement('head').getChildren(type == 'css' ? 'link' : 'script')
 
                 for (var i = 0; i < scripts.length; i++) {
@@ -154,7 +154,7 @@ var JPUtility = new Class({
 
                 return false;
         },
-        
+
         debug: true,
 
         dbg: function(val, varVal, varCond) {
@@ -187,14 +187,14 @@ var JPUtility = new Class({
                         console.log(val);
                 }
         },
-        
+
         // Requires the FireUnit FF extension (http://fireunit.org/)
         profile: function(fn) {
                 if (typeof fireunit == 'object') {
-                       fireunit.profile(fn); 
+                       fireunit.profile(fn);
                 }
         },
-        
+
         diff: function(o1, o2) {
                 var result;
                 if (typeOf(o1) == 'object') {
@@ -209,7 +209,7 @@ var JPUtility = new Class({
                 }
                 return result;
         },
-        
+
         replaceTokens:function(str, to, tokens) {
                 to = Array.from(to);
                 var i, n = to.length, token, isArray = (typeOf(tokens) == 'array');
@@ -219,25 +219,25 @@ var JPUtility = new Class({
                 }
                 return str;
         },
-                
+
         makeSafePath: function(path) {
                 path = path.replace(/(\.){2,}/ig, '').replace(/[^A-Za-z0-9\.\_\- ]/ig, '').replace(/^\./ig, '');
-                return path; 
+                return path;
         },
-                
+
         normalizePath: function(path) { return path.replace(/[/\\\\]+/, '/'); },
-        
+
         loadImageAttrs: [],
-        
+
         loadImage: function(src, props, into, type) {
                 return this._loadImage(src, props, into, type, this.loadImageAttrs.length);
         },
-        
+
         _loadImage: function(src, props, into, type, ind) {
                 if (!type) type = 'icons';
-                
+
                 src = this.normalizePath(src);
-                
+
                 if (src.split('/').length == 1) {
                         // only file name provided
                         var tmp = this.options.base + this.options.k2fbase;
@@ -246,31 +246,31 @@ var JPUtility = new Class({
                 } else {
                         if (!/http[s]{0,1}\:\/\//.test(src)) src = this.options.base + src;
                 }
-                
+
                 var m = src.match(/\.([a-z\|]+)$/i), exts = m[1].split('|');
-                
+
                 if (m[1] == 'all') exts = ['jpg', 'gif', 'png'];
-                
+
                 src = src.replace(m[0], '.'+exts[0]);
                 delete exts[0];
                 exts = exts.clean();
-                
+
                 if (!props) props = {};
-                
+
                 props.exts = exts.join('|');
-                
+
                 props.ind = ind;
-                
+
                 props.onload = function(img) {
                         var ind = img.get('ind'), into = this.loadImageAttrs[ind];
                         if (into) img.inject(into);
                 }.bind(this);
 
                 var ut = this;
-                
+
                 props.onerror = function(img) {
                         var exts = img.get('exts'), src;
-                        
+
                         if (exts) {
                                 exts = exts.split('|');
                                 src = img.get('src').replace(/\.[a-z]+$/i, '.'+exts[0]);
@@ -280,35 +280,35 @@ var JPUtility = new Class({
                                 img.set('src', src);
                                 this.addImg(img);
                         }
-                        
+
                         var ind = img.get('ind'), into = this.loadImageAttrs[ind];
 
                         img = new Element('span', {text: img.get('title') || img.get('alt')});
 
                         if (into) img.inject(into);
                 }.bind(this);
-                
+
                 this.loadImageAttrs[ind] = into;
-                
+
                 var img = new Asset.image(src, props);
-                
+
                 this.addImg(img);
-                
+
                 return img;
         },
         _imgsLoaded:{},
         addImg: function(img) {
                 var id = img.get('_id_');
-                
+
                 if (!id) {
                         var keys = new Hash(this._imgsLoaded).getKeys();
-                        
+
                         id = 'id' + keys.length;
                         img.set('_id_', id);
                 }
-                
+
                 if (this._imgsLoaded[id] == undefined) this._imgsLoaded[id] = [];
-                
+
                 this._imgsLoaded[id].push(img);
         },
         getImg:function(img) {
@@ -323,7 +323,7 @@ var JPUtility = new Class({
 var extFns = {
         applyParams: function(o) {
                 var url, type = typeOf(this);
-                
+
                 switch(type){
                         case 'window':
                         case 'document':
@@ -346,17 +346,17 @@ var extFns = {
                                 break;
                         default:
                                 return false;
-                } 
-                
+                }
+
                 if (typeOf(o) == 'hash') {
-                        o = o.toQueryString();
+                        o = o._toQueryString();
                         if (o) {
                                 if (url.contains('?')) url = url.split('?')[0];
                                 url = url + '?' + o;
                         }
-                } 
-                
-                return url;
+                }
+
+                return url.replace(/\[\d+\]/g, '[]');
         },
         fromQueryString : function(fn){
                 var url, type = typeOf(this);
@@ -385,15 +385,24 @@ var extFns = {
                 }
                 var parameters = false;
                 if (fn) url = fn(url);
-                if(url.contains('?')){
+                // if(url.contains('?')){
                         if(url.contains('#')){
                                 url = url.split('#')[0];
                         }
-                        var query = url.split('?')[1], curr;
-                        if(query != ""){
+
+                        var query = '';
+
+                        if (url.contains('?')) {
+                                query = url.split('?')[1];
+                        } else if (url.indexOf('http') != 0 && url.indexOf('&') > 0) {
+                                query = url;
+                        }
+
+                        if (query != ''){
                                 var parameters = new Hash(), params = query.split('&');
                                 params.each(function(param){
                                         param = param.split('=');
+                                        param[0] = param[0].replace(/\[\]$/, '');
                                         curr = parameters.get(param[0]);
                                         if (curr) {
                                                 curr = Array.from(curr);
@@ -415,12 +424,30 @@ var extFns = {
                                         parameters.set(param[0],curr);
                                 });
                         }
-                }
+                // }
                 return parameters;
         }
 };
-
-Native.implement([Element,Document,Window,String], extFns); 
+Native.implement([Element, Hash], {
+        _toQueryString: function(object, base) {
+                var tmp = this.toQueryString(object, base).replace(/\[\d+\]/g, '[]').fromQueryString(), t;
+                var result = [];
+                tmp.each(function(value, key, hash) {
+                        if (typeOf(value) == 'array') {
+                                t = [];
+                                value.each(function(v, k, a) {
+                                        t.push(key+'[]='+v);
+                                }.bind(this));
+                                t = t.join('&');
+                                result.push(t);
+                        } else {
+                                result.push(key+'='+value);
+                        }
+                }.bind(this));
+                return result.join('&');
+        }
+});
+Native.implement([Element,Document,Window,String], extFns);
 Array.implement({
         max: function() {
                 return Math.max.apply(Math, this);
@@ -506,4 +533,18 @@ String.implement('toNumber', function(numericType) {
         var f = this.toFloat(), i = this.toInt();
         if (Math.abs(f - i) > 0) return f;
         else return i;
+});
+
+Native.implement([Hash, Array], {
+        equal:function(a, except) {
+                return a.every(function(item, index) {
+                        if (except) except = Array.from(except);
+                        if (except && except.contains(index)) return true;
+                        if (['hash', 'array'].contains(typeOf(item))) {
+                                return item.equal(this[index], except);
+                        } else {
+                                return item == this[index];
+                        }
+                }.bind(this));
+        }
 });

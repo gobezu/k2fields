@@ -1,6 +1,6 @@
 <?php
 //$Copyright$
- 
+
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
@@ -55,9 +55,9 @@ if (!empty($excludes)) {
 require dirname(__FILE__).'/helper.php';
 
 $categories = modK2FieldsHelper::getCategoriesSelector(
-        $categoryselector, 
-        $defaultCategory, 
-        $excludes, 
+        $categoryselector,
+        $defaultCategory,
+        $excludes,
         $includedefaultmenuitem,
         'cid',
         $categoryselectortext
@@ -75,23 +75,32 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         $renderedFields = modK2FieldsHelper::getFields($defaultCategory, $categoryselector == 2, $includedefaultmenuitem, $excludes);
         $catid = JprovenUtility::getK2CurrentCategory($defaultCategory);
         $defaultmode = $params->get('defaultmode', 'active');
+        $showsearchcount  = (bool) $params->get('showsearchcount', 0);
+        $showsearchmax  = (int) $params->get('showsearchmax', 0);
 
         if (empty($catid)) $catid = $defaultCategory;
-        
+
         $app = JFactory::getApplication();
         $option = JFactory::getApplication()->input->get('option');
 
         $path = JModuleHelper::getLayoutPath('mod_k2fields', 'default');
         $path = str_replace(JPATH_BASE, JPATH_SITE, $path);
-        
+
         require $path;
-        
+
         if (!isset($tab)) $tab = 'search';
-        
+
         if (JPluginHelper::importPlugin('k2', 'k2fields')) {
-                plgk2k2fields::loadResources($tab, null, array('module'=>$module->id));
+                plgk2k2fields::loadResources(
+                        $tab,
+                        null,
+                        array(
+                                'module'=>$module->id,
+                                'liveupdate'=>(bool) $params->get('showsearchcountliveupdate', 0)
+                        )
+                );
         }
-        
+
         if ($showfreetextsearch) {
                 $whentogglerempty = $params->get('whentogglerempty', 'inactive');
                 $document = JFactory::getDocument();
@@ -105,13 +114,14 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
                     'minLength'=>$acminchars,
                     'placeHolderClass'=>'placeholder',
                     'placeHolder'=>$placeholder,
-                    'togglerElement'=>'cid', 
+                    'togglerElement'=>'cid',
                     'advancedSearchContainer'=>'ascontainer',
-                    'searchCountUpdate'=>($showsearchcount ? 'true' : 'false'), 
-                    'whenTogglerEmpty'=>$whentogglerempty, 
+                    'searchCountUpdate'=>($showsearchcount ? 'true' : 'false'),
+                    'whenTogglerEmpty'=>$whentogglerempty,
                     'defaultMode'=>$defaultmode,
                     'dontShowIn'=>$dontshowfreetextsearchin,
-                    'width'=>$ftautocompletecustomwidth
+                    'width'=>$ftautocompletecustomwidth,
+                    'searchmax'=>$showsearchmax
                 );
                 $document->addScriptDeclaration("window.addEvent('domready', function(){
                         new JPSearch(document.id('searchboxContainer').getElement('input'),".json_encode($arr).",['cid'],'cid');

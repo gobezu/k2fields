@@ -2,19 +2,19 @@
 
 var k2fieldseditor = new Class({
         Implements: [Options],
-        
+
         options: {nameFldId: 'name', defFldId: 'k2fieldsDefinition', def: '', fieldSeparator:':::'},
-        
+
         defFld: null,
         nameFld: null,
         isNew:true,
         specification: {},
-        
+
         initialize: function(options) {
                 this.setOptions(options);
-                
+
                 this.isNew = !this.existsParam('cid');
-                
+
                 window.addEvent('domready', function() {
                         new Element('div', {'id':'extraFieldsContainer'}).inject($$('form')[0], 'top');
                         this.createSpecification();
@@ -22,13 +22,13 @@ var k2fieldseditor = new Class({
                         document.id('type').set('value', 'textfield');
                         document.id('type').fireEvent('change', [document.id('type')]);
                 }.bind(this));
-                
+
                 window.addEvent('load', function(){
                         this.nameFld = document.id(this.options.nameFldId);
                         this.nameFld.setStyle('display', 'none');
                         this.defFld = new Element('textarea', {
                                 id:this.options.defFldId,
-                                cols:50, 
+                                cols:50,
                                 rows:10,
                                 value: this.options.def || this.nameFld.value,
                                 events: {
@@ -43,44 +43,44 @@ var k2fieldseditor = new Class({
 
         updateFieldDefinition:function() {
                 var def = {}, skipped = {}, subfields = [], specification = Object.clone(this.specification), val, optName, i, vals, _vals;
-                
+
                 new Hash(specification).each (function(ps, id) {
                         optName = this.optName(ps);
-                        
+
                         if (optName == 'values' && skipped['source'] == 'specify') {
                                 ps = this.getProperties(optName, 4);
-                        }                        
-                        
+                        }
+
                         id = k2fs.options.pre + id;
                         val = document.id(id).get('value');
-                        
+
                         if (!val) return;
-                        
+
                         if (ps.ui == 'checkbox' || ps.ui == 'select' && ps.multiple) {
                                 val = val.split(k2fs.options.multiValueSeparator);
                         } else {
                                 val = ps.list ? val.split(k2fs.options.listItemSeparator) : [val];
                         }
-                        
+
                         vals = [];
-                        
+
                         for (i = 0; i < val.length; i++) {
                                 val[i] = val[i].split(k2fs.options.listConditionSeparator);
-                                
+
                                 if (val[i][0]) {
                                         if (ps.list && optName != 'subfields' || ps.valid == 'complex') {
                                                 val[i][0] = val[i][0].split(k2fs.options.valueSeparator);
                                                 _vals = this._filter(val[i][0]);
-                                                
+
                                                 if (_vals.length) vals.push(val[i][0]);
                                         } else {
                                                 vals.push(val[i][0]);
                                         }
                                 }
                         }
-                        
+
                         if (vals.length == 0) return;
-                        
+
                         switch (optName) {
                                 case 'values':
                                         if (skipped['source'] != 'specify') {
@@ -90,12 +90,12 @@ var k2fieldseditor = new Class({
                                                 var j;
                                                 for (i = 0; i < vals.length; i++) {
                                                         for (j = 0; j < vals[i].length; j++)
-                                                                if (!vals[i][j]) 
+                                                                if (!vals[i][j])
                                                                         vals[i][j] = undefined;
                                                         vals[i] = vals[i].clean();
                                                         if (vals[i].length) val.push(vals[i].join('=='));
                                                 }
-                                                val = val.join(ps.sep ? ps.sep : k2fs.options.valueSeparator);                                                
+                                                val = val.join(ps.sep ? ps.sep : k2fs.options.valueSeparator);
                                         }
                                         break;
                                 case 'access':
@@ -133,7 +133,7 @@ var k2fieldseditor = new Class({
                                         break;
                                 case 'levels':
                                         val = [];
-                                        for (i = 0; i < vals.length; i++) val.push(vals[i][1]);  
+                                        for (i = 0; i < vals.length; i++) val.push(vals[i][1]);
                                         val = val.join(k2fs.options.valueSeparator);
                                         break;
                                 default:
@@ -142,7 +142,7 @@ var k2fieldseditor = new Class({
                                                 var j;
                                                 for (i = 0; i < vals.length; i++) {
                                                         for (j = 0; j < vals[i].length; j++)
-                                                                if (!vals[i][j]) 
+                                                                if (!vals[i][j])
                                                                         vals[i][j] = undefined;
                                                         vals[i] = vals[i].clean();
                                                         if (vals[i].length) val.push(vals[i].join('=='));
@@ -155,32 +155,32 @@ var k2fieldseditor = new Class({
                                         }
                                         break;
                         }
-                        
+
                         if (!val) return;
-                        
+
                         if (ps.skip) {
                                 skipped[optName] = val;
                         } else {
                                 def[optName] = val;
                         }
                 }.bind(this));
-                
+
                 var _def = '';
-                
+
                 new Hash(def).each (function(value, name) {
                         if (!value) return;
-                        
+
                         _def += (_def != '' ? ':::' : '') + name + '=' + value;
                 });
-                
+
                 var sec = def['section'] ? def['section'] : this.options['emptysectionname'], search;
-                
+
                 sec = sec ? ' in '+sec : '';
                 search = def['search'] ? def['search'] : 'NOSEARCH';
-                
+
                 if (def['search']) search = search == '1' ? 'SEARCH' : 'SEARCH:'+search;
-                
-                document.id('name').set('value', 
+
+                document.id('name').set('value',
                         skipped['name']+sec+
                         ' / TYPE:'+def['valid']+
                         ' / '+search+' / '+(def['list'] ? 'LIST:'+def['list'] : 'NOLIST')+
@@ -188,14 +188,14 @@ var k2fieldseditor = new Class({
                 );
                 document.id(this.options.defFldId).set('value', 'k2f---' + subfields + _def + '---' + skipped['name']);
         },
-        
+
         createUIWithSections: function() {
                 if (document.id('extraFields')) document.id('extraFields').dispose();
-                
+
                 new Element('div', {'class':'clr'}).inject(document.id('extraFieldsContainer'));
-                
+
                 var uis = {}, specification = Object.clone(this.specification), _id, vals = this.parseValues(), val, optName, css, sectionName, ui, sectionID, uip;
-                
+
                 new Hash(specification).each(function(ps, id) {
                         optName = this.optName(ps);
                         sectionName = this.sectionName(ps);
@@ -226,34 +226,34 @@ var k2fieldseditor = new Class({
                         }
                         new Element('input', {'type':'text', 'id':_id, 'name':_id, 'value':val}).inject(uip.getElement('span'));
                         if (ps.valid == 'complex' && ps.subfields) {
-                                for (var i = 0; i < ps.subfields.length; i++) 
+                                for (var i = 0; i < ps.subfields.length; i++)
                                         specification[id].subfields[i]['subfieldof'] = id;
                         }
                 }.bind(this));
-                
+
                 k2fs.options.fieldsOptions = specification;
                 k2fs.options.isNew = this.isNew;
                 k2fs.utility = new JPUtility({base:k2fs.options.base,k2fbase:k2fs.options.k2fbase});
                 k2fs.wireForm($$('form')[0]);
                 k2fs.createFields();
                 k2fs.containerEl(1);
-                
+
                 document.id('type').getParent('tr').setStyle('display', 'none');
                 document.id('name').getParent('tr').setStyle('display', 'none');
                 document.id('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
         },
-        
-        createUI: function() {
+
+        /*createUI: function() {
                 if (document.id('extraFields')) document.id('extraFields').dispose();
-                
+
                 var ui = new Element('ul', {'id':'extraFields', 'class':'admintable extraFields'}).inject(document.id('extraFieldsContainer')), uip;
-                
+
                 new Element('div', {'class':'clr'}).inject(document.id('extraFieldsContainer'));
-                
+
                 var specification = Object.clone(this.specification), _id;
-                
+
                 var vals = this.parseValues(), val, optName, css;
-                
+
                 new Hash(specification).each(function(ps, id) {
                         optName = this.optName(ps);
                         css = 'prop'+id + ' ' +this.propCSS(id, optName);
@@ -265,54 +265,54 @@ var k2fieldseditor = new Class({
                         val = vals[optName];
                         new Element('input', {'type':'text', 'id':_id, 'name':_id, 'value':val}).inject(uip.getElement('span'));
                         if (ps.valid == 'complex' && ps.subfields) {
-                                for (var i = 0; i < ps.subfields.length; i++) 
+                                for (var i = 0; i < ps.subfields.length; i++)
                                         specification[id].subfields[i]['subfieldof'] = id;
                         }
                 }.bind(this));
-                
+
                 k2fs.options.fieldsOptions = specification;
                 k2fs.options.isNew = this.isNew;
                 k2fs.utility = new JPUtility({base:k2fs.options.base,k2fbase:k2fs.options.k2fbase});
                 k2fs.wireForm($document.id('form')[0]);
                 k2fs.createFields();
-                
+
                 document.id('type').getParent('tr').setStyle('display', 'none');
                 document.id('name').getParent('tr').setStyle('display', 'none');
                 document.id('exFieldsTypesDiv').getParent('tr').setStyle('display', 'none');
-        },
-        
+        },*/
+
         parseValues:function(def) {
                 def = def || this.options.def || document.id('name').get('value');
-                
+
                 def = def.split("\n");
                 def.each(function(s, i){ def[i] = s.trim(); }.bind(this));
                 def = def.join('');
-                
+
                 if (!def) return {};
-                
+
                 def = def.replace(/^k2f---/, '');
-                
+
                 var _defs = {'name':def.substring(def.lastIndexOf('---')+3)};
-                
+
                 if (_defs['name']) {
                         def = def.substring(0, def.lastIndexOf('---'));
-                        
+
                         if (!def) return {};
                 } else {
                         return {};
                 }
-                
+
                 var optName, val, i, n, j, m, v, re;
-                
+
                 def = def.split(':::');
-                
+
                 var props = (new Hash(this.specification).map(function(p) { return p.optName; })).getValues(), custom = [], t, _def;
-                
+
                 for (i = 0, n = def.length; i < n; i++) {
                         val = def[i];
                         optName = val.substr(0, val.indexOf('='));
                         val = val.replace(new RegExp('^'+optName+'='), '');
-                        
+
                         if (!props.contains(optName)) {
                                 custom.push(optName+k2fs.options.valueSeparator+val);
                                 continue;
@@ -324,16 +324,16 @@ var k2fieldseditor = new Class({
                                         _defs['source'] = 'specify';
                                 }
                         }
-                        
+
                         if (optName == 'values' && _defs['source'] == 'specify') {
                                 _def = this.getProperties(optName, 4);
                         } else {
                                 _def = this.getProperties(optName);
                         }
-                        
+
                         if (_def.list || _def.ui == 'checkbox' || _def.ui == 'select' && _def.multiple) {
                                 val = val.split(k2fs.options.valueSeparator);
-                                
+
                                 if (optName == 'levels') {
                                         var levels = [], _levels = this.options.options['listslevels'];
                                         for (j = 0, m = _levels.length; j < m; j++) {
@@ -342,7 +342,7 @@ var k2fieldseditor = new Class({
                                                 }
                                         }
                                 }
-                                
+
                                 for (j = 0, m = val.length; j < m; j++) {
                                         val[j] = val[j].split('==');
 
@@ -358,31 +358,31 @@ var k2fieldseditor = new Class({
 
                                         val[j] = val[j].join(k2fs.options.valueSeparator);
                                 }
-                                
+
                                 val = val.join(
-                                        _def.list ? 
-                                                k2fs.options.listItemSeparator : 
+                                        _def.list ?
+                                                k2fs.options.listItemSeparator :
                                                 k2fs.options.multiValueSeparator
                                 );
                         } else if (optName == 'search') {
                                 if (val != '1' && val != 'true') val = '1'+k2fs.options.multiValueSeparator+val;;
                         }
-                        
+
                         _defs[optName] = val;
                 }
-                
+
                 if (custom.length > 0) _defs['custom'] = custom.join(k2fs.options.listItemSeparator);
-                
+
                 return _defs;
         },
-        
+
         _revSpec:null,
-        
+
         getProperties:function(optName, ind) {
                 if (this._revSpec == null) {
                         var _optName = '';
                         this._revSpec = {};
-                        (new Hash(this.specification).each(function(ps, id) { 
+                        (new Hash(this.specification).each(function(ps, id) {
                                 _optName = this.optName(ps);
                                 if (this._revSpec[_optName]) {
                                         if (typeOf(this._revSpec[_optName]) != 'array') {
@@ -394,20 +394,20 @@ var k2fieldseditor = new Class({
                                 }
                         }.bind(this)));
                 }
-                
+
                 if (!this._revSpec[optName]) return {};
-                
+
                 if (typeOf(this._revSpec[optName]) == 'array') {
                         return this._revSpec[optName][ind !== undefined ? ind : 0];
                 }
-                
-                return this._revSpec[optName]; 
+
+                return this._revSpec[optName];
         },
-        
-                _tgt:function(e) {
+
+        _tgt:function(e) {
                 return e.target ? e.target : e.srcElement;
         },
-        
+
         propagate: function(ifK2f) {
                 var val = ifK2f.value.split(this.options.fieldSeparator);
                 if (val.length < 2 || val[0] != 'k2f') {
@@ -419,7 +419,7 @@ var k2fieldseditor = new Class({
                 for (var i = 0; i < os.length; i++) if (os[i].value == 'textfield') os[i].selected = true;
                 document.id('type').fireEvent('change', [document.id('type')]);
         },
-        
+
         params:function(from) { return (from || document.location.href).fromQueryString(); },
         param:function(name, from) {
                 var p = this.params(from || document.location.href);
@@ -429,31 +429,31 @@ var k2fieldseditor = new Class({
                 var p = this.param(name, from);
                 return p != undefined;
         },
-        
+
         propCSS: function(propId, optName) {
                 propId = propId.toInt();
-                
+
                 var css = 'prop' + optName + ' ' + (propId > 1000 ? 'proptype' : 'propgeneric');
-                
+
                 return css;
         },
-        
+
         sectionName:function(ps) {
                 return ps['section'] ? ps['section'] : 'Additional';
         },
-        
+
         sectionId:function(ps, pre) {
                 var s = (pre||'')+this.sectionName(ps);
                 s = s.replace(/[^0-9a-z]/ig, '');
                 return s;
         },
-        
+
         optName:function(ps) {
                 return ps['optName'] ? ps['optName'] : ps['name'].toLowerCase().replace(/[^a-z0-9]/g, '');
         },
-        
+
         _filter: function(arr) { return arr.filter(function(v){return v!='';});},
-        
+
         createSpecification: function() {
                 this.specification = {
                         '1':{
@@ -1082,6 +1082,7 @@ var k2fieldseditor = new Class({
                                         {'value':'any','text':'Any (text index)'},
                                         {'value':'ex','text':'Existence check (media)'},
                                         {'value':'interval','text':'Interval'},
+                                        {'value':'_list','text':'Hierarchical search'},
                                         {'value':'nearby','text':'Nearby (TBI:map)'}
                                 ],
                                 'sorter':true,
@@ -1420,7 +1421,7 @@ var k2fieldseditor = new Class({
                                                 }
                                         },
                                         {'name':'Hierarchy', 'optName':'hierarchy', 'ui':'checkbox', 'values':[{'value':'*','text':'Yes'}]}
-                                ], 
+                                ],
                                 'tip':'Comma separated values for each field',
                                 'section':'Type specific'
                         },
@@ -1490,7 +1491,7 @@ var k2fieldseditor = new Class({
                                 'deps':{
                                         'pic':['id:1155', 'id:1156'],
                                         'video':['id:1157', 'id:1158']
-                                        
+
                                 },
                                 'sorted':true,
                                 'section':'Type specific'
@@ -1508,7 +1509,7 @@ var k2fieldseditor = new Class({
                                 ],
                                 'deps':{
                                         'provider':['id:1157', 'id:1158']
-                                        
+
                                 },
                                 'sorted':true,
                                 'section':'Type specific',
@@ -1592,7 +1593,7 @@ var k2fieldseditor = new Class({
                                 sorted:true,
                                 section:'Type specific',
                                 tip:'Provide fields of which values to be used as watermark text.'
-                        },                       
+                        },
                         '1161':{
                                 'name':'Watermark left position (horizontal)',
                                 'optName':'watermark_field_left',
@@ -1614,7 +1615,7 @@ var k2fieldseditor = new Class({
                                 'size':100,
                                 'section':'Type specific',
                                 'tip':'Provide file location relative to site root to image to be used as watermark. Separate with %% for several images.'
-                        },                       
+                        },
                         '1164':{
                                 'name':'Watermark left position (horizontal)',
                                 'optName':'watermark_left',
@@ -1641,7 +1642,7 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'tip':'Comma separated list of red, green, blue values. Ex. 0,0,0 or 255,255,255',
                                 'section':'Type specific'
-                        },                       
+                        },
                         '1168':{
                                 'name':'Watermark font size',
                                 'optName':'watermark_font_size',
@@ -1740,7 +1741,7 @@ var k2fieldseditor = new Class({
                                 'tip':'Maximum upload size for audio files',
                                 'default':200
                         },
-                        
+
                         // Type::Date
                         '1201':{
                                 'name':'Date picker theme',
@@ -1765,7 +1766,7 @@ var k2fieldseditor = new Class({
                                         {'value':'H:i:s', 'text':'18:11:59'},
                                         {'value':'H:i', 'text':'18:11'},
                                         {'value':'H.i.s', 'text':'18.11.59'},
-                                        {'value':'H.i', 'text':'18.11'}                                  
+                                        {'value':'H.i', 'text':'18.11'}
                                 ],
                                 'section':'Type specific'
                         },
@@ -1786,7 +1787,7 @@ var k2fieldseditor = new Class({
                                         {'value':'d/m/Y', 'text':'27/08/2008'},
                                         {'value':'d/M/Y', 'text':'27/Aug/2008'},
                                         {'value':'d/F/Y', 'text':'27/August/2008'},
-                                        {'value':'dmy', 'text':'270898'}                                 
+                                        {'value':'dmy', 'text':'270898'}
                                 ],
                                 'section':'Type specific'
                         },
@@ -1807,7 +1808,7 @@ var k2fieldseditor = new Class({
                                         <option value="Y-m-d\TH:i:s\Z">2003-12-13T18:30:02Z</option>
                                 </field>
 
- */                        
+ */
                         '1204':{
                                 'name':'Datetime format',
                                 'optName':'datetimeFormat',
@@ -1859,7 +1860,7 @@ var k2fieldseditor = new Class({
                                 'ui':'radio',
                                 'values':[
                                         {'value':'enddate', 'text':'End date'},
-                                        {'value':'number', 'text':'Number of days'}                                
+                                        {'value':'number', 'text':'Number of days'}
                                 ],
                                 'clearopt':'button',
                                 'tip':'End of repetition mode - limited by enddate or number of allowed repetitions provided in repetition limit below',
@@ -1960,7 +1961,7 @@ var k2fieldseditor = new Class({
                                 section:'Type specific',
                                 tip:'Same as expire except instead of unpublishing we adjust value of a field upon condition met to expire. You will need to either set the value in the following setting or indicate to be deleted.'
                         },
-                        
+
                         '1219':{
                                 'name':'Adjust field to value',
                                 'optName':'adjustfieldvalue',
@@ -2194,13 +2195,13 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'select',
                                 'values':[
-                                        {value:'cloudmade',text:'cloudmade'}, 
-                                        {value:'google',text:'google'}, 
-                                        {value:'googlev3',text:'google v3 (draggable)'}, 
-                                        {value:'leaflet',text:'leaflet (draggable)'}, 
-                                        {value:'mapquest',text:'mapquest'}, 
-                                        {value:'cloudmade',text:'cloudmade'}, 
-                                        {value:'openlayers',text:'openlayers'}, 
+                                        {value:'cloudmade',text:'cloudmade'},
+                                        {value:'google',text:'google'},
+                                        {value:'googlev3',text:'google v3 (draggable)'},
+                                        {value:'leaflet',text:'leaflet (draggable)'},
+                                        {value:'mapquest',text:'mapquest'},
+                                        {value:'cloudmade',text:'cloudmade'},
+                                        {value:'openlayers',text:'openlayers'},
                                         {value:'microsoft',text:'microsoft'},
                                         {value:'yandex',text:'yandex'}
                                 ],
@@ -2377,9 +2378,9 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'ui':'select',
                                 'values':[
-                                        {'value':1, text:'roadmap'}, 
-                                        {'value':2, text:'satellite'}, 
-                                        {'value':3, text:'hybrid'}, 
+                                        {'value':1, text:'roadmap'},
+                                        {'value':2, text:'satellite'},
+                                        {'value':3, text:'hybrid'},
                                         {'value':4, text:'physical'}
                                 ],
                                 'savevalues':'maptypes',
@@ -2471,7 +2472,7 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'tip':'Draggable numerical icons'
                         },
-                        
+
                         '1389':{
                                 'name':'Map icon location',
                                 'optName':'mapiconlocation',
@@ -2557,7 +2558,7 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'default':1
                         },
-                        
+
                         '1401':{
                                 'name':'Source',
                                 'optName':'source',
