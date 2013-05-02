@@ -115,12 +115,19 @@ group by vvv.itemid
 
         public static function getK2PostCategoriesSelector($selectorID, $firstElement) {
                 $module = JprovenUtility::getModule('mod_k2fields', false);
-                $params = $module->params;
-                $defaultCategory = $params->get('defaultcategory', 0);
-                $categoryselector = $params->get('categoryselector', 1);
-                $includedefaultmenuitem = $params->get('includedefaultmenuitem', 1);
-                $excludes = $params->get('excludecategories', array());
-                $categoryselector = $params->get('categoryselector', 1);
+
+                if ($module) {
+                        $params = $module->params;
+                        $defaultCategory = $params->get('defaultcategory', 0);
+                        $categoryselector = $params->get('categoryselector', 1);
+                        $includedefaultmenuitem = $params->get('includedefaultmenuitem', 1);
+                        $excludes = $params->get('excludecategories', array());
+                } else {
+                        $defaultcategory = 0;
+                        $categoryselector = 1;
+                        $includeDefaultMenuItem = 1;
+                        $excludes = array();
+                }
 
                 if (!empty($excludes)) {
                         $excludes = (array) $excludes;
@@ -1479,7 +1486,7 @@ group by vvv.itemid
                 $module->style		= null;
                 $module->position	= strtolower($module->position);
 
-                jimport('joomla.html.parameter');
+                //jimport('joomla.html.parameter');
                 $module->params         = new JRegistry($module->params);
 
                 if ($render) $module->rendered = JModuleHelper::renderModule($module);
