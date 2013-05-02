@@ -4,7 +4,7 @@
  * 1. removal of certain tabs
  * 2. k2item provision
  * 3. removal of J15 dependency
- */ 
+ */
 /**
  * @version		$Id: itemform.php 1812 2013-01-14 18:45:06Z lefteris.kavadas $
  * @package		K2
@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 
 $app = JFactory::getApplication();
 JprovenUtility::load('k2fieldsform.css', 'css');
-  
+
 // honoring preselected catid
 $catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
 $catTitle = '';
@@ -54,11 +54,11 @@ $availableTabs = K2FieldsHelper::$availableTabs;
 
 $parameterNames = array(
     'content' => array('showContentTab', 'K2_CONTENT'),
-    'image' => array('showImageTab', 'K2_IMAGE'), 
-    'gallery'=> array('showImageGalleryTab', 'K2_IMAGE_GALLERY'), 
-    'video'=> array('showVideoTab', 'K2_VIDEO'), 
-    'extrafields'=>array('showExtraFieldsTab', 'K2_EXTRA_FIELDS'), 
-    'attachments'=>array('showAttachmentsTab', 'K2_ATTACHMENTS'), 
+    'image' => array('showImageTab', 'K2_IMAGE'),
+    'gallery'=> array('showImageGalleryTab', 'K2_IMAGE_GALLERY'),
+    'video'=> array('showVideoTab', 'K2_VIDEO'),
+    'extrafields'=>array('showExtraFieldsTab', 'K2_EXTRA_FIELDS'),
+    'attachments'=>array('showAttachmentsTab', 'K2_ATTACHMENTS'),
     'plugins'=>array('showK2Plugins', 'K2_PLUGINS')
 );
 
@@ -68,28 +68,28 @@ if (!empty($tabs) && !empty($catId)) {
         $excludes = $tabs['excludes'];
         $tabs = $tabs['tabs'];
         $tabsCnt = ' class="tabscnt'.count($tabs).'"';
-        
+
         if (!in_array($catId, $excludes) && !empty($tabs)) {
                 $names = array();
-                
+
                 foreach ($tabs as $i => &$tab) {
                         $tab = explode('=', $tab);
                         if (count($tab) == 2) $names[$i] = $tab[1];
                         $tab = $tab[0];
                 }
-                
+
                 unset($tab);
-                
+
                 foreach ($availableTabs as $i => $tab) {
                         $ind = array_search($tab, $tabs);
-                        
+
                         if ($ind === false) {
                                 unset($availableTabs[$i]);
                                 $this->params->set($parameterNames[$tab][0], false);
                         } else if (isset($names[$ind])) {
                                $parameterNames[$tab][1] = $names[$ind];
                         }
-                } 
+                }
         }
 }
 
@@ -137,7 +137,7 @@ if ($task == 'edit') {
         $sel = str_ireplace('<select ', '<select disabled="disabled" ', $sel);
         $this->lists['categories'] = $sel;
 } else if ($task == 'add') {
-        $this->lists['categories'] = JprovenUtility::getK2PostCategoriesSelector('catid', JText::_('K2_SELECT_CATEGORY'));        
+        $this->lists['categories'] = JprovenUtility::getK2PostCategoriesSelector('catid', JText::_('K2_SELECT_CATEGORY'));
 }
 
 $isAdmin = JFactory::getApplication()->isAdmin();
@@ -173,10 +173,10 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 			<?php endif; ?>
                         <?php if ($canPublish) : ?>
 			<div id="k2ToggleSidebarContainer"> <a href="#" id="k2ToggleSidebar"><?php echo JText::_('K2_TOGGLE_SIDEBAR'); ?></a> </div>
-                         <?php 
-                                else: 
+                         <?php
+                                else:
                                 $this->params->set('sideBarDisplayFrontend', 0);
-                                endif; 
+                                endif;
                         ?>
 			<table cellspacing="0" cellpadding="0" border="0" class="adminFormK2Container">
 				<tbody>
@@ -279,7 +279,7 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 								</tr>
 								<?php endif; ?>
 							</table>
-							
+
 							<!-- Tabs start here -->
 							<div class="simpleTabs" id="k2Tabs">
 								<ul class="simpleTabsNavigation">
@@ -305,7 +305,7 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 									<li id="tabPlugins"><a href="#k2Tab7"><?php echo JText::_($this->params->get('pluginstabname')); ?></a></li>
 									<?php endif; ?>
 								</ul>
-								
+
                                                                 <?php if ($this->params->get('showContentTab')): ?>
 								<!-- Tab content -->
 								<div class="simpleTabsContent" id="k2Tab1">
@@ -416,10 +416,10 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 												<input type="file" name="gallery" class="fileUpload" />
 												<i>(<?php echo JText::_('K2_MAX_UPLOAD_SIZE'); ?>: <?php echo ini_get('upload_max_filesize'); ?>)</i>
 												<br />
-                                                                                                <?php if($isAdmn && $this->sigPro): ?>
+                                                                                                <?php if($isAdmin && $this->sigPro): ?>
 												<a class="modal" rel="{handler: 'iframe', size: {x: 940, y: 560}}" href="index.php?option=com_sigpro&view=galleries&task=create&newFolder=<?php echo $this->sigProFolder; ?>&type=k2&tmpl=component">SIGPRO</a>
                                                 <input name="sigProFolder" type="hidden" value="<?php echo $this->sigProFolder; ?>" />
-												<?php endif; ?>                                                                                                
+												<?php endif; ?>
 												<br />
 												<?php echo JText::_('K2_OR_ENTER_A_FLICKR_SET_URL'); ?>
 												<input type="text" name="flickrGallery" size="50" value="<?php echo ($this->row->galleryType == 'flickr')? $this->row->galleryValue : ''; ?>" />
@@ -636,7 +636,7 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 											<?php if($extraField->type == 'header'): ?>
 											<tr>
 												<td colspan="2" ><h4 class="k2ExtraFieldHeader"><?php echo $extraField->name; ?></h4></td>
-											</tr>												
+											</tr>
 											<?php else: ?>
 											<tr>
 												<td align="right" class="key">
@@ -765,7 +765,7 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 								<?php endif; ?>
 							</div>
 							<!-- Tabs end here -->
-							
+
 							<input type="hidden" name="isSite" value="<?php echo (int)$this->mainframe->isSite(); ?>" />
 							<?php if($this->mainframe->isSite()): ?>
 							<input type="hidden" name="lang" value="<?php echo $_input->get('lang', '', 'word'); ?>" />
@@ -1053,12 +1053,12 @@ $isAdmin = JFactory::getApplication()->isAdmin();
 											<?php endforeach; ?>
 										</ul>
 									</fieldset>
-								</div>                                                              
+								</div>
 								<?php endif; ?>
                                                                 <?php if($this->aceAclFlag): ?>
 								<h3><a href="#"><?php echo JText::_('AceACL') . ' ' . JText::_('COM_ACEACL_COMMON_PERMISSIONS'); ?></a></h3>
 								<div><?php AceaclApi::getWidget('com_k2.item.'.$this->row->id, true); ?></div>
-								<?php endif; ?>                                                                
+								<?php endif; ?>
 							</div>
 						</td>
 					</tr>
