@@ -4013,6 +4013,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $rating = '<div class="catItemRatingBlock" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">';
 
                 if ($item->nonk2rating) {
+                        JLoader::register('KomentoRate', JPATH_SITE . '/plugins/komento/rate/rate.class.php');
                         $rater = new KomentoRate();
                         $definition = $rater->getDefinition('com_k2', $item->id);
                         $isPercentage = $definition[0][KomentoRate::COL_SHOWAS] == 'percentage';
