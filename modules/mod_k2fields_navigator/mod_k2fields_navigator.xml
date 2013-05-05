@@ -54,7 +54,7 @@
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
-                                <field name="scale" type="list" default="10" label="Scale (applicable only if tag layout is choosen)">
+                                <field name="scale" type="list" default="5" label="Scale (applicable only if tag layout is choosen)">
                                         <option value="3">3</option>
                                         <option value="4">4</option>
                                         <option value="5">5</option>
