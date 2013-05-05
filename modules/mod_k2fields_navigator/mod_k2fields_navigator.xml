@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="2.5" type="module" method="upgrade" client="site">
+        <name>k2fields navigator</name>
+        <author>$Author$</author>
+        <creationDate>$Date$</creationDate>
+        <copyright>Copyright (C) $Year$ $Owner$. All rights reserved. $Copyrightsee$</copyright>
+        <authorEmail>$Email$</authorEmail>
+        <authorUrl>$Url$</authorUrl>
+        <version>$Ver$</version>
+        <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+        <description>k2fields field navigator</description>
+        <files>
+                <filename module="mod_k2fields_navigator">mod_k2fields_navigator.php</filename>
+                <filename>index.html</filename>
+                <filename>helper.php</filename>
+                <folder>tmpl</folder>
+        </files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_k2fields/elements/">
+                                <field type="lbl" default="Basic" />
+                                <field name="field" type="sql" default="" label="Select field to navigate" description=""
+                                        query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as field FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1"
+                                />
+                                <field name="excludevalues" type="textarea" cols="40" rows="10" label="Exclude field values (one on each row)" />
+                                <field name="ordervaluesby" type="list" default="definition" label="Order values by">
+                                        <option value="definition">As defined</option>
+                                        <option value="value">Value (asc)</option>
+                                        <option value="text">Text (asc)</option>
+                                </field>
+                                <field name="useitemid" type="radio" default="current" label="Itemid to tie results to">
+                                        <option value="menu">Selected menu item (choose below)</option>
+                                        <option value="current">Current menu item</option>
+                                </field>
+                                <field name="menuitemid" type="menuitem" default="" label="Itemid as per above choice" />
+                                <field name="usecatids" type="k2fmulticategories" default="" label="Categories to navigate" />
+                                <field type="lbl" default="Formatting" />
+                                <field name="showcount" type="radio" default="0" label="Show count">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="showimage" type="radio" default="1" label="Show image (if applicable/available)">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="showas" type="radio" default="link" label="Show as">
+                                        <option value="link">Link</option>
+                                        <option value="text">Plain text</option>
+                                </field>
+                                <field name="linktitle" default="Navigate to [text]" type="text" size="50" label="Link title" />
+                                <field name="imagetitle" default="[text]" type="text" size="50" label="Image title" />
+                                <field name="showformat" type="textarea" cols="40" rows="10" label="Show format with available placeholders [text], [value], [image], [link], [count]" description="Overrides other formatting options given above." />
+                                <field name="dontshowempty" type="radio" default="0" label="Don't show empty" description="Don't show values that doesn't have items">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="scale" type="list" default="10" label="Scale (applicable only if tag layout is choosen)">
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                </field>
+                        </fieldset>
+			<fieldset name="advanced">
+                                <field
+                                        name="layout"
+                                        type="modulelayout"
+                                        label="JFIELD_ALT_LAYOUT_LABEL"
+                                        description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+                        </fieldset>
+		</fields>
+	</config>
+</extension>

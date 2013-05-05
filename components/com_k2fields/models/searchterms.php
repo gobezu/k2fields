@@ -240,8 +240,7 @@ class K2FieldsModelSearchterms extends K2Model {
                 $options = $model->getFieldsById($field);
                 $dist = K2FieldsModelFields::setting('nearbyDistance', $options, JFactory::getApplication()->input->get('dist', 10, 'int'));
                 $lim = K2FieldsModelFields::setting('nearbyNum', $options, 10);
-                //$sp = 'CALL #__k2_extra_fields_geodist('.$itemId.','.$lat.','.$lng.','.$field.','.$dist.','.$lim.')';
-                $sp = 'CALL #__k2_extra_fields_geodist(54,'.$lat.','.$lng.','.$field.','.$dist.','.$lim.')';
+                $sp = 'CALL #__k2_extra_fields_geodist('.$itemId.','.$lat.','.$lng.','.$field.','.$dist.','.$lim.')';
                 $this->_db->setQuery($sp);
                 $items = $this->_db->loadResultArray();
                 $this->_db->_resource->next_result();
@@ -846,21 +845,19 @@ class K2FieldsModelSearchterms extends K2Model {
 
                 $pattern = '#^'.$pre.'(\d+)\_(\d+)$#';
                 $terms = array();
-                $url = array();
 
                 foreach ($requestData as $name => $req) {
                         if (!JprovenUtility::isEmpty($req) && preg_match($pattern, $name, $m)) {
                                 if (!isset($terms[$m[1]])) $terms[$m[1]] = array();
 
-                                $url[] = $m[0].'='.$req;
                                 $terms[$m[1]][$m[2]] = array('val' => $req, 'def' => array('complete' => false));
                         }
                 }
 
-                $url = implode('&', $url);
                 $fieldIds = array_keys($terms);
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 self::$_fields = $model->getFieldsById($fieldIds);
+                $url = array();
 
                 foreach ($terms as $fieldId => &$_terms) {
                         foreach ($_terms as $ind => &$_term) {
@@ -913,9 +910,12 @@ class K2FieldsModelSearchterms extends K2Model {
                                                 $_term['_val_'] = $_val_;
                                         }
                                 }
+
+                                $url[] = $pre.$fieldId.'_'.$ind . '=' . $_term['val'];
                         }
                 }
 
+                $url = implode('&', $url);
                 $input = JFactory::getApplication()->input;
 
                 if ($checkRequest) {

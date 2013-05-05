@@ -303,6 +303,7 @@ class plgSystemk2fields extends JPlugin {
 
                 self::checkQuota();
                 self::processListImport();
+                //JprovenUtility::reverseFromValues(49, 28);
 
                 if (JFactory::getApplication()->isSite()) return;
 

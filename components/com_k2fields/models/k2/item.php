@@ -4,7 +4,7 @@
 /** original copyright where changes made are:
  * 1. replaced JSON_Services with native PHP ditto
  * 2. param inheritance, see below
- * 
+ *
  * @version		$Id: item.php 1735 2012-10-12 13:18:12Z lefteris.kavadas $
  * @package		K2
  * @author		JoomlaWorks http://www.joomlaworks.net
@@ -83,7 +83,8 @@ class K2ModelItem extends K2Model
         $item->category->link = urldecode(JRoute::_(K2HelperRoute::getCategoryRoute($category->id.':'.urlencode($category->alias))));
 
         //Read more link
-        $link = K2HelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
+        JLoader::register('K2FieldsHelperRoute', JPATH_SITE.'/components/com_k2fields/helpers/route.php');
+        $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
         $item->link = urldecode(JRoute::_($link));
 
         //Print link
@@ -106,8 +107,8 @@ class K2ModelItem extends K2Model
 
         // start k2fields customization/jproven.com
         JprovenUtility::normalizeK2Parameters($item);
-        // end k2fields customization/jproven.com        
-        
+        // end k2fields customization/jproven.com
+
         //Edit link
         if (K2HelperPermissions::canEditItem($item->created_by, $item->catid))
             $item->editLink = JRoute::_('index.php?option=com_k2&view=item&task=edit&cid='.$item->id.'&tmpl=component');
@@ -1264,9 +1265,9 @@ class K2ModelItem extends K2Model
         $db = JFactory::getDBO();
 
         $query = "SELECT tag.*
-		FROM #__k2_tags AS tag 
-		JOIN #__k2_tags_xref AS xref ON tag.id = xref.tagID 
-		WHERE tag.published=1 
+		FROM #__k2_tags AS tag
+		JOIN #__k2_tags_xref AS xref ON tag.id = xref.tagID
+		WHERE tag.published=1
 		AND xref.itemID = ".(int)$itemID." ORDER BY xref.id ASC";
 
         $db->setQuery($query);

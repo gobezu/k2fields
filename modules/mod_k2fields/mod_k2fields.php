@@ -42,6 +42,7 @@ $acminchars = $params->get('acminchars', 3);
 $acmaxitems = $params->get('acmaxitems', 10);
 $showsearchcount = $params->get('showsearchcount', 1);
 $categoryselectortext = $params->get('categoryselectortext', 'K2_SELECT_CATEGORY');
+$keepDefaultCategoryInHome = (bool) $params->get('keepdefaultcategoryinhome', 0);
 
 $ft = JFactory::getApplication()->input->get('ft', '', 'string');
 
@@ -60,7 +61,8 @@ $categories = modK2FieldsHelper::getCategoriesSelector(
         $excludes,
         $includedefaultmenuitem,
         'cid',
-        $categoryselectortext
+        $categoryselectortext,
+        $keepDefaultCategoryInHome
 );
 
 $singleCategory = strpos($categories, '<input ') !== false;
@@ -72,7 +74,7 @@ $placeholder = JText::_("search")."...";
 if ($ft == $placeholder) $ft = '';
 
 if ($showfreetextsearch || $categoryselector || $showsearchfields) {
-        $renderedFields = modK2FieldsHelper::getFields($defaultCategory, $categoryselector == 2, $includedefaultmenuitem, $excludes);
+        $renderedFields = modK2FieldsHelper::getFields($defaultCategory, $categoryselector == 2, $includedefaultmenuitem, $excludes, $keepDefaultCategoryInHome);
         $catid = JprovenUtility::getK2CurrentCategory($defaultCategory);
         $defaultmode = $params->get('defaultmode', 'active');
         $showsearchcount  = (bool) $params->get('showsearchcount', 0);
@@ -96,7 +98,8 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
                         null,
                         array(
                                 'module'=>$module->id,
-                                'liveupdate'=>(bool) $params->get('showsearchcountliveupdate', 0)
+                                'liveupdate'=>(bool) $params->get('showsearchcountliveupdate', 0),
+                                'liveupdateresult'=>(bool) $params->get('showsearchcountliveupdateresult', 0)
                         )
                 );
         }

@@ -1,7 +1,7 @@
 <?php
 //$Copyright$
 //
-// Based on components/com_k2/templates/default/category.php of which the original 
+// Based on components/com_k2/templates/default/category.php of which the original
 // copyright notice follows below
 
 /**
@@ -16,7 +16,7 @@
 defined('_JEXEC') or die('Restricted access');
 if (plgk2k2fields::catState('isItemlistMap')) {
         echo $this->loadTemplate('map');
-        
+
         if (!K2FieldsMap::showList()) return;
 }
 $_input = JFactory::getApplication()->input;
@@ -143,7 +143,7 @@ $isComponentOnly = $tmpl == 'component';
 
 <?php endif; ?>
 
-<?php 
+<?php
         if (plgk2k2fields::catState('id') != null):
                 $itemlistCSS = plgk2k2fields::catState('itemlistCSS');
         ?>
@@ -152,14 +152,14 @@ $isComponentOnly = $tmpl == 'component';
 		<?php if(isset($this->leading) && count($this->leading)): ?>
 		<!-- Leading items -->
 		<div id="itemListLeading">
-			<?php 
+			<?php
                         $tmplFile = preg_replace('#\.php$#', '', __FILE__);
-                        foreach($this->leading as $key=>$item): 
+                        foreach($this->leading as $key=>$item):
 			// Define a CSS class for the last container on each row
                         $lastContainer= $key+1 == count($this->leading) && !$isComponentOnly ? ' itemContainerLast' : '';
                         $firstContainer = ($key == 0 && !$isComponentOnly) ? ' itemContainerFirst' : '';
 			?>
-			
+
 			<div class="itemContainer<?php echo $firstContainer.$lastContainer; ?>"<?php echo (count($this->leading)==1) ? '' : ' style="width:'.number_format(100/$this->params->get('num_leading_columns'), 1).'%;"'; ?>>
 				<?php
 					$this->item=$item;
@@ -181,7 +181,7 @@ $isComponentOnly = $tmpl == 'component';
 		<!-- Primary items -->
 		<div id="itemListPrimary">
 			<?php foreach($this->primary as $key=>$item): ?>
-			
+
 			<?php
 			// Define a CSS class for the last container on each row
 			if( (($key+1)%($this->params->get('num_primary_columns'))==0) || count($this->primary)<$this->params->get('num_primary_columns') )
@@ -189,7 +189,7 @@ $isComponentOnly = $tmpl == 'component';
 			else
 				$lastContainer='';
 			?>
-			
+
 			<div class="itemContainer<?php echo $lastContainer; ?>"<?php echo (count($this->primary)==1) ? '' : ' style="width:'.number_format(100/$this->params->get('num_primary_columns'), 1).'%;"'; ?>>
 				<?php
 					// Load category_item.php by default
@@ -209,7 +209,7 @@ $isComponentOnly = $tmpl == 'component';
 		<!-- Secondary items -->
 		<div id="itemListSecondary">
 			<?php foreach($this->secondary as $key=>$item): ?>
-			
+
 			<?php
 			// Define a CSS class for the last container on each row
 			if( (($key+1)%($this->params->get('num_secondary_columns'))==0) || count($this->secondary)<$this->params->get('num_secondary_columns') )
@@ -217,7 +217,7 @@ $isComponentOnly = $tmpl == 'component';
 			else
 				$lastContainer='';
 			?>
-			
+
 			<div class="itemContainer<?php echo $lastContainer; ?>"<?php echo (count($this->secondary)==1) ? '' : ' style="width:'.number_format(100/$this->params->get('num_secondary_columns'), 1).'%;"'; ?>>
 				<?php
 					// Load category_item.php by default
@@ -267,19 +267,19 @@ $isComponentOnly = $tmpl == 'component';
 </div>
 
 <!-- Pagination -->
-<?php 
+<?php
 if(count($this->pagination->getPagesLinks()) && !$isComponentOnly) {
         $cid = $_input->get('cid', false, 'int');
         if ($cid = $_input->get('id', $cid, 'int')) {
                 $catTitle = plgk2k2fields::catState('categoryname');
-                $catTitle = JprovenUtility::nize($catTitle, 1);
+                // $catTitle = JprovenUtility::nize($catTitle, 1);
         } else {
                 $catTitle = ' '.JText::_('search results');
         }
 ?>
 <?php if(JprovenUtility::plgParam('k2fields', 'k2', 'paginationmode', 'k2') == 'ajax') { ?>
 <div class="k2Pagination">
-        <?php 
+        <?php
         if($this->params->get('catPagination')) {
                 $data = $this->pagination->getData();
                 if ($data->next->base != null) {
@@ -289,22 +289,22 @@ if(count($this->pagination->getPagesLinks()) && !$isComponentOnly) {
                         $total = $this->pagination->total;
         ?>
         <button <?= ' link="'.$link.'" limit="'.$limit.'" start="'.$start.'" total="'.$total.'" ' ?> id="k2fPageBtn" class="k2fbtn k2fmoreitems" type="submit"><?= JText::_('Show more ').$catTitle ?></button>
-        <?php 
+        <?php
                 }
-        } 
+        }
         ?>
         <div class="clr"></div>
 </div>
 <?php } else { ?>
-	<?php 
+	<?php
         if (count($this->pagination->getPagesLinks())) { ?>
 	<div class="k2Pagination">
 		<?php if ($this->params->get('catPagination')) echo $this->pagination->getPagesLinks(); ?>
 		<div class="clr"></div>
 		<?php if ($this->params->get('catPaginationResults')) echo $this->pagination->getPagesCounter(); ?>
 	</div>
-	<?php } 
-        } 
+	<?php }
+        }
 }
 ?>
 <!-- End K2 Category Layout -->

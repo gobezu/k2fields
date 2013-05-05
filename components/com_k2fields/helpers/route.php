@@ -2,10 +2,10 @@
 
 //$Copyright$
 /**
- * The following is an adaptation of components/com_k2/helpers/route.php in order 
+ * The following is an adaptation of components/com_k2/helpers/route.php in order
  * to accommodate pathway additions of search terms and also expanding the search of matching menu items to
  * include parent category (the whole category path)
- * 
+ *
  * All methods remain the same except getItemRoute which gets addition as per comment below
  */
 /**
@@ -28,23 +28,35 @@ class K2FieldsHelperRoute {
                 );
 
                 $link = 'index.php?option=com_k2&view=item&id=' . $id;
+                $input = JFactory::getApplication()->input;
+                $Itemid = $input->get('Itemid', '', 'int');
+                $option = $input->get('option', '', 'cmd');
+                $cid = $input->get('cid', '', 'int');
 
-                if ($item = self::_findItem($needles)) {
+                if ($catid && $cid == $catid && $Itemid && $option == 'com_k2fields') {
+                        $link .= '&Itemid=' . $Itemid;
+                } else if ($item = self::_findItem($needles)) {
                         $link .= '&Itemid=' . $item->id;
-                } else if ($catid) {
-                        $input = JFactory::getApplication()->input;
-                        $Itemid = $input->get('Itemid', '', 'int');
-                        if ($input->get('option', '', 'cmd') == 'com_k2fields' && 
-                                $input->get('cid', '', 'int') == $catid && $Itemid) {
-                                $link .= '&Itemid=' . $Itemid;
-                        }
                 }
+
+                // $link = 'index.php?option=com_k2&view=item&id=' . $id;
+
+                // if ($item = self::_findItem($needles)) {
+                //         $link .= '&Itemid=' . $item->id;
+                // } else if ($catid) {
+                //         $input = JFactory::getApplication()->input;
+                //         $Itemid = $input->get('Itemid', '', 'int');
+                //         if ($input->get('option', '', 'cmd') == 'com_k2fields' &&
+                //                 $input->get('cid', '', 'int') == $catid && $Itemid) {
+                //                 $link .= '&Itemid=' . $Itemid;
+                //         }
+                // }
 
                 if (!JprovenUtility::isAjaxCall()) {
                         require_once JPATH_SITE . '/components/com_k2fields/models/searchterms.php';
 
                         $s = K2FieldsModelSearchterms::getSearchUrl();
-                        
+
                         if ($s)
                                 $link .= '&' . $s;
                 }
@@ -242,7 +254,7 @@ class K2FieldsHelperRoute {
 		}
 		else if(defined(K2_USERS_ITEMID)) {
 			$link .= '&Itemid='.K2_USERS_ITEMID;
-		}                
+		}
 
                 return $link;
         }

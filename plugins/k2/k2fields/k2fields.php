@@ -14,22 +14,22 @@ JLoader::register('K2Plugin', JPATH_ADMINISTRATOR.'/components/com_k2/lib/k2plug
 class plgk2k2fields extends K2Plugin {
         var $pluginName = 'k2fields';
         var $pluginNameHumanReadable = 'Extending K2';
-        
+
         const AUTO_METATAG_SEPARATOR = 'K2FIELDSAUTOGEN:';
 
         function plgk2k2fields(&$subject, $params) {
                 parent::__construct($subject, $params);
                 $this->loadLanguage('', JPATH_ADMINISTRATOR);
         }
-        
+
         /*** K2 plugin events ***/
         function onK2BeforeDisplay(&$item, &$params, $limitstart) {
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $model->adjustFieldValues($item);
-                
+
                 $this->normalizeMetatag($item, 'metadesc');
                 $this->normalizeMetatag($item, 'metakey');
-                
+
                 if (JprovenUtility::plgParam('k2fields', 'k2', 'override_itemmodel') != '1') {
                         JprovenUtility::normalizeK2Parameters($item);
                 }
@@ -39,53 +39,53 @@ class plgk2k2fields extends K2Plugin {
                         $query = 'SELECT * FROM #__k2_categories WHERE id = '.(int) $item->catid;
                         $db = JFactory::getDbo();
                         $db->setQuery($query);
-                        $item->category = $db->loadObject();                        
+                        $item->category = $db->loadObject();
                 }
-                
+
                 $link = K2FieldsHelperRoute::getItemRoute($item->id.':'.urlencode($item->alias), $item->catid.':'.urlencode($item->category->alias));
 		$item->link = urldecode(JRoute::_($link));
-                
+
                 if (is_string($item->params)) {
                         $item->params = new JRegistry($item->params);
                 }
-                
+
                 if ($item->params->get('itemComments') && $item->params->get('itemRating'))
                         $item->nonk2rating = JPluginHelper::importPlugin('k2', 'k2komento');
-                
+
                 self::setLayout($item);
-                
+
                 // $this->processSearchPlugins($item);
                 return self::processExtrafields('BeforeDisplay', $item, $params, $limitstart);
         }
-        
+
         function onK2AfterDisplay(&$item, &$params, $limitstart) {
                 return self::processExtrafields('AfterDisplay', $item, $params, $limitstart);
         }
-        
+
         function onK2AfterDisplayTitle(&$item, &$params, $limitstart) {
                 return self::processExtrafields('AfterDisplayTitle', $item, $params, $limitstart);
         }
-        
+
         function onK2BeforeDisplayContent(&$item, &$params, $limitstart) {
                 return self::processExtrafields('BeforeDisplayContent', $item, $params, $limitstart);
         }
-        
+
         function onK2AfterDisplayContent(&$item, &$params, $limitstart) {
                 return self::processExtrafields('AfterDisplayContent', $item, $params, $limitstart);
         }
-        
+
         function onK2PrepareContent(& $item, & $params, $limitstart) {
         }
 
         function onK2CategoryDisplay(&$category, &$params, $limitstart) {
                 JprovenUtility::normalizeK2Parameters($category, $params);
-                
+
                 if (self::param('paginationmode', 'k2') == 'ajax') {
                         if (!$params->get('num_leading_items')) {
                                 $num = self::param('itemlistlimit', 20);
                                 $params->set('num_leading_items', $num);
                         }
-                        
+
                         $params->set('num_primary_items', 0);
                         $params->set('num_secondary_items', 0);
                         $params->set('num_links', 0);
@@ -95,26 +95,26 @@ class plgk2k2fields extends K2Plugin {
                 // but if no items are present then this will not work
 //                self::setLayout(null, $category->params);
         }
-        
+
         function onBeforeK2Save(&$item, $isNew) {
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
-                if ($isNew) $model->setDefaultValues();            
+                if ($isNew) $model->setDefaultValues();
                 return $model->preSave($item);
         }
-        
+
         function onAfterK2Save(&$item, $isNew) {
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
                 $model->save($item, $isNew);
-                
+
                 $row = JTable::getInstance('K2Item', 'Table');
                 $row->load($item->id);
-                
+
                 $app = JFactory::getApplication();
                 $isSave = false;
-                
+
                 $glue = self::param('appendtitleglue', ' / ');
                 $meta = $model->generateTitle($item, $glue);
-                
+
                 if ($meta) {
                         $t = explode($glue, $row->title);
                         $meta = $t[0] . $glue . $meta;
@@ -122,25 +122,25 @@ class plgk2k2fields extends K2Plugin {
                         $isSave = true;
                         $row->title = $item->title = $meta;
                 }
-                
+
                 $meta = $model->generateKeywords($item);
-                
+
                 if ($meta) {
                         $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
                         $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
                         $isSave = true;
                         $row->metakey = $item->metakey = $meta;
                 }
-                
+
                 $meta = $model->generateDescription($item);
-                
+
                 if ($meta) {
                         $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
                         $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
                         $isSave = true;
                         $row->metakey = $item->metakey = $meta;
                 }
-                
+
                 if ($isSave) {
                         if (!$row->check()) {
                                 $app->redirect('index.php?option=com_k2&view=item&cid='.$row->id, $row->getError(), 'error');
@@ -148,14 +148,14 @@ class plgk2k2fields extends K2Plugin {
 
                         if (!$row->store()) {
                                 $app->redirect('index.php?option=com_k2&view=items', $row->getError(), 'error');
-                        }                        
+                        }
                 }
-                
+
                 if ($app->isAdmin()) return;
-                
+
                 $action = self::param('actionaftersave', 'closeandload');
                 $js = false;
-                
+
                 switch ($action) {
                         case 'closeandreload':
                                 $js = "window.parent.document.location.reload();";
@@ -171,32 +171,32 @@ class plgk2k2fields extends K2Plugin {
                                 $js = "window.parent.document.location.href='".JRoute::_($link)."';";
                                 break;
                 }
-                
+
                 if ($js) {
                         $msg = $isNew ? JText::_('K2_ITEM_SAVED') : JText::_('K2_CHANGES_TO_ITEM_SAVED');
                         $app = JFactory::getApplication();
                         $app->enqueueMessage($msg, 'info');
                         $app->close("<script type='text/javascript'>".$js."</script>\n");
                 }
-        }        
+        }
 
         function onRenderAdminForm(&$item, $type, $tab = '') {
                 if (JFactory::getApplication()->isAdmin() && ($type == 'item' || $type == 'category'))
                         JprovenUtility::setLayout();
-                
+
                 if ($type == 'item') {
 //                        $input = JFactory::getApplication()->input;
 //                        $option = $input->get('option');
 //                        $view = $input->get('view');
 //                         && $view == 'item'
 
-                        if (JFactory::getApplication()->isSite()) JprovenUtility::setLayout(); 
+                        if (JFactory::getApplication()->isSite()) JprovenUtility::setLayout();
                         if ($tab == 'extra-fields') self::loadResources($tab, $item);
                 } else if ($type == 'user') {
                         // return self::adjustUserFormLayout($item);
                 }
         }
-        
+
         /*** Utility functions ***/
         function normalizeMetatag(&$item, $prop, $replacement = ',') {
                 $rep = strpos($item->$prop, self::AUTO_METATAG_SEPARATOR);
@@ -209,55 +209,55 @@ class plgk2k2fields extends K2Plugin {
                 }
                 $item->$prop = str_replace(self::AUTO_METATAG_SEPARATOR, $rep, $item->$prop);
         }
-        
+
         function _v($arr, $ind, $def='') {
                 $res = JprovenUtility::value($arr, $ind-1, $def);
                 return trim($res);
         }
-        
+
         private static function processExtrafields($caller, &$item, &$params, $limitstart) {
                 if (K2FieldsModelFields::value($item, 'k2item')) return;
-                
+
                $view = JFactory::getApplication()->input->get('view');
                 $_view = $view;
-                
+
                 if ($_view != 'itemlist') $_view = '';
-                
+
                 $pos = K2FieldsModelFields::categorySetting($item->catid, $_view.'catextrafieldsposition');
-                
+
                 if (!$pos) {
                         $pos = self::param($_view.'extrafieldsposition', 'AfterDisplay');
                 } else {
                         $pos = current(current(current($pos)));
                 }
-                
+
                 if ($caller != $pos) return;
-                
+
                 /*
                  * NOTE: due to autofields that doesn't carry values checking presence of fields
                  * can't be validation to reject further parsing. Instead make available field processing
                  * efficient
                  *
                  */
-                
+
                 $inText = false;
                 $tmp = $item->text;
-                
+
                 if (preg_match('#(\{k2f[^\}]*})#i', $tmp, $plg)) {
                         $plg = $plg[0];
                         $inText = true;
                 } else {
                         jimport('joomla.filesystem.file');
-                        
+
                         $plg = '';
                         $view = JFactory::getApplication()->input->get('view');
                         $ids = array('i'.$item->id, 'c'.$item->catid);
-                        
+
                         if ($params->get('parsedInModule')) array_unshift($ids, 'm'.$params->get('module_id'));
-                        
+
                         $file = JprovenUtility::createTemplateFileName(
-                                $params->get('theme'), 
-                                'fields', 
+                                $params->get('theme'),
+                                'fields',
                                 $ids,
                                 $params->get('parsedInModule') ? array('module', 'itemlist') : ''
                         );
@@ -265,7 +265,7 @@ class plgk2k2fields extends K2Plugin {
                         if ($file) {
                                 $plg = JFile::read($file);
                                 $plg = trim($plg);
-                                
+
                                 if (strpos($plg, '{k2fintrotext}') !== false) {
                                         $plg = str_replace('{k2fintrotext}', $item->introtext, $plg);
                                 }
@@ -273,30 +273,30 @@ class plgk2k2fields extends K2Plugin {
                                 if (strpos($plg, '{k2ffulltext}') !== false) {
                                         $plg = str_replace('{k2ffulltext}', $item->fulltext, $plg);
                                 }
-                                
+
                                 if (strpos($plg, '{k2ftitle}') !== false) {
                                         $title = $item->title;
-                                        
+
                                         if (($params->get('parsedInModule') || $view == 'itemlist') && $params->get('catItemTitleLinked')) {
                                                 $title = K2FieldsHelperRoute::createItemLink($item);
                                         }
-                                        
+
                                         $plg = str_replace('{k2ftitle}', $title, $plg);
                                 }
                         }
-                        
+
                         if (empty($plg)) $plg = '{k2f}';
                 }
-                
+
                 $item->text = $plg;
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
-                
+
                 // TODO: TOO obtrusive
                 $item->extra_fields = array();
                 $result = $item->text;
-                
+
                 if ($result) self::loadResources('item', $item);
-                
+
                 if (!empty($item->k2f)) {
                         return '';
                 } else {
@@ -304,53 +304,53 @@ class plgk2k2fields extends K2Plugin {
                         return $inText ? '' : $result;
                 }
         }
-        
+
         private static $catState;
-        
+
         public static function catState($name = '') {
                 if (isset(self::$catState) && !empty($name)) return K2FieldsModelFields::value(self::$catState, $name);
-                
+
                 return null;
         }
-        
+
         // TODO: what happens when we have items from various categories, as in search results
         private static function setLayout(&$item = null, $cparams = null) {
                 $view = JFactory::getApplication()->input->get('view');
-                
+
                 if ($item) {
                         if ($item->params->get('parsedInModule')) return;
-                        
+
                         $item->itemlistCSS = '';
-                        
+
                         $tabular = K2FieldsModelFields::categorySetting($item->catid, 'tabularlayout');
                         $item->isItemlistTabular = $view == 'itemlist' && !empty($tabular);
                         $item->itemlistCSS = $item->isItemlistTabular ? ' itemListTabular' : '';
-                        
+
                         if ($item->isItemlistTabular) $item->itemlistCSS = ' itemListTabular';
-                        
+
                         $map = K2FieldsModelFields::categorySetting($item->catid, 'maplayout');
-                        
+
                         $item->isItemlistMap = $view == 'itemlist' && !empty($map);
-                        
+
                         if ($item->isItemlistMap) $item->itemlistCSS .= ' itemListMap';
-                        
+
                         if (empty(self::$catState)) self::$catState = clone $item;
                 }
-                
+
                 static $isLayoutSet = false;
-                
+
                 if ($isLayoutSet) return;
-                
+
                 $layout = self::param('specificLayout', 'yes');
-                
+
                 if ($layout == 'yes') {
                         $params = JprovenUtility::getK2Params();
-                        
+
                         if (!empty($item) && empty($cparams)) {
                                 if ($item->category instanceof TableK2Category) {
                                         JprovenUtility::normalizeK2Parameters($item->category);
                                         $params = $item->category->params;
-                                        
+
                                         if (is_string($params)) $params = new JRegistry($params);
                                 } else {
                                         if (isset($item->categoryparams)) {
@@ -380,18 +380,18 @@ class plgk2k2fields extends K2Plugin {
                         } else if (!empty($cparams)) {
                                 if (is_string($cparams))
                                         $cparams = new JRegistry($cparams);
-                                
+
                                 $params = $cparams;
                         }
-                        
+
                         $theme = $params->get('theme');
                         $addId = $view == 'item' ? $item->catid : -1;
                         $layout = JprovenUtility::setLayout($theme, null, null, null, $addId);
                 }
-                
+
                 $isLayoutSet = true;
-        }       
-        
+        }
+
         private static function adjustUserFormLayout($item) {
                 // TODO: http://mootools.net/forge/p/form_passwordstrength
                 // Generate user profile fields based on definition in plugin setting
@@ -488,7 +488,7 @@ class plgk2k2fields extends K2Plugin {
 
                 if (empty($xml)) return null;
 
-                $xml = 
+                $xml =
 '<?xml version="1.0" encoding="utf-8"?>
 <k2fields>
 <params group="k2fields" addpath="/administrator/components/com_k2fields/elements">
@@ -514,20 +514,20 @@ class plgk2k2fields extends K2Plugin {
                 $plugin->set('name', 'Extending K2');
                 $plugin->set('fields', $fields);
 
-                return $plugin;                
+                return $plugin;
         }
-        
+
 //        private function addTemplatePathsForItem() {
 //                $option = JRequest::getCmd('option');
 //                $view = JRequest::getWord('view');
-//                
+//
 //                if ($option != 'com_k2' || $view != 'item') return;
-//                
+//
 //                // rating template
 //                $controller = JprovenUtility::getK2Controller();
-//                
+//
 //                if (empty($controller)) return;
-//                
+//
 //                $app = JFactory::getApplication();
 //
 //                $dirs = array(
@@ -542,54 +542,54 @@ class plgk2k2fields extends K2Plugin {
 //                $document = JFactory::getDocument();
 //                $viewType = $document->getType();
 //                $view = $controller->getView($view, $viewType);
-//                
-//                foreach ($dirs as $dir) 
+//
+//                foreach ($dirs as $dir)
 //                        $view->_addPath('template', $dir);
 //        }
-        
+
         /*** utilities ***/
         public static function param($name, $value = '', $dir = 'get') {
                 if ($dir == 'get') return JprovenUtility::plgParam('k2fields', 'k2', $name, $value, $dir);
-                
+
                 JprovenUtility::plgParam('k2fields', 'k2', $name, $value, $dir);
-        }        
-        
+        }
+
         static function getMode($tab) {
                 return $tab == 'extra-fields' ? 'edit' : $tab;
         }
-        
+
         static function getFieldPrefix($tab = null) {
                 if (empty($tab)) {
                         $type = JFactory::getApplication()->input->get('type', '');
-                        
+
                         if ($type == 'searchfields') {
                                 $tab = 'search';
                         }
-                } 
-                
+                }
+
                 if ($tab == 'search' || $tab == 'menu') return 's';
                 else if ($tab == 'editfields') return 'ef';
                 else return 'K2ExtraField_';
 //                return $tab == 'search' || $tab == 'menu' ? 's' : 'K2ExtraField_';
         }
-        
+
         public static function loadResources($tab = null, $item = null, $addParams = null) {
 //                if ($tab != 'search' && !K2FieldsModelFields::isFieldsRendered()) return;
-                
+
                 static $jsK2fDone = false, $jsDone = false, $cssDone = false, $compressedLoaded = false;
-                
+
                 //  && K2FieldsModelFields::isRenderedTypes('map')
                 if ($tab != 'search') {
                         K2FieldsMap::loadResources($item, null, true);
                 }
-                
+
                 if ($tab == 'menu') K2HelperHTML::loadjQuery();
-                
+
                 if (!$cssDone) {
                         JprovenUtility::load('k2fields.css', 'css');
                         $cssDone = true;
                 }
-                
+
                 if (!$jsDone) {
 //                        if (K2FieldsModelFields::isRenderedTypes(array('date', 'datetime', 'duration'))) {
                                 JprovenUtility::loc(true, true, 'lib/datepicker.js', true);
@@ -597,19 +597,19 @@ class plgk2k2fields extends K2Plugin {
                                 // TODO: Pick the theme from the field
                                 JprovenUtility::loc(true, true, 'lib/datepicker/'.$theme.'/'.$theme.'.css', true, 'css');
 //                        }
-                        
+
                         // Loading order here is important as there is dependency
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Formular/formular.js', true);
                                 JprovenUtility::loc(true, true, 'lib/Formular/formular.css', true, 'css');
                         }
-                        
+
                         JprovenUtility::loc(true, true, 'lib/autocompleter.js', true);
-                        
+
                         if ($tab == 'menu') {
                                 JprovenUtility::load('jpmenuitemhandler.js', 'js');
                         }
-                        
+
                         if (JFile::exists(JPATH_SITE.'/media/k2fields/js/k2fields.all.js')) {
                                 $ver = "$Ver$";
                                 JprovenUtility::load('k2fields.all.js?v='.$ver, 'js');
@@ -623,15 +623,15 @@ class plgk2k2fields extends K2Plugin {
                                 JprovenUtility::load('k2fields.js', 'js');
                                 JprovenUtility::load('jpprocessor.js', 'js');
                         }
-                        
+
                         $modalize = JprovenUtility::plgParam('k2fields', 'k2', 'modalizelinks');
-                        
+
                         if (!empty($modalize)) {
                                 $modalizes = explode("\n", $modalize);
                                 $uri = JURI::getInstance();
                                 $path = $uri->getPath();
                                 if (strpos($path, 'index.php') === false) $path = $path . 'index.php';
-                                
+
                                 foreach ($modalizes as &$modalize) {
                                         $modalize = explode(K2FieldsModelFields::VALUE_SEPARATOR, $modalize);
                                         if ($modalize[0]) $modalize[0] = JURI::root(true).'/'.$modalize[0];
@@ -640,53 +640,53 @@ class plgk2k2fields extends K2Plugin {
                         } else {
                                 $modalizes = array();
                         }
-                        
+
                         $returnvalue = JFactory::getURI();
 			$returnvalue = $returnvalue->toString(array('path', 'query', 'fragment'));
                         $returnvalue = base64_encode($returnvalue);
-                        
+
                         $returnvalue = array(array(JURI::root(true).'/logout', JURI::root(true).'/index.php?option=com_user&task=logout', $returnvalue));
-                        
+
                         JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });');
-                        
+
                         $jsDone = true;
                 }
-                
+
                 if (in_array($tab, array('force', 'extra-fields', 'search', 'menu', 'editfields')) && !$jsK2fDone) {
                         if (!$compressedLoaded && JprovenUtility::plgParam('k2fields', 'k2', 'preloadjsmodules', true) && $tab != 'k2fields-editor') {
                                 static $modules = array('complex', 'list', 'map', 'media', 'k2item');
-                                
+
                                 JprovenUtility::load('k2fieldsbasic.js', 'js');
-                                
+
                                 foreach ($modules as $module) {
 //                                        if (K2FieldsModelFields::isRenderedTypes('list')) {
                                                 JprovenUtility::load('k2fields'.$module.'.js', 'js');
 //                                        }
                                 }
                         }
-                        
+
                         K2Model::getInstance('searchterms', 'k2fieldsmodel');
-                        
+
                         $params = self::addJSParams($tab, $addParams);
-                        
+
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Form.AutoGrow.js', true);
                                 JprovenUtility::loc(true, true, 'lib/Form.Placeholder.js', true);
                         }
-                        
+
                         $jsK2fDone = true;
-                        
+
                         if ($tab == 'search') {
                                 JprovenUtility::load('jpsearch.js', 'js');
                         }
-                }        
+                }
         }
-        
+
         public static function addJSParams($tab, $addParams = null) {
                 static $isAdded = false;
-                
+
                 if ($isAdded) return;
-                
+
                 $params = array(
                         'listItemSeparator' => K2FieldsModelFields::LIST_ITEM_SEPARATOR,
                         'listConditionSeparator' => K2FieldsModelFields::LIST_CONDITION_SEPARATOR,
@@ -710,25 +710,25 @@ class plgk2k2fields extends K2Plugin {
                 $params = json_encode($params);
 
                 $params = 'var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields('.$params.');';
-                
+
                 JprovenUtility::addDeclaration($params, 'script');
-                        
+
                 $isAdded = true;
-                
+
                 return $params;
         }
-        
+
         static function getExtendables() {
                 jimport('joomla.filesystem.folder');
-                
+
                 $loc = JprovenUtility::loc(false, true) . 'js';
                 $files = JFolder::files($loc, 'k2fields[a-z0-9]+\.js', false, false);
-                
+
                 foreach ($files as &$file) $file = str_replace(array('k2fields', '.js'), '', $file);
-                
+
                 return $files;
         }
-        
+
         function processSearchPlugins(&$item) {
                 $searchRecord = K2FieldsModelFields::categorySetting($item->catid, 'autorelatedlistgenerate');
                 $o = new stdClass();
@@ -736,12 +736,12 @@ class plgk2k2fields extends K2Plugin {
                 $o->text = $item->text;
                 $o->id = $item->id;
                 $plg = '';
-                
+
                 if (!empty($searchRecord)) {
                         $foundCat = JprovenUtility::firstKey($searchRecord);
                         $searchRecord = JprovenUtility::first($searchRecord);
                         $searchRecord = $searchRecord[0];
-                        
+
                         // 0. search within categoryid
                         // 1. generate as(url,list)
                         // 2. based on (tag|keyword|density based keyword(TBI)|fieldids,fieldposition)
@@ -756,37 +756,37 @@ class plgk2k2fields extends K2Plugin {
                         $colPos = 6;
                         $colExcludeSubCat = 7;
                         $colExcludeSearchSubCat = 8;
-                        
+
                         $excluded = false;
                         $excluded = self::_v($searchRecord, $colExcludeSubCat, false);
-                        
+
                         if (!empty($excluded)) {
                                 $excluded = explode(',', $excluded);
 
-                                $excluded = in_array($item->catid, $excluded) || 
+                                $excluded = in_array($item->catid, $excluded) ||
                                         (in_array('all', $excluded) && $foundCat != $item->catid);
                         }
-                        
+
                         if (!$excluded) {
                                 $plg = '{k2fsearch ';
-                                
+
                                 $catid = self::_v($searchRecord, $colSearchCat);
-                                
+
                                 if (!empty($catid))
                                         $plg .= ' cid='.$catid;
-                                
+
                                 $as = self::_v($searchRecord, $colAs, self::param('defaultrelatedas'));
-                                
+
                                 if (!empty($as))
                                         $plg .= ' as='.$as;
-                                
+
                                 $searchValues = self::_v($searchRecord, $colFixedValue);
                                 $basedOn = self::_v($searchRecord, $colBase);
-                                
+
                                 if (empty($basedOn) && empty($searchValues)) {
                                         $basedOn = 'keyword';
                                 }
-                                
+
                                 if ($basedOn == 'tag') {
                                         // TBI
                                         $query = 'SELECT DISTINCT t.name FROM #__k2_tags AS t, #__k2_tags_xref r WHERE t.id = r.tagID AND r.itemID = '.$item->id;
@@ -796,7 +796,7 @@ class plgk2k2fields extends K2Plugin {
                                 } else if ($basedOn == 'keyword') {
                                         // TBI
                                         $searchValues = $item->metakey;
-                                        
+
                                         if (!empty($searchValues)) {
                                                 if (strpos($searchValues, '||')) {
                                                         $searchValues = explode('||', $searchValues);
@@ -812,28 +812,28 @@ class plgk2k2fields extends K2Plugin {
                                         K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
                                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                                         $ids = array();
-                                        
+
                                         foreach ($flds as $fld) {
-                                                if (!is_numeric($fld)) 
+                                                if (!is_numeric($fld))
                                                         list($fld, $pos) = explode(',', $fld);
-                                                
-                                                $ids[] = $fld;        
+
+                                                $ids[] = $fld;
                                         }
-                                        
+
                                         $_searchValues = $model->itemValues($item->id, $ids);
                                         $searchValues = array();
-                                        
+
                                         foreach ($flds as $fld) {
                                                 $pos = -1;
-                                                
-                                                if (!is_numeric($fld)) 
+
+                                                if (!is_numeric($fld))
                                                         list($fld, $pos) = explode(',', $fld);
-                                                
+
                                                 $ids[] = $fld;
-                                                
+
                                                 if (isset($_searchValues[$fld])) {
                                                         $val = $_searchValues[$fld];
-                                                        
+
                                                         foreach ($val as $v) {
                                                                 if ($pos != -1 && $v->partindex == $pos || $v->partindex != -1) {
                                                                         $searchValues[] = $v->value;
@@ -843,17 +843,17 @@ class plgk2k2fields extends K2Plugin {
                                                 }
                                         }
                                 }
-                                
+
                                 if (!empty($searchValues) && ($basedOn == 'keyword' || $basedOn == 'tag')) {
                                         $val = $searchValues;
                                         $searchValues = array();
-                                        
+
                                         foreach ($val as $v)
                                                 $searchValues[] = explode('|', $v);
-                                        
+
                                         if ($basedOn == 'keyword') {
                                                 $act = (bool) self::param('removekeywordrelated');
-                                                
+
                                                 if ($act) {
                                                         $item->metakey = '';
                                                 } else {
@@ -861,71 +861,71 @@ class plgk2k2fields extends K2Plugin {
                                                 }
                                         }
                                 }
-                                
+
                                 if (empty($basedOn) || empty($searchValues)) {
                                         $searchValues = self::_v($searchRecord, $colFixedValue);
                                         $basedOn = 'fixed';
                                 }
-                                
+
                                 if ($basedOn == 'fixed' && !empty($searchValues)) {
                                         $searchValues = explode('||', $searchValues);
-                                        
-                                        foreach ($searchValues as &$searchValue) 
+
+                                        foreach ($searchValues as &$searchValue)
                                                 $searchValue = explode('|', $searchValue);
                                 }
-                                
+
                                 $searchIn = self::_v($searchRecord, $colSearchIn, 'text');
-                                
+
                                 if ($searchIn == 'text') {
                                         $plg .= ' ft='.$searchValues;
                                 } else if (!empty($searchIn)) {
                                         $sFlds = explode('||', $searchIn);
                                         $searchIn = 'fields';
-                                        
+
                                         foreach ($sFlds as $i => $sFld) {
                                                 foreach ($searchValues[$i] as $val)
                                                         $plg .= ' '.$sFld.'='.$val;
                                         }
                                 }
-                                
-                                if (empty($searchIn)) 
+
+                                if (empty($searchIn))
                                         $plg = '';
                         }
-                        
+
                         if (!empty($plg)) {
                                 $plg .= '}';
-                                
+
                                 $pos = self::_v($searchRecord, $colPos, self::param('defaultrelatedposition'));
-                                
+
                                 switch ($pos) {
                                         case 'start':
                                         case 'first':
                                                 $o->text = $plg . $o->text;
-                                                
+
                                                 break;
                                         case 'afterintro':
                                         case 'beforefull':
                                                 list($intro, $full) = explode('{K2Splitter}', $o->text);
-                                                
+
                                                 if ($pos == 'afterintro') {
                                                         $intro .= $plg;
                                                 } else if ($pos == 'beforefull') {
                                                         $full = $plg . $full;
                                                 }
-                                                
+
                                                 $o->text = $intro . '{K2Splitter}' . $full;
-                                                
+
                                                 break;
                                         case 'last':
                                         case 'end':
                                         default:
                                                 $o->text .= $plg;
-                                                
+
                                                 break;
                                 }
                         }
                 }
-                
+
                 $o = JprovenUtility::replacePluginValues($o, 'k2fsearch');
                 $item->text = $o->text;
         }

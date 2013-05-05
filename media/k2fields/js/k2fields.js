@@ -22,6 +22,7 @@ var k2fields = new Class({
         utility: null,
         lookup: [],
         currenttabindex:null,
+        isLoaded:false,
         basicTypes: [
                 'select',
                 'textarea',
@@ -101,7 +102,7 @@ var k2fields = new Class({
                         if (!this.isIMode('menu')) this.createFields();
                         else this.menuItemHandler.init();
 
-                        if (this.isMode('search')) this.getSearchCount(false, true);
+                        if (this.isMode('search') && !this['callSearchCount']) this.getSearchCount(false, true);
                 }.bind(this));
         },
 
@@ -132,15 +133,32 @@ var k2fields = new Class({
                 }
         },
 
+        callSearchCount:false,
+        isSearchCounting:false,
+        isSubmitRequested:false,
         processingEnd: function() {
+                this.isLoaded = true;
                 if (this.isMode('search')) {
                         this.categoryEl().fireEvent('processingEnd', [this.categoryEl()]);
+                        if (this.callSearchCount) this.getSearchCount(false, true);
                 } else {
                         this.containerEl().fireEvent('processingEnd', [this.containerEl()]);
                 }
         },
 
         getSearchCount: function(isTrySubmit, isFirst) {
+                if (!this.isLoaded) {
+                        this.callSearchCount = true;
+                        return;
+                }
+
+                if (this.isSearchCounting) {
+                        this.isSubmitRequested = isTrySubmit;
+                        return;
+                }
+
+                this.isSearchCounting = true;
+
                 var
                         url = this.form()._toQueryString().fromQueryString(),
                         doc = document.location.href.fromQueryString()
@@ -151,7 +169,11 @@ var k2fields = new Class({
                         return;
                 }
 
-                var _url = url;
+                if (isTrySubmit) {
+                        this.isSearchCounting = false;
+                        return this._getSearchCount(isFirst, isTrySubmit, url);
+                }
+
                 url['task'] = 'count';
                 url = 'index.php?'+url._toQueryString();
 
@@ -162,22 +184,39 @@ var k2fields = new Class({
                         noCache:true,
                         onComplete: function(response){
                                 this.searchCount = response.count;
-                                document.id('k2fsearchcount').getElement('span:last-child').set('text', response.count);
-                                if (isTrySubmit) {
-                                        if (response.max > 0) {
-                                                if (response.count == 0) {
-                                                        alert('No results found.\n\nPlease revise your search criteria and try again.');
-                                                        return false;
-                                                }
-                                                if (response.max && response.count > response.max) {
-                                                        alert('Provided search criteria is too wide, returning too many results.\n\nPlease revise your search criteria and try again.');
-                                                        return false;
-                                                }
-                                        }
-                                        document.location.href = 'index.php?'+_url._toQueryString();
-                                }
+                                this.searchMax = response.max;
+                                document.id('k2fsearchcount').getElement('span:last-child').set('text', this.searchCount);
+                                this._getSearchCount(isFirst, isTrySubmit || this.isSubmitRequested, url);
+                                this.isSearchCounting = false;
                         }.bind(this)
                 }).send();
+        },
+
+        _getSearchCount: function(isFirst, isTrySubmit, url) {
+                if (isFirst) return;
+
+                if (isTrySubmit || this.options.liveupdateresult) {
+                        if (this.searchMax > 0) {
+                                if (this.searchCount == 0) {
+                                        if (isTrySubmit) {
+                                                alert('No results found.\n\nPlease revise your search criteria and try again.');
+                                        }
+                                        return false;
+                                }
+                                if (this.searchMax && this.searchCount > this.searchMax) {
+                                        document.id('k2fsearchcount').getElement('span:last-child').addClass('k2fsearchcountmaxreached');
+                                        if (isTrySubmit) {
+                                                alert('Provided search criteria is too wide, returning too many results.\n\nPlease revise your search criteria and try again.');
+                                        }
+                                        return false;
+                                }
+                        }
+                        if (typeof url == 'string') url = url.fromQueryString();
+                        url['task'] = 'search';
+                        url = 'index.php?'+url._toQueryString();
+                        document.location.href = url;
+                }
+
         },
 
         getFieldsDefinition: function() {
@@ -247,7 +286,7 @@ var k2fields = new Class({
                         if (c.get('value') == '') return;
                         c = c.get('init-itemid');
                 }
-                this.form().getElement('[name=Itemid]').set('value', c);
+                if (c) this.form().getElement('[name=Itemid]').set('value', c);
         },
 
         categoryId: function() {

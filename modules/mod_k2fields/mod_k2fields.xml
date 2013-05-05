@@ -53,6 +53,12 @@
                                         <option value="0">No</option>
                                 </field>
                                 <field name="defaultcategory" type="k2fcategories" default="" label="Select a default search category" description="Select a category which you want to be selected as active when no category is actively choosen by user." />
+
+                                <field name="keepdefaultcategoryinhome" type="radio" default="0" label="Keep default category in home" description="">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+
                                 <field name="excludecategories" type="k2fmulticategories" default="" label="Exclude categories" />
                                 <field name="whennocategory" type="radio" default="selectcategorymessage" label="Show when no category is selected">
                                         <option value="defaultfields">Default fields</option>
@@ -81,6 +87,10 @@
                                         <option value="0">No</option>
                                 </field>
                                 <field name="showsearchcountliveupdate" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes searchc criteria">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="showsearchcountliveupdateresult" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes searchc criteria">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>

@@ -45,12 +45,12 @@ from (
 	select vv.itemid, vv.listindex, group_concat(vv.val separator '%%') as val
 	from (
 		select v.itemid, v.listindex, v.partindex, group_concat(v.value separator '-%-%-') as val
-		from jos_k2_items i inner join jos_k2_extra_fields_values v on i.id = v.itemid and i.catid = ".$catId." and v.fieldid = ".$fieldId."
+		from #__k2_items i inner join #__k2_extra_fields_values v on i.id = v.itemid and i.catid = ".$catId." and v.fieldid = ".$fieldId."
 		group by v.itemid, v.listindex, v.partindex
 		order by v.itemid, v.listindex, v.partindex, v.`index` asc
 	) as vv
 	group by vv.itemid, vv.listindex
-) as vvv inner join jos_k2_items ii on vvv.itemid = ii.id
+) as vvv inner join #__k2_items ii on vvv.itemid = ii.id
 group by vvv.itemid
 ";
                 $db = JFactory::getDBO();
@@ -62,17 +62,27 @@ group by vvv.itemid
 
                 foreach ($items as $itemId => $item) {
                         $vals = json_decode($item->oef);
+                        $found = false;
 
-                        foreach ($vals as $val) {
+                        foreach ($vals as &$val) {
                                 if ($val->id == $fieldId) {
+                                        $found = true;
                                         $val->value = $item->ef;
-                                        $vals = json_encode($vals);
-                                        $row->load($itemId);
-                                        $row->extra_fields = $vals;
-                                        $row->store();
                                         break;
                                 }
                         }
+
+                        if (!$found) {
+                                $val = new stdClass();
+                                $val->id = $fieldId;
+                                $val->value = $item->ef;
+                                $vals[] = $val;
+                        }
+
+                        $vals = json_encode($vals);
+                        $row->load($itemId);
+                        $row->extra_fields = $vals;
+                        $row->store();
                 }
         }
         /**
@@ -176,7 +186,19 @@ group by vvv.itemid
                 }
         }
 
-        public static function getK2CurrentCategory($defaultCategory, $isBasedOnMenu = true, $includeDefaultMenuItem = false, $excludes = array()) {
+        public static function getK2CurrentCategory(
+                $defaultCategory,
+                $isBasedOnMenu = true,
+                $includeDefaultMenuItem = false,
+                $excludes = array(),
+                $keepDefaultCategoryInHome = false) {
+                if ($keepDefaultCategoryInHome && $defaultCategory) {
+                        $menu = JFactory::getApplication()->getMenu();
+                        if ($menu->getActive() == $menu->getDefault()) {
+                                return $defaultCategory;
+                        }
+                }
+
                 $input = JFactory::getApplication()->input;
                 $option = $input->get('option');
 
@@ -345,10 +367,11 @@ group by vvv.itemid
                 $firstElement = '',
                 $onlyValues = false,
                 $overrideSelector = true,
-                $hiddenIfOne = false
+                $hiddenIfOne = false,
+                $keepDefaultCategoryInHome = false
         ) {
                 if ($categoriesId == 'cid' || $categoriesId == 'catid')
-                        $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem, $excludes);
+                        $currentCatid = self::getK2CurrentCategory($defaultCategory, $categoryselector == 2, $includeDefaultMenuItem, $excludes, $keepDefaultCategoryInHome);
                 else
                         $currentCatid = '';
 
