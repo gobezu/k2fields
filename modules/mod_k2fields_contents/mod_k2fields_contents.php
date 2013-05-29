@@ -52,25 +52,25 @@ if (!empty($itemList) && count($itemList) > 0) {
         $thumbNailLayout = modK2fieldsContentsHelper::layout($module, $params, 'thumbnail');
         $captionLayout = modK2fieldsContentsHelper::layout($module, $params, 'caption');
         $template = JModuleHelper::getLayoutPath($module->module, $templateName.'/default');
-        
+
         $document = JFactory::getDocument();
-        
+
         if ($params->get('addJQuery')) {
                 $document->addScript(JURI::base().'/media/mod_'.$module->name.'/jquery-1.7.1.min.js');
         }
-        
+
         if ($params->get('addJQueryEasing')) {
                 $document->addScript(JURI::base().'/media/mod_'.$module->name.'/jquery.easing.1.3.js');
         }
-        
+
         $mediaFolder = 'media/mod_'.$module->name.'/'.$templateName.'/';
-        
+
         $moduleHeight = $params->get('module_height', 'auto');
         if ($moduleHeight != 'auto') $moduleHeight = (int) $moduleHeight.'px';
-        
+
         $moduleWidth = $params->get('module_width', 'auto');
         if ($moduleWidth != 'auto') $moduleWidth = (int) $moduleWidth.'px';
-        
+
         $moduleSize = 'height:'.$moduleHeight.';width:'.$moduleWidth;
 
         if ($isPartitioned) {
@@ -85,38 +85,38 @@ if (!empty($itemList) && count($itemList) > 0) {
                 $partitionId = $templateName.$module->id;
                 $partitionIds = array($partitionId);
         }
-        
+
         $templateParams = str_replace('default.php', 'params.php', $template);
-        
+
         if (JFile::exists($templateParams)) require $templateParams;
-        
+
         if ($isPartitioned) {
                 $partitionTemplate = $params->get('partition_template', 'joomla_tabs');
                 $allowEmpty = (bool) $params->get('allow_empty_partitions', false);
-                
+
                 if ($partitionTemplate != $templateName) {
                         $partitionMediaFolder = 'media/mod_'.$module->name.'/'.$partitionTemplate.'/';
-                        
-                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'script.js')) 
+
+                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'script.js'))
                                 $document->addScript(JURI::base().$partitionMediaFolder.'script.js');
 
-                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'style.css')) 
-                                $document->addStyleSheet(JURI::base().$partitionMediaFolder.'style.css');                        
+                        if (JFile::exists(JPATH_SITE.'/'.$partitionMediaFolder.'style.css'))
+                                $document->addStyleSheet(JURI::base().$partitionMediaFolder.'style.css');
                 }
-                
+
                 require dirname(__FILE__).'/tmpl/_partition/'.$partitionTemplate.'.php';
         } else {
                 $list = $itemList;
                 require $template;
         }
-        
+
         $templateWrap = str_replace('default.php', 'wrap.php', $template);
-        
+
         if (JFile::exists($templateWrap)) require $templateWrap;
-        
-        if (JFile::exists(JPATH_SITE.'/'.$mediaFolder.'script.js')) 
+
+        if (JFile::exists(JPATH_SITE.'/'.$mediaFolder.'script.js'))
                 $document->addScript(JURI::base().$mediaFolder.'script.js');
-        
-        if (JFile::exists(JPATH_SITE.'/'.$mediaFolder.'style.css')) 
+
+        if (JFile::exists(JPATH_SITE.'/'.$mediaFolder.'style.css'))
                 $document->addStyleSheet(JURI::base().$mediaFolder.'style.css');
 }

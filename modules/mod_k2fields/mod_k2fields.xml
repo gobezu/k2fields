@@ -82,26 +82,30 @@
                                         <option value="active">Visible</option>
                                 </field>
                                 <field type="lbl" default="Search count" />
+                                <field name="searchcountlabel" type="text" width="100" default="Search count" label="Search count label" />
                                 <field name="showsearchcount" type="radio" default="0" label="Show search count">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
-                                <field name="showsearchcountliveupdate" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes searchc criteria">
+                                <field name="showsearchcountliveupdate" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes search criteria">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
-                                <field name="showsearchcountliveupdateresult" type="radio" default="0" label="Update search count instantly" description="Update search count as soon as user changes searchc criteria">
+                                <field name="showsearchcountliveupdateresult" type="radio" default="0" label="Submit search form instantly" description="Submit search form as soon as user changes search criteria">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
-                                <field name="searchcountmax" type="textarea" cols="40" rows="10" default="all%%10" label="Restrict submission (per category)" description="Disallow search query unless count is less than the provided value (per category)" />
+                                <field name="searchcountmax" type="textarea" cols="40" rows="10" default="all%%20" label="Restrict search (per category)" description="Disallow search query unless count is less than the provided value (per category = per row)" />
                                 <field type="lbl" default="Misc" />
+                                <field name="chosenize" type="radio" default="1" label="Apply chosen on category selector" description="Applies only if category selector is shown above">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                </field>
+                                <field name="chosenizelabel" type="text" width="100" default="Category" label="Chosen label" />
                                 <field name="showorderby" type="radio" default="1" label="Allow user to order by">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
                                 </field>
-                                <field name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
-
                         </fieldset>
 			<fieldset name="advanced">
 				<field

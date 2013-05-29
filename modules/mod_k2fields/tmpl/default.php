@@ -8,10 +8,10 @@ defined('_JEXEC') or die('Restricted access');
 <form name="searchForm" method="get" action="index.php">
         <ul id="searchFormContainer">
         <? if ($showsearchcount): ?>
-        <li id="k2fsearchcount"><span><?php echo JText::_('Search count') ?></span><span></span></li>
+        <li id="k2fsearchcount"><span><?php echo $searchcountlabel ?></span><span></span></li>
         <? endif; ?>
 
-        <? if ($categoryselector || $showsearchfields): ?>
+        <? if ($categoryselector || $showsearchfields) : ?>
         <li id="k2categoriesContainer"><?php echo $categories; ?></li>
         <? endif; ?>
 

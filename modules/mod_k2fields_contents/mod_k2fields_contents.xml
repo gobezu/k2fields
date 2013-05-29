@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="module" method="upgrade" client="site">    
+<extension version="2.5" type="module" method="upgrade" client="site">
         <name>k2fields contents</name>
         <author>$Author$</author>
         <creationDate>$Date$</creationDate>
@@ -33,7 +33,7 @@
                 <file>jquery-1.7.1.min.js</file>
                 <file>jquery.easing.1.3.js</file>
                 <file>noimage.png</file>
-        </media>        
+        </media>
         <languages>
                 <language tag="en-GB">language/en-GB.mod_k2fields_contents.ini</language>
         </languages>
@@ -62,8 +62,8 @@
                                         <option value="1">Yes</option>
                                         <option value="2">Immediate children only</option>
                                 </field>
-                                <field 
-                                        name="excludecats" type="k2fmulticategories" default="" 
+                                <field
+                                        name="excludecats" type="k2fmulticategories" default=""
                                         label="Exclude the following categories" />
                                 <field name="getChildrenExclude" type="list" default="1" label="Exclude items from children categories" description="Immediate children selects immediate children of chosen top most category">
                                         <option value="0">No</option>
@@ -86,17 +86,18 @@
                                         <option value="7%days">1 week</option>
                                         <option value="15%days">2 weeks</option>
                                         <option value="30%days">1 month</option>
-                                        <option value="180%days">6 months</option>                        
+                                        <option value="180%days">6 months</option>
                                 </field>
                                 <field name="timerangefield" type="sql" default="" label="Select a date/datetime field that will be used for the time range filtering"
                                query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as timerangefield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND (f.name LIKE '%TYPE:date%' OR f.name LIKE '%TYPE:time%')"
-                />
+                                />
                                 <field name="order" type="list" default="id" label="Category ordering" description="Ordering options">
                                         <option value="name">Category name</option>
                                         <option value="id">Created order</option>
                                 </field>
                                 <field name="itemCount" type="text" size="4" default="5" label="Item count (per category, higher presedence)" description="" />
                                 <field name="itemCountTotal" type="text" size="4" default="20" label="Item count (total)" description="" />
+                                <field name="itemExtraFieldsCriterias" type="textarea" default="" label="Selection criterias applied to each of the tabs" description="" cols="40" rows="20" />
                                 <field name="itemsOrdering" type="list" default="" label="Item ordering" description="">
                                         <option value="">Default</option>
                                         <option value="date">Oldest first</option>
@@ -193,7 +194,7 @@
                                 <field name="imagefieldshow" type="radio" default="thumb" label="Part of image field to show" description="">
                                         <option value="image">Image</option>
                                         <option value="thumb">Thumbnail</option>
-                                </field>                                
+                                </field>
                                 <field name="wordlimitcaption" type="text" size="4" default="" label="Word limit for caption" description="Leave blank to diasble. If you enable this option, all html tags from the text will be cleaned up to make sure the html structure of the site does not brake." />
                                 <field name="defaultimage" type="filelist" default="" label="Default image" stripext="true" directory="media/mod_k2fields_contents/defaultimage"
                                 description="If image was not found as per selection above we can set a default image. The trailing figure indicates level of transparency. You can use your own images by placing them in media/mod_k2fields_contents/defaultimage as defaultimagethumb"/>
@@ -259,7 +260,6 @@
                                         <option value="h2">H2</option>
                                         <option value="h1">H1</option>
                                 </field>
-                                <field name="itemExtraFieldsCriterias" type="textarea" default="" label="Selection criterias applied to each of the tabs" description="" cols="40" rows="20" />
                                 <field name="itemCustomLink" type="radio" default="0" label="Custom link at the bottom" description="">
                                         <option value="0">Hide</option>
                                         <option value="1">Show</option>
@@ -271,7 +271,7 @@
                                         <option value="1">Show</option>
                                 </field>
                                 <field name="itemSimilarLinkTitle" type="text" default="" label="Similar link title" description="" />
-                        </fieldset>                        
+                        </fieldset>
                         <fieldset name="layoutoptions">
                                 <field name="template" type="folderlist" default="ul" hide_none="true" label="TEMPLATE" directory="modules/mod_k2fields_contents/tmpl" filter="" exclude="^\_|^partition\_" />
                                 <field name="item_layout" type="filelist" hide_none="true" hide_default="true" default="item" label="ITEM_LAYOUT" directory="modules/mod_k2fields_contents/tmpl/_item" filter="\.php" exclude="" stripext="true" />
@@ -383,7 +383,7 @@
                                 <field name="awkwardshowcase_thumbnails_direction" type="radio" default="vertical" label="THUMBNAILS_DIRECTION">
                                         <option value="vertical">vertical</option>
                                         <option value="horizontal">horizontal</option>
-                                </field>                                
+                                </field>
                                 <field name="awkwardshowcase_thumbnails_slidex" type="radio" default="1" label="THUMBNAILS_SLIDEX">
                                         <option value="0">auto</option>
                                         <option value="1">1</option>
@@ -391,24 +391,24 @@
                                         <option value="3">3</option>
                                         <option value="4">4</option>
                                         <option value="5">5</option>
-                                </field>                            
+                                </field>
                                 <field name="awkwardshowcase_dynamic_height" type="radio" default="0" label="DYNAMIC_HEIGHT">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
-                                </field>                                
+                                </field>
                                 <field name="awkwardshowcase_speed_change" type="radio" default="1" label="SPEED_CHANGE">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
-                                </field>                                
+                                </field>
                                 <field name="awkwardshowcase_viewline" type="radio" default="0" label="VIEWLINE">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
-                                </field>                                
+                                </field>
                                 <field name="awkwardshowcase_viewline_no" type="radio" default="2" label="VIEWLINE">
                                         <option value="2">2</option>
                                         <option value="3">3</option>
                                         <option value="4">4</option>
-                                </field>                                
+                                </field>
                         </fieldset>
                         <fieldset name="widgetkitoptions" addfieldpath="/administrator/components/com_k2fields/elements/">
                                 <field name="wkinfo" type="lbl" default="Requires Widgetkit and the Widgetkit / K2 plugin" />
@@ -477,23 +477,23 @@
                                 <field name="nivo_linked" type="radio" default="1" label="link">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
-                                </field>                                
+                                </field>
                                 <field name="nivo_linktarget" type="list" default="_self" label="link target">
                                         <option value="_blank">blank</option>
                                         <option value="_new">new</option>
                                         <option value="_parent">parent</option>
                                         <option value="_self">self</option>
-                                </field>                                
+                                </field>
                                 <field name="nivo_randomStart" type="radio" default="1" label="randomStart">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
-                                </field>                                
+                                </field>
                                 <field name="nivo_startSlide" type="text" default="0" label="startSlide" />
                                 <field name="nivo_show_caption" type="radio" default="title" label="Show caption">
                                         <option value="none">None</option>
                                         <option value="title">Title</option>
                                         <option value="layout">Item</option>
-                                </field>                                
+                                </field>
                                 <field name="nivo_captionOpacity" type="text" default="0.8" label="captionOpacity" />
                                 <field name="nivo_directionNav" type="radio" default="1" label="directionNav">
                                         <option value="1">Yes</option>
@@ -527,7 +527,7 @@
                                 <field name="nivo_boxCols" type="text" default="8" label="boxCols (box animation)" />
                                 <field name="nivo_boxRows" type="text" default="4" label="boxRows (box animation)" />
                                 <field name="nivo_animSpeed" type="text" default="500" label="animSpeed" />
-                                <field name="nivo_pauseTime" type="text" default="3000" label="pauseTime" />                                
+                                <field name="nivo_pauseTime" type="text" default="3000" label="pauseTime" />
                         </fieldset>
                         <fieldset name="nivo-galleryoptions">
                                 <field name="nivo-gallery_show" type="list" default="image" label="Show">
@@ -538,7 +538,7 @@
                                 <field name="nivo-gallery_animSpeed" type="text" default="300" label="animSpeed" description="The duration of the transition animation" />
                                 <field name="nivo-gallery_effect" type="list" default="fade" label="animation" description="The name of the transition effect to use (only fade is available at the moment)">
                                         <option value="fade">fade</option>
-                                </field>     
+                                </field>
                                 <field name="nivo-gallery_startPaused" type="radio" default="1" label="startPaused" description="If true the gallery will start in a paused state">
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
@@ -560,7 +560,7 @@
                                 <field name="slidejs_showNextPrev" type="radio" default="0" label="Show Next/Prev buttons" description="">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
-                                </field>   
+                                </field>
                                 <field name="slidejs_start" type="radio" default="first" label="Start on slide">
                                         <option value="first">First</option>
                                         <option value="random">Random</option>
@@ -597,7 +597,7 @@
                                         <option value="0">No</option>
                                         <option value="1">Yes</option>
                                 </field>
-                                <!-- 
+                                <!--
 autoHeight (boolean)
 Set to true to auto adjust height. Show example
 Default value is false.
@@ -683,7 +683,7 @@ Default value is empty.-->
                                         <option value="easeOutBounce">easeOutBounce</option>
                                         <option value="easeInOutBounce">easeInOutBounce</option>
                                 </field>
-                        </fieldset> 
+                        </fieldset>
                         <fieldset name="galleriaoptions">
                                 <field name="galleria_theme" type="folderlist" default="classic" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/galleria/themes" filter="" exclude="" stripext="" description="If you get additional themes please do save them in there own folders in media/mod_k2fields_contents/galleria/themes and reload to see them here as option" />
                                 <field name="galleria_layerData" type="list" default="item" label="layerData">
@@ -693,16 +693,16 @@ Default value is empty.-->
                                 <field name="galleria_autoplay" type="radio" default="1" label="autoplay" description="">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
-                                </field> 
+                                </field>
                                 <field name="galleria_autoplayInterval" type="text" default="5000" label="autoplay interval (milliseconds)" description="" />
                                 <field name="galleria_carousel" type="radio" default="true" label="carousel" description="Setting this to true, the carousel will be automatically applied if the total som of thumbnails width exceeds the thumbnail container. This will be re-calculaed on resize.">
                                         <option value="true">Yes</option>
                                         <option value="false">No</option>
-                                </field> 
+                                </field>
                                 <field name="galleria_carouselFollow" type="radio" default="true" label="carouselFollow" description="This option defines if the the carousel should follow the active image. You can control the speed of the animation with the carouselSpeed option. Please note that animating heavy thumbnails can affect your main image animation, so if you are seeing big lags in the main animation you can try to set this option to false.">
                                         <option value="true">Yes</option>
                                         <option value="false">No</option>
-                                </field> 
+                                </field>
                                 <field name="galleria_carouselSpeed" type="text" default="200" label="slide speed of the carousel (milliseconds)" description="" />
                                 <field name="galleria_carouselSteps" type="text" default="auto" label="carouselSteps" description="(a number or auto = will move the carousel as many steps as there are visible thumbnails) The number of steps the carousel will advance when navigating between available thumbnails. You can control the animation speed using the carouselSpeed option." />
                                 <field name="galleria_clicknext" type="radio" default="false" label="clicknext" description="This options adds a click event over the stage that navigates to the next image in the gallery. Useful for mobile browsers and other simpler applications. Note that setting this to true will disable any other links that you might have in the data object.">
@@ -889,7 +889,7 @@ Default value is empty.-->
                                         <option value="pulse">pulse</option>
                                         <option value="slide">slide</option>
                                         <option value="fadeslide">fadeslide</option>
-                                </field>        
+                                </field>
                                 <field name="galleria_transitionSpeed" type="text" default="400" label="transitionSpeed (milliseconds)" description="Time between applying transition. The higher number, the slower transition." />
                                 <field name="galleria_trueFullscreen" type="radio" default="1" label="trueFullscreen" description="Galleria supports true fullscreen mode if it is supported by the browser (currently FF10+, Safari 5.1+ and Chrome 15+). That means that it will enter a native OS fullscreen if the fullscreen method is triggered.">
                                         <option value="1">Yes</option>
@@ -923,7 +923,7 @@ Default value is empty.-->
                                 </field>
                         </fieldset>
                         <fieldset name="cycleoptions">
-                                
+
                         </fieldset>
                         <fieldset name="cameraoptions">
                                 <field name="camera_theme" type="list" default="camera_azure_skin" label="theme" description="">
@@ -981,7 +981,7 @@ Default value is empty.-->
                                         <option value="fadeFromRight">fadeFromRight</option>
                                         <option value="fadeFromTop">fadeFromTop</option>
                                         <option value="fadeFromBottom">fadeFromBottom</option>
-                                </field>                                
+                                </field>
                                 <field name="camera_autoAdvance" type="radio" default="1" label="autoAdvance" description="">
                                         <option value="1">Yes</option>
                                         <option value="0">No</option>
@@ -1089,17 +1089,26 @@ Default value is empty.-->
                                         <option value="random">random</option>
                                 </field>
                         </fieldset>
+                        <fieldset name="mapoptions">
+                                <field name="mapfield" type="sql" default="" label="Map field" description=""
+                                        query="SELECT f.id as value, concat(trim(substring(f.name, 1, instr(f.name, ' / '))), ' (', c.name, ')') as mapfield FROM #__k2_extra_fields f INNER JOIN #__k2_extra_fields_groups g ON f.`group` = g.id INNER JOIN #__k2_categories c ON c.extraFieldsGroup = g.id WHERE f.published = 1 AND c.published = 1 AND f.name LIKE '% / TYPE:map / %'"
+                                />
+                                <field name="mapplugins" type="radio" default="0" label="Process plugins">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                </field>
+                        </fieldset>
                         <fieldset name="lofoptions">
                                 <field name="loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
                                 <field name="enable_css3" type="radio" default="1" label="ENABLE CSS3" description="ENABLE CSS3 DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
-                                
+
                                 <!-- <field type="spacer" name="lofmainsliderlayoutspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofmainsliderlayoutspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Main slider layout" />
                                 <field name="main_height" type="text" default="300" label="DISPLAY MAIN HEIGHT" description="DISPLAY MAIN HEIGHT DESC"></field>
                                 <field name="main_width" type="text" default="650" label="DISPLAY MAIN WIDTH" description="DISPLAY MAIN WIDTH DESC"></field>-->
-                                
+
                                 <field type="spacer" name="lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
                                 <field name="navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
                                 <field name="navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
@@ -1108,7 +1117,7 @@ Default value is empty.-->
                                         <option value="1">YES</option>
                                 </field>
                                 <field name="navigator_pos" type="list" default="right" label="NAVIGATOR POSITION" description="NAVIGATOR POSITION DESC">
-                                        <option value="0">DISABLE</option>	
+                                        <option value="0">DISABLE</option>
                                         <option value="left">LEFT</option>
                                         <option value="right">RIGHT</option>
                                 </field>
@@ -1130,7 +1139,7 @@ Default value is empty.-->
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
-                                
+
                                 <field type="spacer" name="lofeffectsettingspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_lofeffectsettingspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Effect settings" />
                                 <field name="layout_style" type="list" default="vrdown" label="PLAY STYLE" description="PLAY STYLE DESC">
                                         <option value="hrleft">HORIZONTAL RIGHT TO LEFT</option>
@@ -1176,12 +1185,12 @@ Default value is empty.-->
                                         <option value="Fx.Transitions.Bounce.easeInOut">Bounce.easeInOut</option>
                                         <option value="Fx.Transitions.Elastic.easeIn">Elastic.easeIn</option>
                                         <option value="Fx.Transitions.Elastic.easeOut">Elastic.easeOut</option>
-                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>				  
-                                </field> 
+                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>
+                                </field>
                                 <field name="auto_start" type="radio" default="1" label="AUTO START" description="AUTO START DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
-                                </field>    
+                                </field>
                         </fieldset>
                         <fieldset name="partition_lofoptions">
                                 <field name="partition_loftheme" type="folderlist" default="" hide_none="true" label="SELECT THEME" directory="media/mod_k2fields_contents/lof/images" filter="" exclude="" stripext="" />
@@ -1189,7 +1198,7 @@ Default value is empty.-->
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
-                                
+
                                 <field type="spacer" name="partition_lofnavigatorsettingsspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofnavigatorsettingsspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Navigator settings" />
                                 <field name="partition_navitem_height" type="text" default="75" label="NAVIGATOR ITEM HEIGHT" description="NAVIGATOR ITEM HEIGHT DESC"></field>
                                 <field name="partition_navitem_width" type="text" default="340" label="NAVIGATOR ITEM WIDTH" description="NAVIGATOR ITEM WIDTH DESC"></field>
@@ -1198,7 +1207,7 @@ Default value is empty.-->
                                         <option value="1">YES</option>
                                 </field>
                                 <field name="partition_navigator_pos" type="list" default="right" label="NAVIGATOR POSITION" description="NAVIGATOR POSITION DESC">
-                                        <option value="0">DISABLE</option>	
+                                        <option value="0">DISABLE</option>
                                         <option value="left">LEFT</option>
                                         <option value="right">RIGHT</option>
                                 </field>
@@ -1220,7 +1229,7 @@ Default value is empty.-->
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
                                 </field>
-                                
+
                                 <field type="spacer" name="partition_lofeffectsettingspacer" label="&lt;style type=&quot;text/css&quot;&gt;#jform_params_partition_lofeffectsettingspacer-lbl { color:#fff; background:#02a0d0; }&lt;/style&gt;Effect settings" />
                                 <field name="partition_layout_style" type="list" default="vrdown" label="PLAY STYLE" description="PLAY STYLE DESC">
                                         <option value="hrleft">HORIZONTAL RIGHT TO LEFT</option>
@@ -1266,13 +1275,13 @@ Default value is empty.-->
                                         <option value="Fx.Transitions.Bounce.easeInOut">Bounce.easeInOut</option>
                                         <option value="Fx.Transitions.Elastic.easeIn">Elastic.easeIn</option>
                                         <option value="Fx.Transitions.Elastic.easeOut">Elastic.easeOut</option>
-                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>				  
-                                </field> 
+                                        <option value="Fx.Transitions.Elastic.easeInOut">Elastic.easeInOut</option>
+                                </field>
                                 <field name="partition_auto_start" type="radio" default="1" label="AUTO START" description="AUTO START DESC">
                                         <option value="0">NO</option>
                                         <option value="1">YES</option>
-                                </field>    
-                        </fieldset>     
+                                </field>
+                        </fieldset>
                         <fieldset name="partition_treeviewoptions">
                                 <field name="tree_class" type="list" default="folder" label="Tree look" description="">
                                         <option value="folder">Folder</option>
@@ -1323,11 +1332,11 @@ Default value is empty.-->
                                 <field name="addJQuery" type="radio" default="0" label="Add jQuery">
                                         <option value="0">JNO</option>
                                         <option value="1">JYES</option>
-                                </field>                                 
+                                </field>
                                 <field name="addJQueryEasing" type="radio" default="0" label="Add jQuery easing">
                                         <option value="0">JNO</option>
                                         <option value="1">JYES</option>
-                                </field>                                 
+                                </field>
 				<field
 					name="moduleclass_sfx"
 					type="text"
@@ -1349,7 +1358,7 @@ Default value is empty.-->
 					type="text"
 					default="900"
 					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
-					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />                                
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
                         </fieldset>
                 </fields>
         </config>

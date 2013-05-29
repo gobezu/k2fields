@@ -50,17 +50,19 @@ $excludes = $params->get('excludecategories', array());
 
 if (!empty($excludes)) {
         $excludes = (array) $excludes;
-        foreach ($excludes as &$exclude) $exclude = (int) $exclude;
+        JprovenUtility::toInt($excludes);
 }
 
-require dirname(__FILE__).'/helper.php';
+require_once dirname(__FILE__).'/helper.php';
+
+$categorySelectorID = 'cid';
 
 $categories = modK2FieldsHelper::getCategoriesSelector(
         $categoryselector,
         $defaultCategory,
         $excludes,
         $includedefaultmenuitem,
-        'cid',
+        $categorySelectorID,
         $categoryselectortext,
         $keepDefaultCategoryInHome
 );
@@ -78,6 +80,7 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
         $catid = JprovenUtility::getK2CurrentCategory($defaultCategory);
         $defaultmode = $params->get('defaultmode', 'active');
         $showsearchcount  = (bool) $params->get('showsearchcount', 0);
+        $searchcountlabel = JText::_($params->get('searchcountlabel', 'Search count'));
         $showsearchmax  = (int) $params->get('showsearchmax', 0);
 
         if (empty($catid)) $catid = $defaultCategory;
@@ -99,7 +102,12 @@ if ($showfreetextsearch || $categoryselector || $showsearchfields) {
                         array(
                                 'module'=>$module->id,
                                 'liveupdate'=>(bool) $params->get('showsearchcountliveupdate', 0),
-                                'liveupdateresult'=>(bool) $params->get('showsearchcountliveupdateresult', 0)
+                                'liveupdateresult'=>(bool) $params->get('showsearchcountliveupdateresult', 0),
+                                'chosenize'=>(bool) $params->get('chosenize', true),
+                                'chosenizelabel'=>JText::_($params->get('chosenizelabel', 'Category')),
+                                'acminchars'=>$acminchars,
+                                'acmaxchars'=>$acmaxchars,
+                                'acmaxitems'=>$acmaxitems
                         )
                 );
         }
