@@ -598,6 +598,12 @@ class plgk2k2fields extends K2Plugin {
                                 JprovenUtility::loc(true, true, 'lib/datepicker/'.$theme.'/'.$theme.'.css', true, 'css');
 //                        }
 
+                        $theme = 'square';
+                        $color = 'red';
+                        JprovenUtility::loc(true, true, 'lib/icheck/skins/all.css', true, 'css');
+                        K2HelperHTML::loadjQuery();
+                        JprovenUtility::loc(true, true, 'lib/icheck/jquery.icheck.js', true);
+
                         // Loading order here is important as there is dependency
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Formular/formular.js', true);
@@ -671,8 +677,9 @@ class plgk2k2fields extends K2Plugin {
 
                         if ($tab == 'editfields' || $tab == 'extra-fields') {
                                 JprovenUtility::loc(true, true, 'lib/Form.AutoGrow.js', true);
-                                JprovenUtility::loc(true, true, 'lib/Form.Placeholder.js', true);
                         }
+
+                        JprovenUtility::loc(true, true, 'lib/Form.Placeholder.js', true);
 
                         $jsK2fDone = true;
 

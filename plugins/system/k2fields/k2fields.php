@@ -304,6 +304,7 @@ class plgSystemk2fields extends JPlugin {
                 self::checkQuota();
                 self::processListImport();
                 //JprovenUtility::reverseFromValues(49, 28);
+                //JprovenUtility::renderTitleFieldValues(28);
 
                 if (JFactory::getApplication()->isSite()) return;
 
@@ -332,6 +333,8 @@ class plgSystemk2fields extends JPlugin {
                 static $loaded = false;
 
 		if ($loaded) return;
+
+                $debug = true;
 
                 // make sure to load currently available mootools
                 JHtml::_('behavior.framework');
