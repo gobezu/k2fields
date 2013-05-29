@@ -241,8 +241,10 @@ class K2FieldsModelFields extends K2Model {
                 $fields = $this->getFieldsByItem($item);
                 $limit = null;
 
+                // Limit = latest date seen over all available fields
                 foreach ($fields as $fieldId => $field) {
                         $currentLimit = null;
+
                         if (K2FieldsModelFields::isTrue($field, 'expire')) {
                                 $isDatetime = K2FieldsModelFields::isDatetimeType($field);
                                 $query = $isDatetime ? 'datum' : 'value';
@@ -297,6 +299,26 @@ class K2FieldsModelFields extends K2Model {
                 return false;
         }
 
+        private function replaceFieldValues($field, $prop, $item, $def = false, $pre = 'field:') {
+                $context = self::value($field, $prop, $def);
+
+                if (!$context) return false;
+
+                if (preg_match_all('#'.$pre.'(\d+)#im', $context, $m)) {
+                        $adjustValues = $this->itemValues($item->id, $m[1]);
+
+                        foreach ($m[1] as $i => $mf) {
+                                if (isset($adjustValues[$mf])) {
+                                        $context = str_replace($m[0][$i], $adjustValues[$mf], $context);
+                                } else {
+                                        $context = str_replace($m[0][$i], 'null', $context);
+                                }
+                        }
+                }
+
+                return trim($context);
+        }
+
         /**
          * If
          * 1. there exists a field that is numeric or date
@@ -328,8 +350,7 @@ class K2FieldsModelFields extends K2Model {
                                 }
 
                                 $cond = false;
-                                $adjustmentCondition = self::value($field, 'adjustmentcondition', 'return $val <= $now;');
-                                $adjustmentCondition = trim($adjustmentCondition);
+                                $adjustmentCondition = $this->replaceFieldValues($field, 'adjustmentcondition', $item, 'return $val <= $now;');
                                 $cond = eval($adjustmentCondition);
 
                                 if ($cond) {
@@ -343,12 +364,11 @@ class K2FieldsModelFields extends K2Model {
                                         $adjustValues = JprovenUtility::first($adjustValues);
 
                                         if ($adjustValues) {
-                                                $newValue = self::value($field, 'adjustfieldvalue');
-                                                $newPHP = self::value($field, 'adjustfieldstatement');
-                                                $newPHP = trim($newPHP);
+                                                $newPHP = $this->replaceFieldValues($field, 'adjustfieldstatement', $item, false);
                                                 $deleteValue = self::isTrue($field, 'adjustfielddelete');
 
                                                 if ($newPHP) $newValue = eval($newPHP);
+                                                else $newValue = self::value($field, 'adjustfieldvalue');
 
                                                 $adjustField = JprovenUtility::getRow($fields, array('id'=>$adjustField));
                                                 $adjustField = $adjustField[0];
@@ -756,6 +776,15 @@ class K2FieldsModelFields extends K2Model {
 
                 $list = new K2FieldsList();
 
+                $titleField = JprovenUtility::getRow($fields, array('valid'=>'title'));
+
+                if (!empty($titleField)) {
+                        $title = new stdClass();
+                        $title->value = self::value($item, 'title');
+                        $title->id = self::value($titleField[0], 'id');
+                        $itemFields[] = $title;
+                }
+
                 foreach ($itemFields as $f => $field) {
                         $fieldData = $fields[$field->id];
 
@@ -835,14 +864,15 @@ class K2FieldsModelFields extends K2Model {
                                                                 $r->duration = self::createDuration($r->value);
                                                                 $r->datum = null;
                                                         } else if ($isDatetime) {
-                                                                $r->datum = $isDatetime ? $r->value : null;
+                                                                $r->datum = self::standardizeDateTime($r->value, $fieldData);
+                                                                $r->value = $r->datum;
                                                                 $r->duration = null;
                                                         } else {
                                                                 $r->duration = $r->datum = null;
                                                         }
 
                                                         if ($isList && $r->partindex >= 0 && !empty($r->value)) {
-                                                                $_v = $list->getValue($r->value);
+                                                                $_v = $list->getValue($r->value, $fieldData);
 
                                                                 if ($_v) {
                                                                         $r->lat = $_v->lat;
@@ -937,6 +967,10 @@ class K2FieldsModelFields extends K2Model {
 //                                                                $v->itemid = $item->id;
 //                                                                $vals = array(0 => array($v));
 //                                                                $r->txt = call_user_func(array($cls, 'render'), $item, $vals, $fieldData, $this, array());
+                                                        }
+
+                                                        if (self::isAlias($fieldData)) {
+                                                                $r->fieldid = self::value($fieldData, 'alias');
                                                         }
 
                                                         if (isset($earliers[$r->fieldid][$r->listindex][$r->partindex][$r->index])) {
@@ -1092,6 +1126,11 @@ class K2FieldsModelFields extends K2Model {
                                 $options['values'] = array(
                                         array('img'=>'yes.png', 'value'=>1, 'text'=>'Yes'),
                                         array('img'=>'no.png', 'value'=>0, 'text'=>'No')
+                                );
+                                break;
+                        case 'verifybox':
+                                $options['values'] = array(
+                                        array('img'=>'yes.png', 'value'=>1, 'text'=>'Yes')
                                 );
                                 break;
                         case 'range':
@@ -1375,6 +1414,16 @@ class K2FieldsModelFields extends K2Model {
                 return self::isValue($options, $name, array('true', '1'), $view);
         }
 
+        public static function isEmpty($options, $name, $view = '') {
+                $value = self::value($options, $name, $view);
+
+                if (self::isNumeric($options) || self::isBool($options)) {
+                        return $value == '' || $value == null;
+                }
+
+                return !empty($value);
+        }
+
         public static function isValue($options, $name, $assertedValues, $view = '') {
                 return in_array(self::value($options, $name, $view), (array) $assertedValues);
         }
@@ -1389,6 +1438,22 @@ class K2FieldsModelFields extends K2Model {
         public static function createDuration($duration) {
                 $duration = explode(':', $duration);
                 return $duration[0] * 3600 + $duration[1] * 60 + (count($duration) > 2 ? $duration[2] : 0);
+        }
+
+        public static function standardizeDateTime($dateTimeStr, $field) {
+                if (empty($dateTimeStr)) return "";
+
+                $stdFormat = 'Y-m-d H:i:s';
+
+                $format = self::value($field, 'datetimeformat');
+                if (!$format) $format = self::value($field, 'dateformat');
+                if (!$format) $format = self::value($field, 'timeformat');
+
+                $dateTime = date_create_from_format($format, $dateTimeStr);
+
+                if (!$dateTime) return "";
+
+                return $dateTime->format($stdFormat);
         }
 
         public static function isType($options, $assertedType) {
@@ -1780,6 +1845,20 @@ class K2FieldsModelFields extends K2Model {
 
         public function itemValues($itemId, $fieldIds = null, $filters = array()) {
                 $fieldIds = (array) $fieldIds;
+                $aliases = array();
+                $f = JprovenUtility::first($fieldIds);
+
+                if (!empty($fieldIds) && !is_numeric($f)) {
+                        $fields = $fieldIds;
+                        $fieldIds = (array) JprovenUtility::getColumn($fieldIds, 'id', true);
+
+                        foreach ($fieldIds as $k => $fieldId) {
+                                if (self::isAlias($fields[$fieldId])) {
+                                        $fieldIds[$k] = self::value($fields[$fieldId], 'alias');
+                                        $aliases[$fieldIds[$k]] = $fieldId;
+                                }
+                        }
+                }
 
                 $f = array('itemid = '.$itemId, !empty($fieldIds) ? 'fieldid IN ('.implode(',', $fieldIds).')' : '');
 
@@ -1807,6 +1886,15 @@ class K2FieldsModelFields extends K2Model {
                 $this->_db->setQuery($query);
                 $fieldsValues = $this->_db->loadObjectList();
                 $fieldsValues = JprovenUtility::indexBy($fieldsValues, 'fieldid');
+
+                if (!empty($aliases)) {
+                        foreach ($fieldsValues as $fieldId => $fieldValue) {
+                                if (isset($aliases[$fieldId])) {
+                                        $fieldsValues[$aliases[$fieldId]] = $fieldValue;
+                                        unset($fieldsValues[$fieldId]);
+                                }
+                        }
+                }
 
                 return $fieldsValues;
         }
@@ -2193,7 +2281,7 @@ class K2FieldsModelFields extends K2Model {
                         $mapItemRules = JprovenUtility::removeValuesFromArray($itemRules, $mapFieldIds, false, true, true);
                 }
 
-                $fieldsValues = $this->itemValues($itemId, $fieldIds);
+                $fieldsValues = $this->itemValues($itemId, $fields);
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
                 $schemaType = false;
 
@@ -3222,7 +3310,12 @@ class K2FieldsModelFields extends K2Model {
 
                 if (!empty($img)) {
                         // corresponding adjustment is made in jputility.js::loadImage
-                        $img = JURI::root().JprovenUtility::loc().'icons/'.$img;
+                        if (JFile::exists(JPATH_SITE.$img)) {
+                                $img = JURI::root().$img;
+                        } else if (JFile::exists(JPATH_SITE.'/'.JprovenUtility::loc().'icons/'.$img)) {
+                                $img = JURI::root().JprovenUtility::loc().'icons/'.$img;
+                        }
+
                         $alt = JprovenUtility::html($cleanTxt);
                         $img = JHTML::_('image', $img, $alt, array('title'=>$alt));
                 }
@@ -3230,7 +3323,9 @@ class K2FieldsModelFields extends K2Model {
                 if (isset($rule['format'])) {
                         $format = $rule['format'];
                 } else {
-                        $format = self::value($field, 'format');
+                        $view = JFactory::getApplication()->input->get('view', '', 'cmd');
+                        $format = self::value($field, 'format'.$view);
+                        if (empty($format)) $format = self::value($field, 'format');
                 }
 
                 $vals = array('%value%' => $val, '%text%' => $txt, '%img%' => $img);
@@ -3313,7 +3408,7 @@ class K2FieldsModelFields extends K2Model {
 
                 $id = self::value($field, 'subfieldid');
                 $fid = self::value($field, 'id');
-                //jdbg::pe($values, $fid, 13);
+
                 foreach ($values as $j => $value) {
                         $v = self::value($value, 'value');
 
@@ -3347,6 +3442,9 @@ class K2FieldsModelFields extends K2Model {
                                 $val[] = self::formatValue($value, $rule, $field);
                         }
                 }
+
+                // jdbg::p($val, $fid, 44);
+                // jdbg::pe($values, $fid, 44);
 
                 if (!empty($val)) {
                         if (count($val) == 1) {
@@ -4105,6 +4203,10 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                 if ($aggr) $values = $this->_combineValues($values);
 
+                // jdbg::p($field);
+                // jdbg::p($values);
+                // $val = self::standardizeDateTime($values[0]->value, $field);
+                // jdbg::pe($val);
                 $val = JprovenUtility::createDate($values[0]->value);
                 $rendered = $val->format($format);
 
@@ -4454,18 +4556,20 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         $_deps = json_encode($_deps);
                         $optStr = str_replace('deps='.$m[1], 'deps='.$_deps, $optStr);
                 }
+
                 $sopts = explode(self::FIELD_SEPARATOR, $optStr);
 
                 foreach ($sopts as $k => &$opt) {
                         if ($k > 0) {
                                 $n = substr($opt, 0, strpos($opt, self::FIELD_OPTIONS_SEPARATOR));
                                 $opt = substr($opt, strlen($n.self::FIELD_OPTIONS_SEPARATOR));
-                                $sopts[$k-1] = 'k2f'.self::FIELD_SEPARATOR.$sopts[$k-1].self::FIELD_OPTIONS_SEPARATOR.'subfieldOf='.$fieldId.self::FIELD_SEPARATOR.$n;
+                                $sopts[$k-1] = 'k2f'.self::FIELD_SEPARATOR.$sopts[$k-1].self::FIELD_OPTIONS_SEPARATOR.'position='.($k-1).self::FIELD_OPTIONS_SEPARATOR.'subfieldOf='.$fieldId.self::FIELD_SEPARATOR.$n;
                                 $sopts[$k-1] = $this->mapFieldOptions($sopts[$k-1], -1, $useFilter, $fieldId, $k);
                         }
                 }
 
                 $optStr = array_pop($sopts);
+
                 $opts = explode(self::FIELD_OPTIONS_SEPARATOR, $optStr);
 
                 for ($i = 0, $n = count($opts); $i < $n; $i++) {
@@ -4588,7 +4692,6 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                         $options[$key] = $val;
                 }
-
 
                 if (!isset($options['valid'])) $options['valid'] = 'alphanum';
 
@@ -4725,16 +4828,17 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                 $adaptMinMax = self::isTrue($options, 'adaptminmax');
                                 $id = self::value($options, 'id');
 
-
                                 if (!isset($options['min']) || $adaptMinMax) {
                                         $minMax = self::getMinMax($options);
+
                                         if ($minMax) {
                                                 $options['min'] = $minMax->cnt > 1 && $minMax->min < $minMax->max ? $minMax->min : $options['min'];
                                         }
                                 }
 
                                 if (!isset($options['max']) || $adaptMinMax) {
-                                        $minMax = self::getMinMax($options);
+                                        if (!$minMax) $minMax = self::getMinMax($options);
+
                                         if ($minMax) {
                                                 $options['max'] = $minMax->cnt > 1 && $minMax->min < $minMax->max ? $minMax->max : $options['max'];
                                         }
@@ -4862,5 +4966,10 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
         public static function isNumeric($field) {
                 $valid = self::value($field, 'valid');
                 return in_array($valid, array('number', 'real', 'integer'));
+        }
+
+        public static function isBool($field) {
+                $valid = self::value($field, 'valid');
+                return in_array($valid, array('verifybox', 'yesno'));
         }
 }

@@ -26,20 +26,20 @@ class K2FieldsList extends K2fieldsFieldType {
                 if (empty($show) && $view == 'list')
                         $show = K2FieldsModelFields::value($field, 'listformat');
 
-                if (!empty($show)) {
+                $isMultiple = K2FieldsModelFields::isTrue($field, 'multiple');
+
+                if (!empty($show) && !$isMultiple) {
                         $leaf = count($values);
-                        $levels = $helper->value($field, 'levels');
+                        $levels = K2FieldsModelFields::value($field, 'levels');
                         $levels = (array) $levels;
                         $search = array_merge(array('root', 'leaf', 'parent'), $levels);
                         $replace = array_merge(array(1, $leaf, $leaf-1), range(1, count($levels)));
                         $show = str_replace($search, $replace, $show);
                         $show = explode(',', $show);
                         $_values = array();
-
                         foreach ($values as $i => $value) {
                                 if (in_array($i+1, $show)) $_values[] = $value;
                         }
-
                         $values = $_values;
                 }
 
@@ -70,7 +70,7 @@ class K2FieldsList extends K2fieldsFieldType {
                 return $result;
         }
 
-        public function getValue($node) {
+        public function getValue($node, $field = null) {
                 $primary = $this->_quoteIdentifier($this->_primary);
                 $name = $this->_quoteIdentifier($this->_name);
                 $value = $this->_quoteIdentifier($this->_value);
@@ -82,7 +82,29 @@ class K2FieldsList extends K2fieldsFieldType {
 
                 $this->_db->setQuery($query);
 
-                return $this->_db->loadObject();
+                $v = $this->_db->loadObject();
+
+                if ($field && ($folder = K2FieldsModelFields::value($field, 'imgfolder'))) {
+                        $pat = JFile::getName($folder);
+
+                        if (empty($pat)) $pat = '%value%\.gif|png|jpg';
+
+                        $folder = str_replace($pat, '', $folder);
+                        $_folder = JPATH_SITE . '/' . $folder;
+
+                        $pat = str_replace(array('%value%', '%text%'), array($node, JFile::makeSafe($v->value)), $pat);
+                        $exts = explode('.', $pat);
+                        $exts = $exts[count($exts) - 1];
+                        $pat = str_replace($exts, '', $pat);
+                        $pat .= '(' . $exts . ')$';
+                        $files = JFolder::files($_folder, $pat);
+
+                        if (!empty($files)) {
+                                $v->img = JPath::clean($folder . '/' . $files[0], '/');
+                        }
+                }
+
+                return $v;
         }
 
         public static function getParameters($field = null, $options = null) {

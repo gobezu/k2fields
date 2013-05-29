@@ -5,7 +5,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 class K2FieldsMap extends K2fieldsFieldType {
-        const MAP_MAPSTRACTION_FOLDER = 'lib/mxn2.0.0';
+        const MAP_MAPSTRACTION_FOLDER = 'lib/mxn2.1.0';
         const MAP_MAPSTRACTION_DEV = ''; // Add -min for production run
         const MAP_CONTAINER_ID = 'mapContainer';
         const MAP_JS_VARNAME = '_k2fs_map';
@@ -67,6 +67,22 @@ class K2FieldsMap extends K2fieldsFieldType {
                 self::loadResources($item, $field, false);
 
                 return $ui;
+        }
+
+        public static function renderModuleMap($items, $fieldId) {
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
+                $field = $model->getFieldsById($fieldId);
+
+                foreach ($items as $item) {
+                        $values = array();
+                        $values[] = array($item);
+                        self::renderDynamicMap($field, $values, $item, 'itemlist');
+                }
+
+                self::loadResources(null, $field, false, true);
+
+                return self::finalizeMap('itemlist');
+
         }
 
         private static function renderStaticMap($field, $values, $item) {
@@ -153,86 +169,11 @@ window.addEvent("load", function() {
                         if ($render) {
                                 $mapAs = K2FieldsModelFields::value($field, 'showmapas');
                                 $rendered .= ' '.JText::_(count($value) > 1 ? $value[1]->value : 'Map');
-//                                $zoom = K2FieldsModelFields::value($field, 'mapzoom'.$view);
-//
-//                                if ($mapAs == 'link' || empty($mapAs)) {
-//                                        $rendered .= ' <a href="http://maps.google.com/'.$value[0]->lat.','.$value[0]->lon.'">'.JText::_(count($value) > 1 ? $value[1]->value : 'Map').'</a>';
-//                                } else if ($mapAs == 'staticmap') {
-//                                        // Use js::k2fieldsmap::drawStaticMap method
-//                                        $uri = JURI::getInstance();
-//                                        $src = $uri->getScheme()
-//                                                . "://maps.google.com/maps/api/staticmap?center={$value[0]->lat},{$value[0]->lon}&amp;zoom={$zoom}&amp;size={$w}x{$h}&amp;maptype=$type&amp;mobile=true&amp;markers=$markers&amp;sensor=false";
-//                                        $id = $tableView ? '' : "id=\"{$id}\"";
-//                                        $rendered .= "<div $id class=\"gmStaticMap\"><img src=\"$src\" alt=\"static map\" />";
-//                                        $rendered .= "</div>";
-//                                } else if ($mapAs == 'label') {
-//                                        $rendered .= ' <span>';
-//                                }
                         }
                 }
 
                 if (!isset(self::$map[$proxyFieldId]['items'][$item->id]['rendered'])) {
                         self::$map[$proxyFieldId]['items'][$item->id]['rendered'] = trim($rendered);
-                }
-
-                return;
-
-
-
-
-
-                if (!isset(self::$ui['data'][$item->id]))
-                        self::$ui['data'][$item->id] = array('item'=>$item, 'points'=>array());
-
-                $id = $anchorId = '';
-
-                // TODO: support geoencoding as well
-
-                foreach ($values as $i => $value) {
-                        $id = $proxyFieldId.'_'.$i;
-
-                        if (empty($anchorId)) $anchorId = $id;
-
-                        self::$ui['data'][$item->id]['points'][] =
-                                '
-                                <span class="k2fcontainer">
-                                <span id="'.$id.'"></span>
-                                <input type="hidden" value="'.$value[0]->lat.'" id="'.$id.'0" customvalueholder="true" />
-                                <input type="hidden" value="'.$value[0]->lng.'" id="'.$id.'1" customvalueholder="true" />
-                                </span>
-                                ';
-                }
-
-                if (empty(self::$ui['post'])) {
-                        self::$ui['pre'] =
-'
-<table><tr><td>
-<div style="display:none;">
-<input type="hidden" id="'.$proxyFieldId.'" />
-<input type="hidden" id="'.$proxyFieldId.'" />
-'
-                                ;
-
-                        $params = self::getParameters($field);
-                        $params = json_encode($params);
-
-                        self::$ui['post'] =
-'
-</div></td></tr></table>
-<script type="text/javascript">
-window.addEvent("load", function() {
-        '.K2FieldsModelFields::JS_VAR_NAME.'.enqueueType(
-                "map",
-                null, null, null, null,
-                function() {
-                        '.K2FieldsModelFields::JS_VAR_NAME.'.fieldsOptions["'.$proxyFieldId.'"] = '.$params.';
-                        var map = '.K2FieldsModelFields::JS_VAR_NAME.'.getEditorMap(document.id("'.$proxyFieldId.'"), document.id("'.$anchorId.'"), "item");
-                        '.K2FieldsModelFields::JS_VAR_NAME.'.redrawMapEditor("'.$proxyFieldId.'");
-                }
-        );
-});
-</script>
-';
                 }
         }
 
@@ -348,6 +289,16 @@ window.addEvent("load", function() {
                         if (!empty($icon)) {
                                 $options['mapiconcolorfilesize'] = array($iconSize[0], $iconSize[1]);
                                 $options['mapiconcolorfile'] = str_replace($root, JURI::root(), $icon);
+
+                                if (K2FieldsModelFields::value($field, 'mapiconshadow')) {
+                                        $loc = $root.JprovenUtility::loc().'icons/map.icon.shadow.png';
+
+                                        if (JFile::exists($loc)) {
+                                                $iconSize = getimagesize($loc);
+                                                $options['mapiconshadow'] = str_replace($root, JURI::root(), $loc);
+                                                $options['mapiconshadowsize'] = array($iconSize[0], $iconSize[1]);
+                                        }
+                                }
                         } else {
                                 unset($options['mapiconcolor']);
                         }
@@ -448,12 +399,12 @@ window.addEvent("load", function() {
                 return $options;
         }
 
-        public static function loadResources($item = null, $field = null, $isForForm = true) {
+        public static function loadResources($item = null, $field = null, $isForForm = true, $force = false) {
                 $app = JFactory::getApplication();
                 $view = $app->input->get('view');
                 $option = $app->input->get('option');
 
-                if (!in_array($option, array('com_k2', 'com_k2fields'))) return;
+                if (!$force && !in_array($option, array('com_k2', 'com_k2fields'))) return;
 
                 $editorMode = false;
 
@@ -476,7 +427,16 @@ window.addEvent("load", function() {
                 }
 
                 // TODO: depends on view when fully implemented
-                $provider = self::v($field, 'mapprovider');
+
+                if ($option == 'com_k2fields') {
+                        $view = 'itemlist';
+                } else if ($option == 'com_k2') {
+                        $view = $view;
+                } else {
+                        $view = 'itemlist';
+                }
+
+                $provider = self::v($field, 'mapprovider'.$view);
 
                 if (empty($provider)) {
                         self::$loadResources = array($item, $field, $isForForm);

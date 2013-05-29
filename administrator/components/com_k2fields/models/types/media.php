@@ -8,20 +8,20 @@ require_once JPATH_SITE . '/media/k2fields/lib/mime.php';
 
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
-                
+
 class K2FieldsMedia extends K2fieldsFieldType {
         const CAPTIONPOS = 0;
-        const SRCTYPEPOS = 1; 
-        const MEDIATYPEPOS = 2; 
+        const SRCTYPEPOS = 1;
+        const MEDIATYPEPOS = 2;
         const CAPTIONNAMINGPOS = 3;
         const SRCPOS = 4;
         const THUMBSRCPOS = 5;
         const REMOTEURLDL = 6;
-        
+
         public static $extMime, $mimeExt, $mimeType, $pluginType;
-        
+
         private static $files, $collectedFiles;
-        
+
         protected static function reformatFileName($file) {
                 if (empty($file)) return '';
                 $site = JPath::clean(JPATH_SITE, '/');
@@ -29,58 +29,58 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $file = substr(str_replace(array($site, '\\'), array('', '\\\\'), $file), 1);
                 return $file;
         }
-        
+
         protected static function renameFile($fileName, $options) {
                 if ((bool) $options['renamefiles']) {
                         $pat = '#[^\d\w-_]#i';
                         $replaceTo = '_';
                         $fileName = preg_replace($pat, $replaceTo, $fileName);
                 }
-                
+
                 return $fileName;
         }
-        
+
         protected static function collectFilesToSave($item, $fields) {
                 if (!isset(self::$files)) self::$files = JRequest::get('files');
-                
+
                 if (isset(self::$collectedFiles)) return;
-                
+
                 $files = array();
                 $pat = "#^k2fieldsmedia_(\d+)$#";
                 $patThumb = "#^k2fieldsmedia_(\d+)_thumb$#";
-                
+
                 foreach (self::$files as $fieldName => $__files) {
-                        if (($fileFound = preg_match($pat, $fieldName, $fieldId)) 
+                        if (($fileFound = preg_match($pat, $fieldName, $fieldId))
                          || ($thumbFound = preg_match($patThumb, $fieldName, $fieldId))) {  // k2fields file
                                 $fieldId = $fieldId[1];
-                                
+
                                 foreach ($__files['error'] as $i => $error) {
                                         if ($error === 0) {
                                                 if (!isset($files[$fieldId])) {
-                                                        $files[$fieldId] = array();   
+                                                        $files[$fieldId] = array();
                                                 }
-                                                
+
                                                 if (!isset($thumbFound))
                                                         $thumbFound = preg_match($patThumb, $fieldName);
-                                                
+
                                                 $files[$fieldId][] = array(
-                                                    'index'=>$i, 
-                                                    'thumb'=>$thumbFound?true:false, 
+                                                    'index'=>$i,
+                                                    'thumb'=>$thumbFound?true:false,
                                                     'is'=>$thumbFound?'thumb':'file'
                                                 );
-                                                
+
                                                 $ml = K2FieldsModelFields::value($fields[$fieldId], 'medialimit');
-                                                
+
                                                 if (isset($ml[$item->catid])) {
                                                         $lim = $ml[$item->catid];
                                                 } else {
                                                         $lim = $ml['_all_'];
                                                 }
-                                                
+
                                                 if ($lim != 0 && count($files[$fieldId]) > $lim) {
                                                         $item->setError(self::error(
                                                                 JText::sprintf(
-                                                                        "Maximum number of media uploads of %d is exceeded.", 
+                                                                        "Maximum number of media uploads of %d is exceeded.",
                                                                         $lim
                                                                 ),
                                                                 '',
@@ -88,7 +88,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                                         ));
                                                         return false;
                                                 }
-                                                
+
                                                 if (!$thumbFound) {
                                                         $thName = 'k2fieldsmedia_'.$fieldId.'_thumb';
 
@@ -100,30 +100,30 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         }
                                 }
                         }
-                        
+
                         $fileFound = $thumbFound = false;
                 }
-                
+
                 self::$collectedFiles = $files;
         }
-        
+
         protected static function saveForField($item, $fieldOptions, $fieldValues, $uploadDir) {
                 $fieldId = $fieldOptions['id'];
-                
+
                 if (!isset(self::$collectedFiles[$fieldId])) return false;
-                
+
                 $dstDir = self::getStorageDirectory($fieldOptions, $item, false);
 
                 if (!is_string($dstDir)) return $dstDir;
-                
-                $fileRecords = self::$collectedFiles[$fieldId];                
+
+                $fileRecords = self::$collectedFiles[$fieldId];
                 $fileInd = 'k2fieldsmedia_'.$fieldId;
-                
+
                 foreach ($fileRecords as $fileRecord) {
                         $is = $fileRecord['is'];
-                        
+
                         if ($is != 'file') continue;
-                        
+
                         $ind = $fileRecord['index'];
                         $thumbUploaded = $fileRecord['thumb'];
                         $thumbName = '';
@@ -135,26 +135,26 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         if ($is == 'file') {
                                 $fileName = self::$files[$fileInd]['name'][$ind];
                                 $mimeType = self::$files[$fileInd]['type'][$ind];
-                                
+
                                 $results = self::saveUploadedFile(
-                                        $item, 
-                                        $uploadDir, 
-                                        $dstDir, 
-                                        $fileName, 
-                                        self::$files[$fileInd]['tmp_name'][$ind], 
-                                        $mimeType, 
+                                        $item,
+                                        $uploadDir,
+                                        $dstDir,
+                                        $fileName,
+                                        self::$files[$fileInd]['tmp_name'][$ind],
+                                        $mimeType,
                                         $fieldOptions,
                                         !$thumbUploaded,
                                         false
                                 );
                         }
-                        
+
                         if ($results instanceof JException) {
                                 $vInd = self::locateFile($fieldValues, $fileName);
                                 $results->set('error_index', $vInd);
                                 return $results;
                         }
-                        
+
                         // save thumb file if available
                         if ($thumbUploaded) {
                                 $thumbInd = $fileInd.'_thumb';
@@ -164,15 +164,15 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $resultsThumb = self::saveUploadedFile(
                                         $item,
                                         $uploadDir,
-                                        $dstDir, 
+                                        $dstDir,
                                         $thumbName,
-                                        self::$files[$thumbInd]['tmp_name'][$ind], 
-                                        $thumbMimetype, 
+                                        self::$files[$thumbInd]['tmp_name'][$ind],
+                                        $thumbMimetype,
                                         $fieldOptions,
                                         false,
                                         true
                                 );
-                                
+
                                 if ($resultsThumb instanceOf JException) {
                                         $vInd = self::locateFile($fieldValues, $thumbName, true);
                                         $resultsThumb->set('error_index', $vInd);
@@ -187,7 +187,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $num = $is == 'file' ? count($results) : 1;
 
                                 // if one archive file with many files but only one thumbnail
-                                if (count($resultsThumb) != $num) {     
+                                if (count($resultsThumb) != $num) {
                                         $resultsThumb = array_fill(0, $num, $resultsThumb[0]);
                                         $thumbFilled = true;
                                 }
@@ -198,43 +198,43 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                                 if ($is == 'thumb') {
                                         $results = array_fill(0, $num, 'PH');
-                                }                                
+                                }
                         } else {
                                 $resultsThumb = 'default';
                         }
-                        
+
                         $isArchive = self::isArchive($mimeType, $fileName);
-                        
+
                         if ($isArchive) {
                                 $vInd = self::locateFile($fieldValues, basename($fileName));
-                                
+
                                 if ($vInd == -1) {
                                         return self::error('Unknown error while saving.');
                                 }
-                                
+
                                 $self = $fieldValues[$vInd];
                                 $part = array_slice($fieldValues, 0, $vInd);
                                 $part = array_merge($part, array_fill(0, count($results), $self));
-                                
+
                                 if (count($fieldValues) > $vInd + 1) {
                                         $fieldValues = array_slice($fieldValues, $vInd + 1, count($fieldValues) - $vInd - 1);
                                         $fieldValues = array_merge($part, $fieldValues);
                                 } else {
                                         $fieldValues = $part;
                                 }
-                                
+
                                 $vAInd = -1;
                                 $_vInd = $vInd;
                         }
-                        
+
                         foreach ($results as $r => $result) {
                                 $file = $result['file'];
-                                
+
                                 if ($isArchive) {
                                         $vAInd++;
                                         $vInd = $_vInd + $vAInd;
                                         $file = self::reformatFileName($file);
-                                        
+
                                         if ($resultsThumb == 'default') {
                                                 $resultThumb = dirname($file) . '/' . $fieldOptions['thumbfolder'] . '/' . basename($file);
                                         }
@@ -252,15 +252,15 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         $f = $result['originalfilename'];
                                         $vInd = self::locateFile($fieldValues, $f, $is != 'file');
                                 }
-                                
+
                                 if ($vInd == -1) {
                                         return self::error('Unknown error while saving.');
                                 }
-                                
+
                                 if ($is != 'file') $file = $fieldValues[$vInd][self::SRCPOS];
-                                
+
                                 $f = basename($file);
-                                
+
                                 if ($resultsThumb != 'default') {
                                         $resultThumb = $resultsThumb[$r];
                                         $f = preg_replace('#\.([^\.]+$)#', '', $f);
@@ -270,111 +270,115 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         JFile::move($resultThumb, $f);
                                         $resultThumb = self::reformatFileName($f);
                                 }
-                                
+
                                 $fieldValues[$vInd][self::SRCPOS] = $file;
                                 $fieldValues[$vInd][self::THUMBSRCPOS] = $resultThumb;
                                 $fieldValues[$vInd][self::MEDIATYPEPOS] = $result['mediatype'];
-                                
+
                                 if ($fieldValues[$vInd][self::CAPTIONNAMINGPOS] == 'filenameascaption') {
                                         $str = self::translateFileName($result['filenamecaption'], $fieldOptions);
-                                        
+
                                         $fieldValues[$vInd][self::CAPTIONPOS] = $str;
                                 }
-                                
+
                                 // TODO: what the?
                                 if (false && $thumbFilled) {
                                         JFile::delete($resultsThumb[0]);
-                                }                                
+                                }
                         }
                 }
-                
+
                 return $fieldValues;
         }
-        
+
         protected static function locateFile($fieldValues, $file, $isThumb = false) {
                 $vInd = null;
                 $found = false;
 
                 foreach ($fieldValues as $vInd => $fieldValue) {
-                        if ($found = preg_match('#^.*'.$file.'$#', $fieldValue[$isThumb ? self::THUMBSRCPOS : self::SRCPOS])) {
+                        $fv = $fieldValue[$isThumb ? self::THUMBSRCPOS : self::SRCPOS];
+                        $fv = JFile::getName($fv);
+                        $fv = JFile::makeSafe($fv);
+
+                        if ($found = ($file == $fv)) {
                                 break;
                         }
                 }
-                
+
                 return $found ? $vInd : -1;
         }
-        
+
         protected static function translateFileName($fileName, $fieldOptions) {
                 $translations = $fieldOptions['filenameascaptiontranslation'];
-                
+
                 if (!$translations) return $fileName;
-                
+
                 $translations = explode("\n", $translations);
                 $trans = array();
-                
+
                 foreach ($translations as $translation) {
                         $translation = explode(K2FieldsModelFields::VALUE_COMP_SEPARATOR, $translation);
                         $translation[1] = trim($translation[1]);
-                        
+
                         if ($translation[1] == '{space}') {
                                 $translation[1] = ' ';
                         } else if ($translation[1] == '{delete}') {
                                 $translation[1] = '';
                         }
-                        
+
                         $trans[$translation[0]] = $translation[1];
                 }
-                
+
                 $fileName = strtr($fileName, $trans);
-                
+
                 return $fileName;
         }
-        
+
         // TODO: implement
         // Remove widgets from here
         protected static function maintainItem(&$item, $fields) {
                 $fields = JprovenUtility::indexBy($fields, 'isMedia');
-                
+
                 if (empty($fields) || !isset($fields['1'])) return;
-                
+
                 $fields = $fields['1'];
-                
+
                 if (empty($fields)) return;
-                
+
                 $fieldIds = (array) JprovenUtility::getColumn($fields, 'id');
-                
+
                 $db = JFactory::getDbo();
                 $query = "
-                        SELECT * 
+                        SELECT *
                         FROM #__k2_extra_fields_values v
                         WHERE v.itemid = ".$item->id." AND v.fieldid IN (".implode(',', $fieldIds).") AND v.partindex = ".(self::SRCPOS-1)." AND v.listindex IN
                         (
                         SELECT DISTINCT li.listindex
-                        FROM #__k2_extra_fields_values li 
+                        FROM #__k2_extra_fields_values li
                         WHERE li.itemid = v.itemid AND li.fieldid = v.fieldid AND li.value IN ('upload', 'remote')
                         )
                 ";
-                
+
                 $db->setQuery($query);
                 $fieldsValues = $db->loadObjectList();
                 $fieldsValues = JprovenUtility::indexBy($fieldsValues, 'fieldid');
-                
+
                 foreach ($fields as $field) {
                         if (is_object($field)) $field = get_object_vars($field);
-                        
+
                         $dir = self::getStorageDirectory($field, $item, true);
                         $files = $dir === false ? false : JFolder::files($dir, '.', false, true);
-                        
+
                         if ($files) {
                                 $_files = array();
-                                
+
                                 if (isset($fieldsValues[$field['id']])) {
                                         $_files = (array) JprovenUtility::getColumn($fieldsValues[$field['id']], 'value');
                                 }
-                                
+
                                 foreach ($files as $i => $file) {
                                         $_file = JPath::clean(substr(str_replace(JPATH_SITE, '', $file), 1), '/');
-                                        
+
                                         if (!in_array($_file, $_files)) {
                                                 $thumb = JPath::clean($dir . '/' . $field['thumbfolder'] . '/'.basename($file), '/');
                                                 if (JFile::exists($thumb)) JFile::delete ($thumb);
@@ -382,66 +386,64 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         }
                                 }
                         }
-                        
+
                         $plg = self::getPlugin($field, 'pic');
-                        
+
                         if (isset($plg->name) && $plg->name == 'widgetkit_k2') {
                                 require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/models/types/widgetkithelper.php';
                                 K2fieldsWidgetkitHelper::delete($item, $field);
                         }
                 }
         }
-        
-        /** Media saving 
+
+        /** Media saving
          *
-         * saveMedia : 
+         * saveMedia :
          * 1. collect files to be saved and related metadata
          * 2. check if upload number of files limit is respected
          * 3. create upload directory
          * 4. call saveMediaFile for each file
          * 5. delete upload directory
-         * 
+         *
          * saveMediaFile :
          * 1. upload file
          * 2. check if upload size limit is respected
          * 3. if file is picture resize if applicable or check size
          * 4. move from upload to actual directory
-         * 
+         *
          */
         public static function save(&$item, $fields) {
                 self::maintainItem($item, $fields);
-                
                 self::collectFilesToSave($item, $fields);
-                
+
                 if (empty(self::$collectedFiles)) return true;
-                
+
                 // Define upload directory
                 $uploadDir = JPath::clean(JPATH_SITE . '/tmp/k2media' . time());
-                
+
                 if (!JFolder::create($uploadDir)) {
                         $item->setError(self::error('Cannot upload file(s): directory is inaccessible.'));
                         return false;
                 }
-                
+
                 $fieldsValues = json_decode($item->extra_fields);
                 $n = count($fieldsValues);
                 $result = '';
-                
                 $postProcess = array();
-                
+
                 for ($i = 0, $n = count($fieldsValues); $i < $n; $i++) {
                         $fieldValues = $fieldsValues[$i]->value;
                         $fieldId = $fieldsValues[$i]->id;
                         $fieldOptions = $fields[$fieldId];
-                        
+
                         if (is_object($fieldOptions))
                                 $fieldOptions = get_object_vars($fieldOptions);
-                        
+
                         if ($fieldOptions['valid'] != 'media') continue;
-                        
+
                         $fieldValues = K2FieldsModelFields::explodeValues($fieldValues, $fieldOptions);
                         $result = self::saveForField($item, $fieldOptions, $fieldValues, $uploadDir);
-                        
+
                         if ($result instanceof JException) {
                                 unset($fieldValues[$result->get('error_index')]);
                                 $fieldsValues[$i]->value = K2FieldsModelFields::implodeValues($fieldValues, $fieldOptions);
@@ -453,23 +455,23 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $fieldsValues[$i]->value = K2FieldsModelFields::implodeValues($result, $fieldOptions);
                         }
                 }
-                
+
                 self::postProcessGalleryOptions($item, $postProcess, $fields);
-                
+
                 $fieldsValues = array_values($fieldsValues);
                 $fieldsValues = json_encode($fieldsValues);
                 $item->extra_fields = $fieldsValues;
-                
+
                 JFolder::delete($uploadDir);
-                
+
                 return $result instanceof JException ? false : $item->store();
         }
-        
+
         protected static function postProcessGalleryOptions($item, $medias, $fields) {
                 if (empty($medias)) return;
-                
+
                 $errors = array();
-                
+
                 foreach ($medias as $fieldId => $_medias) {
                         $field = $fields[$fieldId];
 
@@ -480,80 +482,80 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         }
                 }
         }
-        
-        
-        
+
+
+
         // NOTE: to be removed, CAUSE: not used
         public static function processRemoteFile(&$item, $options, $fieldData) {
                 $fieldId = K2FieldsModelFields::value($options, 'id');
                 $request = $fieldData[self::SRCPOS];
                 $prequest = parse_url($request);
-                
+
                 if ($prequest == false || $prequest['scheme'] != 'http') {
                         return false;
                 }
-                
+
                 $dstDir = self::getStorageDirectory($options, $item, false);
 
                 if (!is_string($dstDir)) {
                         if ($dstDir instanceof JException) $item->setError($dstDir);
-                        
+
                         return false;
                 }
-                
+
                 $fileNameAsCaption = $fieldData[self::CAPTIONNAMINGPOS];
-                
+
                 if (!$fileNameAsCaption) {
                         $fileNameAsCaption = $remoteDl = '';
                 } else {
                         list($fileNameAsCaption, $remoteDl) = explode(',', $fileNameAsCaption ? $fileNameAsCaption : ',');
                 }
-                
+
                 if ($remoteDl == 'remotedl') {
                         $file = self::saveRemoteFile($request, $options, $item, $dstDir);
-                        
+
                         if ($file instanceof JException) {
                                 $item->setError($file);
                                 return false;
                         }
-                        
-                        $thumb = $fieldData[self::THUMBSRCPOS]; 
+
+                        $thumb = $fieldData[self::THUMBSRCPOS];
                         $thumb = self::saveThumb($item, $fieldId, $options, $file['file'], $dstDir);
 
                         if ($thumb === false && $file['mediatype'] == 'pic') {
                                 $thumb = self::createThumb($file['file'], $options);
                         }
-                        
+
                         $file['file'] = self::reformatFileName($file['file']);
-                        
+
                         $fieldData[self::SRCPOS] = $file['file'];
                         $fieldData[self::MEDIATYPEPOS] = $file['mediatype'];
                         $fieldData[self::REMOTEURLDL] = true;
                 } else {
-                        $thumb = $fieldData[self::THUMBSRCPOS]; 
+                        $thumb = $fieldData[self::THUMBSRCPOS];
                         $thumb = self::saveThumb($item, $fieldId, $options, $request, $dstDir);
                 }
-                
+
                 if ($thumb instanceof JException) {
                         $item->setError($thumb);
                         return false;
                 }
-                
+
                 $thumb = self::reformatFileName($thumb);
                 $fieldData[self::THUMBSRCPOS] = $thumb ? $thumb : '';
-                
+
                 return $fieldData;
         }
-        
+
         protected static function saveThumb(&$item, $fieldId, $options, $thumbForFile, $dstDir) {
                 static $counts = array();
-                
+
                 if (!isset($counts[$fieldId])) $counts[$fieldId] = 0;
                 else $counts[$fieldId]++;
-                
+
                 $files = JRequest::get('files');
                 $fielName = $loc = $type = '';
-                
+
                 foreach ($files as $fieldName => $fieldFiles) {
                         if ($fieldName == "k2fieldsmedia_" . $fieldId . '_thumb') {
                                 foreach ($fieldFiles['name'] as $i => $fieldFile) {
@@ -565,180 +567,186 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 }
                         }
                 }
-                
+
                 if (empty($loc)) return false;
-                
+
                 // Upload/working directory
                 $uploadDir = JPath::clean(JPATH_SITE . '/tmp/k2media' . time());
-                
+
                 if (!JFolder::create($uploadDir)) {
                         $item->setError(self::error('Cannot upload file(s): directory is inaccessible.'));
                         return false;
                 }
-                
+
                 $saveFileName = basename($thumbForFile);
-                
+
                 // in case a url without extension or even a dynamic image
                 if (!$saveFileName) $saveFileName = basename($fileName);
-                
+
                 $ext = JFile::getExt($saveFileName);
-                
+
                 $saveFileName = preg_replace('#\.[^\.]$#', $ext, $saveFileName);
-                
+
                 $results = self::saveUploadedFile(
                         $item,
                         $uploadDir,
-                        $dstDir, 
+                        $dstDir,
                         $saveFileName,
-                        $loc, 
-                        $type, 
+                        $loc,
+                        $type,
                         $options,
                         false,
                         true
-                );  
-                
+                );
+
                 JFolder::delete($uploadDir);
 
                 if ($results instanceOf JException) {
                         $item->setError($results);
                         return false;
                 }
-                
+
                 return $results[0]['file'];
         }
-        
+
         public static function getFileNameBasedCaption($file) {
                 $ext = JFile::getExt($file);
                 $caption = basename($file);
                 $caption = str_replace('.'.$ext, '', $caption);
                 return $caption;
         }
-        
+
         protected static function checkMediaLimit($item, $options, $dir, $file) {
                 static $accSize, $accQty;
-                
+
                 if (!isset($accQty)) {
                         $pat = self::mediaFilesPattern($options);
                         $files = JFolder::files($dir, $pat, false, true);
                         $accQty = count($files);
-                        
+
                         foreach ($files as $f) {
                                 $size = @ filesize($f);
-                                
+
                                 if ($size !== false) {
                                         $accSize += $size;
-                                }            
+                                }
                         }
                 }
-                
+
                 if (array_key_exists($item->catid, $options['medialimit'])) {
                         $lim = $options['medialimit'][$item->catid];
                 } else {
                         $lim = $options['medialimit']['_all_'];
                 }
-                
+
                 if ($lim != 0 && $accQty + 1 > $lim) {
                         return self::error(
                                 JText::sprintf(
-                                        "Maximum number of media uploads of %d is exceeded.", 
+                                        "Maximum number of media uploads of %d is exceeded.",
                                         $lim
-                                ), 
-                                '', 
+                                ),
+                                '',
                                 false
                         );
                 }
 
                 $size = @ filesize($file);
-                                
+
                 // If aggregated media size checking do it here against $accSize + $size
-                
+
                 if ($size !== false) {
                         $accSize += $size;
                         $accQty++;
-                }                
-                
+                }
+
                 return true;
         }
-        
+
         protected static function doSaveFile(
-                $item, $file, $mt, $dstDir, $fileName, $options, $createThumb = true, $isThumb = false
+                $item,
+                $file,
+                $mt,
+                $dstDir,
+                $fileName,
+                $options,
+                $createThumb = true,
+                $isThumb = false
         ) {
                 if (($mt == 'pic' && (bool) $options['picresize']) || $isThumb) {
                         $file = self::resizePicNative($file, $options, $isThumb ? 'thumb' : '');
-                        
                         if ($file instanceof JException) return $file;
                 }
-                
+
                 $ext = strtolower(JFile::getExt($fileName));
                 $originalFileName = $fileName;
                 $fileName = preg_replace('#\.' . $ext . '$#i', '', $fileName);
                 $dstFile = JPath::clean($dstDir . ($isThumb ? '/' . $options['thumbfolder'] : '' ), '/');
-                
-                if (!JFolder::exists($dstFile) && $isThumb) {   
+
+                if (!JFolder::exists($dstFile) && $isThumb) {
                         if (!JFolder::create($dstFile)) {
                                 return self::error(
                                         'Cannot upload file(s): upload directory is incorrect or inaccessible.'
                                 );
                         }
                 }
-               
+
                 $fileName = self::renameFile($fileName, $options);
                 $dstFile .=  '/' . $fileName;
-                  
+
                 if (!(bool) $options['mediaoverwrite'] && JFile::exists($dstFile . '.' . $ext)) {
                         static $owKeys = array();
-                        
+
                         $owKey = $isThumb ? $owKeys[$fileName . '.' . $ext] : time();
-                        
+
                         $dstFile .= '_' . $owKey;
-                        
+
                         if (!$isThumb) {
                                 $owKeys[$fileName . '.' . $ext] = $owKey;
                         }
                 }
-                
+
                 // compatibility adjustment where ex. JWSIG/PRO have issues in dealing with this extension,
-                // where actual thumbnail created is jpg and it assumes to have jpeg when generating the html code                
+                // where actual thumbnail created is jpg and it assumes to have jpeg when generating the html code
                 if ($ext == "jpeg") $ext = 'jpg';
-                
+
                 $dstFile .= '.' . $ext;
-                
+
                 if ((bool) $options['mediaoverwrite'] && JFile::exists($dstFile)) {
                         if (!JFile::delete($dstFile)) {
                                 return self::error('File exists.', $fileName);
                         }
                 }
-                
+
                 if (!JFile::move($file, $dstFile)) {
                         return self::error('Cannot move file to provided directory.');
-                }  
-                
+                }
+
                 $thumb = false;
-                
+
                 self::watermark($item, $dstFile, $options);
-                
+
                 if ($createThumb && !$isThumb) {
                         $thumb = self::createThumb($dstFile, $options);
-                        
+
                         if ($thumb instanceof JException) return $thumb;
                 }
-                
+
                 $fileNameCaption = self::getFileNameBasedCaption($dstFile);
-                
+
                 return array(
-                        'file' => $dstFile, 
-                        'mediatype' => $mt, 
-                        'filename' => $fileName, 
+                        'file' => $dstFile,
+                        'mediatype' => $mt,
+                        'filename' => $fileName,
                         'originalfilename' => $originalFileName,
-                        'filenamecaption' => $fileNameCaption, 
+                        'filenamecaption' => $fileNameCaption,
                         'thumbcreated' => $thumb !== false
                 );
         }
-        
+
         protected static function watermark($item, $file, $options) {
                 $fields = K2FieldsModelFields::value($options, 'watermark_fields');
                 $values = array();
-                
+
                 if ($fields) {
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $itemId = K2FieldsModelFields::value($item, 'id');
@@ -753,52 +761,52 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $values = preg_replace("#\<span class=[\"\']lbl[\"\']>(.+)\<\/span\>#U", "$1 - ", $values);
                         $values = trim(html_entity_decode(htmlspecialchars_decode(strip_tags($values))));
                 }
-                
+
                 $_watermarks = K2FieldsModelFields::value($options, 'watermark');
-                
+
                 if (!$_watermarks && !$values || !JFile::exists($file)) return;
-                
+
                 require_once JPATH_SITE."/media/k2fields/lib/wideimage-11.02.19-full/lib/WideImage.php";
-                
+
                 $img = WideImage::load($file);
-                
+
                 $watermarks = $lefts = $tops = array();
-                
+
                 if ($_watermarks) {
                         $_watermarks = explode(K2FieldsModelFields::VALUE_SEPARATOR, $_watermarks);
-                        
+
                         foreach ($_watermarks as $watermark) {
                                 $watermark = JPath::clean(JPATH_SITE . '/' . $watermark, '/');
-                                
+
                                 if (JFile::exists($watermark)) {
                                         $watermarks[] = WideImage::load($watermark);
                                         $left = K2FieldsModelFields::value($options, 'watermark_left', 'left+10');
-                                        $top = K2FieldsModelFields::value($options, 'watermark_top', 'top+10');                        
+                                        $top = K2FieldsModelFields::value($options, 'watermark_top', 'top+10');
                                         $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
                                         $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
                                 }
                         }
                 }
-                
+
                 if ($values) {
                         $fontSize = (int) K2FieldsModelFields::value($options, 'watermark_font_size', 12);
                         $font = JPATH_SITE."/media/k2fields/fonts/Existence-Light.ttf";
-                        
+
                         $oFont = K2FieldsModelFields::value($options, 'id');
-                        
+
                         if ($oFont = JFolder::files(JPATH_SITE."/media/k2fields/fonts/", $oFont."\.[ttf|otf]", false, true)) {
                                 $font = current($oFont);
                         }
-                        
+
                         if (K2FieldsModelFields::value($options, 'watermark_copy')) $values = '(c) '.$values;
-                        
+
                         $size = imagettfbbox($fontSize, 0, $font, $values);
                         $w = abs($size[2]) + abs($size[0]);
                         $h = abs($size[7]) + abs($size[1]);
                         $image = imagecreatetruecolor($w, $h);
                         imagesavealpha($image, true);
                         imagealphablending($image, false);
-                        
+
                         $colors = K2FieldsModelFields::value($options, 'watermark_colors', '200,200,200');
                         $colors = explode(',', $colors);
 
@@ -807,7 +815,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                         $textColor = imagecolorallocate($image, $colors[0], $colors[1], $colors[2]);
                         imagettftext($image, $fontSize, 0, 0, abs($size[5]), $textColor, $font, $values);
-                        
+
                         $watermarks[] = WideImage::load($image);
                         // 'right-'.($w+10), 'bottom-'.($h+10)
                         $left = K2FieldsModelFields::value($options, 'watermark_field_left', 'right-10');
@@ -815,7 +823,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $lefts[] = is_string($left) && strpos($left, ',') !== false ? explode(',', $left) : (array) $left;
                         $tops[] = is_string($top) && strpos($top, ',') !== false ? explode(',', $top) : (array) $top;
                 }
-                
+
                 foreach ($watermarks as $w => $watermark) {
                         foreach ($tops[$w] as $top) {
                                 foreach ($lefts[$w] as $left) {
@@ -824,13 +832,13 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 }
                         }
                 }
-                
+
                 if (isset($image) && is_resource($image)) imagedestroy($image);
-                
+
                 return true;
 
 //                require_once JPATH_SITE."/media/k2fields/lib/class.rwatermark.php";
-//                
+//
 //                $handle = new RWatermark(FILE_JPEG, "./original.jpg");
 //
 //                $handle->SetPosition("RND");
@@ -840,83 +848,83 @@ class K2FieldsMedia extends K2fieldsFieldType {
 //
 //                Header("Content-type: image/png");
 //                $handle->GetMarkedImage(IMG_PNG);
-//                $handle->Destroy();                
+//                $handle->Destroy();
         }
-        
+
         protected static function saveUploadedFile(
                 $item, $uploadDir, $dstDir, $fileName, $tmpName, $mimeType, $options, $createThumb = true, $isThumb = false
         ) {
                 $fileName = JFile::makeSafe($fileName);
                 $file = JPath::clean($uploadDir . '/' . $fileName);
                 $status = JFile::upload($tmpName, $file);
-                
+
                 if (!$status) return self::error("Upload failed.", $fileName);
-                
+
                 return self::saveFile($item, $file, $dstDir, $options, $createThumb, $isThumb, $mimeType);
         }
-        
+
         protected static function saveFile(
                 $item, $file, $dstDir, $options, $createThumb = true, $isThumb = false, $mimeType = ''
         ) {
                 $mt = self::checkFile($item, $file, $options, $mimeType);
-                
+
                 if ($mt instanceof JException) return $mt;
-                
+
                 if ($mt == 'archive') {
                         jimport('joomla.filesystem.archive');
-                        
+
                         $fileName = basename($file);
                         $udst = str_replace($fileName, '', $file) . 'unpacked';
-                        
+
                         if (!JFolder::create($udst)) {
                                 return self::error(
                                         'Cannot upload file(s): directory is inaccessible.'
                                 );
                         }
-                        
+
                         // 7z and rar not supported by JArchive::extract???
                         if (!JArchive::extract($file, $udst)) {
                                 return self::error(
                                         'Cannot upload file(s): directory is inaccessible.'
                                 );
                         }
-                        
+
                         $files = JFolder::files($udst, '.', false, true);
-                        
+
                         foreach ($files as $i => $file) {
                                 $fileName = basename($file);
                                 $mt = self::checkFile($item, $file, $options);
-                                
+
                                 if ($mt instanceof JException) return $mt;
-                                
+
                                 $files[$i] = array('file' => $file, 'mediatype' => $mt, 'filename' => $fileName);
                         }
                 } else {
                         $files = array();
                         $fileName = basename($file);
-                        $files[] = array('file' => $file, 'mediatype' => $mt, 'filename' => $fileName);                        
+                        $files[] = array('file' => $file, 'mediatype' => $mt, 'filename' => $fileName);
                 }
-                
+
                 foreach ($files as $i => $file) {
                         if (!$isThumb) {
                                 $status = self::checkMediaLimit($item, $options, $dstDir, $file['file']);
-                                
+
                                 if ($status instanceof JException) return $status;
                         }
-                        
+
                         $file = self::doSaveFile($item, $file['file'], $file['mediatype'], $dstDir, $file['filename'], $options, $createThumb, $isThumb);
-                        
+
                         if ($file instanceof JException) return $file;
-                        
+
                         $files[$i] = $file;
                 }
-                
+
                 return $files;
         }
-        
+
         protected static function createThumb($file, $options) {
                 if (strpos($options['piccreatethumb'], 'create') === false) return false;
-                
+
                 $thumb = self::resizePicNative($file, $options, 'thumb');
                 $dst = JPath::clean(dirname($file) . '/' . $options['thumbfolder']);
 
@@ -925,38 +933,41 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 }
 
                 $dst .= '/' . basename($file);
-                
+
                 if (JFile::exists($dst) && !JFile::delete($dst) || !JFile::move($thumb, $dst)) {
                         return self::error('Cannot create thumbnail: directory is inaccessible.');
                 }
-                
+
                 return $dst;
         }
-        
+
         protected static function resizePicNative($file, $options, $type = '') {
-                if (!JFile::exists($file)) return self::error('File missing.'); 
-                
+                if (!JFile::exists($file)) return self::error('File missing.');
+
                 $file = JPath::clean($file);
                 $size = getimagesize($file);
-                
+
                 if ($size === false) return false;
 
                 $maxWidth = K2FieldsModelFields::value($options, 'picwidth'.$type);
                 $maxHeight = K2FieldsModelFields::value($options, 'picheight'.$type);
-                
+
+                if (!$maxWidth || !$maxHeight) return self::error('Media field is not correctly configured: missing constraining sizes.');
+
                 $width = $size[0];
                 $height = $size[1];
-                $tmp = JPATH_SITE . '/tmp/' . time() . basename($file);
-                
+
+                $tmp = JPath::clean(JPATH_SITE . '/tmp/' . time() . basename($file));
+
                 if ($width <= $maxWidth && $height <= $maxHeight) {
                         JFile::copy($file, $tmp);
                         return $tmp;
                 }
-                
+
                 if ($width > $maxWidth) {
                         $width = $maxWidth;
                         $height *= $maxWidth / $size[0];
-                        
+
                         if ($height > $maxHeight) {
                                 $width *= $maxHeight / $height;
                                 $height = $maxHeight;
@@ -968,7 +979,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                 $width = round($width);
                 $height = round($height);
-                
+
                 $ext = '';
 
                 switch ($size['mime']) {
@@ -991,7 +1002,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                 imagefilledrectangle($mini, 0, 0, $width, $height, $white);
                 imagecopyresampled($mini, $img, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
-                
+
                 switch ($size['mime']) {
                         case "image/gif":
                                 imagegif($mini, $tmp);
@@ -1004,24 +1015,24 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 imagejpeg($mini, $tmp, K2FieldsModelFields::value($options, 'picquality'.$type));
                                 break;
                 }
-                
+
                 imagedestroy($mini);
                 imagedestroy($img);
 
                 if (empty($type)) JFile::delete($file);
 
                 return $tmp;
-        }        
-        
+        }
+
         protected static function checkFile($item, $file, $options, $browserMimeType = false) {
                 $mt = self::getMediaType($browserMimeType, $file);
                 $fileName = basename($file);
-                
+
                 if ($mt == 'archive') {
                         if (array_key_exists('archiveallowed', $options)) {
                                 $allowed = $options[$mt.'allowed'];
                                 $user = JFactory::getUser();
-                                
+
                                 if (!in_array($allowed, $user->getAuthorisedViewLevels())) {
                                         return self::error('Archive files not allowed.');
                                 }
@@ -1029,40 +1040,40 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 } else if (!in_array($mt, $options['mediatypes'])) {
                         return self::error('Provided media file type is not allowed.');
                 }
-                
+
                 if ($mt == 'pic') {
                         if (($imgSize = getimagesize($file)) === FALSE) {
                                 return self::error('Provided picture type is not allowed.');
                         }
-                        
+
                         if (($imgSize[0] > $options['picwidth'] || $imgSize[1] > $options['picheight']) && !$options['picresize']) {
                                 return self::error(
                                         JText::sprintf('Image larger than allowed size of width x height = %d x %d', $options['picwidth'], $options['picheight']),
                                         $fileName,
                                         false
-                                );                        
-                        }                        
+                                );
+                        }
                 } else if ($options['checkmime']) {
                         $checkerAvailable = function_exists('finfo_open') || function_exists('mime_content_type');
-                        
+
                         if (function_exists('finfo_open') && $options['checkmime']) {
                                 $finfo = finfo_open(FILEINFO_MIME);
                                 $type = finfo_file($finfo, $file);
-                                
+
                                 if (strlen($type) && !in_array($type, $allowed_mime) && in_array($type, $illegal_mime)) {
                                         return self::error('Provided file type is not allowed.');
                                 }
-                                
+
                                 finfo_close($finfo);
                         } else if (function_exists('mime_content_type') && $options['checkmime']) {
                                 $type = mime_content_type($file);
                                 $mimes = array_keys(self::$mimeType);
-                                
+
                                 if (strlen($type) && !in_array($type, $mimes)) {
                                         return self::error('Provided file type is not allowed.');
                                 }
                         }
-                        
+
                         if ($checkerAvailable && $browserMimeType && $browserMimeType != $type) {
                                 return self::error('Incorrect file type.');
                         }
@@ -1073,36 +1084,36 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 return self::error('Provided file type is not allowed.');
                         }
                 }
-                
+
                 $size = filesize($file);
-                
+
                 if (!$size) {
                         return self::error("No file found.");
                 }
-                
+
                 $size /= 1024;
-                
+
                 $max = $options[$mt.'size'];
-                
+
                 if ($max > 0 && $size > $max) {
                         return self::error(
                                 JText::sprintf("Maximum allowed file size of %d kb is exceeded.", $options[$mt.'size']),
                                 $fileName,
                                 false
                         );
-                }     
-                
+                }
+
                 return $mt;
         }
-        
+
         public static function getStorageDirectory($options, $item, $isUpdate = false) {
                 $dir = JPath::clean(K2FieldsModelFields::setting('mediaroot', $options));
                 $root = JPath::clean(JPATH_SITE);
-                
+
                 if (strpos($dir, $root) !== 0) {
                         $dir = JPath::clean($root . '/' . $dir);
                 }
-                
+
                 if (!$isUpdate && !JFolder::exists($dir)) {
                         if (!JFolder::create($dir)) {
                                 return self::error(
@@ -1110,15 +1121,15 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 );
                         }
                 }
-                
+
                 $dir .= '/' . (
-                        K2FieldsModelFields::setting('mediafolder', $options) == 'user' ? 
-                                JFactory::getUser()->get('id') : 
+                        K2FieldsModelFields::setting('mediafolder', $options) == 'user' ?
+                                JFactory::getUser()->get('id') :
                                 (is_object($item) ? $item->id : $item)
                 );
-                
+
                 $dir = JPath::clean($dir);
-                
+
                 if (!$isUpdate && !JFolder::exists($dir)) {
                         if (!JFolder::create($dir)) {
                                 return self::error(
@@ -1126,10 +1137,10 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 );
                         }
                 }
-                
+
                 if (isset($options['id'])) {
                         $dir .= '/' . $options['id'];
-                        
+
                         if (!$isUpdate && !JFolder::exists($dir)) {
                                 if (!JFolder::create($dir)) {
                                         return self::error(
@@ -1138,122 +1149,122 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 }
                         }
                 }
-                
+
                 if ($isUpdate && !JFolder::exists($dir)) return false;
-                
+
                 $dir = JPath::clean($dir, '/');
-                
+
                 return $dir;
         }
-        
+
         /**
          * removes media files for each orphan entry in the value table
          */
         public static function maintain() {
 //                self::maintainItem($item, $fields);
-                
+
                 $db = JFactory::getDBO();
-                
+
                 $query = '
-                        SELECT DISTINCT v.fieldid, v.itemid 
+                        SELECT DISTINCT v.fieldid, v.itemid
                         FROM #__k2_extra_fields_values AS v,
                         (
-                                SELECT DISTINCT vv.itemid, vv.fieldid 
+                                SELECT DISTINCT vv.itemid, vv.fieldid
                                 FROM #__k2_extra_fields_values AS vv, #__k2_extra_fields_definition vf
-                                WHERE 
-                                        vv.itemid NOT IN (SELECT id FROM #__k2_items) AND 
-                                        vv.fieldid = vf.id AND 
+                                WHERE
+                                        vv.itemid NOT IN (SELECT id FROM #__k2_items) AND
+                                        vv.fieldid = vf.id AND
                                         vf.definition LIKE "%valid=media%" AND
-                                        vv.partindex = 0 AND 
+                                        vv.partindex = 0 AND
                                         vv.value = "upload"
                         ) AS f
                         WHERE v.itemid = f.itemid AND v.fieldid = f.fieldid AND v.partindex = ' . (K2FieldsMedia::SRCPOS - 1);
-                
+
                 $db->setQuery($query);
                 $entries = $db->loadObjectList();
-                
+
                 if (!empty($entries)) {
                         $_entries = array();
-                        
+
                         foreach ($entries as $entry) {
                                 if (!isset($_entries[$entry->fieldid])) $_entries[$entry->fieldid] = array();
-                                
+
                                 $_entries[$entry->fieldid][] = $entry->itemid;
                         }
-                        
+
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $fields = $model->getFieldsById(array_keys($_entries));
-                        
+
                         foreach ($fields as $fieldid => $field) {
                                 $items = $_entries[$fieldid];
-                                
+
                                 foreach ($items as $item) {
                                         $dir = self::getStorageDirectory($field, $item);
                                         $thumbdir = K2FieldsModelFields::setting('thumbfolder', $field);
-                                        
+
                                         if (JFolder::exists($dir.'/'.$thumbdir)) JFolder::delete($dir.'/'.$thumbdir);
-                                        
+
                                         if (JFolder::exists($dir)) JFolder::delete($dir);
                                 }
                         }
                 }
         }
-        
+
         protected static function handleError($item) {
                 $link = 'index.php?option=com_k2&view=item&cid='.$item->id;
                 $app = JFactory::getApplication();
                 $app->redirect('index.php?option=com_k2&view=item&cid='.$item->id, $item->getError(), 'error');
         }
-        
+
         /** Supporting methods **/
         public static function error($msg, $fileName = '', $process = true, $code = 403) {
                 if (empty($code)) {
                         $code = 403;
                 }
-                
+
                 return JError::raiseWarning(
-                        $code, 
-                        ($process ? JText::_($msg) : $msg) . 
+                        $code,
+                        ($process ? JText::_($msg) : $msg) .
                         ($fileName == '' ? '' : '<br />' . JText::sprintf("File: %s", $fileName))
                 );
         }
-        
+
         protected static function getMediaType($mimeType, $file) {
                 if (!empty($mimeType) && isset(self::$mimeType[$mimeType])) {
                         return self::$mimeType[$mimeType];
                 }
-                
+
                 $ext = JFile::getExt($file);
                 $mimeType = self::$extMime[$ext]; // lets assume that the first one is the most applicable one
-                
+
                 if (is_array($mimeType)) {
                         $mimeType = $mimeType[0];
                 }
-                
+
                 if (!empty($mimeType) && isset(self::$mimeType[$mimeType])) {
                         return self::$mimeType[$mimeType];
                 }
-                
+
                 return -1;
         }
-        
+
         protected static function isMediaType($what, $mimeType, $file) {
                 return self::getMediaType($mimeType, $file) == $what;
         }
-        
+
         protected static function isArchive($mimeType, $file) {
                 return self::getMediaType($mimeType, $file) == 'archive';
         }
-        
+
         public static function getParameters($field = null, $options = null) {
                 if (empty($options)) $options = $field;
-                
+
 //                self::setAllowedSettings($options, array('mediatypes', 'mediafileexts', 'mediasources'));
                 $options['mediatypes'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediatypes']);
                 $options['mediafileexts'] = (array) K2FieldsModelFields::setting('mediafileexts', $options, true);
-                
+
                 $options['mediasources'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mediasources']);
-                
+
                 $options['picresize'] = K2FieldsModelFields::setting('picresize', $options, true);
                 $options['picquality'] = K2FieldsModelFields::setting('picquality', $options, 70);
                 $options['picwidth'] = K2FieldsModelFields::setting('picwidth', $options);
@@ -1276,7 +1287,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $options['itemlistaudioplg'] = K2FieldsModelFields::setting('itemlistaudioplg', $options);
 
                 $app = JFactory::getApplication();
-                
+
                 if ($app->isSite()) {
                         $input = $app->input;
                         $view = $input->get('view');
@@ -1286,58 +1297,58 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $task = $input->get('task');
 
                         if (!in_array($task, array('edit', 'add', 'save'))) return $options;
-                }                
-                
+                }
+
                 $options['thumbfolder'] = K2FieldsModelFields::setting('thumbfolder', $options);
                 $options['mediaroot'] = K2FieldsModelFields::setting('mediaroot', $options, 'images/k2media/');
                 $options['mediafolder'] = K2FieldsModelFields::setting('mediafolder', $options, 'item');
-                
+
                 $user = JFactory::getUser();
-                
+
                 //if (JRequest::getCmd('task') != 'edit') return $options;
-                
+
                 // TODO: remove following parameters as they are needed only when editing items
-                
+
                 $max = self::returnBytes(ini_get('upload_max_filesize')) / 1024;
-                
+
                 if ($max <= 0) $max = 1e6;
-                
+
                 $options['maxsize'] = min(
                         array($options['picsize'], $options['videosize'], $options['audiosize'], $max)
                 );
-                
+
                 $lim = (int) K2FieldsModelFields::setting('medialimit', $options, 0);
                 $limcat = K2FieldsModelFields::setting('medialimitspecific', $options, '');
                 $limcat = empty($limcat) ? array() : explode('\r\n', $limcat);
-                
+
                 foreach ($limcat as $_lim) {
                         $_lim = explode(K2FieldsModelFields::VALUE_SEPARATOR, $_lim);
                         $limcat[$_lim[0]] = (int) $_lim[1];
                 }
-                
+
                 $limcat['_all_'] = $lim;
-                
+
                 $options['medialimit'] = $limcat;
                 $options['mediaoverwrite'] = K2FieldsModelFields::setting('mediaoverwrite', $options, false);
                 $options['disablek2mediatabs'] = K2FieldsModelFields::setting('disablek2mediatabs', $options, false);
                 $options['mediamergefields'] = K2FieldsModelFields::setting('mediamergefields', $options, false);
                 $options['checkmime'] = K2FieldsModelFields::setting('checkmime', $options, true);
-                
+
                 if (
                         empty($options['avproviders']) &&
-                        (in_array('video', $options['mediatypes']) || in_array('audio', $options['mediatypes'])) && 
+                        (in_array('video', $options['mediatypes']) || in_array('audio', $options['mediatypes'])) &&
                         !empty($options['providerplg'])
                 ) {
                         $options['avproviders'] = self::getVideoProviders($options['providerplg']);
                 }
-                
+
                 if (in_array('browse', $options['mediasources'])) {
                         $options['browsablefiles'] = self::getBrowsableFiles($options);
                 }
-                
+
                 $noProvider = empty($options['avproviders']);
                 $noBrowse = empty($options['browsablefiles']);
-                
+
                 if ($noProvider || $noBrowse) {
                         foreach ($options['mediasources'] as $i => $src) {
                                 if ($src == 'provider' && $noProvider) {
@@ -1349,36 +1360,36 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         }
                         $options['mediasources'] = array_values($options['mediasources']);
                 }
-                
+
                 $options['archiveallowed'] = K2FieldsModelFields::setting('archiveallowed', $options, 24);
                 $options['remotedlallowed'] = K2FieldsModelFields::setting('remotedlallowed', $options, false);
-                
+
                 if ($options['remotedlallowed']) {
                         $options['remotedlallowed'] = in_array($options['remotedlallowed'], $user->getAuthorisedViewLevels());
                 }
-                
+
                 $options['filenameascaptiontranslation'] = K2FieldsModelFields::setting('filenameascaptiontranslation', $options, '');
-                
+
                 $options['renamefiles'] = K2FieldsModelFields::setting('renamefiles', $options, '');
-                
+
                 return $options;
         }
-        
+
         protected static function setAllowedSettings(&$options, $paramNames, $limitToCore = true) {
                 $paramNames = (array) $paramNames;
-                
+
                 foreach ($paramNames as $paramName) {
                         $fieldSettings = K2FieldsModelFields::setting($paramName, $options, array());
 
                         if (!is_array($fieldSettings))
                                 $fieldSettings = explode(K2FieldsModelFields::VALUE_SEPARATOR, $fieldSettings);
-                        
+
                         if ($limitToCore || empty($fieldSettings)) {
                                 $coreSettings = K2FieldsModelFields::setting($paramName);
-                                
-                                if (!is_array($coreSettings)) 
+
+                                if (!is_array($coreSettings))
                                         $coreSettings = explode(K2FieldsModelFields::VALUE_SEPARATOR, $coreSettings);
-                                
+
                                 if (empty($fieldSettings)) {
                                         $fieldSettings = $coreSettings;
                                 } else if($limitToCore) {
@@ -1393,20 +1404,20 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $options[$paramName] = $fieldSettings;
                 }
         }
-        
+
         public static $fieldParameterFilters = array();
-        
+
         protected static function getAllowedExtensions($options) {
                 static $exts;
-                
+
                 if (isset($exts)) return $exts;
-                
+
                 $exts = $options['mediafileexts'];
-                
+
                 if (empty($exts)) {
                         $exts = array();
                         $mts = $options['mediatypes'];
-                        
+
                         foreach ($mts as $mt) {
                                 foreach (self::$mimeType as $mimeType => $_mt) {
                                         if ($_mt == $mt) {
@@ -1416,18 +1427,18 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         }
                                 }
                         }
-                        
+
                         $exts = array_unique($exts);
                 }
-                
+
                 return $exts;
         }
-        
+
         protected static function renderWidgetkit_k2($medias, $mediaType, $plugin, $item, $field) {
                 require_once JPATH_ADMINISTRATOR.'/components/com_k2fields/models/types/widgetkithelper.php';
                 return K2fieldsWidgetkitHelper::render($item, $field);
         }
-        
+
         private static function getView($item) {
                 $view = $item->params && $item->params->get('parsedInModule') ? 'itemlist' : '';
                 if ($view != '') return $view;
@@ -1436,30 +1447,40 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 return $view;
         }
 
+
+        private static function isRendered($isSingleMode = false) {
+                if (self::$isRendered >= 1 && $isSingleMode) return true;
+                self::$isRendered++;
+                return false;
+        }
+
+        private static $isRendered = 0;
+
         public static function render($item, $values, $field, $helper, $rule = null) {
+                self::$isRendered = 0;
                 $rendered = array('embed'=>array(), 'other'=>array());
-                
+
                 if (isset($item->noMediaFields) && $item->noMediaFields) return '';
-                        
+
                 $medias = array();
-                
+
                 foreach ($values as $value) {
                         $mediaType = $value[self::SRCTYPEPOS]->value == 'provider' ? 'provider' : $value[self::MEDIATYPEPOS]->value;
                         if (!isset($medias[$mediaType])) $medias[$mediaType] = array();
                         $medias[$mediaType][] = $value;
                 }
-                
+
                 $postProcess = true;
-                
+
                 foreach ($medias as $mediaType => $_medias) {
                         if (empty($mediaType)) {
                                 $rendered['other'][] = JText::_('Unknown media type');
                         }
-                        
+
                         foreach ($_medias as $i => &$m) {
                                 if ($m[self::SRCTYPEPOS]->value == 'embed') {
                                         // TODO utilize available methods for encapsulating values
-                                        $rendered['embed'][] = 
+                                        $rendered['embed'][] =
                                                 '<div class="media embed">'.
                                                 $media[self::SRCPOS]->value.
                                                 '<span class="caption">'.
@@ -1468,117 +1489,116 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         unset($m);
                                 }
                         }
-                        
+
                         $plugin = self::getPlugin($field, $mediaType, self::getView($item));
-                        
+
                         if ($plugin instanceof JException) continue;
-                        
+
                         $methodName = ucfirst(strtolower($plugin->name));
-                        
+
                         if (method_exists('K2FieldsMedia', 'render'.$methodName)) {
                                 $rendered['other'][] = call_user_func_array(
-                                        array('K2FieldsMedia', 'render'.$methodName), 
+                                        array('K2FieldsMedia', 'render'.$methodName),
                                         array($_medias, $mediaType, $plugin, $item, $field)
                                 );
-                        } else {                        
+                        } else {
                                 $rendered['other'][]  = self::renderPlugin($_medias, $mediaType, $plugin, $item, $field);
                         }
                 }
-                
+
                 $_rendered = '';
                 $dontProcess = array();
                 $process = '';
-                
+
                 foreach ($rendered['other'] as $r) {
                         if (is_array($r)) $dontProcess[] = $r;
                         else $process .= $r;
                 }
-                
+
                 $rendered = $process.implode($rendered['embed'], '');
                 $rendered = $helper->renderFieldValues(array($rendered), $field, $rule);
-                
+
                 if (!empty($dontProcess)) {
                         return array($rendered, $dontProcess);
                 }
-                
+
                 return $rendered;
         }
-        
+
         protected static function getPlugin($field, $mediaType, $overrideView = '') {
                 $nonePlugins = array('widgetkit_k2', 'img', 'imglinked', 'source');
                 $input = JFactory::getApplication()->input;
-                
+
                 if ($overrideView !== '') {
                         $view = $overrideView;
                 } else {
                         $view = $input->get('view', '', 'cmd');
                 }
-                
+
                 if ($view != 'itemlist') $view = '';
-                
+
                 $mediaTypes = K2FieldsModelFields::value($field, 'mediatypes');
-                
-                if (!in_array($mediaType, $mediaTypes)) return self::error('Media type not allowed.');
-                
+
+                if ($mediaType != 'provider' && !in_array($mediaType, $mediaTypes)) {
+                        return self::error('Media type not allowed.');
+                }
+
                 $plugin = K2FieldsModelFields::value($field, $view.$mediaType.'plg');
-                
-                if (JFactory::getApplication()->isSite() && empty($plugin)) 
+
+                if (JFactory::getApplication()->isSite() && empty($plugin))
                         return self::error('Media plugin setting missing.');
-                
+
                 if (in_array($plugin, $nonePlugins)) {
                         $result = new stdClass();
                         $result->name = $plugin;
                         $result->dontPostprocess = $plugin == 'source';
                         return $result;
                 }
-                
+
                 $pluginType = self::getPluginType($plugin);
-                                
+
                 if (!$pluginType) return self::error('The required media plugin is not available.');
-                
+
                 if (!JPluginHelper::importPlugin($pluginType, $plugin)) return self::error('The required media plugin is not available.');
 
-                $plugin = JPluginHelper::getPlugin($pluginType, $plugin);  
-                
+                $plugin = JPluginHelper::getPlugin($pluginType, $plugin);
+
                 $params = new JRegistry;
                 $params->loadString($plugin->params);
                 $plugin->params = $params;
                 $result->dontPostprocess = false;
-                
+
                 return $plugin;
         }
-        
+
         protected static function renderSource($medias, $mediaType, $plugin, $item, $field) {
                 $ui = array();
-                
+
                 $view = self::getView($item);
                 $src = $view == 'itemlist' ? self::THUMBSRCPOS : self::SRCPOS;
-                
+
                 foreach ($medias as $media) {
                         $ui[] = array('src'=>$media[self::SRCPOS]->value, 'thumb'=>$media[self::THUMBSRCPOS]->value, 'caption'=>$media[self::CAPTIONPOS]->value);
                 }
-                
+
                 return $ui;
         }
-        
+
         protected static function renderImgLinked($medias, $mediaType, $plugin, $item, $field) {
                 K2FieldsModelFields::setValue($field, 'imglinked', true);
                 return self::renderImg($medias, $mediaType, $plugin, $item, $field);
         }
-        
+
         protected static function renderImg($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
                 $view = self::getView($item);
                 $view = $view == 'itemlist' ? 'list' : '';
-                $mode = K2FieldsModelFields::value($field, $view.'mode');
-                
-                if (empty($mode) && $view == 'list') {
-                        $mode = 'single';
-                }
-                
-                $isSingleMode = $mode == 'single';
+                $isSingleMode = self::isSingleMode($view, $field);
+
+                if (self::isRendered($isSingleMode)) return;
+
                 $singleMode = K2FieldsModelFields::value($field, 'singlemode');
-                
+
                 if ($isSingleMode) {
                         if ($singleMode == 'first') {
                                 $medias = array_slice($medias, 0, 1);
@@ -1587,21 +1607,21 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $medias = array_slice($medias, $rand, 1);
                         }
                 }
-                
+
                 self::normalizeLocation($medias);
-                
+
                 $src = $view == 'list' ? self::THUMBSRCPOS : self::SRCPOS;
                 $isLinked = $view == 'list' && K2FieldsModelFields::isTrue($field, 'imglinked');
                 $linkPre = $isLinked ? '<a href="'.$item->link.'">' : '';
                 $linkPost = $isLinked ? '</a>' : '';
-                
+
                 foreach ($medias as $media) {
                         $ui .= $linkPre."<img src=\"".$media[$src]->value."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />".$linkPost;
                 }
-                
+
                 return $ui;
         }
-        
+
         protected static function normalizeLocation(&$medias) {
                 foreach ($medias as $media) {
                         if ($media[self::SRCTYPEPOS]->value == 'upload') {
@@ -1610,51 +1630,55 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         $media[self::SRCPOS]->value = JURI::root().$media[self::SRCPOS]->value;
                                 }
                         }
-                        
+
                         if ($media[self::SRCTYPEPOS]->value == 'upload' || $media[self::SRCTYPEPOS]->value == 'remote') {
-                                if ($media[self::THUMBSRCPOS]->value) 
+                                if ($media[self::THUMBSRCPOS]->value)
                                         $media[self::THUMBSRCPOS]->value = JURI::root().$media[self::THUMBSRCPOS]->value;
                         }
                 }
         }
-        
+
+        private static function isSingleMode($view, $field) {
+                $mode = K2FieldsModelFields::value($field, $view.'mode');
+
+                if (empty($mode) && $view == 'list') {
+                        $mode = 'single';
+                }
+
+                return $mode == 'single';
+        }
+
         // TODO: testa J2.5 kompatibel plugins o i plugin setting behåll endast de som är kompatibla alt. markera de som kompatibla
         protected static function renderPlugin($medias, $mediaType, $plugin, $item, $field) {
                 $ui = '';
-                
+
                 if (is_object($field)) $field = get_object_vars($field);
-                
+
                 $DIR = self::getStorageDirectory($field, $item, false);
                 $DIR = str_replace(JPath::clean(JPATH_SITE, '/') . '/', '', $DIR);
                 $params =  K2HelperUtilities::getParams('com_k2');
-                
+
                 self::normalizeLocation($medias);
-                
+
                 $mediasId = $mediaType.'_'.$item->id;
-                
+
                 if (count($medias)) $mediasId .= '_'.$medias[0][0]->fieldid;
-                
+
                 $input = JFactory::getApplication()->input;
-                
+
                 $view = self::getView($item);
                 $view = $view == 'itemlist' ? 'list' : '';
-                $mode = K2FieldsModelFields::value($field, $view.'mode');
-                
-                if (empty($mode) && $view == 'list') {
-                        // $mode = K2FieldsModelFields::value($field, 'mode');
-                        // if (empty($mode)) $mode = 'single';
-                        $mode = 'single';
-                }
-                
-                $isSingleMode = $mode == 'single';
+                $isSingleMode = self::isSingleMode($view, $field);
+
+                if (self::isRendered($isSingleMode)) return;
+
                 $singleMode = K2FieldsModelFields::value($field, 'singlemode');
-                
                 $layout = K2FieldsModelFields::value($field, $view.'layout');
-                
+
                 if (empty($layout) && $view == 'list') {
                         $layout = K2FieldsModelFields::value($field, 'layout');
                 }
-                
+
                 switch ($plugin->name) {
                         // pic plugins
                         case "jw_sigpro":
@@ -1662,7 +1686,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $gallery = array_pop($dirs);
                                 $root = implode('/', $dirs);
                                 $ui = "{gallery}{$gallery}{/gallery}";
-                                
+
                                 $thw = K2FieldsModelFields::setting('picwidththumb', $field);
                                 $thh = K2FieldsModelFields::setting('picheightthumb', $field);
                                 $quality = K2FieldsModelFields::setting('picquality', $field);
@@ -1672,19 +1696,19 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 if ($thh) $plugin->params->set('thb_height', $thw);
                                 if ($quality) $plugin->params->set('jpg_quality', $quality);
                                 if ($engine) $plugin->params->set('popup_engine', $engine);
-                                
+
                                 $plugin->params->set('galleries_rootfolder', $root);
                                 $plugin->params->set('singlethumbmode', $isSingleMode ? '1' : '0');
-                                
+
                                 if ($singleMode == 'first') {
                                         $plugin->params->set('sortorder', 0);
                                 } else if ($singleMode == 'random') {
                                         $plugin->params->set('sortorder', 4);
                                 }
-                                
+
                                 if (!empty($layout)) $plugin->params->set('thb_template', $layout);
-                                
-                                if (self::createCaptionFile($DIR, 'en-GB.labels.txt', $medias)) 
+
+                                if (self::createCaptionFile($DIR, 'en-GB.labels.txt', $medias))
                                         $plugin->params->set('showcaptions', 2);
 
                                 break;
@@ -1693,32 +1717,32 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                  * Correct setup: (since plugin doesn't respect the params values it has been passed)
                                  * 1. thumbnail size
                                  */
-                                
+
                                 $root = self::getMediaRoot($plugin, 'galleries_rootfolder', $DIR);
                                 $ui = "{gallery}{$root}{/gallery}";
-                                
+
                                 break;
                         case "cdwebgallery":
                                 $ui = "{webgallery}";
-                                
+
                                 foreach ($medias as $media) {
                                         $ui .= "<img src=\"".$media[self::SRCPOS]->source."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />";
                                 }
 
                                 $ui .= "{/webgallery}";
-                                
+
                                 break;
                         case "verysimpleimagegallery":
                         case "cssgallery":
                                 static $galleryNo;
-                                
+
                                 if (!isset($galleryNo)) $galleryNo = -1;
-                                
+
                                 $galleryNo++;
-                                
+
                                 $root = self::getMediaRoot($plugin, 'imagepath', $DIR);
                                 $plg = $plugin->name == 'verysimpleimagegallery' ? 'vsig' : 'becssg';
-                                
+
                                 $w = K2FieldsModelFields::setting('picwidth', $field);
                                 $h = K2FieldsModelFields::setting('picheight', $field);
                                 $thw = K2FieldsModelFields::setting('picwidththumb', $field);
@@ -1726,15 +1750,15 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $q = K2FieldsModelFields::setting('picquality', $field);
                                 $c = K2FieldsModelFields::setting('caps', $field);
                                 $r = (int) K2FieldsModelFields::setting('throw', $field);
-                                
+
                                 $ui = array(
-                                    $root, 
+                                    $root,
                                     'links=0|autolink=0',
                                     $w ? 'width='.$w : '',
                                     $h ? 'height='.$h : '',
                                     $c ? 'caps='.($c ? '1' : '0') : ''
                                 );
-                                
+
                                 if ($plugin->name == 'verysimpleimagegallery') {
                                         $ui[] = $q ? 'imqual='.$q : '';
                                         $ui[] = $q ? 'qual='.$q : '';
@@ -1742,22 +1766,22 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         $ui[] = $q ? 'iqual='.$q : '';
                                         $ui[] = $q ? 'tqual='.$q : '';
                                 }
-                                
+
                                 if ($plugin->name == 'verysimpleimagegallery') {
                                         $ui[] = $r ? 'cols='.$r : '';
                                 } else {
                                         $ui[] = $r ? 'throw='.$r : '';
                                 }
-                                
+
                                 $ui = array_filter($ui);
                                 $ui = implode('|', $ui);
-                                
+
                                 $ui = "{{$plg}}{$ui}{/{$plg}}";
 
                                 foreach ($medias as $media) {
                                         $ui .= "{{$plg}_c}$galleryNo|".basename($media[self::SRCPOS]->value)."|".$media[self::CAPTIONPOS]->value."|{/{$plg}_c}";
                                 }
-                                
+
                                 break;
                         case "ppgallery":
                                 $p = $plugin->params->get('plgstring', 'ppgallery');
@@ -1770,7 +1794,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $wmp = K2FieldsModelFields::setting('watermarkposition', $field);
                                 $c = K2FieldsModelFields::setting('caps', $field);
                                 $t = K2FieldsModelFields::setting('theme', $field);
-                                
+
                                 $ui = array(
                                     "{{$p} ",
                                     $w ? ' width="'.$w.'"' : '',
@@ -1782,14 +1806,14 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                     $t ? ' theme="'.$t.'"' : '',
                                     '}'
                                 );
-                                
+
                                 foreach ($medias as $media) {
                                         $ui[] = "<img src=\"".$media[self::SRCPOS]->source."\" alt=\"".$media[self::CAPTIONPOS]->value."\" title=\"".$media[self::CAPTIONPOS]->value."\" />";
                                 }
-                                
+
                                 $ui[] = "{/{$p}}";
                                 $ui = implode('', $ui);
-                                
+
                                 break;
                         case "slimbox":
                                 $ui = '';
@@ -1799,11 +1823,11 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 }
 
                                 $ui = "{slimbox $ui}";
-                                
+
                                 break;
                         case "sige":
                                 $c = K2FieldsModelFields::setting('caps', $field, 0);
-                                
+
                                 $ui = array(
                                     "{gallery}{$DIR}",
                                      "print=0",
@@ -1819,33 +1843,33 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                     'watermark='.K2FieldsModelFields::setting('watermark', $field, 0),
                                     'caption='.$c,
                                     'fileinfo='.$c,
-                                    'watermarkposition='.K2FieldsModelFields::setting('watermarkposition', $field)        
+                                    'watermarkposition='.K2FieldsModelFields::setting('watermarkposition', $field)
                                 );
-                                
+
                                 $ui[] = "{/gallery}";
                                 $ui = array_filter($ui);
                                 $ui = implode(',', $ui);
-                                
+
                                 if ($c) self::createCaptionFile($DIR, 'captions.txt', $medias);
-                                
+
                                 break;
                         case "sigplus":
                                 $root = self::getMediaRoot($plugin, 'base_folder', $DIR);
                                 $c = K2FieldsModelFields::setting('caps', $field, 0);
-                                
+
                                 if ($c) $c = 'captions=boxplus.caption caption:alwaysOnTop=1';
-                                
+
                                 $w = K2FieldsModelFields::setting('watermark', $field, 0);
                                 $wp = '';
-                                
+
                                 if ($w) {
                                         $w = 'watermark=1';
                                         $wp = K2FieldsModelFields::setting('watermarkposition', $field);
                                         if ($wp) $wp = 'watermark:position='.$wp;
                                 }
-                                
+
                                 $e = K2FieldsModelFields::setting('engine', $field, 'boxplus');
-                                
+
                                 $ui = array(
                                     "{gallery",
                                     "layout=flow",
@@ -1857,13 +1881,13 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                     'quality='.K2FieldsModelFields::setting('picquality', $field),
                                     $w, $wp, $c
                                 );
-                                
+
                                 $ui[] = "}{$root}{/gallery}";
                                 $ui = array_filter($ui);
                                 $ui = implode(' ', $ui);
-                                
+
                                 if ($c) self::createCaptionFile($DIR, 'labels.txt', $medias);
-                                
+
                                 break;
                         // multimedia plugins
                         case "jcemediabox":
@@ -1871,7 +1895,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         case "modalizer":
                         case "rokbox":
                                 $ui = $end = '';
-                                
+
                                 if ($plugin->name == "jcemediabox") {
                                         $trigger = " class='jcebox noicon' rel='group[".$mediasId."]'";
                                         $end = '<script type="text/javascript">JCEMediaBox.Popup.init()</script>';
@@ -1894,9 +1918,9 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 } else if ($plugin->name == "rokbox") {
                                         $trigger = ' rel="rokbox(T'.$item->id.')" ';
                                 }
-                                
+
                                 $n = count($medias);
-                                
+
                                 if ($isSingleMode) {
                                         switch ($singleMode) {
                                                 case 'first':
@@ -1917,29 +1941,29 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                                         break;
                                         }
                                 }
-                                
+
                                 for ($i = 0; $i < $n; $i++) {
                                         $media = $medias[$i];
                                         $caption = htmlentities($media[self::CAPTIONPOS]->value);
-                                        
+
                                         if (!$isSingleMode || $i == $aim) {
                                                 $img = "<img src='".$media[self::THUMBSRCPOS]->value."' alt='". $caption."' title='". $caption."' />";
-                                                
-                                                if (!$isSingleMode) 
+
+                                                if (!$isSingleMode)
                                                         $img .= "<span class='caption'>".$caption."</span>";
                                         } else {
                                                 $img = '';
                                         }
-                                        
+
                                         $ui .= "
                                                 <span class='{$mediaType}{$plugin->name} {$mediaType} {$mediasId}'>
                                                         <a href='".$media[self::SRCPOS]->value."' $trigger title='".$caption."'>".$img."</a>
                                                  </span>
                                                  ";
                                 }
-                                
+
                                 $ui .= $end;
-                                
+
                                 break;
                         // av plugins
                         case "jw_allvideos":
@@ -1947,19 +1971,19 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $gallery = array_pop($dirs);
                                 $root = implode('/', $dirs);
                                 $params->set('vfolder', $root);
-                                
+
                                 if ($singleMode == 'first') {
                                         $params->set('sortorder', 0);
                                 } else if ($singleMode == 'random') {
                                         $params->set('sortorder', 4);
                                 }
-                                                                
+
                                 $vfolder = JPath::clean($params->get('vfolder'), '/').'/';
 
                                 foreach ($medias as $media) {
                                         $type = $media[self::SRCTYPEPOS]->value;
                                         $vfile = $media[self::SRCPOS]->value;
-                                        
+
                                         switch ($type) {
                                                 case 'provider':
                                                         $tag = $media[self::CAPTIONNAMINGPOS]->value;
@@ -1968,12 +1992,12 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                                 case 'remote':
                                                 default:
                                                         $tag = JFile::getExt($media[self::SRCPOS]->value);
-                                                        
+
                                                         if ($type == 'upload') {
                                                                 $vfile = str_replace($vfolder, '', $vfile);
                                                                 $vfile = JFile::stripExt($vfile);
                                                         }
-                                                        
+
                                                         break;
                                         }
 
@@ -1989,7 +2013,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 if ($isLoad !== true) {
                                         $evts = array('onAfterDisplayContent');
                                 }
-                                
+
                                 break;
                         case "avreloaded":
                                 $root = substr($rel_file, 0, strlen($rel_file) - 1);
@@ -2017,7 +2041,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $_plugin =& JPluginHelper::getPlugin('content', 'denvideo');
                                 $_plgParams = new JRegistry( $_plugin->params );
                                 $defdir = $_plgParams->get('defaultdir');
-                                
+
                                 if ($defdir) {
                                         $sep = stripos($defdir, '/') ? '/' : DS;
                                         $cnt = count(explode($sep, $defdir));
@@ -2032,18 +2056,18 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $ui = "{denvideo {$vfile} {$strparams}}";
                                 break;
                 }
-                
+
                 $uiItem = new stdClass();
                 $uiItem->text = $ui;
                 $limitstart = $input->get('limitstart', 0, 'int');
                 $dispatcher = JDispatcher::getInstance();
                 $ctxt = 'com_k2.'.$input->get('view', 'item', 'cmd');
-                
+
                 $dispatcher->trigger('onContentPrepare', array($ctxt, &$uiItem, &$plugin->params, $limitstart));
-                
-                return $uiItem->text;        
+
+                return $uiItem->text;
         }
-        
+
         protected static function getMediaRoot($plugin, $rootParamName, $accRoot) {
                 $plgRoot = $plugin->params->get($rootParamName, '');
 
@@ -2055,15 +2079,15 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $currentPos = str_repeat('../', $currentPos);
                         $accRoot = $currentPos . $accRoot;
                 }
-                
+
                 return $accRoot;
         }
-        
+
         protected static function createCaptionFile($loc, $fileName, $medias) {
                 $captionFile = JPATH_SITE . '/' . $loc . '/' . $fileName;
-                
+
                 jimport('joomla.filesystem.file');
-                
+
                 $existsCaptions = false;
 
                 if (!($existsCaptions = JFile::exists($captionFile))) {
@@ -2074,28 +2098,28 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 $caption = $media[self::CAPTIONPOS]->value;
                                 $captions[] = $file . "|" . $caption . "|" . $caption;
                         }
-                        
+
                         $captions = implode($captions, "\n");
                         $captions = trim($captions);
                         $existsCaptions = !empty($captions);
 
                         if ($existsCaptions) JFile::write($captionFile, $captions);
                 }
-                
+
                 return $existsCaptions;
         }
 
         protected static function mediaFilesPattern($options) {
                 static $pat;
-                
+
                 if (empty($pat)) {
                         $pat = self::getAllowedExtensions($options);
                         $pat = '^(?i).+\.(' . implode('|', $pat) . ')$';
                 }
-                
+
                 return $pat;
         }
-        
+
         public static function getPluginType($plugin) {
                 $db = JFactory::getDBO();
                 $query = 'SELECT folder FROM #__extensions WHERE element = ' . $db->Quote($plugin) . ' AND enabled = 1 AND folder IN ("content", "system") ORDER BY folder LIMIT 1';
@@ -2103,113 +2127,57 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $type = $db->loadResult();
                 return $type ? $type : false;
         }
-        
+
         public static function getBrowsableFiles($options) {
                 $user = JFactory::getUser();
                 $files = array();
-                
-                if ($user->guest) return $files; 
-                
+
+                if ($user->guest) return $files;
+
                 $query = "
-                SELECT 
+                SELECT
                         it.id AS itemid, it.title, res.id, (SELECT value FROM #__k2_extra_fields_values AS c WHERE c.itemid = res.itemid AND c.fieldid = res.fieldid AND c.listindex = res.listindex AND c.partindex = -1 AND c.index = 0) as label, res.value
-                FROM 
-                        #__k2_extra_fields_values AS val, 
+                FROM
+                        #__k2_extra_fields_values AS val,
                         #__k2_items AS it,
                         #__k2_extra_fields AS flds,
                         #__k2_extra_fields_values AS res
-                WHERE 
-                        it.created_by = ".$user->get('id')." AND 
+                WHERE
+                        it.created_by = ".$user->get('id')." AND
                         it.published = 1 AND
                         val.itemid = it.id AND
                         flds.name LIKE 'k2f---valid=media%' AND
                         flds.id = val.fieldid AND
                         val.value = 'upload' AND
-                        res.itemid = val.itemid AND 
-                        res.fieldid = val.fieldid AND 
-                        res.listindex = val.listindex AND 
+                        res.itemid = val.itemid AND
+                        res.fieldid = val.fieldid AND
+                        res.listindex = val.listindex AND
                         res.partindex = ".(self::SRCPOS - 1)."
                 ORDER BY
                         it.id
                 ";
-                
+
                 $db = JFactory::getDBO();
                 $db->setQuery($query);
                 $items = $db->loadObjectList();
                 $files = array();
                 $itemId = '';
-                
+
                 foreach ($items as $item) {
                         if ($itemId != $item->itemid) {
                                 $itemId = $item->itemid;
                                 $files[] = array('label' => $item->title);
                         }
-                        
+
                         $files[] = array('value' => $item->id, 'text' => basename($item->value));
                 }
-                
+
                 return $files;
-                
-//                /* actual file counting */
-//                
-//                $pat = self::mediaFilesPattern($options);
-//                
-//                $dir = JPATH_SITE . '/' . $options['mediaroot'] . '/';
-//                $userFolder = $options['mediafolder'] == 'user';
-//                
-//                if ($userFolder) {
-//                        $dir .= $user->get('id') . '/';
-//                        
-//                        if (!JFolder::exists($_dir)) {
-//                                $_files = JFolder::files($dir, $pat, false, true);
-//                                $files['all'] = $_files;
-//                        }
-//                } else {
-//                        $db = JFactory::getDBO();
-//                        $q = "SELECT id, title FROM #__k2_items WHERE published = 1";
-//                        if ($user->gid < 23) $q .= " AND created_by = " . $user->get('id');
-//                        
-//                        $db->setQuery($q);
-//                        $items = $db->loadObjectList();
-//                        
-//                        foreach ($items as $item) {
-//                                $_dir = $dir . $item->id . '/';
-//                                
-//                                if (!JFolder::exists($_dir)) continue;
-//                                
-//                                $_files = JFolder::files($_dir, $pat, false, true);
-//                                
-//                                if (!empty($_files)) {
-//                                        $files[$item->title] = array($item->id, $_files);
-//                                }
-//                        }
-//                }
-//                
-//                $result = array();
-//                
-//                foreach ($files as $ind => $_files) {
-//                        $result[] = array('label' => $ind);
-//                        $itemId = $_files[0];
-//                        $_files = $_files[1];
-//                        
-//                        foreach ($_files as $i => $_file) {
-//                                $result[] = array(
-//                                    'text' => basename($_file), 
-//                                    'value' => $itemId . ':' . JPath::clean(substr(str_replace(JPATH_SITE, '', $_file), 1), '/')
-//                                );
-//                        }
-//                }
-//                
-//                if ($userFolder && !empty($result)) {
-//                        $result = array_shift($result);
-//                }
-                
-//                return $result;
         }
 
         protected static function getVideoProviders($plg) {
                 static $providers = array();
-                
+
                 if (!empty($providers[$plg])) return $providers[$plg];
 
                 switch ($plg) {
@@ -2222,11 +2190,11 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         case "jw_allvideos":
                                 // Note: taken from k2: administrator/components/com_k2/models/item.php::getVideoProviders
                                 // and with slight customization
-                                
+
                                 $file = JPATH_PLUGINS.'/content/jw_allvideos/jw_allvideos/includes/sources.php';
 
                                 jimport('joomla.filesystem.file');
-                                
+
                                 if (JFile::exists($file)) {
                                         require $file;
                                         $thirdPartyProviders = array_slice($tagReplace, 40);
@@ -2246,19 +2214,19 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                         return $providers;
                                 } else {
                                         return array();
-                                }                                
+                                }
                                 break;
                           default:
                                   return '';
                 }
 
                 return $providers[$plg];
-        }        
-        
+        }
+
         protected static function returnBytes($val) {
                 $val = trim($val);
                 $last = strtolower($val[strlen($val) - 1]);
-                
+
                 switch($last) {
                         // The 'G' modifier is available since PHP 5.1.0
                         case 'g':
@@ -2271,93 +2239,34 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                 return $val;
         }
-        
-//        /*** Wideimage based resizing ***/
-//        protected static function resizePic($file, $options, $type = '') {
-//                if (!JFile::exists($file)) {
-//                        return self::error('File missing.'); 
-//                }
-//                
-//                $file = JPath::clean($file);
-//                $size = getimagesize($file);
-//                
-//                if ($size === false) return false;
-//
-//                $maxWidth = $options['picwidth'.$type];
-//                $maxHeight = $options['picheight'.$type];
-//
-//                $width = $size[0];
-//                $height = $size[1];
-//                
-//                if ($width <= $maxWidth && $height <= $maxHeight) {
-//                        return $file;
-//                }
-//                
-//                if ($width > $maxWidth) {
-//                        $width = $maxWidth;
-//                        $height = null;
-//                } else {
-//                        $height = $maxHeight;
-//                        $width = null;
-//                }
-//
-//                return self::doResizePic($file, $width, $height, $options['picquality'.$type], $type == '');
-//        }
-//        
-//        protected static function doResizePic($file, $width, $height, $quality = 100, $deleteOriginal = true) {
-//                require_once dirname(__FILE__).'/wideimage/WideImage.php';
-//                
-//                try {
-//                        $img = WideImage::load($file);
-//                } catch (Exception $e) {
-//                        return self::error('Cannot create image'); 
-//                }
-//                
-//                $img->resizeDown($width, $height);
-//                $tmp = JPATH_SITE . '/tmp/' . time() . basename($file);
-//                
-//                if (strtolower(WideImage_MapperFactory::determineFormat($file)) == 'jpeg') {
-//                        $img->saveToFile($tmp, $quality);
-//                } else {
-//                        $img->saveToFile($tmp);
-//                }
-//                
-//                $img->destroy();
-//                
-//                if ($deleteOriginal) {
-//                        JFile::delete($file);
-//                }
-//                
-//                return $tmp;
-//        }      
-        
+
         protected static function saveRemoteFile($request, $options, $item, $dstDir) {
                 if (!$options['remotedlallowed']) {
                         return false;
                 }
-                
+
                 $content = K2fieldsUtility::makeHTTPRequest($request);
-                
+
                 if ($content && !($content instanceof JException)) {
                         $ext = JFile::getExt($request);
                         $toFile = JPath::clean(JPATH_SITE . '/tmp/k2media' . time() . '.' . $ext);
-                        
+
                         if (JFile::write($toFile, $content) !== false) {
                                 $mt = self::checkFile($item, $toFile, $options);
-                                
+
                                 if ($mt instanceof JException) {
                                         JFile::delete($toFile);
                                         return $mt;
                                 }
-                                
+
                                 $dst = JPath::clean($dstDir . '/' . basename($request));
-                                
+
                                 if (JFile::exists($dst) && !JFile::delete($dst) || !JFile::move($toFile, $dst)) {
                                         return self::error('Cannot move file to provided directory.');
                                 }
-                                
+
                                 $dst = str_replace(JPATH_SITE . '/', '', $dst);
-                                
+
                                 return array('file' => $dst, 'mediatype' => $mt);
                         } else {
                                 return self::error('Cannot download file(s): directory is inaccessible.');
