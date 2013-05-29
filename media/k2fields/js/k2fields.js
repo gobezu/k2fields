@@ -116,7 +116,17 @@ var k2fields = new Class({
 
         getDefaultValue: function(proxyField) {
                 var fix = this.isMode('edit') || this.isMode('editfields') ? '' : this.options.mode;
-                return this.getOpt(proxyField, 'default'+fix);
+                var value = this.getOpt(proxyField, 'default'+fix);
+
+                if (!value && this.chkOpt(proxyField, 'ui', ['rangeslider', 'slider'])) {
+                        value = this.getOpt(proxyField, 'from');
+
+                        if (this.chkOpt(proxyField, 'ui', 'rangeslider')) {
+                                value += ';' + this.getOpt(proxyField, 'to');
+                        }
+                }
+
+                return value;
         },
 
         modeFilter: function() {
@@ -144,6 +154,8 @@ var k2fields = new Class({
                 } else {
                         this.containerEl().fireEvent('processingEnd', [this.containerEl()]);
                 }
+
+                //jQuery('.k2fchk input[type=radio],.k2fchk input[type=checkbox]').iCheck({checkboxClass: 'icheckbox_square', radioClass: 'iradio_square'});
         },
 
         getSearchCount: function(isTrySubmit, isFirst) {
@@ -396,6 +408,13 @@ var k2fields = new Class({
                                 }.bind(this));
                         }.bind(this));
                 } else if (this.isMode('search')) {
+                        if (this.options['chosenize']) {
+                                this.enqueueType(
+                                        "basic", null, null, null, null,
+                                        function() { this.chosenize(this.categoryEl(), this.options['chosenizelabel']); }.bind(this)
+                                );
+                        }
+
                         var btn = this.formSubmitButton();
 
                         if (btn)
@@ -1339,10 +1358,10 @@ var k2fields = new Class({
                         if (post)
                                 new Element('span', {'class':'post'}).set('html', post).inject(field[i], 'after');
 
-                        if (!this.isMode('search')) {
+                        // if (!this.isMode('search')) {
                                 this.autoGrow(field[i]);
                                 this.placeHold(field[i]);
-                        }
+                        // }
                 }
 
                 if (hidden) this.toggleCustomField(field);
@@ -1385,11 +1404,11 @@ var k2fields = new Class({
         placeHold: function(field, ph) {
                 var t = field.get('tag');
 
-                if (ph == undefined)
-                        ph = this.getOpt(field, 'ph');
+                if (ph == undefined) ph = this.getOpt(field, 'ph');
 
-                if (typeof ph == 'string')
-                        field.set('placeholder', ph);
+                if (this.isMode('search')) ph = this.getOpt(field, 'phsearch');
+
+                if (typeof ph == 'string') field.set('placeholder', ph);
 
                 if ((t == 'input' && field.get('type') == 'text' || t == 'textarea') && ph)
                         new Form.Placeholder(field);
@@ -1596,7 +1615,7 @@ var k2fields = new Class({
 
                 var
                         proxyFieldTr = this.getProxyFieldContainer(proxyField),
-                        container = new Element('div', {'class':'k2fcontainer'}),
+                        container = new Element('div', {'class':'k2fcontainer '+this.getOpt(proxyField, 'valid')}),
                         valueContainer = new Element('span', {'class':'k2fvalue'+(isCustomField ? ' customField' : '')}),
                         // isFirst = !proxyFieldTr.retrieve('k2fieldadded'),
                         isFirst = proxyFieldTr && !proxyFieldTr.retrieve('k2fieldadded'),
@@ -1609,7 +1628,9 @@ var k2fields = new Class({
                         var labelTag = proxyFieldTr.getChildren()[0].get('tag'),
                         valueTag = proxyFieldTr.getChildren()[1].get('tag');
 
-                        tr = new Element(proxyFieldTr.get('tag'), {'class':'k2fvaluerow'});
+                        var _pid = this.getProxyFieldId(proxyField).replace(new RegExp('^'+this.options.pre), '');
+
+                        tr = new Element(proxyFieldTr.get('tag'), {'class':'k2fvaluerow', 'id':'k2fvaluerow'+_pid});
                         proxyField.store('valuerow', tr);
 
                         proxyFieldTr.setStyle('display', 'none');
@@ -1843,7 +1864,12 @@ var k2fields = new Class({
         },
 
         getProxyFieldId: function(k2field) {
-                var id = (typeof k2field == "string" ? k2field : k2field.get('id') || k2field.get('name')).replace(/(_?\d+)_(\d+)(\_btn)?$/, '$1');
+                var id = typeof k2field == "string" ? k2field : k2field.get('id') || k2field.get('name');
+
+                if (!id) return;
+
+                id = id.replace(/(_?\d+)_(\d+)(\_btn)?$/, '$1');
+
                 var o = document.id(id);
 
                 if (!o) {

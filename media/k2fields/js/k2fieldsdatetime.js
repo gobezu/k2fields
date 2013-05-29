@@ -365,6 +365,10 @@ var k2fields_type_datetime = {
 
                 el = el[0];
 
+                var val = this.parseDateNotations(el.get('value') || 'now', format);
+
+                if (val) el.set('value', val);
+
                 if (holder.getParent().getElements('.resettimebtn').length == 0) {
                         new Element('a', {
                                 'text':'Reset',

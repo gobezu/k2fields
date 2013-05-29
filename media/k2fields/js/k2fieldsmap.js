@@ -4,21 +4,21 @@ var k2fields_type_map = {
         _initMap: function() {
                 //this.utility.load('tag', 'http://maps.google.com/maps/api/js?sensor=false', 'js');
         },
-        
+
         createSearchMap: function(holder, proxyField, value, condition) {
                 var vh = this.ccf(proxyField, value, 0, false, '', holder, 'input', 'hidden', true, undefined, true);
-                
+
                 vh = vh[0];
-                
+
                 var tf = this.autoComplete(proxyField, true, holder, false, undefined, {to:vh,attr:'ovalue'});
-                
+
                 if (!tf) {
                         vh.set('type', 'text');
                         tf = vh;
                 }
-                
+
                 var cb = this.ccf(proxyField, value, 1, 'checkbox', '', holder, 'input', {ignore:true,type:'checkbox',values:[{text:'Nearby me',value:'nearby'}]});
-                
+
                 cb = cb[0];
                 cb.addEvent('change', function(el) {
                         el = this._tgt(el);
@@ -28,12 +28,12 @@ var k2fields_type_map = {
                                 vh.set('value', vh.retrieve('ovalue'));
                         }
                 }.bind(this));
-                
+
                 tf.addEvent('change', function() {cb.checked = false;}.bind(this));
-                
+
                 this.loadMapAPI(proxyField);
         },
-        
+
         mapAPILoaded:false,
         currentGEO:null,
         mapIconSize:[32,37],
@@ -42,49 +42,49 @@ var k2fields_type_map = {
 
         getMapIcon:function(proxyField, iconType, alterWith) {
                 var icon = this.getOpt(proxyField, 'mapicon'+iconType);
-                
+
                 if (!icon) return false;
-                
+
                 if (!alterWith) return icon;
-                
+
                 var it = this.getOpt(proxyField, 'mapicontype');
-                
+
                 if (!it) return icon;
-                
+
                 var re = new RegExp('(' + it + ')(' + (it == 'number_' ? '[0-9]+' : '[a-z]+') + ')(|-active)\.(png|jpg|gif|jpeg)$');
-                
+
                 icon = icon.replace(re, '$1' + alterWith + '.$3');
-                
+
 //                var m = icon.match(new RegExp(pre));
-//                
+//
 //                var sep = icon.lastIndexOf('_') > -1 ? '_' : '.';
-//                
+//
 //                icon = icon.substring(0, icon.lastIndexOf(sep) + 1) + alterWith + icon.substring(icon.lastIndexOf('.'));
-//                
+//
                 return icon;
         },
-        
+
 //        getMapIconColor:function(proxyField, icon, alterWith) {
 //                icon = this.getOpt(proxyField, 'mapicon'+icon);
-//                
+//
 //                if (!icon) return false;
-//                
+//
 //                if (!alterWith) alterWith = '';
-//                
+//
 //                var ind = icon.lastIndexOf('.');
-//                
+//
 //                return icon.substring(0, ind)+alterWith+icon.substring(ind);
 //        },
-//        
+//
         getMapIconSize:function(proxyField, icon) {
                 if (!this.getMapIcon(proxyField, icon)) return;
-                
+
                 return this.getOpt(proxyField, 'mapicon'+icon+'size');
         },
-        
+
         createMap: function(holder, proxyField, value, condition) {
                 var defs, method = this.getOpt(proxyField, 'mapinputmethod', null, 'coord');
-                
+
                 if (method == 'coord') {
                         defs = [
                                 {'valid':'numeric', 'name':'Latitude', 'position':0, 'internalValueSeparator':','},
@@ -104,7 +104,7 @@ var k2fields_type_map = {
                                 {'valid':'text', 'name':'Label', 'position':1, 'autocomplete':'m'}
                         ];
                 }
-                
+
                 if (defs) {
                         this.modifyComplexOpts(proxyField, defs);
                         if (typeOf(value) == 'array') value = value.join(this.options.valueSeparator);
@@ -112,7 +112,7 @@ var k2fields_type_map = {
                         this.revertOpts(proxyField);
 
                         this.loadMapAPI(proxyField);
-                        
+
                         if (this.chkOpt(proxyField, 'showmapeditor', ['true', '1'])) {
                                 try {
                                         this.getEditorMap(proxyField, holder);
@@ -120,149 +120,156 @@ var k2fields_type_map = {
 
                                 } catch (e) { }
                         }
-                        
+
                         return ui;
                 }
         },
-        
+
         createMarker: function(proxyField, geo, map) {
                 geo = [document.id(geo[0]), document.id(geo[1])];
-                
+
                 var lat = geo[0].get('value'), lon = geo[1].get('value');
-                
+
                 if (!map) map = this.getEditorMap(proxyField);
-                
+
                 if (lat == '' || lon == '') {
                         lat = map.getCenter();
                         lon = lat.lon;
                         lat = lat.lat;
                 }
-                
-                var 
+
+                var
                         point = new mxn.LatLonPoint(parseFloat(lat), parseFloat(lon)),
-                        ms = map.markers, 
+                        ms = map.markers,
                         cnt = ms.length + 1,
                         icon = this.getMapIcon(proxyField, 'colorfile', cnt),
                         marker = new mxn.Marker(point)
                         ;
-                
+
                 if (!this.options.hasOwnProperty('mapEditorMarkers')) {
                         this.options.mapEditorMarkers = [];
                 }
-                
-		map.addMarkerWithData(marker, {
-                        'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
-                        'icon':icon,
-                        'iconSize':this.getMapIconSize(proxyField, 'colorfile'),
-                        'editor':[geo[0], geo[1]]
-                });
-                
+
+                if (icon) {
+        		map.addMarkerWithData(marker, {
+                                'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
+                                'icon':icon,
+                                'iconSize':this.getMapIconSize(proxyField, 'colorfile'),
+                                'editor':[geo[0], geo[1]]
+                        });
+                } else {
+                        map.addMarkerWithData(marker, {
+                                'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
+                                'editor':[geo[0], geo[1]]
+                        });
+                }
+
                 marker.dragend.addHandler(function(name, source, args) {
                         var geo = source.getAttribute('editor');
                         geo[0].set('value', args.lat);
-                        geo[1].set('value', args.lon);                                
+                        geo[1].set('value', args.lon);
                         this.setProxyFieldValue(geo[1]);
 		}.bind(this));
-                
+
                 geo[0].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
                 geo[1].addEvent('change', function() {this.redrawMapEditor(proxyField);}.bind(this));
-                
+
                 var btn = geo[0].getParent('.k2fcontainer').getElement('.removebtn');
-                
-                if (btn) btn.addEvent('click', function() { 
+
+                if (btn) btn.addEvent('click', function() {
                         this.redrawMapEditor(proxyField);
                 }.bind(this));
 
                 return marker;
         },
-        
+
         redrawMapEditor: function(proxyField) {
-                var 
-                        map = this.getEditorMap(proxyField), 
-                        container = map.currentElement.getParent('td'), 
-                        els = container.getElements('.k2fcontainer'), 
+                var
+                        map = this.getEditorMap(proxyField),
+                        container = map.currentElement.getParent('td'),
+                        els = container.getElements('.k2fcontainer'),
                         n = els.length,
                         geo
                         ;
-                        
+
                 map.removeAllMarkers();
-                
+
                 for (var i = 0; i < n; i++) {
                         geo = els[i].getElements('[customvalueholder=true]');
                         this.createMarker(proxyField, [geo[0], geo[1]], map);
                 }
-                
+
                 this.autoCenterAndZoom(map, proxyField);
         },
-        
+
         autoCenterAndZoom:function(map, proxyField) {
                 if (map.markers.length == 1) {
                         var zoom = this.getOpt(proxyField, 'mapzoom', null, 13).toInt();
                         map.setCenterAndZoom(map.markers[0].location, zoom);
                 } else {
                         map.autoCenterAndZoom();
-                }                
+                }
         },
-        
+
         getMapClass: function(proxyField) {return this.getMapAttr(proxyField, 'class');},
         getMapId: function(proxyField) {return this.getMapAttr(proxyField, 'id');},
-        
+
         getMapAttr: function(proxyField, attr) {
                 var id = this.getOpt(proxyField, '_mapcontainer'+attr);
-                
+
                 if (id) return id;
-                
+
                 id = document.id(proxyField).get('id');
-                
+
                 if (this.getOpt(id, 'subfieldof')) id = this.getOpt(id, 'subfieldof');
-                
+
                 var itemid = $$('[name=id]');
                 itemid = itemid.length > 0 ? itemid[0].get('value') : '';
-                
+
                 id = this.getOpt(proxyField, 'mapcontainer'+attr).replace(/\%id\%/, id).replace(/\%item\%/, itemid);
                 this.setOpt(proxyField, '_mapcontainer'+attr, id);
-                
+
                 return id;
         },
-        
+
         getMapInitialPoint: function(proxyField) {return this.getMapPoint(proxyField, 'mapcenter');},
-        
+
         getMapPoint: function(proxyField, name, point) {
                 if (name) {
                         point = this.getOpt(
-                                proxyField, 
-                                name, 
+                                proxyField,
+                                name,
                                 null,
                                 null,
                                 point ? point : [9.022736, 38.746799] // we just need a point
                         );
                 }
-                
+
                 if (typeof point == 'string')  point = point.split(',');
-                
+
                 point = new mxn.LatLonPoint(parseFloat(point[0]), parseFloat(point[1]));
-                
+
                 return point;
         },
-        
+
         loadMapAPI: function(proxyField) {
                 if (this.mapAPILoaded) return;
                 // TODO: proxyField is not passed at all at type initiating time
                 var api = this.getOpt(proxyField, 'locationprovider', null, 'maxmind');
-                
+
                 if (api == 'maxmind') {
                         this.utility.load('tag', 'http://j.maxmind.com/app/geoip_city', 'js');
                 } else if (api == 'browser') {
                         this.getCurrentGeoValues(proxyField);
                 }
-                
+
                 this.mapAPILoaded = true;
         },
-        
+
         getCurrentGeoValues: function(proxyField) {
                 var api = this.getOpt(proxyField, 'locationprovider', null, 'maxmind');
 
-                if (api == 'maxmind' && typeof geoip_latitude == 'function' && typeof geoip_longitude == 'function') {  
+                if (api == 'maxmind' && typeof geoip_latitude == 'function' && typeof geoip_longitude == 'function') {
                         return [geoip_latitude(), geoip_longitude()];
                 } else if (api == 'function') {
                         var fn = this.getOpt(proxyField, 'locationproviderfunction');
@@ -290,10 +297,10 @@ var k2fields_type_map = {
                 } else if (api == 'server') {
                         // data sent in a json package along with k2fs
                 }
-                
+
                 return false;
         },
-        
+
 //        redraws:[],
 //        redraw:function() {
 //                for (var i = 0, n = this.redraws.length; i < n; i++) {
@@ -301,40 +308,40 @@ var k2fields_type_map = {
 //                               this.refreshMap(this.redraws[i][1]);
 //                               clearInterval(this.redraws[i][2]);
 //                               delete this.redraws[i];
-//                       } 
+//                       }
 //                }
 //                this.redraws = this.redraws.clean();
 //        },
-        
+
         refreshMap:function(proxyField) {
-                var 
+                var
                         map = this.getEditorMap(proxyField),
                         w = map.currentElement.getStyle('width').toInt(),
                         h = map.currentElement.getStyle('height').toInt()
                         ;
-                        
+
                 map.resizeTo(w, h);
                 this.redrawMapEditor(proxyField);
         },
-        
+
         getEditorMap: function(proxyField, container) {
                 var mapId = this.getMapId(proxyField), map = this.mapEditors[mapId];
-                
+
                 if (map != undefined) return map;
-                
-                var 
+
+                var
                         td = container.getParent('td') || container.getParent('.k2fmapcontainer'),
                         css = this.getMapClass(proxyField),
-                        point = this.getMapInitialPoint(proxyField), 
+                        point = this.getMapInitialPoint(proxyField),
                         zoom = this.getOpt(proxyField, 'mapzoom', null, 13).toInt(),
                         provider = this.getOpt(proxyField, 'mapprovider'),
                         maptype = this.getOpt(proxyField, 'maptype')
                         ;
-                        
+
                 css += css != 'mapContainer' ? ' mapContainer' : '';
                 container = new Element('div', {id:mapId, 'class':css});
                 container.inject(td, 'top');
-                
+
                 new Element('a', {
                         'text':'Refresh',
                         'class':'refreshmapbtn',
@@ -349,24 +356,24 @@ var k2fields_type_map = {
                                 }.bind(this)
                         }
                 }).inject(container, 'after');
-                
+
                 map = new mxn.Mapstraction(mapId, provider);
-                
+
                 map.setMapType(maptype);
                 map.setCenterAndZoom(point, zoom);
-                
+
 		map.addControls({
 			pan: true,
 			zoom: 'small',
 			map_type: true
 		});
-                
+
                 this.mapEditors[mapId] = map;
-                
+
 //                if (!container.isVisible()) {
 //                        this.redraws.push([container, proxyField, this.redraw.periodical(500, this)]);
 //                }
-                
+
                 return map;
         },
 
@@ -377,21 +384,21 @@ var k2fields_type_map = {
                         'leaflet':'http://www.mapquestapi.com/staticmap/v3/getmap?key=%apikey%&amp;size=%width%,%height%&amp;zoom=%zoom%&amp;type=%maptype%',
                         'other':this.options.base+'/media/k2fields/lib/staticmaplite/staticmap.php?size=%width%x%height%&zoom=%zoom%&maptype=mapnik'
                 };
-                
-                var 
+
+                var
                         i, lbls = new Element('ol', {'class':'mapPointLabels'}),
                         container = document.id(data['container']),
-                        size = container.getStyles('width', 'height'), 
+                        size = container.getStyles('width', 'height'),
                         n = data['points'].length,
                         url = urls[data['provider']] || urls['other'],
                         pois = '',
                         iconColor = data['iconcolor'] || 'orange'
                         ;
-                       
+
                 if (n == 1 && data['provider'] != 'googlev3') {
                         url += '&center='+data['points'][0]['lat']+','+data['points'][0]['lon'];
                 }
-                
+
                 url = url.
                         replace('%apikey%', data['apikey']).
                         replace('%width%', size['width'].toInt()).
@@ -401,7 +408,7 @@ var k2fields_type_map = {
                         replace('%centerlat%', data['points'][0]['lat']).
                         replace('%centerlon%', data['points'][0]['lon'])
                 ;
-                
+
                 for (i = 0; i < n; i++) {
                         if (data['provider'] == 'googlev3') {
                                 pois += pois == '' ? '&amp;markers=' : '|';
@@ -419,16 +426,16 @@ var k2fields_type_map = {
                 new Element('image', {src:url}).inject(container);
                 lbls.inject(container.getParent());
         },
-        
+
         mapItems: {},
         drawMap: function(proxyField, view) {
-                var 
-                        container = this.getOpt(proxyField, 'mapcontainerid'), 
-                        provider = this.getOpt(proxyField, 'mapprovider')
+                var
+                        container = this.getOpt(proxyField, 'mapcontainerid'),
+                        provider = this.getOpt(proxyField, 'mapprovider'+view)
                         ;
-                var 
+                var
                         map = new mxn.Mapstraction(container, provider);
-                        
+
                 var
                         maptype = this.getOpt(proxyField, 'maptype'),
                         itemPoints, m, el, items = this.mapItems[proxyField], i, n, itemId, item, a,
@@ -437,11 +444,12 @@ var k2fields_type_map = {
                         ctrls = this.getOpt(proxyField, 'mapcontrols'),
                         showInMapBtn = this.getOpt(proxyField, 'mapshowinmapbtn'),
                         cont,
-                        lbl
+                        lbl,
+                        icon, data
                         ;
-                        
+
                 map.setMapType(maptype);
-                
+
                 if (ctrls) {
                         var mCtrls = {};
                         if (ctrls.contains('zoom')) mCtrls['zoom'] = 'large';
@@ -451,16 +459,16 @@ var k2fields_type_map = {
                         if (ctrls.contains('overview')) mCtrls['overview'] = true;
                         map.addControls(mCtrls);
                 }
-                
+
                 this.loadMapAPI(proxyField);
-                
+
                 for (itemId in items) {
                         item = items[itemId];
                         itemPoints = item['points'];
                         n = itemPoints.length;
-                        
+
                         preIp = n > 1 || view == 'item' ? '' : item.title;
-                        
+
                         if (createIPs) {
                                 ipsItem = new Element('li').inject(ips);
 
@@ -476,29 +484,29 @@ var k2fields_type_map = {
                                                 new Element('span', {'text':item.title}).inject(ipsItem);
                                                 new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItem);
                                         }
-                                        
+
                                         ipsItem = new Element('ul').inject(ipsItem);
                                 }
                         } else if (view != 'item') {
                                 ips = new Element(n > 1 ? 'ol' : 'span', {'class':'showinmapbtns'});
                         }
-                        
+
                         for (i = 0; i < n; i++) {
                                 m = new mxn.Marker(new mxn.LatLonPoint(itemPoints[i].lat, itemPoints[i].lon));
                                 el = new Element('div', {'html':item.rendered});
                                 attrs = {'href':'#', 'text':preIp};
-                                
+
                                 if (!itemPoints[i].lbl && view == 'item') itemPoints[i].lbl = item.title;
-                                
+
                                 if (itemPoints[i].lbl) attrs['text'] += (preIp ? ' - ' : '') + itemPoints[i].lbl;
-                                
+
                                 if (view == 'item') el.set('html', '');
-                                
+
                                 lbl = itemPoints[i].lbl ? itemPoints[i].lbl : attrs['text'];
-                                
+
                                 if (createIPs) {
                                         ipsItemC = n == 1 ? ipsItem : new Element('li').inject(ipsItem);
-                                
+
                                         if (this.chkOpt(proxyField, 'mappanevents', 'click')) {
                                                 if (!attrs['events']) attrs['events'] = {};
                                                 attrs['events']['click'] = function(a){this.openIP(a);return false;}.bind(this);
@@ -506,7 +514,7 @@ var k2fields_type_map = {
 
                                         if (this.chkOpt(proxyField, 'mappanevents', 'mouseover')) {
                                                 if (!attrs['events']) attrs['events'] = {};
-                                                
+
                                                 attrs['events']['mouseover'] = function(a){
                                                         this.openIP(a);
                                                         return false;
@@ -516,27 +524,27 @@ var k2fields_type_map = {
                                                         this.highlightIP(a, true);
                                                         return false;
                                                 }.bind(this);
-                                                
+
                                                 attrs['events']['mouseout'] = function(a){
                                                         this.highlightIP(a, false);
                                                         return false;
                                                 }.bind(this);
                                         }
-                                        
+
                                         new Element('a', attrs).inject(ipsItemC).store('ip', [proxyField, itemId, i]);
 
                                         if (view != 'item' && n == 1) {
                                                 new Element('a', {'text':agoto, 'href':item.link}).inject(ipsItemC);
                                         }
                                 }
-                                
+
                                 if (view == 'item') {
                                         cont = document.id(map.currentElement);
                                 } else {
                                         cont = view == 'item' ? $$('.item'+itemId) : $$('.catitem'+itemId);
                                         cont = cont && cont.length > 0 ? cont[0] : false;
                                 }
-                                
+
                                 if (cont) {
                                         cont.store('ip', [proxyField, itemId, i]);
                                         cont.addClass('ipstore');
@@ -555,52 +563,59 @@ var k2fields_type_map = {
                                         if (showInMapBtn) {
                                                 new Element('a', {
                                                         'text':lbl,
-                                                        'title':'Click to see '+lbl+' in map', 
+                                                        'title':'Click to see '+lbl+' in map',
                                                         'href':'#',
                                                         'events':{ 'click':function(e) { this.showInMap(e); return false; }.bind(this) }
                                                 }).inject(ips.get('tag') == 'ul' || ips.get('tag') == 'ol' ? new Element('li').inject(ips) : ips);
                                         }
                                 }
-                
+
                                 new Element(view != 'item'? 'a' : 'span', {
-                                        'href':item.link, 
+                                        'href':item.link,
                                         'text':lbl
                                 }).inject(view != 'item' && el.getElement('.k2fmap') ? el.getElement('.k2fmap') : el, 'top');
-                                
+
                                 m.setInfoBubble(el);
                                 m.click.addHandler(function(name, source, args) {
                                         if (this.currentIp) this.currentIp.closeBubble();
                                         this.currentIp = source;
                                 }.bind(this));
-                                
-                                if (this.getMapIcon(proxyField, 'locationhover')) {
-                                        m.setHoverIcon(this.getMapIcon(proxyField, 'locationhover'));
-                                }
-                                
+
                                 m.proxyField = proxyField;
-                                
-                                iconSize = this.getMapIconSize(proxyField, 'location');
-                                
-                                map.addMarkerWithData(m, {
-                                        'icon':this.getMapIcon(proxyField, 'location', view == 'item' ? i+1 : null),
-                                        'iconSize':this.getMapIconSize(proxyField, 'location')
-                                });
-                                
+
+                                if (icon = this.getMapIcon(proxyField, 'location', view == 'item' ? i+1 : null)) {
+                                        data = {'icon':icon};
+                                        if (icon = this.getMapIcon(proxyField, 'locationhover')) {
+                                                data['iconHover'] = icon;
+                                        }
+
+                                        iconSize = this.getMapIconSize(proxyField, 'location');
+                                        data['iconSize'] = iconSize;
+                                        data['iconAnchor']= [iconSize[0]/2, iconSize[1]];
+                                        if (icon = this.getOpt(proxyField, 'mapiconshadow')) {
+                                                data['iconShadow'] = icon;
+                                                data['iconShadowSize'] = this.getOpt(proxyField, 'mapiconshadowsize');
+                                        }
+                                        map.addMarkerWithData(m, data);
+                                } else {
+                                        map.addMarker(m);
+                                }
+
                                 new JPProcessor().accordion(m.infoBubble);
-                                
+
                                 this.mapItems[proxyField][itemId]['points'][i]['marker'] = m;
                         }
-                        
-                        if (view != 'item' && !createIPs) ips.inject(cont);
+
+                        if (view != 'item' && !createIPs && cont) ips.inject(cont);
                 }
-                
+
                 this.autoCenterAndZoom(map, proxyField);
-                
+
                 if (createIPs) ips.inject(container, 'after');
                 else if (view == 'item') ips.inject(cont, 'after').addClass('showinmapbtns').setStyle('padding-left', '50px');
-                
+
                 var actions = this.getOpt(proxyField, 'mapactions');
-                
+
                 if (actions) {
                         var actionsC = new Element('ul', {'class':'k2fmapactions'}).inject(document.id(map.currentElement), 'after');
 
@@ -616,13 +631,13 @@ var k2fields_type_map = {
                                         }
                                 }).inject(new Element('li').inject(actionsC));
                         }
-                        
+
                         if (view != 'item' && actions.contains('nearby') && this.getOpt(proxyField, 'nearbys')) {
                                 new Element('span', {'text':'Show nearby me at:'}).inject(new Element('li').inject(actionsC));
-                                
+
                                 var nearbys = this.getOpt(proxyField, 'nearbys');
                                 nearbys = nearbys.split(this.options.valueSeparator);
-                                
+
                                 for (i = 0, n = nearbys.length; i < n; i++) {
                                         new Element('a', {
                                                 'href':'#',
@@ -636,7 +651,7 @@ var k2fields_type_map = {
                                                 }
                                         }).store('distance', nearbys[i]).inject(new Element('li').inject(actionsC));
                                 }
-                                
+
                                 new Element('a', {
                                         'href':'#',
                                         'text':'All',
@@ -650,23 +665,23 @@ var k2fields_type_map = {
                         }
                 }
         },
-        
+
         currentIp:null,
-        
+
         openIP:function(a) {
                 this.closeIP(a);
                 var ip = this.getIP(a);
                 ip.openBubble();
                 this.currentIp = ip;
         },
-        
+
         closeIP: function(a) {
                 if (this.currentIp) {
                         this.currentIp.closeBubble();
                         this.currentIp = null;
                 }
         },
-        
+
         getIP: function(a) {
                 var ip = this._tgt(a);
                 ip = ip.retrieve('ip');
@@ -684,7 +699,7 @@ var k2fields_type_map = {
                 ip = this.mapItems[ip[0]][ip[1]]['points'][ip[2]]['marker'];
                 return ip;
         },
-        
+
         showInMap: function(a) {
                 var ip = this.getIP(a), map = ip.mapstraction, mapEl = document.id(map.element);
                 // NOTE: assuming jQuery UI is in use
@@ -701,57 +716,57 @@ var k2fields_type_map = {
                 map.setCenterAndZoom(ip.location, map.getZoom());
                 this.openIP(a);
         },
-        
+
         highlightIP: function(a, isOn) {
                 var ip = this.getIP(a);
-                
+
                 var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
                 var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
-                
+
                 ip.mapstraction.removeMarker(ip);
                 ip.mapstraction.addMarkerWithData(ip, {'icon':icon, 'iconSize':size});
-                
+
                 return;
-//                
+//
 //                if (ip.api != 'googlev3') return;
-//                
+//
 //                var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
 //                var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
-//                
+//
 //                size = new google.maps.Size(size[0], size[1]);
 //                var zerozero = new google.maps.Point(0,0);
-//                
+//
 //                icon = new google.maps.MarkerImage(
 //                        icon,
 //                        size,
 //                        zerozero,
 //                        zerozero
 //                );
-//                 
-//                ip.proprietary_marker.setIcon(icon); 
+//
+//                ip.proprietary_marker.setIcon(icon);
         },
-        
+
         showNearbyMeIPs: function(proxyField, map, distance) {
                 map.removeAllPolylines();
                 map.removeAllFilters();
-                
+
                 if (!distance) {
                         this.autoCenterAndZoom(map, proxyField);
                         return;
                 }
 
                 distance = distance.retrieve('distance').toInt();
-                
+
                 var loc = this.getCurrentGeoValues(proxyField);
-                
+
                 loc = new mxn.LatLonPoint(loc[0], loc[1]);
-                
+
                 map.setCenter(loc);
-                
+
                 var radius = new mxn.Radius(loc, distance);
 
                 map.addPolyline(radius.getPolyline(distance, '#00F'));
                 map.addFilter('distance', 'le', distance);
-                map.doFilter();                
+                map.doFilter();
         }
 };

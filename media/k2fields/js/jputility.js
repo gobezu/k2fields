@@ -266,27 +266,7 @@ var JPUtility = new Class({
                         if (into) img.inject(into);
                 }.bind(this);
 
-                var ut = this;
-
-                props.onerror = function(img) {
-                        var exts = img.get('exts'), src;
-
-                        if (exts) {
-                                exts = exts.split('|');
-                                src = img.get('src').replace(/\.[a-z]+$/i, '.'+exts[0]);
-                                delete exts[0];
-                                exts = exts.clean().join('|');
-                                img.set('exts', exts);
-                                img.set('src', src);
-                                this.addImg(img);
-                        }
-
-                        var ind = img.get('ind'), into = this.loadImageAttrs[ind];
-
-                        img = new Element('span', {text: img.get('title') || img.get('alt')});
-
-                        if (into) img.inject(into);
-                }.bind(this);
+                props.onerror = this.__loadImage.bind(this);
 
                 this.loadImageAttrs[ind] = into;
 
@@ -295,6 +275,26 @@ var JPUtility = new Class({
                 this.addImg(img);
 
                 return img;
+        },
+        __loadImage:function(img) {
+                var exts = img.get('exts'), src;
+
+                if (exts) {
+                        exts = exts.split('|');
+                        src = img.get('src').replace(/\.[a-z]+$/i, '.'+exts[0]);
+                        delete exts[0];
+                        exts = exts.clean().join('|');
+                        img.set('exts', exts);
+                        //if (!img.onerror) img.onerror = this.__loadImage.apply(img).bind(this);
+                        img.set('src', src);
+                        this.addImg(img);
+                }
+
+                var ind = img.get('ind'), into = this.loadImageAttrs[ind];
+
+                img = new Element('span', {text: img.get('title') || img.get('alt')});
+
+                if (into) img.inject(into);
         },
         _imgsLoaded:{},
         addImg: function(img) {
@@ -430,7 +430,7 @@ var extFns = {
 };
 Native.implement([Element, Hash], {
         _toQueryString: function(object, base) {
-                var tmp = this.toQueryString(object, base).replace(/\[\d+\]/g, '[]').fromQueryString(), t;
+                var tmp = unescape(this.toQueryString(object, base).replace(/\[\d+\]/g, '[]')).fromQueryString(), t;
                 var result = [];
                 tmp.each(function(value, key, hash) {
                         if (typeOf(value) == 'array') {

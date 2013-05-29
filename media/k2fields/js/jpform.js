@@ -200,7 +200,7 @@ var JPForm = new Class({
                 container.getElements('input,select,textarea').each(function(el) {
                         look = lookFor == 'id' ? (el.get('id') || el.get('name')) : el;
                         if (except.contains(look)) return;
-                        this.resetValue(el);
+                        if (!this.resetValue(el)) return;
                         el.fireEvent('change', [el]);
                 }.bind(this));
 
@@ -217,6 +217,8 @@ var JPForm = new Class({
                         proxyField = this.getProxyFieldId(el),
                         cont = el.getParent('.k2fcontainer')
                         ;
+
+                if (!proxyField) return false;
 
                 if (cont && (cont = cont.getParent().getParent())) {
                         if (cont.getStyle('display') != 'none') {
@@ -576,7 +578,7 @@ var JPForm = new Class({
                                 place = new Element('li').inject(place);
                         }
 
-                        if (lblPos == 'left' || lblPos == 'before') {
+                        if (true || lblPos == 'left' || lblPos == 'before') {
                                 if (place) {
                                         lbl.inject(place);
                                         opt.inject(place);
@@ -693,6 +695,12 @@ var JPForm = new Class({
                         if (place) {
                                 var cls = this.getProxyFieldId(id).replace(this.options.pre, '');
                                 place = new Element('ul', {'class':'lel xf' + cls}).inject(place);
+                        }
+
+                        if (place && (type == 'checkbox' || type == 'radio')) {
+                                var placeH = new Element('div', {'class':'skin skin-minimal k2fchk'});
+                                placeH.inject(place.getParent());
+                                placeH.grab(place);
                         }
 
                         if (type == 'radio' && !name) name = id;
@@ -887,8 +895,8 @@ var JPForm = new Class({
                         id = (isSubfield ? isSubfield : proxyField.get('id')).match(new RegExp('^'+this.options.pre+'(\\d+)'))[1],
                         url = this.options.base+'index.php?option=com_k2fields&view=field&task=autocomplete&id='+id,
                         pos = isSubfield ? this.getOpt(proxyField, 'position') : this.getOpt(fld, 'position'),
-                        minLength = this.getOpt(proxyField, 'acminchars', null, 3),
-                        maxChoices = this.getOpt(proxyField, 'acmaxitems', null, 8)
+                        minLength = this.getOpt(proxyField, 'acminchars', null, this.options.acminchars || 3),
+                        maxChoices = this.getOpt(proxyField, 'acmaxitems', null, this.options.acmaxitems || 8)
                         ;
 
                 url += '&search='+(this.isMode('search') || this.isMode('edit') ? '1' : '0');

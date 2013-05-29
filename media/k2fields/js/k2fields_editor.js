@@ -540,7 +540,8 @@ var k2fieldseditor = new Class({
                                         'googleplus':['id:1801', 'id:1802'],
                                         'readability':['id:1851', 'id:1852', 'id:1853', 'id:1854', 'id:1855', 'id:1856', 'id:1857'],
                                         'flattr':['id:1901', 'id:1902', 'id:1903', 'id:1904', 'id:1905', 'id:1906'],
-                                        'form':['id:1951', 'id:1952', 'id:1953', 'id:1954', 'id:1956', 'id:1957', 'id:1958']
+                                        'form':['id:1951', 'id:1952', 'id:1953', 'id:1954', 'id:1956', 'id:1957', 'id:1958'],
+                                        'title':['id:11']
                                 },
                                 'required':'1',
                                 'savevalues':'validtypes',
@@ -638,7 +639,8 @@ var k2fieldseditor = new Class({
                                         {'value':'e','text':'End of string'},
                                 ],
                                 'section':'Type specific',
-                                'sorted':true
+                                'sorted':true,
+                                'clearopt':'button'
                         },
                         '12':{
                                 'name':'Multiple select',
@@ -754,7 +756,8 @@ var k2fieldseditor = new Class({
                                 'name':'Chosen Allow Deselect on Single Selects',
                                 'optName':'chosen.allow_single_deselect',
                                 'valid':'verifybox',
-                                'section':'Basic'
+                                'section':'Basic',
+                                'default':1
                         },
                         '78':{
                                 'name':'Chosen Template',
@@ -799,9 +802,16 @@ var k2fieldseditor = new Class({
                                 'name':'Format',
                                 'optName':'format',
                                 'valid':'text',
-                                'ui':'text',
-                                'size':'100',
-                                'tip':'Placeholders %value%, %txt% and %img% are available.',
+                                'ui':'textarea',
+                                'tip':'Placeholders %value%, %text% and %img% are available.',
+                                'section':'Layout'
+                        },
+                        '20211':{
+                                'name':'Format (itemlist)',
+                                'optName':'formatitemlist',
+                                'valid':'text',
+                                'ui':'textarea',
+                                'tip':'Placeholders %value%, %text% and %img% are available.',
                                 'section':'Layout'
                         },
                         '22':{
@@ -834,6 +844,12 @@ var k2fieldseditor = new Class({
                         '23':{
                                 'name':'Placeholder text',
                                 'optName':'ph',
+                                'valid':'textarea',
+                                'section':'Tooltips...'
+                        },
+                        '20023':{
+                                'name':'Placeholder text (search)',
+                                'optName':'phsearch',
                                 'valid':'textarea',
                                 'section':'Tooltips...'
                         },
@@ -876,6 +892,7 @@ var k2fieldseditor = new Class({
                                 'values':[
                                         {'value':'value'},
                                         {'value':'text'},
+                                        {'value':'reverse', 'text':'reverse'},
                                         {'value':'sorted', 'text':'do NOT order'}
                                 ],
                                 'section':'Values'
@@ -1131,9 +1148,24 @@ var k2fieldseditor = new Class({
                                 },
                                 'excludevalueseditfields':['textarea', 'editor']
                         },
+                        '67':{
+                                'name':'Show label (module)',
+                                'optName':'moduleshowlabel',
+                                'valid':'verifybox',
+                                'section':'Search',
+                                'deps':{1:['id:68']}
+                        },
+                        '68':{
+                                'name':'Label (itemlist)',
+                                'optName':'modulelabel',
+                                'valid':'text',
+                                'ui':'text',
+                                'size':60,
+                                'section':'Search'
+                        },
                         '2100':{
                                 'name':'Multiple select',
-                                'valid':'verifybox',
+                                'valid':'yesno',
                                 'optName':'search..multiple',
                                 'deps':{
                                         '1':['id:2101']
@@ -1656,14 +1688,14 @@ var k2fieldseditor = new Class({
                                 'optName':'picwidth',
                                 'valid':'integer',
                                 'section':'Type specific',
-                                'default':500
+                                'default':640
                         },
                         '1170':{
                                 'name':'Image height (px)',
                                 'optName':'picheight',
                                 'valid':'integer',
                                 'section':'Type specific',
-                                'default':500
+                                'default':480
                         },
                         '1171':{
                                 'name':'Image quality (%)',
@@ -1682,14 +1714,14 @@ var k2fieldseditor = new Class({
                                 'optName':'picwidththumb',
                                 'valid':'integer',
                                 'section':'Type specific',
-                                'default':170
+                                'default':120
                         },
                         '1173':{
                                 'name':'Thumb - Image height (px)',
                                 'optName':'picheightthumb',
                                 'valid':'integer',
                                 'section':'Type specific',
-                                'default':170
+                                'default':90
                         },
                         '1174':{
                                 'name':'Thumb - Image quality (%)',
@@ -1955,7 +1987,6 @@ var k2fieldseditor = new Class({
                                 optName:'adjustfield',
                                 valid:'int',
                                 ui:'select',
-                                selectchosen:1,
                                 values:this.options.options['fields'],
                                 sorted:true,
                                 section:'Type specific',
@@ -1981,7 +2012,7 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'textarea',
                                 'section':'Type specific',
-                                tip:'Provide a set of PHP statements where the following variables can be assumed and the last statment must return the result'
+                                tip:'Provide a set of PHP statements where the following variables can be assumed and the last statment must return the result: $val value of field, $now is the current time, FIELD:<FIELDID> (if item has no value for &lt;FIELDID&gt; then null is provided)'
                         },
                         '1222':{
                                 'name':'Start time statement',
@@ -2004,7 +2035,7 @@ var k2fieldseditor = new Class({
                                 optName:'adjustmentcondition',
                                 valid:'text',
                                 ui:'textarea',
-                                tip:'$val current value of field, $now is the current time, 2 fields that can be assumed in your PHP statement that must end with a return for the condition.',
+                                tip:'Provide a set of PHP statements where the following variables can be assumed and the last statment must return the result of the condition (boolean): $val value of field, $now is the current time, FIELD:<FIELDID> (if item has no value for &lt;FIELDID&gt; then null is provided)',
                                 section:'Type specific'
                         },
                         /*
@@ -2486,6 +2517,13 @@ var k2fieldseditor = new Class({
                                 'name':'Map icon use hover',
                                 'optName':'mapiconlocationhover',
                                 'valid':'verifybox',
+                                'section':'Type specific'
+                        },
+                        '13991':{
+                                'name':'Map icon shadow',
+                                'optName':'mapiconshadow',
+                                'valid':'verifybox',
+                                'default':1,
                                 'section':'Type specific'
                         },
                         '1391':{

@@ -310,8 +310,8 @@ textarea.condition { }
 #k2fsearchcount span { display:inline-block; }
 #k2fsearchcount span:first-child + span { padding-left: 20px; font-weight:bold; }
 ul#searchFormContainer, ul#extraFields { list-style: none; margin: 0px; padding: 0px; }
-ul#searchFormContainer li, ul#extraFields li { padding:3px; }
-ul#searchFormContainer li ul#extraFields li { padding:0px; }
+ul#searchFormContainer > li, ul#extraFields > li { padding:3px; }
+ul#searchFormContainer li ul#extraFields > li { padding:0px; }
 ul#searchFormContainer input[type=text], ul#extraFields input[type=text] { width:96%; }
 ul#searchFormContainer select, ul#extraFields select { width:100%; }
 ul#extraFields input.min_value, ul#extraFields input.max_value { width:30%; }
