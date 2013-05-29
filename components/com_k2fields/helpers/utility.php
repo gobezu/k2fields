@@ -34,6 +34,34 @@ class JprovenUtility {
 
         public static function html($txt) { return htmlentities($txt, ENT_QUOTES, 'UTF-8'); }
 
+        static public function renderTitleFieldValues($catId) {
+                $model = K2Model::getInstance('fields', 'K2FieldsModel');
+
+                $fields = $model->getFieldsByGroup($catId);
+                $titleField = JprovenUtility::getRow($fields, array('valid'=>'title'));
+
+                if (empty($titleField)) return;
+
+                $titleField = (int) self::value($titleField[0], 'id');
+
+                if (empty($titleField)) return;
+
+                $db = JFactory::getDBO();
+
+                $query =
+                        'DELETE #__k2_extra_fields_values' .
+                        'FROM #__k2_extra_fields_values INNER JOIN #__k2_items ON #__k2_extra_fields_values.itemid = #__k2_items.id' .
+                        'WHERE #__k2_items.catid = '.$catId.' AND #__k2_extra_fields_values.fieldid = '.$titleField;
+
+                $db->query($query);
+
+                $query =
+                        'INSERT INTO #__k2_extra_fields_values(itemid, fieldid, value) ' .
+                        'SELECT DISTINCT i.id as itemid, ' . $titleField . ' as fieldid, i.title as value FROM #__k2_items AS i WHERE i.catid = '.(int) $catId.' AND i.trash = 0';
+
+                return $db->query($query);
+        }
+
         /**
          * assists in overwriting values in items table by taking values from
          * extra_fields_values for a certain field and category by aggregating it back
@@ -463,7 +491,7 @@ group by vvv.itemid
                         $categories = '<input type="hidden" name="'.$categoriesId.'" id="'.$categoriesId.'" value="'.$cats[0]->value.'" />';
                 } else {
                         if ($firstElement) {
-                                $firstElement = JHTML::_('select.option', 0, JText::_($firstElement));
+                                $firstElement = JHTML::_('select.option', '', JText::_($firstElement));
                                 array_unshift($cats, $firstElement);
                         }
 

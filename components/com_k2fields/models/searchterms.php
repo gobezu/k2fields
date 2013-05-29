@@ -88,8 +88,6 @@ class K2FieldsModelSearchterms extends K2Model {
                         }
                 }
 
-//                jdbg::pe($result);
-
                 return $result;
         }
 
@@ -610,6 +608,11 @@ class K2FieldsModelSearchterms extends K2Model {
                 }
         }
 
+        // function title($field, $part, $value, $def, $tbl) {
+        //         $value = $this->q($value);
+        //         return " MATCH(".self::$_ITEMTBL.".title) AGAINST ({$value} IN BOOLEAN MODE)";
+        // }
+
         function _list($field, $part, $value, $def, $tbl) {
                 $list = new K2FieldsList();
 
@@ -860,6 +863,17 @@ class K2FieldsModelSearchterms extends K2Model {
                 $url = array();
 
                 foreach ($terms as $fieldId => &$_terms) {
+                        $field = self::$_fields[$fieldId];
+
+                        if (K2FieldsModelFields::isAlias($field)) {
+                                $actualFieldId = K2FieldsModelFields::value($field, 'alias');
+                                $terms[$actualFieldId] = $_terms;
+                                self::$_fields[$actualFieldId] = self::$_fields[$fieldId];
+                                unset($terms[$fieldId]);
+                        }
+                }
+
+                foreach ($terms as $fieldId => &$_terms) {
                         foreach ($_terms as $ind => &$_term) {
                                 $field = self::$_fields[$fieldId];
                                 $valid = K2FieldsModelFields::value($field, 'valid');
@@ -900,11 +914,21 @@ class K2FieldsModelSearchterms extends K2Model {
 
                                 if ($valid == 'list') {
                                         // hierarchy based input we only need leaf level
+                                        // The implementation below just selects the last available element
+                                        // and doesn't really help figuring out the leaf level element or rather
+                                        // leaf level elements, thus missing out in searching for multiple values
+
                                         $_term['val'] = (array) $_term['val'];
                                         $positions = array_keys($_term['val']);
-                                        $position = max($positions);
+                                        $positions = array_reverse($positions);
                                         $_val_ = $_term['val'];
-                                        $_term['val'] = $_term['val'][$position];
+
+                                        foreach ($positions as $position) {
+                                                if ($_term['val'][$position]) {
+                                                        $_term['val'] = $_term['val'][$position];
+                                                        break;
+                                                }
+                                        }
 
                                         if (!isset($_term['_val_'])) {
                                                 $_term['_val_'] = $_val_;
@@ -914,6 +938,8 @@ class K2FieldsModelSearchterms extends K2Model {
                                 $url[] = $pre.$fieldId.'_'.$ind . '=' . $_term['val'];
                         }
                 }
+
+                //jdbg::p($_terms);
 
                 $url = implode('&', $url);
                 $input = JFactory::getApplication()->input;
