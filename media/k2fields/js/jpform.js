@@ -578,7 +578,7 @@ var JPForm = new Class({
                                 place = new Element('li').inject(place);
                         }
 
-                        if (true || lblPos == 'left' || lblPos == 'before') {
+                        if (lblPos == 'left' || lblPos == 'before') {
                                 if (place) {
                                         lbl.inject(place);
                                         opt.inject(place);

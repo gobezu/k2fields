@@ -717,16 +717,24 @@ var k2fields_type_map = {
                 this.openIP(a);
         },
 
+        highlightedIP:null,
+
         highlightIP: function(a, isOn) {
                 var ip = this.getIP(a);
+
+                if (this.highlightedIP && ip.location.equals(this.highlightedIP.location)) return;
+
+                if (this.highlightedIP) this.highlightedIP.mapstraction.removeMarker(this.highlightedIP);
+
+                if (!isOn) return;
 
                 var icon = this.getMapIcon(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
                 var size = this.getMapIconSize(ip.proxyField, 'location' + (!isOn ? '' : 'hover'));
 
-                ip.mapstraction.removeMarker(ip);
-                ip.mapstraction.addMarkerWithData(ip, {'icon':icon, 'iconSize':size});
+                this.highlightedIP = new mxn.Marker(ip.location);
 
-                return;
+                ip.mapstraction.addMarkerWithData(this.highlightedIP, {'icon':icon, 'iconSize':size, 'iconAnchor':[size[0]/2, size[1]]});
+
 //
 //                if (ip.api != 'googlev3') return;
 //

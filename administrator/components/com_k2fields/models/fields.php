@@ -2275,13 +2275,14 @@ class K2FieldsModelFields extends K2Model {
                 }
 
                 if ($inMap) {
-                        $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
+                        $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true));
                         $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
                         $mapFieldIds = (array) JprovenUtility::getColumn($mapFields, 'id', true);
                         $mapItemRules = JprovenUtility::removeValuesFromArray($itemRules, $mapFieldIds, false, true, true);
                 }
 
                 $fieldsValues = $this->itemValues($itemId, $fields);
+
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
                 $schemaType = false;
 
