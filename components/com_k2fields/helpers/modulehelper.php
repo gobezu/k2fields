@@ -1102,13 +1102,14 @@ class K2FieldsModuleHelper {
                                                 $cparams = new JRegistry($masterCategory->params);
                                         }
 
-                                        $params->merge($cparams);
+                                        $_params = clone $params;
+                                        $_params->merge($cparams);
 
-                                        $tmpl = preg_replace('#[^a-z0-9]#', '', $params->get('template'));
+                                        $tmpl = preg_replace('#[^a-z0-9]#', '', $_params->get('template'));
                                         $tmpl = strtolower($tmpl);
 
-                                        $processJPlugins = $params->get($tmpl.'plugins', $params->get('JPlugins', 1));
-                                        $processK2Plugins = $params->get($tmpl.'plugins', $params->get('K2Plugins', 1));
+                                        $processJPlugins = $_params->get($tmpl.'plugins', $_params->get('JPlugins', 1));
+                                        $processK2Plugins = $_params->get($tmpl.'plugins', $_params->get('K2Plugins', 1));
 
                                         $item->event->BeforeDisplay = '';
                                         $item->event->AfterDisplay = '';
@@ -1118,24 +1119,24 @@ class K2FieldsModuleHelper {
 
                                         if($processJPlugins){
                                                 //Plugins
-                                                $results = $dispatcher->trigger('onBeforeDisplay', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onBeforeDisplay', array(&$item, &$_params, $limitstart));
                                                 $item->event->BeforeDisplay = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onAfterDisplay', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onAfterDisplay', array(&$item, &$_params, $limitstart));
                                                 $item->event->AfterDisplay = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onAfterDisplayTitle', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onAfterDisplayTitle', array(&$item, &$_params, $limitstart));
                                                 $item->event->AfterDisplayTitle = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onBeforeDisplayContent', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onBeforeDisplayContent', array(&$item, &$_params, $limitstart));
                                                 $item->event->BeforeDisplayContent = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onAfterDisplayContent', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onAfterDisplayContent', array(&$item, &$_params, $limitstart));
                                                 $item->event->AfterDisplayContent = trim(implode("\n", $results));
 
-                                                $dispatcher->trigger('onPrepareContent', array(&$item, &$params, $limitstart));
+                                                $dispatcher->trigger('onPrepareContent', array(&$item, &$_params, $limitstart));
 
-                                                if ($params->get('itemIntroText')) {
+                                                if ($_params->get('itemIntroText')) {
                                                         $item->introtext = $item->text;
                                                 }
                                         }
@@ -1151,28 +1152,28 @@ class K2FieldsModuleHelper {
                                         if ($processK2Plugins) {
                                                 //K2 plugins
                                                 JPluginHelper::importPlugin('k2');
-                                                $results = $dispatcher->trigger('onK2BeforeDisplay', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onK2BeforeDisplay', array(&$item, &$_params, $limitstart));
                                                 $item->event->K2BeforeDisplay = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onK2AfterDisplay', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onK2AfterDisplay', array(&$item, &$_params, $limitstart));
                                                 $item->event->K2AfterDisplay = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onK2AfterDisplayTitle', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onK2AfterDisplayTitle', array(&$item, &$_params, $limitstart));
                                                 $item->event->K2AfterDisplayTitle = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onK2BeforeDisplayContent', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onK2BeforeDisplayContent', array(&$item, &$_params, $limitstart));
                                                 $item->event->K2BeforeDisplayContent = trim(implode("\n", $results));
 
-                                                $results = $dispatcher->trigger('onK2AfterDisplayContent', array(&$item, &$params, $limitstart));
+                                                $results = $dispatcher->trigger('onK2AfterDisplayContent', array(&$item, &$_params, $limitstart));
                                                 $item->event->K2AfterDisplayContent = trim(implode("\n", $results));
 
-                                                $dispatcher->trigger('onK2PrepareContent', array(&$item, &$params, $limitstart));
+                                                $dispatcher->trigger('onK2PrepareContent', array(&$item, &$_params, $limitstart));
 
-                                                if ($params->get('itemIntroText')) {
+                                                if ($_params->get('itemIntroText')) {
                                                         $item->introtext = $item->text;
                                                 }
 
-                                                if ($params->get('itemCommentsCounter')) {
+                                                if ($_params->get('itemCommentsCounter')) {
                                                         $results = $dispatcher->trigger('onK2CommentsCounter', array ( & $item, &$params, $limitstart));
                                                         $item->event->K2CommentsCounter = trim(implode("\n", $results));
                                                 }

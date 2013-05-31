@@ -653,7 +653,7 @@ class plgk2k2fields extends K2Plugin {
 
                         $returnvalue = array(array(JURI::root(true).'/logout', JURI::root(true).'/index.php?option=com_user&task=logout', $returnvalue));
 
-                        JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });');
+                        JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });', 'script', false);
 
                         $jsDone = true;
                 }
@@ -718,7 +718,7 @@ class plgk2k2fields extends K2Plugin {
 
                 $params = 'var '.K2FieldsModelFields::JS_VAR_NAME.' = new k2fields('.$params.');';
 
-                JprovenUtility::addDeclaration($params, 'script');
+                JprovenUtility::addDeclaration($params, 'script', true, true);
 
                 $isAdded = true;
 

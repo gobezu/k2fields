@@ -615,8 +615,9 @@ group by vvv.itemid
                         ';
 
                 if ($addJSToDoc) {
-                        $doc = JFactory::getDocument();
-                        $doc->addScriptDeclaration($outputJS);
+                        self::addDeclaration($outputJS, 'script', false);
+                        // $doc = JFactory::getDocument();
+                        // $doc->addScriptDeclaration($outputJS);
                         $outputJS = '';
                 } else {
                         $outputJS =
@@ -811,7 +812,8 @@ group by vvv.itemid
                 return $result;
         }
 
-        public static function addDeclaration($declaration, $type = 'script') {
+        public static function addDeclaration($declaration, $type = 'script', $add = true, $isFirst = false) {
+                static $toAdd = array('script' => '', 'style' => '', 'scriptfirst' => '', 'stylefirst' => '');
                 $type = strtolower($type);
 
                 if (self::isRendered()) {
@@ -827,9 +829,21 @@ group by vvv.itemid
                         $html = str_ireplace('</head>', $declaration.'</head>', $html);
                         JResponse::setBody($html);
                 } else {
-                        $document = JFactory::getDocument();
-                        $type = 'add'.ucfirst($type).'Declaration';
-                        call_user_func(array($document, $type), $declaration);
+                        if ($isFirst) {
+                                $toAdd[$type.'first'] .= "\n".$declaration;
+                        }
+                        else $toAdd[$type] .= "\n".$declaration;
+
+                        if ($add) {
+                                //jdbg::px($toAdd);
+                                $document = JFactory::getDocument();
+                                $mtd = 'add'.ucfirst($type).'Declaration';
+
+                                call_user_func(array($document, $mtd), $toAdd[$type.'first']."\n".$toAdd[$type]);
+
+                                $toAdd[$type] = '';
+                                $toAdd[$type.'first'] = '';
+                        }
                 }
         }
 

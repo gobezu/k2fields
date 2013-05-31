@@ -3952,6 +3952,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                                                 $font = current($oFont);
                                                         }
 
+                                                        /*
                                                         $size = imagettfbbox($fontSize, 0, $font, $email);
                                                         $w = abs($size[2]) + abs($size[0]);
                                                         $h = abs($size[7]) + abs($size[1]);
@@ -3962,6 +3963,36 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                                         imagestring($im, 2, 1, 0, $email, $black);
                                                         imagepng($im, $loc['file']);
                                                         imagedestroy($im);
+                                                        */
+                                                        // Retrieve bounding box:
+                                                        $type_space = imagettfbbox($fontSize, 0, $font, $email);
+
+                                                        // Determine image width and height, 10 pixels are added for 5 pixels padding:
+                                                        $image_width = abs($type_space[4] - $type_space[0]) + 10;
+                                                        $image_height = abs($type_space[5] - $type_space[1]) + 10;
+
+                                                        // Create image:
+                                                        $image = imagecreatetruecolor($image_width, $image_height);
+
+                                                        // Allocate text and background colors (RGB format):
+                                                        $text_color = imagecolorallocate($image, 0, 0, 0);
+                                                        $bg_color = imagecolorallocate($image, 255, 255, 255);
+
+                                                        // Fill image:
+                                                        imagefill($image, 0, 0, $bg_color);
+
+                                                        // Fix starting x and y coordinates for the text:
+                                                        $x = 5; // Padding of 5 pixels.
+                                                        $y = $image_height - 5; // So that the text is vertically centered.
+
+                                                        // Add TrueType text to image:
+                                                        imagettftext($image, $fontSize, 0, $x, $y, $text_color, $font, $email);
+
+                                                        // Generate and send image to browser:
+                                                        imagepng($image, $loc['file']);
+
+                                                        // Destroy image in memory to free-up resources:
+                                                        imagedestroy($image);
                                                 }
 
                                                 $rendered .= '<a href="mailto:'.$email.'"><img src="'.$loc['url'].'" /></a>';
