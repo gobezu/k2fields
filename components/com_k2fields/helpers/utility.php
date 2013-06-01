@@ -835,7 +835,6 @@ group by vvv.itemid
                         else $toAdd[$type] .= "\n".$declaration;
 
                         if ($add) {
-                                //jdbg::px($toAdd);
                                 $document = JFactory::getDocument();
                                 $mtd = 'add'.ucfirst($type).'Declaration';
 

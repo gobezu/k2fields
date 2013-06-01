@@ -630,30 +630,9 @@ class plgk2k2fields extends K2Plugin {
                                 JprovenUtility::load('jpprocessor.js', 'js');
                         }
 
-                        $modalize = JprovenUtility::plgParam('k2fields', 'k2', 'modalizelinks');
-
-                        if (!empty($modalize)) {
-                                $modalizes = explode("\n", $modalize);
-                                $uri = JURI::getInstance();
-                                $path = $uri->getPath();
-                                if (strpos($path, 'index.php') === false) $path = $path . 'index.php';
-
-                                foreach ($modalizes as &$modalize) {
-                                        $modalize = explode(K2FieldsModelFields::VALUE_SEPARATOR, $modalize);
-                                        if ($modalize[0]) $modalize[0] = JURI::root(true).'/'.$modalize[0];
-                                        if ($modalize[1]) $modalize[1] = $path.'?'.$modalize[1];
-                                }
-                        } else {
-                                $modalizes = array();
-                        }
-
                         $returnvalue = JFactory::getURI();
 			$returnvalue = $returnvalue->toString(array('path', 'query', 'fragment'));
                         $returnvalue = base64_encode($returnvalue);
-
-                        $returnvalue = array(array(JURI::root(true).'/logout', JURI::root(true).'/index.php?option=com_user&task=logout', $returnvalue));
-
-                        JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor({"jmodal":'.json_encode($modalizes).', "returnvalue":'.json_encode($returnvalue).'}).process(); });', 'script', false);
 
                         $jsDone = true;
                 }
@@ -672,6 +651,8 @@ class plgk2k2fields extends K2Plugin {
                         }
 
                         K2Model::getInstance('searchterms', 'k2fieldsmodel');
+
+                        JprovenUtility::addDeclaration("\n".'window.addEvent("domready", function(){ new JPProcessor().process(); });', 'script', false);
 
                         $params = self::addJSParams($tab, $addParams);
 
