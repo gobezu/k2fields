@@ -613,8 +613,10 @@ var k2fields_type_map = {
 
                 this.autoCenterAndZoom(map, proxyField);
 
-                if (createIPs) ips.inject(container, 'after');
-                else if (view == 'item') ips.inject(cont, 'after').addClass('showinmapbtns').setStyle('padding-left', '50px');
+                if (ips.getChildren('li').length > 0) {
+                        if (createIPs) ips.inject(container, 'after');
+                        else if (view == 'item') ips.inject(cont, 'after').addClass('showinmapbtns').setStyle('padding-left', '50px');
+                }
 
                 var actions = this.getOpt(proxyField, 'mapactions');
 

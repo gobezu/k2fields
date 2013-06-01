@@ -502,8 +502,6 @@ window.addEvent("load", function() {
                 self::$loadResources = false;
         }
 
-
-
         private static function add($script, $params = null) {
                 $script = K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/'.$script.K2FieldsMap::MAP_MAPSTRACTION_DEV.'.js';
 
