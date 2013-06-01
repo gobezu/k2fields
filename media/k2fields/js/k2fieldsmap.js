@@ -53,7 +53,9 @@ var k2fields_type_map = {
 
                 var re = new RegExp('(' + it + ')(' + (it == 'number_' ? '[0-9]+' : '[a-z]+') + ')(|-active)\.(png|jpg|gif|jpeg)$');
 
-                icon = icon.replace(re, '$1' + alterWith + '.$3');
+                var mre = icon.match(re);
+
+                icon = icon.replace(re, '$1' + alterWith + '.$'+(mre.length-1));
 
 //                var m = icon.match(new RegExp(pre));
 //
