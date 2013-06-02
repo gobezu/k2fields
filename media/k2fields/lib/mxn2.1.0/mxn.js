@@ -32,7 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var scriptBase;
 	var scripts = document.getElementsByTagName('script');
 
-	// Determine which scripts we need to load	
+	// Determine which scripts we need to load
 	for (var i = 0; i < scripts.length; i++) {
 		var match = scripts[i].src.replace(/%20/g , '').match(/^(.*?)mxn\.js(\?\(\[?(.*?)\]?\))?(.*)$/);
 		if (match !== null) {
@@ -47,7 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			break;
 	   }
 	}
-	
+
 	if (providers === null || providers == 'none') {
 		return; // Bail out if no auto-load has been found
 	}
@@ -77,7 +77,7 @@ var apis = {};
  * Calls the API specific implementation of a particular method.
  * Deferrable: If the API implmentation includes a deferable hash such as { getCenter: true, setCenter: true},
  * then the methods calls mentioned with in it will be queued until runDeferred is called.
- *   
+ *
  * @private
  */
 var invoke = function(sApiId, sObjName, sFnName, oScope, args){
@@ -86,14 +86,14 @@ var invoke = function(sApiId, sObjName, sFnName, oScope, args){
 	}
 	if(typeof(apis[sApiId][sObjName].deferrable) != 'undefined' && apis[sApiId][sObjName].deferrable[sFnName] === true) {
 		mxn.deferUntilLoaded.call(oScope, function() {return apis[sApiId][sObjName][sFnName].apply(oScope, args);} );
-	} 
+	}
 	else {
 		return apis[sApiId][sObjName][sFnName].apply(oScope, args);
-	} 
+	}
 };
-	
+
 /**
- * Determines whether the specified API provides an implementation for the 
+ * Determines whether the specified API provides an implementation for the
  * specified object and function name.
  * @private
  */
@@ -102,7 +102,7 @@ var hasImplementation = function(sApiId, sObjName, sFnName){
 		throw 'API ' + sApiId + ' not loaded. Are you missing a script tag?';
 	}
 	if(typeof(apis[sApiId][sObjName]) == 'undefined') {
-		throw 'Object definition ' + sObjName + ' in API ' + sApiId + ' not loaded. Are you missing a script tag?'; 
+		throw 'Object definition ' + sObjName + ' in API ' + sApiId + ' not loaded. Are you missing a script tag?';
 	}
 	return typeof(apis[sApiId][sObjName][sFnName]) == 'function';
 };
@@ -112,7 +112,7 @@ var hasImplementation = function(sApiId, sObjName, sFnName){
  * @namespace
  */
 var mxn = window.mxn = /** @lends mxn */ {
-	
+
 	/**
 	 * Registers a set of provider specific implementation functions.
 	 * @function
@@ -125,10 +125,10 @@ var mxn = window.mxn = /** @lends mxn */ {
 			apis[sApiId] = {};
 		}
 		mxn.util.merge(apis[sApiId], oApiImpl);
-	},		
-	
+	},
+
 	/**
-	 * Adds a list of named proxy methods to the prototype of a 
+	 * Adds a list of named proxy methods to the prototype of a
 	 * specified constructor function.
 	 * @private
 	 * @function
@@ -147,7 +147,7 @@ var mxn = window.mxn = /** @lends mxn */ {
 			}
 		}
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -159,7 +159,7 @@ var mxn = window.mxn = /** @lends mxn */ {
 		}
 		return false;
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -188,11 +188,11 @@ var mxn = window.mxn = /** @lends mxn */ {
 			oEvtSrc[sEvtName] = new mxn.Event(sEvtName, oEvtSrc);
 		}
 	}
-	
+
 };
 
 /**
- * Instantiates a new Event 
+ * Instantiates a new Event
  * @constructor
  * @private
  * @param {String} sEvtName The name of the event.
@@ -246,7 +246,7 @@ mxn.Event = function(sEvtName, oEvtSource){
 };
 
 /**
- * Creates a new Invoker, a class which helps with on-the-fly 
+ * Creates a new Invoker, a class which helps with on-the-fly
  * invocation of the correct API methods.
  * @constructor
  * @private
@@ -258,12 +258,12 @@ mxn.Invoker = function(aobj, asClassName, afnApiIdGetter){
 	var obj = aobj;
 	var sClassName = asClassName;
 	var fnApiIdGetter = afnApiIdGetter;
-	var defOpts = { 
+	var defOpts = {
 		overrideApi: false, // {Boolean} API ID is overridden by value in first argument
 		context: null, // {Object} Local vars can be passed from the body of the method to the API method within this object
 		fallback: null // {Function} If an API implementation doesn't exist this function is run instead
 	};
-	
+
 	/**
 	 * Invoke the API implementation of a specific method.
 	 * @private
@@ -275,14 +275,14 @@ mxn.Invoker = function(aobj, asClassName, afnApiIdGetter){
 	 * @param {Function} oOptions.fallback A fallback function to run if the provider implementation is missing.
 	 */
 	this.go = function(sMethodName, args, oOptions){
-		
+
 		// make sure args is an array
 		args = typeof(args) != 'undefined' ? Array.prototype.slice.apply(args) : [];
-		
+
 		if(typeof(oOptions) == 'undefined'){
 			oOptions = defOpts;
 		}
-						
+
 		var sApiId;
 		if(oOptions.overrideApi){
 			sApiId = args.shift();
@@ -290,32 +290,32 @@ mxn.Invoker = function(aobj, asClassName, afnApiIdGetter){
 		else {
 			sApiId = fnApiIdGetter.apply(obj);
 		}
-		
+
 		if(typeof(sApiId) != 'string'){
 			throw 'API ID not available.';
 		}
-		
+
 		if(typeof(oOptions.context) != 'undefined' && oOptions.context !== null){
 			args.push(oOptions.context);
 		}
-		
+
 		if(typeof(oOptions.fallback) == 'function' && !hasImplementation(sApiId, sClassName, sMethodName)){
 			// we've got no implementation but have got a fallback function
 			return oOptions.fallback.apply(obj, args);
 		}
-		else {				
+		else {
 			return invoke(sApiId, sClassName, sMethodName, obj, args);
 		}
-		
+
 	};
-	
+
 };
 
 /**
  * @namespace
  */
 mxn.util = {
-			
+
 	/**
 	 * Merges properties of one object into another recursively.
 	 * @name mxn.util.merge
@@ -334,7 +334,7 @@ mxn.util = {
 			}
 		}
 	},
-	
+
 	/**
 	 * $m, the dollar function, elegantising getElementById()
 	 * @name mxn.util.$m
@@ -377,7 +377,7 @@ mxn.util = {
 						callback();
 					}
 				});
-			}			
+			}
 		}
 		var h = document.getElementsByTagName('head')[0];
 		h.appendChild( script );
@@ -507,7 +507,7 @@ mxn.util = {
 	logN: function(number, base) {
 		return Math.log(number) / Math.log(base);
 	},
-			
+
 	/**
 	 * Returns array of loaded provider apis
 	 * @name mxn.util.getAvailableProviders
@@ -522,7 +522,7 @@ mxn.util = {
 		}
 		return providers;
 	},
-	
+
 	/**
 	 * Formats a string, inserting values of subsequent parameters at specified
 	 * @name mxn.util.stringFormat
@@ -537,9 +537,9 @@ mxn.util = {
 			return args[num];
 		});
 	},
-	
+
 	/**
-	 * Traverses an object graph using a series of map functions provided as arguments 
+	 * Traverses an object graph using a series of map functions provided as arguments
 	 * 2 to n. Map functions are only called if the working object is not undefined/null.
 	 * For usage see mxn.google.geocoder.js.
 	 * @name mxn.util.traverse
@@ -553,7 +553,7 @@ mxn.util = {
 			working = op(working);
 		}
 	},
-	
+
 	/**
 	 * Sanitises and cleans a templated tile server URL, converting all uppercase template
 	 * references, such as {Z}, {X} or {Y} to their lowercase forms.
@@ -564,7 +564,7 @@ mxn.util = {
 	sanitizeTileURL: function(url) {
 		return url.replace(/\{S\}/g, '{s}').replace(/\{Z\}/g, '{z}').replace(/\{X\}/g, '{x}').replace(/\{Y\}/g, '{y}');
 	},
-	
+
 	/**
 	 * Replaces the subdomain in a templated tile server URL with a randomly chosen element
 	 * from a choice of subdomains. Some tile servers automagically replaces instances of
@@ -582,11 +582,11 @@ mxn.util = {
 			if (typeof subdomains === 'string') {
 				domain = subdomains.substring(random_element, random_element + 1);
 			}
-			
+
 			else {
 				domain = subdomains[random_element];
 			}
-			
+
 			if (typeof domain !== 'undefined') {
 				return url.replace(/\{s\}/g, domain);
 			}
@@ -649,5 +649,5 @@ mxn.util.Color.prototype.getHexColor = function() {
 	}
 	return '#' + hexString;
 };
-	
+
 })();

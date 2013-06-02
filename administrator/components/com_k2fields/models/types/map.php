@@ -493,21 +493,35 @@ window.addEvent("load", function() {
                         }
 
                         $method = K2FieldsModelFields::value($field, 'mapinputmethod', K2FieldsMap::MAP_DEFAULT_METHOD);
-                        $params = array($provider);
-                        if ($method == 'geo') $params[] = '[geocoder]';
-                        self::add('mxn', $params);
+                        // $params = array($provider);
+                        // if ($method == 'geo') $params[] = '[geocoder]';
+                        self::add($provider, $method == 'geo', K2FieldsModelFields::isTrue($field, 'maplazyload'));
                         $isCoreLoaded[$provider] = true;
                 }
 
                 self::$loadResources = false;
         }
 
-        private static function add($script, $params = null) {
-                $script = K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/'.$script.K2FieldsMap::MAP_MAPSTRACTION_DEV.'.js';
+        private static function add($module, $isGeocoder = false, $isLazy = true) {
+                $path = K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/mxn';
 
-                if ($params) $script .= '?('.implode(',', $params).')';
-
+                $script = $path . K2FieldsMap::MAP_MAPSTRACTION_DEV . '.js';
                 JprovenUtility::loc(true, true, $script, true);
+
+                if ($isLazy) {
+                        $script .= '?(' . $module . ($isGeocoder ? '[geocoder]' : '') . ')';
+                } else {
+                        $script = $path . '.core' . K2FieldsMap::MAP_MAPSTRACTION_DEV. '.js';
+                        JprovenUtility::loc(true, true, $script, true);
+
+                        $script = $path . '.' . $module . '.core' . K2FieldsMap::MAP_MAPSTRACTION_DEV. '.js';
+                        JprovenUtility::loc(true, true, $script, true);
+
+                        if ($isGeocoder) {
+                                $script = $path . '.' . $module . '.geocoder' . K2FieldsMap::MAP_MAPSTRACTION_DEV. '.js';
+                                JprovenUtility::loc(true, true, $script, true);
+                        }
+                }
         }
 
         static function providers($provider, $attr) {
