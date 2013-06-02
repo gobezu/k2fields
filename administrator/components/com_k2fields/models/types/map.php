@@ -506,11 +506,14 @@ window.addEvent("load", function() {
                 $path = K2FieldsMap::MAP_MAPSTRACTION_FOLDER.'/mxn';
 
                 $script = $path . K2FieldsMap::MAP_MAPSTRACTION_DEV . '.js';
-                JprovenUtility::loc(true, true, $script, true);
 
                 if ($isLazy) {
                         $script .= '?(' . $module . ($isGeocoder ? '[geocoder]' : '') . ')';
-                } else {
+                }
+
+                JprovenUtility::loc(true, true, $script, true);
+
+                if (!$isLazy) {
                         $script = $path . '.core' . K2FieldsMap::MAP_MAPSTRACTION_DEV. '.js';
                         JprovenUtility::loc(true, true, $script, true);
 
