@@ -9,13 +9,13 @@ class K2fieldsWidgetkitHelper {
                 $fieldId = K2FieldsModelFields::value($field, 'id');
                 $name = 'k2fields_auto_for_item_'.$itemId.'_field_'.$fieldId;
                 $db = JFactory::getDbo();
-                
+
                 $db->setQuery('SELECT id, name, content FROM #__widgetkit_widget WHERE name = '.$db->quote($name));
-                
+
                 $rec = $db->loadObject();
-                
+
                 if ($onlyRetrieve) return $rec;
-                
+
                 if ($rec) {
                         $rec->content = json_decode($rec->content);
                         $rec->settings = $rec->content->settings;
@@ -30,17 +30,17 @@ class K2fieldsWidgetkitHelper {
                         $defaultSettings = $map[$type];
                         $settings = array();
                         $isWidthSet = false;
-                        
+
                         if (is_object($field)) $field = get_object_vars ($field);
-                        
+
                         foreach ($defaultSettings as $key => $defaultSetting) {
                                 if (isset($field[$key])) {
                                         $settings[$key] = $field[$key];
                                 } else if (isset($field['widgetkit_k2_'.$key])) {
-                                        
+
                                         $settings[$key] = $field['widgetkit_k2_'.$key];
-                                }                                
-                                
+                                }
+
                                 if (!isset($settings[$key]) || empty($settings[$key]) && $settings[$key] !== '0' && $settings[$key] !== 0) {
                                         if ($key != 'height' || !$isWidthSet) {
                                                 $settings[$key] = K2FieldsModelFields::value($field, 'pic'.$key, $defaultSetting);
@@ -48,65 +48,65 @@ class K2fieldsWidgetkitHelper {
                                                 $settings[$key] = $defaultSetting;
                                         }
                                 }
-                                
+
                                 if ($key == 'width' && !empty($settings[$key])) $isWidthSet = true;
                         }
-                        
+
                         $settings['width'] = $settings['height'] = 'auto';
-                        
+
                         $rec = new stdClass();
                         $rec->id = '';
                         $rec->content = '';
                         $rec->settings = $settings;
                         $rec->name = $name;
                 }
-                
+
                 return $rec;
-        } 
-        
+        }
+
         public static function save($item, $field, $medias, $caller = 'field') {
                 $res = self::isInstalled();
-                
+
                 if ($res !== true) return $res;
 
                 $widgetkit = Widgetkit::getInstance();
                 $wh = $widgetkit->getHelper('widget');
-                $type = K2FieldsModelFields::value($field, 'widgettype', $caller == 'field' ? 'gallery' : 'slideshow');
+                $type = K2FieldsModelFields::value($field, 'widgetkit_k2_type', $caller == 'field' ? 'gallery' : 'slideshow');
                 $widget = self::getWidget($item->id, $field, $type);
-                
+
                 if (empty($medias)) {
                         if (!empty($widget) && !empty($widget->id)) $wh->delete($widget->id);
-                        
+
                         return true;
                 }
-                
+
                 $srcs = JprovenUtility::getColumn($medias, K2FieldsMedia::SRCPOS);
-                
+
                 if (!is_array($srcs)) $srcs = array($srcs);
-                
+
                 $isConvert = is_object($srcs[0]);
 
                 foreach ($srcs as &$src) {
                         if ($isConvert) $src = $src->value;
                         $src = preg_replace('/^(\/|)images/', '', $src);
                 }
-                
+
                 $captions = JprovenUtility::getColumn($medias, K2FieldsMedia::CAPTIONPOS);
                 $captions = (array) $captions;
-                
+
                 if ($isConvert) foreach ($captions as &$caption) $caption = $caption->value;
-                
+
                 $captions = array_combine($srcs, $captions);
 
                 $links = array_fill(0, count($medias), '');
                 if ($isConvert) foreach ($links as &$link) if (is_object($link)) $link = $link->value;
                 $links = array_combine($srcs, $links);
-                
+
                 $path = explode('/', $srcs[0]);
                 array_pop($path);
                 array_shift($path);
                 $path = '/'.implode('/', $path);
-                
+
 //                if ($widget->id) {
 //                        $settings = get_object_vars($widget->settings);
 //                        foreach ($settings as $key => $setting) {
@@ -114,75 +114,111 @@ class K2fieldsWidgetkitHelper {
 //                                if (!empty($setting)) $widget->settings->$key = $setting;
 //                        }
 //                }
-                
+
+                $size = K2FieldsModelFields::value($field, 'widgetkit_k2_width');
+                if (!$size) {
+                        $size = K2FieldsModelFields::value($field, 'picwidth', 'auto');
+                        K2FieldsModelFields::setvalue($field, 'widgetkit_k2_width', $size);
+                }
+
+                $size = K2FieldsModelFields::value($field, 'widgetkit_k2_height');
+                if (!$size) {
+                        $size = K2FieldsModelFields::value($field, 'picheight', 'auto');
+                        K2FieldsModelFields::setvalue($field, 'widgetkit_k2_height', $size);
+                }
+
+                $size = K2FieldsModelFields::value($field, 'widgetkit_k2_thumb_width');
+                if (!$size) {
+                        $size = K2FieldsModelFields::value($field, 'picwidththumb', 'auto');
+                        K2FieldsModelFields::setvalue($field, 'widgetkit_k2_thumb_width', $size);
+                }
+
+                $size = K2FieldsModelFields::value($field, 'widgetkit_k2_thumb_height');
+                if (!$size) {
+                        $size = K2FieldsModelFields::value($field, 'picheightthumb', 'auto');
+                        K2FieldsModelFields::setvalue($field, 'widgetkit_k2_thumb_height', $size);
+                }
+
+                if (is_object($field)) $field = get_object_vars($field);
+
+                foreach ($field as $key => $val) {
+                        if (strpos($key, 'widgetkit_k2_') === 0) {
+                                $key = str_replace('widgetkit_k2_', '', $key);
+
+                                if ($val) $widget->settings[$key] = $val;
+                        }
+                }
+
+                $style = K2FieldsModelFields::value($field, 'widgetkit_k2_style', 'default');
+
                 $gallery = array(
-                        'type' => $type, 
+                        'type' => $type,
                         'id' => $widget->id,
-                        'name' => $widget->name, 
+                        'name' => $widget->name,
                         'settings' => $widget->settings,
-                        'style' => K2FieldsModelFields::value($field, 'widgetkit_k2_style', 'default'),
+                        'style' => $style,
                         'captions' => $captions,
                         'links' => $links,
                         'paths' => array($path)
                 );
-                
+
                 $wh->save($gallery);
-                
+
                 return true;
         }
-        
+
         public static function delete($item, $field) {
                 $res = self::isInstalled();
-                
+
                 if ($res !== true) return $res;
-                
+
                 $type = K2FieldsModelFields::value($field, 'widgettype', 'gallery');
                 $widget = self::getWidget($item->id, $field, $type, true);
-                
+
                 if (!$widget) return;
-                
+
                 $widgetkit = Widgetkit::getInstance();
                 $wh = $widgetkit->getHelper('widget');
-                
-                return $wh->delete($widget->id);                
-        }        
-        
+
+                return $wh->delete($widget->id);
+        }
+
         public static function render($item, $field) {
                 $res = self::isInstalled();
-                
+
                 if ($res !== true) return $res;
-                
+
                 $type = K2FieldsModelFields::value($field, 'widgettype', 'gallery');
                 $widget = self::getWidget($item->id, $field, $type);
                 $keepSynch = K2FieldsModelFields::value($field, 'widgetsynch', false);
-                
+
                 if (empty($widget->id) || $keepSynch) {
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $fieldId = K2FieldsModelFields::value($field, 'id');
                         $medias = $model->itemValues($item->id, array($fieldId));
-                        
+
                         if (empty($medias)) return;
-                        
+
                         $medias = $medias[$fieldId];
                         $medias = JprovenUtility::chunkArray($medias, 'listindex');
                         self::save($item, $field, $medias);
                         $widget = self::getWidget($item->id, $field, $type);
                 }
-                
+
                 $widgetkit = Widgetkit::getInstance();
-                
+
                 $wh = $widgetkit->getHelper('widget');
-                
-                return $wh->render($widget->id);                
+
+                return $wh->render($widget->id);
         }
-        
+
         public static function isInstalled() {
                 if (!JFile::exists(JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.php')) {
                         return K2FieldsMedia::error('Widgetkit is not installed.');
                 }
-                
+
                 require_once JPATH_ADMINISTRATOR.'/components/com_widgetkit/widgetkit.php';
-                
+
                 return true;
         }
 }
