@@ -1,5 +1,55 @@
 //$Copyright$
 
+// Draggable markers extension to Mapstraction for Google V3 maps
+
+/**
+ * Add some Google v3 goodies to baseline mapstraction.
+ */
+mxn.addProxyMethods( mxn.Mapstraction, [
+    /**
+         * Add a method that can be called to add our extra stuff to an implementation.
+         */
+    'addExtras'
+    ]);
+
+// Amend baseline implementation
+mxn.register( 'googlev3', {
+    Mapstraction: {
+        addExtras: function() {
+            var me = this;
+            me.markerAdded.addHandler( function( name, source, args ) {
+                // enable dragend event for google
+                args.marker.dragend = new mxn.Event( 'dragend', args.marker );
+                google.maps.event.addListener( args.marker.proprietary_marker, 'dragend', function() {
+                    var latlng = args.marker.proprietary_marker.getPosition();
+                    args.marker.dragend.fire( {
+                        location: new mxn.LatLonPoint( latlng.lat(), latlng.lng() )
+                    } );
+                });
+
+                // enable dragstart event for google
+                args.marker.dragstart = new mxn.Event( 'dragstart', args.marker );
+                google.maps.event.addListener( args.marker.proprietary_marker, 'dragstart', function() {
+                    var latlng = args.marker.proprietary_marker.getPosition();
+                    args.marker.dragend.fire( {
+                        location: new mxn.LatLonPoint( latlng.lat(), latlng.lng() )
+                    } );
+                });
+
+                // enable drag event for google
+                args.marker.drag = new mxn.Event( 'drag', args.marker );
+                google.maps.event.addListener( args.marker.proprietary_marker, 'drag', function() {
+                    var latlng = args.marker.proprietary_marker.getPosition();
+                    args.marker.drag.fire( {
+                        location: new mxn.LatLonPoint( latlng.lat(), latlng.lng() )
+                    } );
+                });
+
+            });
+        }
+    }
+});
+
 var k2fields_type_map = {
         _initMap: function() {
                 //this.utility.load('tag', 'http://maps.google.com/maps/api/js?sensor=false', 'js');
@@ -40,10 +90,26 @@ var k2fields_type_map = {
         mapIconHoverSize:[32,37],
         mapEditors:{},
 
-        getMapIcon:function(proxyField, iconType, alterWith) {
-                var icon = this.getOpt(proxyField, 'mapicon'+iconType);
+        getMapIconType:function(proxyField, iconTypes) {
+                iconType = Array.from(iconTypes);
+
+                var icon;
+
+                for (var i = 0, n = iconTypes.length; i < n; i++) {
+                        icon = this.getOpt(proxyField, 'mapicon'+iconTypes[i]);
+
+                        if (icon) return iconTypes[i];
+                }
 
                 if (!icon) return false;
+        },
+
+        getMapIcon:function(proxyField, iconType, alterWith) {
+                iconType = this.getMapIconType(proxyField, iconType);
+
+                if (!iconType) return false;
+
+                var icon = this.getOpt(proxyField, 'mapicon'+iconType);
 
                 if (!alterWith) return icon;
 
@@ -78,10 +144,12 @@ var k2fields_type_map = {
 //                return icon.substring(0, ind)+alterWith+icon.substring(ind);
 //        },
 //
-        getMapIconSize:function(proxyField, icon) {
-                if (!this.getMapIcon(proxyField, icon)) return;
+        getMapIconSize:function(proxyField, iconType) {
+                iconType = this.getMapIconType(proxyField, iconType);
 
-                return this.getOpt(proxyField, 'mapicon'+icon+'size');
+                if (!iconType) return;
+
+                return this.getOpt(proxyField, 'mapicon'+iconType+'size');
         },
 
         createMap: function(holder, proxyField, value, condition) {
@@ -119,7 +187,6 @@ var k2fields_type_map = {
                                 try {
                                         this.getEditorMap(proxyField, holder);
                                         this.redrawMapEditor(proxyField);
-
                                 } catch (e) { }
                         }
 
@@ -142,9 +209,7 @@ var k2fields_type_map = {
 
                 var
                         point = new mxn.LatLonPoint(parseFloat(lat), parseFloat(lon)),
-                        ms = map.markers,
-                        cnt = ms.length + 1,
-                        icon = this.getMapIcon(proxyField, 'colorfile', cnt),
+                        icon = this.getMapIcon(proxyField, ['colorfile', 'location'], map.markers.length + 1),
                         marker = new mxn.Marker(point)
                         ;
 
@@ -154,22 +219,22 @@ var k2fields_type_map = {
 
                 if (icon) {
         		map.addMarkerWithData(marker, {
-                                'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
+                                'draggable':true,
                                 'icon':icon,
-                                'iconSize':this.getMapIconSize(proxyField, 'colorfile'),
+                                'iconSize':this.getMapIconSize(proxyField, ['colorfile', 'location']),
                                 'editor':[geo[0], geo[1]]
                         });
                 } else {
                         map.addMarkerWithData(marker, {
-                                'draggable':this.chkOpt(proxyField, 'markerfixed', 0),
+                                'draggable':true,
                                 'editor':[geo[0], geo[1]]
                         });
                 }
 
                 marker.dragend.addHandler(function(name, source, args) {
                         var geo = source.getAttribute('editor');
-                        geo[0].set('value', args.lat);
-                        geo[1].set('value', args.lon);
+                        geo[0].set('value', args.location.lat);
+                        geo[1].set('value', args.location.lon);
                         this.setProxyFieldValue(geo[1]);
 		}.bind(this));
 
@@ -360,6 +425,8 @@ var k2fields_type_map = {
                 }).inject(container, 'after');
 
                 map = new mxn.Mapstraction(mapId, provider);
+
+                if (provider == 'googlev3') map.addExtras();
 
                 map.setMapType(maptype);
                 map.setCenterAndZoom(point, zoom);

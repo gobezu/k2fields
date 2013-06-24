@@ -1941,7 +1941,7 @@ group by vvv.itemid
                 K2Model::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_k2fields/models/');
                 $model = K2Model::getInstance('fields', 'K2FieldsModel');
 
-                $content->k2f = array();
+                if (is_object($content)) $content->k2f = array();
 
                 foreach ($rules as $item => $itemRules) {
                         $renderedItemRules = call_user_func_array(
@@ -1951,7 +1951,7 @@ group by vvv.itemid
 
                         foreach ($renderedItemRules as $renderedFieldsRule) {
                                 if (!empty($renderedFieldsRule['raw'])) {
-                                        $content->k2f[] = $renderedFieldsRule;
+                                        if (is_object($content)) $content->k2f[] = $renderedFieldsRule;
                                         continue;
                                 }
 

@@ -542,7 +542,7 @@ var k2fields = new Class({
                         for (id in vals) {
                                 el = document.id(id) || $$('[name='+id+']')[0];
 
-                                if (!el || el.get('value')) continue;
+                                if (!el) continue;
 
                                 val = vals[id];
                                 fValue = '';

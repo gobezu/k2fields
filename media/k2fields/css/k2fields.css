@@ -5,6 +5,7 @@ TODO: Make it all k2fields specific
 .showinmapbtns { background-image:url(../icons/mapip.png); background-position:left center; padding-left:35px; background-repeat:no-repeat; display:inline-block; height:17px; }
 .chzn-results img, .chzn-choices img { vertical-align:middle; }
 .chzn-container-multi .chzn-choices .search-choice span { padding:5px; padding-right:15px; }
+.chzn-container-multi .chzn-choices .search-field { width:100%; }
 .itemprop { display:none; }
 #extraFieldsContainer { display:none; }
 .mapContainer { width:100%; height:500px; }

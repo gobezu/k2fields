@@ -7,46 +7,45 @@ defined('_JEXEC') or die('Restricted access');
 
 class K2fieldsK2Item extends K2fieldsFieldType {
         private static $folded = array();
-        
+
         public static function getParameters($field = null, $options = null) {
                 static $items = array();
-                
+
                 if (empty($options)) $options = $field;
-                
+
 //                if ($reverseField = K2FieldsModelFields::value($field, 'reverse')) {
 //                        $model = K2Model::getInstance('fields', 'K2FieldsModel');
 //                        $reverseField = $model->getFieldsById($reverseField);
 //                        $field = JprovenUtility::mergeK2FieldValues($reverseField, $field);
 //                }
-                
+
                 $fieldId = K2FieldsModelFields::value($field, 'id');
-                
+
                 if (!isset($items[$fieldId])) {
                         $query = self::completeItems($field);
-
                         $db = JFactory::getDBO();
                         $db->setQuery($query);
                         $items[$fieldId] = $db->loadObjectList();
                 }
-                
+
                 $options['items'] = $items[$fieldId];
-                
+
                 return $options;
         }
-        
+
         function render($item, $values, $field, $helper, $rule) {
                 $view = JFactory::getApplication()->input->get('view');
                 $as = K2FieldsModelFields::value($field, 'as', '');
-                
+
                 if ($view != 'item')
-                        $as = K2FieldsModelFields::value($field, 'listas', $as);
-                
+                        $as = K2FieldsModelFields::value($field, 'asitemlist', $as);
+
                 $items = array();
-                
+
                 if ($reverseFieldId = K2FieldsModelFields::value($field, 'reverse')) {
                         $reverseField = $helper->getFieldsById($reverseFieldId);
                         $field = JprovenUtility::mergeK2FieldValues($reverseField, $field);
-                        
+
                         if ($as != 'jpajaxlist' && $as != 'jplist') {
                                 $query = 'SELECT DISTINCT v.itemid FROM #__k2_extra_fields_values AS v WHERE v.fieldid = '.(int)$reverseFieldId.' AND v.value = '.(int)$item->id;
                                 $db = JFactory::getDBO();
@@ -68,12 +67,12 @@ class K2fieldsK2Item extends K2fieldsFieldType {
                         } else {
                                 $itemCat = K2FieldsModelFields::value($item, 'catid');
                                 $fieldCat = K2FieldsModelFields::value($field, 'categories');
-                                
+
                                 if ($fieldCat == $itemCat) {
                                         $fieldCat = K2FieldsModelFields::value($field, 'cats');
                                         $fieldCat = explode(',', $fieldCat);
                                         JprovenUtility::setValue ($field, 'categories', $fieldCat[0]);
-                                }                                
+                                }
                         }
                 } else {
                         foreach ($values as $value) {
@@ -81,11 +80,11 @@ class K2fieldsK2Item extends K2fieldsFieldType {
                                 $items[] = $v;
                         }
                 }
-                
+
                 if (empty($items) && $as != 'jpajaxlist' && $as != 'jplist') return '';
-                
+
                 $result = array();
-                
+
                 if ($as == 'view') {
                         if (isset($item->breakPluginLoop) && $item->breakPluginLoop == JFactory::getApplication()->input->get('id', '', 'int')) return;
 
@@ -102,7 +101,7 @@ class K2fieldsK2Item extends K2fieldsFieldType {
                         $contents = array();
 
                         ob_start();
-                        
+
                         foreach ($items as $id) {
                                 JRequest::setVar('id', $id);
 
@@ -118,64 +117,64 @@ class K2fieldsK2Item extends K2fieldsFieldType {
 
                                 $result[] = ob_get_clean();
                         }
-                        
+
                         JRequest::setVar('id', $saveId);
                 } else if ($as == 'jpajaxlist' || $as == 'jplist') {
                         $fieldId = K2FieldsModelFields::value($field, 'id');
                         $cats = K2FieldsModelFields::value($field, 'categories');
-                        
+
                         $query = array(
                             's'.$fieldId.'_0' => $item->id
                         );
-                        
+
                         $ui = K2FieldsHelperRoute::createCategoryLink(
-                                $cats, 
+                                $cats,
                                 $query,
                                 '',
                                 $as == 'jpajaxlist' ? 'ajax' : 'link'
                         );
-                        
+
                         $result[] = $ui;
                 } else if (strpos($as, 'embed') === 0) {
                         $includeFields = K2FieldsModelFields::value($field, 'includefields');
-                        
+
                         if (!empty($includeFields)) {
                                 $includeFields = explode(K2FieldsModelFields::VALUE_SEPARATOR, $includeFields);
                                 JprovenUtility::toInt($includeFields);
                                 $includeFields = ' fields='.implode(',', $includeFields);
                         } else $includeFields = '';
-                        
+
                         $fold = K2FieldsModelFields::value($field, 'foldfields');
-                        
+
                         if (!empty($fold)) {
                                 $fold = explode(K2FieldsModelFields::VALUE_SEPARATOR, $fold);
                                 JprovenUtility::toInt($fold);
                                 $foldFields = ' foldfields='.implode(',', $fold);
                         } else $foldFields = '';
-                        
+
                         $content = '{k2f k2item=true k2cat='.$item->catid.' item='.implode(',', $items).' title=true'.($as == 'embedraw' ? '' : ' titlecollapse=true').$includeFields.$foldFields.' fold=0}';
-                        
+
                         $ui = JprovenUtility::replacePluginValues(
                                 $content,
-                                'k2f', 
+                                'k2f',
                                 true
                         );
-                        
+
                         if (!empty($fold)) {
                                 $foldFields = ' fields='.implode(',', $fold);
-                                
+
                                 $content = '{k2f k2item=true k2cat='.$item->catid.' item='.implode(',', $items).' title=true'.($as == 'embedraw' ? '' : ' titlecollapse=true').$foldFields.'}';
                                 $uiFold = JprovenUtility::replacePluginValues(
                                         $content,
-                                        'k2f', 
+                                        'k2f',
                                         true
                                 );
                         } else $uiFold = '';
-                        
+
                         $_item = K2FieldsModelFields::value($item, 'id');
-                        
+
                         if (!isset(self::$folded[$_item])) self::$folded[$_item] = '';
-                        
+
                         self::$folded[$_item] .= $uiFold;
                         $result[] = $ui;
                 } else {
@@ -185,19 +184,19 @@ class K2fieldsK2Item extends K2fieldsFieldType {
                         $items = $db->loadObjectList('id');
                         $lis = array_keys($values);
                         $vals = JprovenUtility::flatten($values);
-                        
+
                         foreach ($items as $itemId => $_item) {
                                 foreach ($lis as $i => $li) {
                                         $cond = JprovenUtility::getRow(
-                                                $vals, 
+                                                $vals,
                                                 array('itemid' => $item->id, 'listindex' => $i, 'partindex' => -1)
                                         );
-                                        
+
                                         $itemRow = JprovenUtility::getRow(
-                                                $vals, 
+                                                $vals,
                                                 array('itemid' => $item->id, 'value' => $itemId, 'listindex' => $i, 'partindex' => 0)
                                         );
-                                        
+
                                         if (!$itemRow) continue;
 
                                         $cond = empty($cond) ? '' : $cond[0]->value;
@@ -205,6 +204,8 @@ class K2fieldsK2Item extends K2fieldsFieldType {
 
                                         if ($as == 'title') {
                                                 $ui = $_item->title;
+                                        } elseif ($as == 'itemlink') {
+                                                $ui = K2FieldsHelperRoute::createItemLink($item, $_item->title, $as);
                                         } else {
                                                 $as = str_replace('link', '', $as);
                                                 $ui = K2FieldsHelperRoute::createItemLink($_item, '', $as);
@@ -214,99 +215,98 @@ class K2fieldsK2Item extends K2fieldsFieldType {
                                 }
                         }
                 }
-                
+
                 $result = $helper->renderFieldValues($result, $field, $rule);
-                
+
                 return $result;
         }
-        
+
         public static function renderFolded($item) {
                 if (!is_int($item)) $item = K2FieldsModelFields::value($item, 'id');
                 return isset(self::$folded[$item]) ? self::$folded[$item] : '';
         }
-        
+
         public static function completeItems($field, $value = '', $pos = null) {
                 if (K2FieldsModelFields::isType($field, 'complex') && !empty($pos)) {
                         $field = K2FieldsModelFields::value($field, 'subfields');
                         $field = $field[$pos];
                 }
-                
+
                 $categories = K2FieldsModelFields::value($field, 'categories');
-                
+
                 if ($reverseField = K2FieldsModelFields::value($field, 'reverse')) {
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $reverseField = $model->getFieldsById($reverseField);
                         $categories = K2FieldsModelFields::value($reverseField, 'categories');
                 }
-                
+
                 $categories = explode(',', $categories);
                 $excludes = K2FieldsModelFields::value($field, 'exclude');
-                
+
                 if (!empty($excludes)) $excludes = explode(',', $excludes);
-                
+
                 $ccategories = JprovenUtility::getK2CategoryChildren($categories);
                 if (!empty($ccategories)) $categories = array_merge($categories, $ccategories['cats']);
                 $categories = JprovenUtility::removeValuesFromArray($categories, $excludes);
-                
-                $user = JFactory::getUser();
-                $allowed = 'access IN ('. implode(',', $user->getAuthorisedViewLevels()).')';               
 
-                $query = 
+                $user = JFactory::getUser();
+                $allowed = 'access IN ('. implode(',', $user->getAuthorisedViewLevels()).')';
+
+                $query =
                         'SELECT DISTINCT i.id AS ovalue, i.title AS value, c.id as catid, c.name as cattitle ' .
                         'FROM #__k2_items AS i LEFT JOIN #__k2_categories AS c ON i.catid = c.id WHERE i.catid IN ('.implode(',', $categories).') AND i.published = 1 AND i.'.$allowed.' AND i.trash = 0 AND c.published = 1 AND c.'.$allowed.' AND c.trash = 0 ' .
                         (!empty($value) ? ' AND i.title LIKE '.$value : '')
                         ;
-                
+
                 $fieldsFilters = K2FieldsModelFields::value($field, 'k2itemfilters');
-                
+
                 if (!empty($fieldsFilters)) {
                         $fieldsFilters = explode(K2FieldsModelFields::VALUE_SEPARATOR, $fieldsFilters);
                         $list = new K2FieldsList();
                         $model = K2Model::getInstance('fields', 'K2FieldsModel');
                         $db = JFactory::getDbo();
-                        
+
                         for ($i = 0, $n = count($fieldsFilters); $i < $n; $i++) {
                                 list($fieldId, $fieldFilters) = explode(K2FieldsModelFields::VALUE_COMP_SEPARATOR, $fieldsFilters[$i]);
                                 $filterField = null;
                                 $fieldFilters = explode(',', $fieldFilters);
-                                
+
                                 foreach ($fieldFilters as $i => &$fieldFilter) {
                                         if (JprovenUtility::endWith($fieldFilter, '*')) {
                                                 $fieldFilter = (int) str_replace('*', '', $fieldFilter);
-                                                
+
                                                 if (empty($filterField)) {
                                                         $filterField = $model->getFieldsById($fieldId);
                                                         $source = K2FieldsModelFields::value($filterField, 'source');
                                                 }
-                                                
+
                                                 $fieldFilter = $list->getTree($source, $fieldFilter, null, -1, true, true, array('id'), 'query');
                                         } else {
                                                 $fieldFilter = $db->quote($fieldFilter);
                                         }
                                 }
-                                
+
                                 $fieldFilters = implode(',', $fieldFilters);
-                                
                                 $v = 'v'.$i;
                                 $query .= ' AND i.id IN (SELECT DISTINCT '.$v.'.itemid FROM #__k2_extra_fields_values AS '.$v.' WHERE '.$v.'.fieldid = '.$fieldId.' AND '.$v.'.value IN ('.$fieldFilters.'))';
                         }
                 }
-                
-                $query .= 'ORDER BY c.ordering, i.ordering';
-                
+
+                $query .= ' ORDER BY c.ordering, i.ordering';
+
                 return $query;
         }
-        
+
         public static function reverseComplete($value) {
                 $value = (array) $value;
-                
+
                 JprovenUtility::toInt($value);
-                
-                $query = 
+
+                $query =
                         'SELECT i.id AS ovalue, i.title AS value, c.id as catid, c.name as cattitle ' .
                         'FROM #__k2_items AS i LEFT JOIN #__k2_categories AS c ON i.catid = c.id WHERE i.id IN ('.implode(',', $value).')'
                         ;
-                
+
                 return $query;
         }
 }

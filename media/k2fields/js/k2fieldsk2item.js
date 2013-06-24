@@ -67,15 +67,7 @@ var k2fields_type_k2item = {
                         return [vh, tf];
                 }
 
-                var
-                        item,
-                        typeOptions = {type:'select', valueName:'ovalue', textName:'value', first:'-- Select item --'},
-                        multiple = this.getOpt(proxyField, 'multiple'),
-                        catId = -1, values = [], title, catCnt = 0;
-                        ;
-
-                if (multiple == '1')
-                        typeOptions['multiple'] = true;
+                var item, catId = -1, values = [], title, catCnt = 0;
 
                 for (var i = 0, n = items.length; i < n; i++) {
                         item = items[i];
@@ -89,22 +81,28 @@ var k2fields_type_k2item = {
                         if (item['value'].length > 50)
                                 item['value'] = item['value'].substr(0, 50) + '...';
 
+                        if (item['ovalue']) {
+                                item['text'] = item['value'];
+                                item['value'] = item['ovalue'];
+                        }
+
                         values.push(item);
                 }
 
                 if (catCnt == 1) {
                         delete values[0];
                         values = values.clean();
-                        typeOptions['first'] = '-- Select '+this.getOpt(proxyField, 'name')+' --';
                 }
 
-                typeOptions['values'] = values;
+                this.setOpt(proxyField, 'values', values);
 
                 if (value) {
                         value = value.split(this.options.valueSeparator);
                         value = value[0];
                 }
 
-                return this.ccf(proxyField, value, 0, false, '', holder, 'select', typeOptions);
+                ui = this.createBasic(holder, proxyField, value, condition);
+
+                return ui;
         }
 };

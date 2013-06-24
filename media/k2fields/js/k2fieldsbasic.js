@@ -312,9 +312,15 @@ var k2fields_type_basic = {
         },
 
         createYesno: function(holder, proxyField, value, condition) {
-                var values = [{value:1,img:'yes.png',text:'Yes'}, {value:0,img:'no.png',text:'No'}];
+                var
+                        values = [{value:1,img:'yes.png',text:'Yes'}, {value:0,img:'no.png',text:'No'}],
+                        show = this.getOpt(proxyField, 'show'),
+                        val = this.getOpt(proxyField, 'clearoptyesno')
+                        ;
 
-                var show = this.getOpt(proxyField, 'show');
+                if (val) {
+                        this.setOpt(proxyField, 'clearopt', val);
+                }
 
                 if (show && show != 'img') values[0]['img'] = values[1]['img'] = '';
 
@@ -606,7 +612,7 @@ var k2fields_type_basic = {
                         }
                 }
 
-                if (fieldType == 'select') this._createChosen(field[0], proxyField);
+                if (fieldType == 'select') this._createChosen(field[0], proxyField, position);
 
                 return field;
         },
@@ -624,7 +630,7 @@ var k2fields_type_basic = {
                 this._createChosen(el, el);
         },
 
-        _createChosen: function(el, proxyField) {
+        _createChosen: function(el, proxyField, position) {
                 if (this.chkOpt(proxyField, 'selectchosen', ['1', 1]) && typeof jQuery != undefined) {
                         this.utility.load('tag', this.options.base + this.options.k2fbase + 'lib/chosen-with-templates/chosen/chosen.css');
 
@@ -634,12 +640,12 @@ var k2fields_type_basic = {
                                 'js',
                                 false,
                                 '',
-                                function() { this.__createChosen(el, proxyField); }.bind(this)
+                                function() { this.__createChosen(el, proxyField, position); }.bind(this)
                         );
                 }
         },
 
-        __createChosen:function(el, proxyField) {
+        __createChosen:function(el, proxyField, position) {
                 var opts = {}, val;
 
                 if (val = this.getOpt(proxyField, 'chosen.width')) {
@@ -651,7 +657,18 @@ var k2fields_type_basic = {
                 val = this.getOpt(proxyField, 'chosen.data-placeholder');
 
                 if (!val) {
-                        val = 'Select ' + this.getOpt(proxyField, 'name'+(this.chkOpt(proxyField, 'multiple', ['1', 1]) ? 's' : ''));
+                        if (this.isType(proxyField, 'list')) {
+                                var levels = this.getOpt(proxyField, 'levels');
+
+                                if (levels && levels[position]) val = levels[position];
+                                else val = this.getOpt(proxyField, 'name') + ' - ' + position;
+                        }
+
+                        if (!val) {
+                                val = this.getOpt(proxyField, 'name'+(this.chkOpt(proxyField, 'multiple', ['1', 1]) ? 's' : ''));
+                        }
+
+                        val = 'Select ' + val;
                 }
 
                 el.set('data-placeholder', val);

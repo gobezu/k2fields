@@ -334,7 +334,7 @@ class plgSystemk2fields extends JPlugin {
 
 		if ($loaded) return;
 
-                $debug = true;
+                //$debug = true;
 
                 // make sure to load currently available mootools
                 JHtml::_('behavior.framework');

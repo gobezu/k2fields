@@ -248,15 +248,27 @@ var k2fieldsoptions = new Class({
                 if (!opts.hasOwnProperty('valid')) return false;
 
                 if (opts['subfields']) {
-                        var sfs = [], ind, sid, ivs = opts['ivs'];
-                        for (var i = 0, n = opts['subfields'].length; i < n; i++) {
-                                if (!this._filterOptions(opts['subfields'][i])) continue;
-                                sfs.push(opts['subfields'][i]);
+                        var sfs = [], ind, sid, ivs = opts['ivs'], keys, sf;
+
+                        if (typeOf(opts['subfields']) == 'array') {
+                                keys = [];
+                                opts['subfields'].each(function(v,k) {keys.push(k)});
+                        } else {
+                                keys = Object.keys(opts['subfields']);
+                        }
+
+                        for (var i = 0, n = keys.length; i < n; i++) {
+                                sf = opts['subfields'][keys[i]];
+
+                                if (!this._filterOptions(sf)) continue;
+
+                                sfs.push(sf);
                                 sid = this.createProxyField(proxyField);
                                 ind = sfs.length-1;
                                 sfs[ind].id = sid;
                                 sfs[ind].position = sfs[ind].position == undefined ? i : sfs[ind].position;
                                 sfs[ind].subfieldof = this.options.pre + sfs[ind].subfieldof;
+
                                 if (!sfs[ind]['ivs']) {
                                         if (ivs) sfs[ind]['internalValueSeparator'] = ivs;
                                 } else {
@@ -265,6 +277,42 @@ var k2fieldsoptions = new Class({
 
                                 this.setOpts(document.id(this.options.pre+sid), sfs[ind]);
                         }
+
+
+                        // for (var key in opts['subfields']) {
+                        //         if (!this._filterOptions(opts['subfields'][key])) continue;
+                        //         sfs.push(opts['subfields'][key]);
+                        //         sid = this.createProxyField(proxyField);
+                        //         ind = sfs.length-1;
+                        //         sfs[ind].id = sid;
+                        //         sfs[ind].position = sfs[ind].position == undefined ? key : sfs[ind].position;
+                        //         sfs[ind].subfieldof = this.options.pre + sfs[ind].subfieldof;
+                        //         if (!sfs[ind]['ivs']) {
+                        //                 if (ivs) sfs[ind]['internalValueSeparator'] = ivs;
+                        //         } else {
+                        //                 sfs[ind]['internalValueSeparator'] = sfs[ind]['ivs'];
+                        //         }
+
+                        //         this.setOpts(document.id(this.options.pre+sid), sfs[ind]);
+                        // }
+
+                        // for (var i = 0, n = opts['subfields'].length; i < n; i++) {
+                        //         if (!this._filterOptions(opts['subfields'][i])) continue;
+                        //         sfs.push(opts['subfields'][i]);
+                        //         sid = this.createProxyField(proxyField);
+                        //         ind = sfs.length-1;
+                        //         sfs[ind].id = sid;
+                        //         sfs[ind].position = sfs[ind].position == undefined ? i : sfs[ind].position;
+                        //         sfs[ind].subfieldof = this.options.pre + sfs[ind].subfieldof;
+                        //         if (!sfs[ind]['ivs']) {
+                        //                 if (ivs) sfs[ind]['internalValueSeparator'] = ivs;
+                        //         } else {
+                        //                 sfs[ind]['internalValueSeparator'] = sfs[ind]['ivs'];
+                        //         }
+
+                        //         this.setOpts(document.id(this.options.pre+sid), sfs[ind]);
+                        // }
+
                         opts['subfields'] = sfs;
                 }
 

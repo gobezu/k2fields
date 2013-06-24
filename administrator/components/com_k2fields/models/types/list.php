@@ -43,7 +43,9 @@ class K2FieldsList extends K2fieldsFieldType {
                         $values = $_values;
                 }
 
-                return $helper->renderGeneric($item, $values, $field, $helper, $rule);
+                $rendered = $helper->renderGeneric($item, $values, $field, $helper, $rule);
+
+                return $rendered;
         }
 
         public function createField($field, $value) {

@@ -185,7 +185,9 @@ class K2FieldsModelFields extends K2Model {
 
                 $this->maintain($item, $fields, 1);
 
-                if ($this->loadType('media')) $result = K2FieldsMedia::save($item, $fields);
+                if ($this->loadType('media')) {
+                        $result = K2FieldsMedia::save($item, $fields);
+                }
 
                 $this->maintain($item, $fields, 2);
 
@@ -1696,6 +1698,7 @@ class K2FieldsModelFields extends K2Model {
 
                 foreach ($fields as $id => &$field) {
                         if (!empty($modeFilter) && !empty($field)) {
+
                                 $field['filters'] = $this->filterFieldOptions($field, $modeFilter);
 
                                 if ($modeFilter == 'search') {
@@ -1740,7 +1743,7 @@ class K2FieldsModelFields extends K2Model {
                                         }
                                 }
 
-                                if ($allowed && $isNegate || !$allowed && !$isNegate) unset($fields[$i]);
+                                if ($allowed && $isNegate || !$allowed && !$isNegate) unset($fields[$id]);
                         } else if ($isNegate) unset($fields[$i]);
                 }
 
@@ -2037,32 +2040,43 @@ class K2FieldsModelFields extends K2Model {
         }
 
         public function generateDescription($item) {
-                return $this->generateMeta($item, 'appendtodescription', ',');
+                return $this->generateMeta($item, $item->metakey, 'appendtodescription', ',');
         }
 
         public function generateKeywords($item) {
-                return $this->generateMeta($item, 'appendtokeywords', ',');
+                return $this->generateMeta($item, $item->metakey, 'appendtokeywords', ',');
         }
 
-        public function generateTitle($item, $glue) {
-                return $this->generateMeta($item, 'appendtotitle', $glue);
+        public function generateTitle($item, $glue, $isDynamic = false) {
+                $meta = array();
+
+                $meta[] = $this->generateMeta($item, $item->title, 'appendtotitle', $glue, $isDynamic ? '.dynamic' : '');
+                $meta[] = isset($item->cleanTitle) ? $this->generateMeta($item, $item->cleanTitle, 'appendtotitle', $glue, $isDynamic ? '.dynamic' : '') : '';
+
+                return $meta;
         }
 
-        public function generateMeta($item, $property, $glue) {
+        public function generateMeta($item, $meta, $property, $glue, $propertyModifier = '') {
                 $fields = $this->getFieldsByItem($item);
                 $mFields = array();
+                $isReplace = false;
+                $isTitle = JprovenUtility::endWith($property, 'title');
 
                 foreach ($fields as $field) {
-                        if (K2FieldsModelFields::isTrue($field, $property)) {
+                        if (K2FieldsModelFields::isTrue($field, $property . $propertyModifier)) {
+                                if (!$isReplace) $isReplace = K2FieldsModelFields::isTrue($field, 'replacetitle' . $propertyModifier);
                                 $mFields[] = $field;
                         }
                 }
 
                 if (!empty($mFields)) {
-                        $meta = array();
                         $values = $this->itemValues($item->id, JprovenUtility::getColumn($mFields, 'id'));
 
                         if ($values) {
+                                $meta = explode($glue, $meta);
+                                $meta = $meta[0];
+                                $meta = $isReplace ? array() : array($meta);
+
                                 foreach ($mFields as $field) {
                                         $_values = $values[K2FieldsModelFields::value($field, 'id')];
                                         $value = array();
@@ -2080,11 +2094,11 @@ class K2FieldsModelFields extends K2Model {
                                         $meta[] = $value;
                                 }
 
-                                return implode($glue, $meta);
+                                $meta = implode($glue, $meta);
                         }
                 }
 
-                return false;
+                return $meta;
         }
 
         /**
@@ -2282,7 +2296,6 @@ class K2FieldsModelFields extends K2Model {
                 }
 
                 $fieldsValues = $this->itemValues($itemId, $fields);
-
                 $isTabular = isset($item->isItemlistTabular) && $item->isItemlistTabular;
                 $schemaType = false;
 
@@ -2733,6 +2746,7 @@ class K2FieldsModelFields extends K2Model {
                 return $isExcluded;
         }
 
+        // $renderedValues, $fld, $fieldRule, is_array($renderer) && $renderer[1] == 'renderGeneric'
         public function renderFieldValues($values, $field, $fieldRule, $isFormatted = false, $isMetaAdded = false) {
                 if (empty($values)) return '';
 
@@ -2832,7 +2846,9 @@ class K2FieldsModelFields extends K2Model {
 
                 if (empty($lbl)) $ui .= '<div class="nolbl">';
 
-                if (!$isFormatted) $rendered = self::formatValue($rendered, $fieldRule, $field, true);
+                //if ($isFormatted) jdbg::pe('found a formatted one');
+
+                if (!$isFormatted && false) $rendered = self::formatValue($rendered, $fieldRule, $field, true);
 
                 $ui .= $lbl . '<div class="fv">'.$rendered.'</div>';
 
@@ -3400,7 +3416,7 @@ class K2FieldsModelFields extends K2Model {
                 if (!isset($rule['palt'])) $rule['palt'] = 2;
 
                 $rendered = '';
-                $val = array();
+                $vals = array();
                 $excludeValues = (array) self::value($field, 'excludevalues', array());
                 $view = JFactory::getApplication()->input->get('view', 'itemlist');
                 $collapsible = self::isTrue($field, 'collapsible'.($view == 'item' ? '' : 'itemlist'));
@@ -3437,22 +3453,20 @@ class K2FieldsModelFields extends K2Model {
                                 }
 
                                 if ($collapsible && $j == $collapseLimit) {
-                                        $val[] = '<a href="javascript:void(0)" class="jpcollapse" title="'.JText::_('Click here to see additional items').'">'.JText::_($collapseLabel).'</a><ul class="k2flist lst qty'.(count($values) - $collapseLimit).'">';
+                                        $vals[] = '<a href="javascript:void(0)" class="jpcollapse" title="'.JText::_('Click here to see additional items').'">'.JText::_($collapseLabel).'</a><ul class="k2flist lst qty'.(count($values) - $collapseLimit).'">';
                                 }
 
-                                $val[] = self::formatValue($value, $rule, $field);
+                                $vals[] = self::formatValue($value, $rule, $field);
                         }
                 }
 
-                // jdbg::p($val, $fid, 44);
-                // jdbg::pe($values, $fid, 44);
 
-                if (!empty($val)) {
-                        if (count($val) == 1) {
-                                $val = '<span>'.$val[0].'</span>';
+                if (!empty($vals)) {
+                        if (count($vals) == 1) {
+                                $vals = '<span>'.$vals[0].'</span>';
                         } else {
                                 $sep = self::value($field, 'separator', '');
-                                $val = '<ul class="k2flist"><li>'.implode($sep.'</li><li>', $val).'</li></ul>';
+                                $vals = '<ul class="k2flist"><li>'.implode($sep.'</li><li>', $vals).'</li></ul>';
                         }
 
                         $isSubfield = self::value($field, 'subfieldof');
@@ -3464,10 +3478,10 @@ class K2FieldsModelFields extends K2Model {
                                 $valid = self::value($field, 'valid');
                                 $rendered .=
                                         '<div class="'.$valid.'"><div class="'.$cls.'"><span class="lbl">'.self::value($field, 'name').'</span>'.
-                                        '<div class="fv">'.$val.'</div></div></div>'
+                                        '<div class="fv">'.$vals.'</div></div></div>'
                                         ;
                         } else {
-                                $rendered .= $val;
+                                $rendered .= $vals;
                         }
                 }
 
@@ -4538,20 +4552,23 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                 $options['name'] = $name;
                 $options['id'] = $fieldId;
-
                 $sub = false;
+
                 if (preg_match('#subfields=([\d\%]+)#', $optStr, $m)) {
                         $ids = str_replace(self::VALUE_SEPARATOR, ',', $m[1]);
                         $query = "SELECT id, replace(definition, 'k2f---', CONCAT('subfieldid=', id, ':::')) as def FROM #__k2_extra_fields_definition WHERE id IN ({$ids})";
                         $this->_db->setQuery($query);
                         $defs = $this->_db->loadObjectList('id');
                         $ids = explode(',', $ids);
+
                         foreach ($defs as $id => &$def) {
                                 if (preg_match('#deps=(.+)(\:\:\:|\-\-\-)#U', $def->def, $mm)) {
                                         $deps = explode(self::VALUE_SEPARATOR, $mm[1]);
                                         $_deps = array();
+
                                         foreach ($deps as $dep) {
                                                 list($val, $fld) = explode(self::VALUE_COMP_SEPARATOR, $dep);
+
                                                 if (!isset($_deps[$val])) $_deps[$val] = array();
                                                 if (($pos = array_search($fld, $ids)) !== false) {
                                                         $_deps[$val][] = $pos + 1;
@@ -4559,6 +4576,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                                         $_deps[$val][] = 'id:'.$fld;
                                                 }
                                         }
+
                                         $deps = array();
                                         foreach ($_deps as $val => $_dep) {
                                                 foreach ($_dep as $__dep) {
@@ -4576,14 +4594,13 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         }
                         $optStr = $_optStr.str_replace(':::'.$m[0], '', $optStr);
                         $sub = true;
-//                } else if (preg_match('#deps=([^\{].+[^\}])(\:\:\:|\-\-\-|)#', $optStr, $m)) {
                 } else if (preg_match('#deps=(.+)(\:\:\:|\-\-\-|$)#U', $optStr, $m)) {
                         $deps = explode(self::VALUE_SEPARATOR, $m[1]);
                         $_deps = array();
                         foreach ($deps as $dep) {
                                 $dep = explode(self::VALUE_COMP_SEPARATOR, $dep);
                                 if (!isset($_deps[$dep[0]])) $_deps[$dep[0]] = array();
-                                $_deps[$dep[0]][] = 'id:'.$dep[1].(count($dep) > 2 ?':1':'');
+                                $_deps[$dep[0]][] = ($subfieldOf != -1 ? '' : 'id:').$dep[1].(count($dep) > 2 ?':1':'');
                         }
                         $_deps = json_encode($_deps);
                         $optStr = str_replace('deps='.$m[1], 'deps='.$_deps, $optStr);
@@ -4601,7 +4618,6 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 }
 
                 $optStr = array_pop($sopts);
-
                 $opts = explode(self::FIELD_OPTIONS_SEPARATOR, $optStr);
 
                 for ($i = 0, $n = count($opts); $i < $n; $i++) {
@@ -4831,6 +4847,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 if ($valid == 'k2item') {
                         if ($useFilter) {
                                 $ui = self::value($options, 'ui', 'autocomplete');
+                                $ui = self::value($options, 'search..ui', $ui);
                                 if ($ui != 'select' || $ui == 'autocomplete') unset($options['items']);
                         }
                 } else if ($valid == 'complex') {

@@ -484,7 +484,7 @@ var k2fieldseditor = new Class({
                                         {'value':'title','text':'title'},
                                         {'value':'rate','text':'rate'},
                                         {'label':'advanced'},
-                                        {'value':'k2item','text':'k2item'},
+                                        {'value':'k2item','text':'k2item *'},
                                         {'value':'list','text':'list *'},
                                         {'value':'media','text':'media'},
                                         {'value':'map','text':'map'},
@@ -516,12 +516,13 @@ var k2fieldseditor = new Class({
                                         'text':['id:3'],
                                         'alpha':['id:3'],
                                         'alphanum':['id:3'],
+                                        'yesno':['id:100039'],
                                         'integer':['id:3', 'id:1214', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'numeric':['id:3', 'id:1214', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'days':['id:3'],
-                                        'k2item':['id:11', 'id:1101', 'id:1102', 'id:1103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
+                                        'k2item':['id:3', 'id:11', 'id:1101', 'id:1102', 'id:1103', 'id:101103', 'id:1104', 'id:1105', 'id:1106', 'id:1107'],
                                         'list':['id:3', 'id:11', 'id:1001', 'id:1002', 'id:1003', 'id:1004', 'id:1005'],
-                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
+                                        'media':['id:34', 'id:35', 'id:1151', 'id:1152', 'id:1153', 'id:1154', 'id:1155', 'id:1156', 'id:1157', 'id:1158', 'id:1159', 'id:1160', 'id:1161', 'id:1162', 'id:1163', 'id:1164', 'id:1165', 'id:1166', 'id:1167', 'id:1168', 'id:1169', 'id:1170', 'id:101171', 'id:1171', 'id:1172', 'id:1173', 'id:1174', 'id:1175', 'id:1176', 'id:1177', 'id:1178'],
                                         'datetime':['id:1201', 'id:1204', 'id:1205', 'id:1206', 'id:1222', 'id:1223', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215', 'id:1216', 'id:1217', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'date':['id:1201', 'id:1203', 'id:1205', 'id:1206', 'id:1222', 'id:1223', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215', 'id:1216', 'id:1217', 'id:1218', 'id:1219', 'id:1220', 'id:1221', 'id:1224'],
                                         'time':['id:1201', 'id:1202', 'id:1205', 'id:1206', 'id:1207', 'id:1208', 'id:1209', 'id:1210', 'id:1211', 'id:1212', 'id:1213', 'id:1214', 'id:1215'],
@@ -915,7 +916,26 @@ var k2fieldseditor = new Class({
                                 'name':'Append to title',
                                 'optName':'appendtotitle',
                                 'valid':'verifybox',
-                                'tip':'Value of this field will be appended to title with the glue character defined in k2fields plugin setting between the title and the value.',
+                                'tip':'Value of this field will be appended to item title with the glue character defined in k2fields plugin setting between the title and the value.',
+                                'section':'SEO'
+                        },
+                        '100031':{
+                                'name':'Append to title /dynamically/',
+                                'optName':'appendtotitle.dynamic',
+                                'valid':'verifybox',
+                                'tip':'Value of this field will be appended to page title with the glue character defined in k2fields plugin setting between the title and the value.',
+                                'section':'SEO'
+                        },
+                        '100032':{
+                                'name':'Replace item title',
+                                'optName':'replacetitle',
+                                'valid':'verifybox',
+                                'section':'SEO'
+                        },
+                        '100033':{
+                                'name':'Replace item title /dynamically/',
+                                'optName':'replacetitle.dynamic',
+                                'valid':'verifybox',
                                 'section':'SEO'
                         },
                         '32':{
@@ -973,6 +993,14 @@ var k2fieldseditor = new Class({
                         '39':{
                                 'name':'Clear option',
                                 'optName':'clearopt',
+                                'valid':'text',
+                                'values':['firstempty', 'lastempty', 'button'],
+                                'ui':'select',
+                                'section':'Basic'
+                        },
+                        '100039':{
+                                'name':'Clear option (yesno)',
+                                'optName':'clearoptyesno',
                                 'valid':'text',
                                 'values':['firstempty', 'lastempty', 'button'],
                                 'ui':'select',
@@ -1415,7 +1443,8 @@ var k2fieldseditor = new Class({
                                 ui:'select',
                                 values:this.options.options['fields'],
                                 sorted:true,
-                                'section':'Type specific'
+                                'section':'Type specific',
+                                'listmax':30
                         },
                         '1052':{
                                 name:'Override properties',
@@ -1468,8 +1497,18 @@ var k2fieldseditor = new Class({
                                         {'value':'embedraw', 'text':'embedraw - embed item with only selected fields below included'},
                                         {'value':'embed', 'text':'embed - same as above but where guest item is shown when clicked upon its title in an accordion effect'},
                                         {'value':'title', 'text':'title - item title only'},
-                                        {'value':'link', 'text':'link - link to item'}
+                                        {'value':'link', 'text':'link - link to item'},
+                                        {'value':'itemlink', 'text':'link - link to host item'}
                                 ],
+                                'savevalues':'k2itemas',
+                                sorted:true,
+                                'section':'Type specific'
+                        },
+                        '101103':{
+                                'name':'Show k2items as (itemlist)',
+                                'optName':'asitemlist',
+                                'valid':'select',
+                                'values':'values:k2itemas',
                                 sorted:true,
                                 'section':'Type specific'
                         },
@@ -1540,7 +1579,8 @@ var k2fieldseditor = new Class({
                                         {'value':'remote', 'text':'Remote file (TBI)'}
                                 ],
                                 'deps':{
-                                        'provider':['id:1157', 'id:1158']
+                                        'provider':['id:1157', 'id:1158'],
+                                        'remote':['id:101157']
 
                                 },
                                 'sorted':true,
@@ -1577,7 +1617,7 @@ var k2fieldseditor = new Class({
                                 'sorted':true,
                                 'section':'Type specific',
                                 'deps':{
-                                        'widgetkit_k2':['id:1551', 'id:1552', 'id:1553', 'id:1554', 'id:1555', 'id:1556', 'id:1557', 'id:1558', 'id:1559', 'id:1560', 'id:1561', 'id:1562']
+                                        // 'widgetkit_k2':['id:1551', 'id:1552', 'id:1553', 'id:1554', 'id:1555', 'id:1556', 'id:1557', 'id:1558', 'id:1559', 'id:1560', 'id:1561', 'id:1562', 'id:1563', 'id:1564', 'id:1565', 'id:1566']
                                 }
                         },
                         '1156':{
@@ -1586,6 +1626,16 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'select',
                                 'values':this.options.options['mediaplugins']['pic'],
+                                'section':'Type specific'
+                        },
+                        '101157':{
+                                'name':'Remote download allowed user groups',
+                                'optName':'remotedlallowed',
+                                'valid':'int',
+                                'ui':'select',
+                                'multiple':1,
+                                'values':this.options.options['aclusergroups'],
+                                'sorted':true,
                                 'section':'Type specific'
                         },
                         '1157':{
@@ -1611,7 +1661,8 @@ var k2fieldseditor = new Class({
                                 'valid':'text',
                                 'ui':'checkbox',
                                 'values':[
-                                        {'value':'single', 'text':'Single'}
+                                        {'value':'single', 'text':'Single'},
+                                        {'value':'picprio', 'text':'Image priority'}
                                 ],
                                 'section':'Type specific'
                         },
@@ -1696,6 +1747,14 @@ var k2fieldseditor = new Class({
                                 'valid':'integer',
                                 'section':'Type specific',
                                 'default':480
+                        },
+                        '101171':{
+                                'name':'Progressive image',
+                                'optName':'progressive.image',
+                                'valid':'verifybox',
+                                'section':'Type specific',
+                                'default':1,
+                                'tip':'Applies only to JPEG images and is considered as front end performance enhancer, as file size is commonly less and appears faster in browser.'
                         },
                         '1171':{
                                 'name':'Image quality (%)',
@@ -2752,100 +2811,6 @@ var k2fieldseditor = new Class({
                                 section:'Type specific',
                                 tip:'If image choosen: file needs to be located in media/k2fields/icon folder and named as follows: be of png type and have png as suffix and prefixed with "n" followed by the number it represents.'
                         },
-                        '1551':{
-                                name:'Autoplay',
-                                optName:'widgetkit_k2_autoplay',
-                                valid:'yesno',
-                                section:'Type specific'
-                        },
-                        '1552':{
-                                name:'Order',
-                                optName:'widgetkit_k2_order',
-                                valid:'text',
-                                ui:'radio',
-                                values:['default', 'random'],
-                                section:'Type specific'
-                        },
-                        '1553':{
-                                name:'Autoplay Interval (ms)',
-                                optName:'widgetkit_k2_interval',
-                                valid:'integer',
-                                section:'Type specific',
-                                'default':5000
-                        },
-                        '1554':{
-                                name:'Effect Duration (ms)',
-                                optName:'widgetkit_k2_duration',
-                                valid:'integer',
-                                section:'Type specific',
-                                'default':500
-                        },
-                        '1555':{
-                                name:'Start Index',
-                                optName:'widgetkit_k2_index',
-                                valid:'integer',
-                                section:'Type specific',
-                                'default':0
-                        },
-                        '1556':{
-                                name:'Navigation',
-                                optName:'widgetkit_k2_navigation',
-                                valid:'integer',
-                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
-                                ui:'radio',
-                                section:'Type specific',
-                                'default':1
-                        },
-                        '1557':{
-                                name:'Buttons',
-                                optName:'widgetkit_k2_buttons',
-                                valid:'integer',
-                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
-                                ui:'radio',
-                                section:'Type specific',
-                                'default':1
-                        },
-                        '1558':{
-                                name:'Slices',
-                                optName:'widgetkit_k2_slices',
-                                valid:'integer',
-                                section:'Type specific',
-                                'default':0
-                        },
-                        '1559':{
-                                name:'Effect',
-                                optName:'widgetkit_k2_animated',
-                                valid:'text',
-                                values:[{'text':'Fade','value':'fade'}, {'text':'Slide','value':'slide'}, {'text':'Scroll','value':'scroll'}, {'text':'Swipe','value':'swipe'}, {'text':'SliceUp','value':'sliceUp'}, {'text':'SliceDown','value':'sliceDown'}, {'text':'SliceUpDown','value':'sliceUpDown'}, {'text':'Fold','value':'fold'}, {'text':'Puzzle','value':'puzzle'}, {'text':'Boxes','value':'boxes'}, {'text':'BoxesReverse','value':'boxesReverse'}, {'text':'KenBurns','value':'kenburns'}, {'text':'Rotate','value':'rotate'}, {'text':'Scale','value':'scale'}, {'text':'RandomSimple','value':'randomSimple'}, {'text':'RandomFx','value':'randomFx'}],
-                                ui:'select',
-                                section:'Type specific',
-                                'default':'fade'
-                        },
-                        '1560':{
-                                name:'Caption Animation Duration',
-                                optName:'widgetkit_k2_caption_animation_duration',
-                                valid:'integer',
-                                section:'Type specific',
-                                'default':500
-                        },
-                        '1561':{
-                                name:'Lightbox',
-                                optName:'widgetkit_k2_lightbox',
-                                valid:'integer',
-                                values:[{'text':'Show', 'value':1}, {'text':'Hide', 'value':0}],
-                                ui:'radio',
-                                section:'Type specific',
-                                'default':0
-                        },
-                        '1562':{
-                                name:'Style',
-                                optName:'widgetkit_k2_style',
-                                valid:'text',
-                                values:['default', 'inside', 'inspire', 'radiance', 'revista_default', 'screen', 'showcase', 'showcase_box', 'slider', 'slideset', 'subway', 'wall'],
-                                ui:'select',
-                                section:'Type specific',
-                                'default':0
-                        },
                         '1601':{
                                 name:'Show send button',
                                 optName:'facebooksend',
@@ -3180,5 +3145,19 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         }
              };
+
+             if (this.options.options['widgetkit_k2']) {
+                var indexBase = Array.max(Object.keys(this.specification)), deps = [], i, n = this.options.options['widgetkit_k2'].length, aKey;
+
+                indexBase = indexBase - (indexBase % 100) + 100 + 1;
+
+                for (i = 0; i < n; i++) {
+                        aKey = indexBase + i;
+                        this.specification[aKey] = this.options.options['widgetkit_k2'][i];
+                        deps.push('id:' + aKey);
+                }
+
+                this.specification['1155']['deps']['widgetkit_k2'] = deps;
+             }
         }
 });

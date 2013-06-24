@@ -364,6 +364,10 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $fieldsValues = JprovenUtility::indexBy($fieldsValues, 'fieldid');
 
                 foreach ($fields as $field) {
+                        $sources = K2FieldsModelFields::value($field, 'mediasources');
+
+                        if (!in_array('upload', $sources) || !in_array('remote', $sources)) continue;
+
                         if (is_object($field)) $field = get_object_vars($field);
 
                         $dir = self::getStorageDirectory($field, $item, true);
@@ -482,8 +486,6 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         }
                 }
         }
-
-
 
         // NOTE: to be removed, CAUSE: not used
         public static function processRemoteFile(&$item, $options, $fieldData) {
@@ -1012,6 +1014,9 @@ class K2FieldsMedia extends K2fieldsFieldType {
                                 break;
                         case "image/pjpeg":
                         case "image/jpeg":
+                                if (K2FieldsModelFields::isTrue($options, 'progressive.image')) {
+                                        imageinterlace($mini, true);
+                                }
                                 imagejpeg($mini, $tmp, K2FieldsModelFields::value($options, 'picquality'.$type));
                                 break;
                 }
@@ -1285,6 +1290,10 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $options['itemlistvideoplg'] = K2FieldsModelFields::setting('itemlistvideoplg', $options);
                 $options['audioplg'] = K2FieldsModelFields::setting('audioplg', $options);
                 $options['itemlistaudioplg'] = K2FieldsModelFields::setting('itemlistaudioplg', $options);
+                $options['mode'] = K2FieldsModelFields::value($options, 'mode');
+                $options['mode'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['mode']);
+                $options['listmode'] = K2FieldsModelFields::value($options, 'listmode');
+                $options['listmode'] = explode(K2FieldsModelFields::VALUE_SEPARATOR, $options['listmode']);
 
                 $app = JFactory::getApplication();
 
@@ -1470,6 +1479,21 @@ class K2FieldsMedia extends K2fieldsFieldType {
                         $medias[$mediaType][] = $value;
                 }
 
+                $view = self::getView($item);
+                $view = $view == 'itemlist' ? 'list' : '';
+                $isImagePriority = self::isImagePriority($view, $field);
+
+                if ($isImagePriority && isset($medias['pic'])) {
+                        $keys = array_keys($medias);
+                        if ($keys[0] != 'pic') {
+                                $pics = $medias['pic'];
+                                unset($medias['pic']);
+                                $medias = array_filter($medias);
+                                $nmedias = array('pic'=>$pics);
+                                $medias = array_merge($nmedias, $medias);
+                        }
+                }
+
                 $postProcess = true;
 
                 foreach ($medias as $mediaType => $_medias) {
@@ -1537,6 +1561,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
 
                 if ($view != 'itemlist') $view = '';
 
+                // TODO: provider is a media source and not a media type
                 $mediaTypes = K2FieldsModelFields::value($field, 'mediatypes');
 
                 if ($mediaType != 'provider' && !in_array($mediaType, $mediaTypes)) {
@@ -1600,7 +1625,7 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 $singleMode = K2FieldsModelFields::value($field, 'singlemode');
 
                 if ($isSingleMode) {
-                        if ($singleMode == 'first') {
+                        if (empty($singleMode) || $singleMode == 'first') {
                                 $medias = array_slice($medias, 0, 1);
                         } else if ($singleMode == 'random') {
                                 $rand = rand(0, count($medias)-1);
@@ -1638,14 +1663,22 @@ class K2FieldsMedia extends K2fieldsFieldType {
                 }
         }
 
-        private static function isSingleMode($view, $field) {
+        private static function isMode($view, $field, $assertion) {
                 $mode = K2FieldsModelFields::value($field, $view.'mode');
 
                 if (empty($mode) && $view == 'list') {
-                        $mode = 'single';
+                        $mode = array('single');
                 }
 
-                return $mode == 'single';
+                return in_array($assertion, $mode);
+        }
+
+        private static function isSingleMode($view, $field) {
+                return self::isMode($view, $field, 'single');
+        }
+
+        private static function isImagePriority($view, $field) {
+                return self::isMode($view, $field, 'picprio');
         }
 
         // TODO: testa J2.5 kompatibel plugins o i plugin setting behåll endast de som är kompatibla alt. markera de som kompatibla

@@ -54,6 +54,12 @@ class plgk2k2fields extends K2Plugin {
 
                 self::setLayout($item);
 
+                $glue = self::param('appendtitleglue', ' / ');
+                $meta = $model->generateTitle($item, $glue, true);
+                $item->title = $meta[0];
+
+                if (isset($item->cleanTitle)) $item->cleanTitle = $meta[1];
+
                 // $this->processSearchPlugins($item);
                 return self::processExtrafields('BeforeDisplay', $item, $params, $limitstart);
         }
@@ -116,31 +122,26 @@ class plgk2k2fields extends K2Plugin {
                 $meta = $model->generateTitle($item, $glue);
 
                 if ($meta) {
-                        $t = explode($glue, $row->title);
-                        $meta = $t[0] . $glue . $meta;
                         $row->alias = '';
                         $isSave = true;
-                        $row->title = $item->title = $meta;
+                        $row->title = $item->title = $meta[0];
                 }
 
-                $meta = $model->generateKeywords($item);
+                $meta = $model->generateKeywords($item, self::AUTO_METATAG_SEPARATOR);
 
                 if ($meta) {
-                        $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
-                        $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
                         $isSave = true;
                         $row->metakey = $item->metakey = $meta;
                 }
 
-                $meta = $model->generateDescription($item);
+                // TODO: Description
+/*                $meta = $model->generateDescription($item, self::AUTO_METATAG_SEPARATOR);
 
                 if ($meta) {
-                        $t = explode(self::AUTO_METATAG_SEPARATOR, $row->metakey);
-                        $meta = $t[0] . self::AUTO_METATAG_SEPARATOR . $meta;
                         $isSave = true;
                         $row->metakey = $item->metakey = $meta;
                 }
-
+*/
                 if ($isSave) {
                         if (!$row->check()) {
                                 $app->redirect('index.php?option=com_k2&view=item&cid='.$row->id, $row->getError(), 'error');
@@ -156,6 +157,7 @@ class plgk2k2fields extends K2Plugin {
                 $action = self::param('actionaftersave', 'closeandload');
                 $js = false;
 
+                // TODO: J3.1+ compatibility
                 switch ($action) {
                         case 'closeandreload':
                                 $js = "window.parent.document.location.reload();";
@@ -643,11 +645,9 @@ class plgk2k2fields extends K2Plugin {
 
                                 JprovenUtility::load('k2fieldsbasic.js', 'js');
 
-                                foreach ($modules as $module) {
-//                                        if (K2FieldsModelFields::isRenderedTypes('list')) {
-                                                JprovenUtility::load('k2fields'.$module.'.js', 'js');
-//                                        }
-                                }
+                                // foreach ($modules as $module) {
+                                //         JprovenUtility::load('k2fields'.$module.'.js', 'js');
+                                // }
                         }
 
                         K2Model::getInstance('searchterms', 'k2fieldsmodel');

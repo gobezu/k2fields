@@ -40,4 +40,6 @@ div.tabscnt1 div#k2Tabs >  div.simpleTabsContent { border:none; padding:0px; }
 .chzn-container .chzn-drop .chzn-search input { min-width:90%; }
 .chzn-container .chzn-choices .search-field .default { width:90% !important; }
 
-.k2fvaluerow .complex .k2fvalue > span > span > div > label, .k2fvaluerow .complex .k2fvalue > span > div > label { display:inline-block; width:200px; }
+.k2fvaluerow .complex .k2fvalue > span > span > div > label, .k2fvaluerow .complex .k2fvalue > span > div > label,
+.k2fvaluerow .complex .k2fvalue > span > span > div > div > label, .k2fvaluerow .complex .k2fvalue > span > div > div > label
+{ display:inline-block; width:200px; }

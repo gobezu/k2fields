@@ -26,8 +26,15 @@ var k2fields_type_datetime = {
                                         {value:'nextweek', text:'Next week'},
                                         {value:'specify', text:'Another time...'}
                                 ],
-                        sel = this.ccf(proxyField, values[0], 0, false, '', holder, 'select', {values:selValues});
+                        sel
+                        ;
 
+                this.setOpt(proxyField, 'ui', 'select');
+                this.setOpt(proxyField, 'selectchosen', 1);
+                this.setOpt(proxyField, 'values', selValues);
+                this.setOpt(proxyField, 'sorted', 1);
+                sel = this.createBasic(holder, proxyField, values[0], condition, 0);
+                // sel = this.ccf(proxyField, values[0], 0, false, '', holder, 'select', {values:selValues});
                 sel = sel[0];
 
                 if (values[0]) {
@@ -279,7 +286,7 @@ var k2fields_type_datetime = {
         datePickers: {},
 
         createDatetime: function(holder, proxyField, value, condition, pos, lbl) {
-                return this._createDatetime(holder, proxyField, value, condition);
+                return this._createDatetime(holder, proxyField, value, condition, pos, lbl);
 
                 var result, theme = this.getOpt(proxyField, 'theme', null, 'dashboard');
 
@@ -438,11 +445,12 @@ var k2fields_type_datetime = {
                         );
 
                 if (repeat == 'enddate' && !this.isMode('search')) {
-                        minDep = repeatUI[repeatUI.length - 1].get('id');
-                        this.enforceDateDependency(el.get('value') ? Date.parse(el.get('value')) : new Date(), minDep, 'min');
+                        maxDep = repeatUI[repeatUI.length - 1].get('id');
+                        this.enforceDateDependency(proxyField.get('id'), maxDep, null, 'max');
                         this.datePickers[el.get('id')].setOptions({
                                 onSelect: function(date) {
-                                        this.enforceDateDependency(date, minDep, 'min');
+                                        this.enforceDateDependency(maxDep, proxyField.get('id'), null, 'min');
+                                        //this.enforceDateDependency(date, minDep, 'min');
                                 }.bind(this)
                         });
                 }
@@ -471,22 +479,23 @@ var k2fields_type_datetime = {
                 var repeatOn = value[pos] != '';
 
                 rep.addEvent('change', function(e) {
-                        e = document.id(e.target);
+                        e = this._tgt(e);
 
                         // freq
-                        var el = e.getParent('ul').getNext('select'), disabled = !e.checked, to = disabled ? 'none' : 'inline';
+                        var el = e.getParent('.k2fcontainer').getElement('select[repeatfrequency=1]'), disabled = !e.checked, to = disabled ? 'none' : 'inline';
                         if (!e.checked) el.selectedIndex = -1;
                         el.disabled = disabled;
                         el.setStyle('display', to);
 
                         // unit
-                        el = el.getNext('select');
+                        el = e.getParent('.k2fcontainer').getElement('select[repeatunit=1]');
                         if (disabled) el.selectedIndex = -1;
                         el.disabled = disabled;
                         el.setStyle('display', to);
 
                         // times
-                        el = el.getNext('select') || el.getNext('input');
+                        // el = el.getNext('select') || el.getNext('input');
+                        el = e.getParent('.k2fcontainer').getElement('select[repeatend=1],input[repeatend=1]');
                         if (disabled) {
                                 if (el.get('tag') == 'select') el.selectedIndex = -1;
                                 else el.set('value', '');
@@ -495,7 +504,7 @@ var k2fields_type_datetime = {
 
                         el.disabled = disabled;
                         el.setStyle('display', to);
-                });
+                }.bind(this));
 
                 pos++;
                 var required = this.getOpt(proxyField, 'required');
@@ -504,6 +513,7 @@ var k2fields_type_datetime = {
                         values:[{value:'', text:'Repeat on'}].combine([].range(1, 10))
                 }, false);
                 freq = freq[0];
+                freq.set('repeatfrequency', '1');
 
                 pos++;
 
@@ -517,6 +527,7 @@ var k2fields_type_datetime = {
                         ]
                 }, false);
                 unit = unit[0];
+                unit.set('repeatunit', '1');
 
                 pos++;
 
@@ -533,6 +544,7 @@ var k2fields_type_datetime = {
                 }
 
                 times = times[0];
+                times.set('repeatend', '1');
 
                 if (!repeatOn) {
                         freq.disabled = unit.disabled = times.disabled = true;
