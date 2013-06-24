@@ -22,18 +22,18 @@
                 ]]>
         </description>
         <install><sql><file driver="mysqli" charset="utf8">setup/install.mysqli.sql</file></sql></install>
-        <uninstall><sql><file driver="mysqli" charset="utf8">setup/uninstall.mysqli.sql</file></sql></uninstall> 	
+        <uninstall><sql><file driver="mysqli" charset="utf8">setup/uninstall.mysqli.sql</file></sql></uninstall>
         <files folder="components/com_k2fields">
                 <folder>controllers</folder>
                 <folder>helpers</folder>
                 <folder>models</folder>
-                <folder>templates</folder>                
-                <folder>views</folder>                
+                <folder>templates</folder>
+                <folder>views</folder>
 		<filename>index.html</filename>
 		<filename>k2fields.php</filename>
 	</files>
 	<administration>
-                <menu>k2fields</menu>                
+                <menu>k2fields</menu>
                 <files folder="administrator/components/com_k2fields">
                         <folder>controllers</folder>
                         <folder>elements</folder>
@@ -60,10 +60,13 @@
                 <plugin name="k2fields" folder="plugins/k2/k2fields" group="k2" enable="1">main k2 plugin</plugin>
                 <plugin name="k2fields" folder="plugins/system/k2fields" group="system" enable="1">system plugin required for proper functioning</plugin>
                 <plugin name="k2fields" folder="plugins/content/k2fields" group="content" enable="0">pulling in k2fields fields in custom module and in other content components</plugin>
+                <module name="k2fields_categorymenu" folder="modules/mod_k2fields_categorymenu">k2fields categorymenu</module>
+                <module name="k2fields_navigator" folder="modules/mod_k2fields_navigator">k2fields navigator</module>
                 <module name="k2fields" folder="modules/mod_k2fields">search module</module>
                 <module name="k2fields_usertools" folder="modules/mod_k2fields_usertools">user tools - currently mainly submission button</module>
                 <module name="k2fields_contents" folder="modules/mod_k2fields_contents">content presentation</module>
                 <plugin name="rate" folder="plugins/k2/k2komento" group="k2" enable="0">rating in komento</plugin>
+                <plugin name="komento" folder="plugins/komento/rate" group="komento" enable="0">rating in komento</plugin>
         </additional>
         <scriptfile>script.k2fields.php</scriptfile>
 </extension>

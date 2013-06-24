@@ -47,7 +47,7 @@ if ($row->isAggregate) {
         $classname .= ' aggr_rate';
 }
 
-$usergroups	= Komento::getUserGids( Komento::getProfile( $row->created_by )->id );
+$usergroups	= $row->author->getUsergroups();
 if (is_array($usergroups) && !empty($usergroups))
 {
 	foreach ($usergroups as $usergroup) {

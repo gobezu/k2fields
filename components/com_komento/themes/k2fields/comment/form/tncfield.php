@@ -12,11 +12,17 @@
  */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-$tncGroup		= explode( ',', $system->config->get( 'show_tnc', '') );
-$usergid		= Komento::getUserGids( $system->my->id );
+$tncGroup		= $system->config->get( 'show_tnc', '');
+
+if( !is_array( $tncGroup ) )
+{
+	$tncGroup = explode( ',', $tncGroup );
+}
+
+$usergids		= $system->my->getUsergroups();
 $requiresTnc	= false;
 
-foreach( $usergid as $gid )
+foreach( $usergids as $gid )
 {
 	if( in_array( $gid, $tncGroup ) )
 	{
