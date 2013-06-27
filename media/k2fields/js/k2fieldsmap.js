@@ -104,8 +104,8 @@ var k2fields_type_map = {
                 if (!icon) return false;
         },
 
-        getMapIcon:function(proxyField, iconType, alterWith) {
-                iconType = this.getMapIconType(proxyField, iconType);
+        getMapIcon:function(proxyField, iconTypes, alterWith) {
+                var iconType = this.getMapIconType(proxyField, iconTypes);
 
                 if (!iconType) return false;
 
@@ -368,18 +368,6 @@ var k2fields_type_map = {
                 return false;
         },
 
-//        redraws:[],
-//        redraw:function() {
-//                for (var i = 0, n = this.redraws.length; i < n; i++) {
-//                       if (this.redraws[i][0].isVisible()) {
-//                               this.refreshMap(this.redraws[i][1]);
-//                               clearInterval(this.redraws[i][2]);
-//                               delete this.redraws[i];
-//                       }
-//                }
-//                this.redraws = this.redraws.clean();
-//        },
-
         refreshMap:function(proxyField) {
                 var
                         map = this.getEditorMap(proxyField),
@@ -439,10 +427,6 @@ var k2fields_type_map = {
 
                 this.mapEditors[mapId] = map;
 
-//                if (!container.isVisible()) {
-//                        this.redraws.push([container, proxyField, this.redraw.periodical(500, this)]);
-//                }
-
                 return map;
         },
 
@@ -497,13 +481,31 @@ var k2fields_type_map = {
         },
 
         mapItems: {},
-        drawMap: function(proxyField, view) {
+        mapViews: {},
+        drawMap: function(proxyField, view, rec) {
                 var
                         container = this.getOpt(proxyField, 'mapcontainerid'),
-                        provider = this.getOpt(proxyField, 'mapprovider'+view)
+                        provider = this.getOpt(proxyField, 'mapprovider'+view),
+                        map
                         ;
-                var
-                        map = new mxn.Mapstraction(container, provider);
+
+                container = document.id(container);
+
+                if (!container.isVisible()) {
+                        if (!rec) {
+                                var timer = this.drawMap.periodical(500, this, [proxyField, view, true]);
+                                container.store('drawMapTime', timer);
+                        }
+
+                        return;
+                }
+
+                if (rec) {
+                        var timer = container.retrieve('drawMapTime');
+                        clearInterval(timer);
+                }
+
+                map = new mxn.Mapstraction(container, provider);
 
                 var
                         maptype = this.getOpt(proxyField, 'maptype'),
