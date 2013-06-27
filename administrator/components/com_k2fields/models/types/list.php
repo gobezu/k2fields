@@ -91,6 +91,7 @@ class K2FieldsList extends K2fieldsFieldType {
 
                         if (empty($pat)) $pat = '%value%\.gif|png|jpg';
 
+                        $fieldId = K2FieldsModelFields::value($field, 'id');
                         $folder = str_replace($pat, '', $folder);
                         $_folder = JPATH_SITE . '/' . $folder;
 

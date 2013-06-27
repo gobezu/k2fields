@@ -41,7 +41,8 @@ var k2fields = new Class({
                 'text',
                 'url',
                 'email',
-                'title'
+                'title',
+                'embeddedform'
         ],
 
         autoFields: ['title', 'rate'],

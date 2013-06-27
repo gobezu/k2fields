@@ -170,7 +170,7 @@ ul.k2flist li
 
 .complex .fvc > .fv > ul.k2flist > li .fp > .fv > span { background:inherit; }
 .complex .fvc > .fv > ul.k2flist > li { border-left:1px solid #43413D; background:inherit; margin-bottom:0.5em; }
-.complex .fvc > .fv > ul.k2flist > li > div { background:inherit; padding:0px; }
+.complex .fvc > .fv > ul.k2flist > li > div { padding:0px; }
 .complex .fvc > .fv > ul.k2flist > li > div .clr { display:none; }
 
 a.k2flink { }

@@ -18,6 +18,7 @@ class K2FieldsControllerEditor extends JController {
                 $pkg['widgetkit_k2'] = $this->widgetkitparams($field);
                 $pkg['icon_themes'] = $this->iconThemes();
                 $pkg['aclusergroups'] = $this->aclusergroups();
+                $pkg['fabrik_k2'] = $this->fabrikparams();
                 // aclviewgroups
                 if (!$send) return $pkg;
                 echo json_encode($pkg);
@@ -259,6 +260,35 @@ order by groupid, `text`
                 if (!$send) return $res;
                 echo json_encode($res);
                 JFactory::getApplication()->close();
+        }
+
+        function fabrikparams() {
+                $result = array();
+
+                $db = JFactory::getDbo();
+                $query = $db->getQuery(true);
+                $query
+                        ->select('id AS value, label AS ' . $db->quote('text'))
+                        ->from('#__fabrik_forms')
+                        ->where('published > 0')
+                        ->order('published DESC, label ASC')
+                        ;
+                $db->setQuery($query);
+                $result['forms'] = $db->loadObjectList();
+
+                $query = $db->getQuery(true);
+                $query
+                        ->select('distinct e.id as value, CONCAT(e.name, " (", e.id, "/", f.label, "/", g.name, ")") as '.$db->quote('text').', fg.form_id, fg.group_id, g.name as group_name')
+                        ->from('#__fabrik_elements e, #__fabrik_formgroup fg, #__fabrik_groups g, #__fabrik_forms f')
+                        ->where('e.group_id = g.id and fg.group_id = g.id and f.id = fg.form_id and f.published > 0 and g.published > 0 and e.published > 0')
+                        ->order('f.id, fg.ordering, e.ordering')
+                        ;
+                $db->setQuery($query);
+                $result['elements'] = $db->loadObjectList();
+
+                $result['layouts'] = JFolder::folders(JPATH_SITE.'/components/com_fabrik/views/form/tmpl');
+
+                return $result;
         }
 
         function widgetkitparams($field) {

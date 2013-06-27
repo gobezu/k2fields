@@ -56,13 +56,19 @@ class K2FieldsModelFields extends K2Model {
                         $query .= ' (i.publish_down = '.$db->quote($nullDate).' OR i.publish_down >= '.$db->quote($now).') AND ';
                         $query .= ' i.access IN (' . implode(',', $user->getAuthorisedViewLevels()) . ')';
 
-                        $query = 'SELECT v.fieldid, MIN(v.value) as `min`, MAX(v.value) as `max`, COUNT(v.value) as cnt FROM #__k2_extra_fields_values AS v WHERE v.itemid IN ('.$query.') GROUP BY fieldid';
+                        $query = 'SELECT IF(ISNULL(v.subfieldid), v.fieldid, v.subfieldid) as fid, MIN(v.value) as `min`, MAX(v.value) as `max`, COUNT(v.value) as cnt FROM #__k2_extra_fields_values AS v WHERE v.itemid IN ('.$query.') GROUP BY fid';
 
                         $db->setQuery($query);
-                        $minMax = $db->loadObjectList('fieldid');
+                        $minMax = $db->loadObjectList('fid');
                 }
 
-                if (!is_numeric($field)) $field = self::value($field, 'id');
+                if (!is_numeric($field)) {
+                        $fieldId = self::value($field, 'id');
+                        if (empty($fieldId) || $fieldId < 0) {
+                                $fieldId = self::value($field, 'subfieldid');
+                        }
+                        $field = $fieldId;
+                }
 
                 return isset($minMax[$field]) ? $minMax[$field] : '';
         }
@@ -839,6 +845,13 @@ class K2FieldsModelFields extends K2Model {
                                                         $multiParts = is_array($field->value) ? $field->value : array($field->value);
                                                 }
 
+                                                if (self::isType($fieldData, 'complex') && $r->partindex >= 0) {
+                                                        $subfields = self::value($fieldData, 'subfields');
+                                                        $r->subfieldid = $subfields[$r->partindex]['subfieldid'];
+                                                } else {
+                                                        $r->subfieldid = null;
+                                                }
+
                                                 for ($r->index = 0, $mp = count($multiParts); $r->index < $mp; $r->index++) {
                                                         $r->value = $multiParts[$r->index];
 
@@ -1138,7 +1151,7 @@ class K2FieldsModelFields extends K2Model {
                         case 'range':
                                 $i = $options['low'];
                                 $h = $options['high'];
-                                $s = $options['step'] ? $options['step'] : 1;
+                                $s = !empty($options['step']) ? $options['step'] : 1;
                                 $va = isset($options['show']) ? $options['show'] : false;
                                 $options['values'] = array();
 
@@ -2241,8 +2254,10 @@ class K2FieldsModelFields extends K2Model {
                                         unset($fields[$field]);
                         }
                 }
-
+// jdbg::p($fields);
                 self::filterBasedOnView($fields, $filterView);
+                //jdbg::pe($fields);
+
 //                $mapFields = JprovenUtility::getRow($fields, array('isMap'=>true), false);
 //                $mapFields = JprovenUtility::indexBy($mapFields, 'id', 'all', null, true, true);
 //                if (!empty($mapFields)) {
@@ -3309,6 +3324,8 @@ class K2FieldsModelFields extends K2Model {
                         $img = self::value($value, 'img');
                 }
 
+                $fId = self::value($field, 'id');
+
                 $cleanTxt = $txt;
                 $rendered = '';
 
@@ -3331,6 +3348,8 @@ class K2FieldsModelFields extends K2Model {
                                 $img = JURI::root().$img;
                         } else if (JFile::exists(JPATH_SITE.'/'.JprovenUtility::loc().'icons/'.$img)) {
                                 $img = JURI::root().JprovenUtility::loc().'icons/'.$img;
+                        } else {
+
                         }
 
                         $alt = JprovenUtility::html($cleanTxt);
@@ -3341,6 +3360,8 @@ class K2FieldsModelFields extends K2Model {
                         $format = $rule['format'];
                 } else {
                         $view = JFactory::getApplication()->input->get('view', '', 'cmd');
+                        if ($view == 'item') $view = '';
+                        else $view = 'itemlist';
                         $format = self::value($field, 'format'.$view);
                         if (empty($format)) $format = self::value($field, 'format');
                 }
@@ -3362,9 +3383,9 @@ class K2FieldsModelFields extends K2Model {
                         $format = '%text%';
                 }
 
-//                $fId = self::value($field, 'id');
-//                jdbg::p($format, $fId, 84);
-//                jdbg::pe($txt, $fId, 84);
+               // jdbg::p($format, $fId, 18);
+               // jdbg::p($img, $fId, 18);
+               // jdbg::pe($txt, $fId, 18);
 
 
                 if (!$isMetaAdded) {
@@ -3395,7 +3416,7 @@ class K2FieldsModelFields extends K2Model {
 
                 $rendered .=  str_ireplace(
                         array('%value%', '%img%', '%text%'),
-                        array($val, $img, $txt),
+                        array($val, $img, '<span class="txt">'.$txt.'</span>'),
                         $format
                 );
 
@@ -3537,21 +3558,38 @@ class K2FieldsModelFields extends K2Model {
                 foreach ($values as $listValue)
                         $listValues[] = JprovenUtility::indexBy($listValue, 'partindex');
 
+                $fieldId = self::value($field, 'id');
+
                 // TODO: Handle embedded schema types
                 foreach ($listValues as $listIndex => $partsValues) {
                         $renderedValues[$listIndex] = '';
 
                         foreach ($partsValues as $partIndex => $partValues) {
+                                if ($partIndex == -1) {
+                                        $conditions = JprovenUtility::getColumn($partValues, 'value');
+                                        $conds = array();
+
+                                        foreach ($partValues as $partValue) {
+                                                $partValue->value = trim($partValue->value);
+
+                                                if (!empty($partValue->value)) {
+                                                        $conds[] = $partValue->value;
+                                                }
+                                        }
+
+                                        if (!empty($conds)) {
+                                                $renderedValues[$listIndex] .= '<span class="condition">'.implode(', ', $conds).'</span>';
+                                        }
+
+                                        continue;
+                                }
+
                                 if (!isset($subfields[$partIndex])) continue;
 
                                 $fld = $subfields[$partIndex];
 
                                 self::setValue($fld, 'partindex', $partIndex);
 
-                                if ($partIndex == -1) {
-                                        // TODO: handle condition properly
-                                        continue;
-                                }
 
                                 $renderer = $this->getRenderer($fld);
 
@@ -3882,6 +3920,166 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                 $results[$data] = $rec;
 
                 return $rec;
+        }
+
+        public function renderEmbeddedForm($item, $values, $field, $helper, $rule = null) {
+                $view = JFactory::getApplication()->input->get('view', '', 'cmd');
+
+                if ($view != 'item') return '';
+
+                $rendered = '';
+
+                $form = self::value($field, 'fabrik_form');
+
+                if (empty($form)) return JText::_('K2FIELDS_FABRIK_FORM_MISSING');
+
+                $Itemid = JRequest::getVar('Itemid');
+
+                $elementsK2 = self::value($field, 'fabrik_elements_k2');
+                $elementsK2fields = self::value($field, 'fabrik_elements_k2fields');
+
+                $db = JFactory::getDbo();
+
+                $fieldIds = JprovenUtility::getColumn($elementsK2fields, 0);
+                $fieldsValues = $this->itemValues($item->id, $fieldIds);
+                $fieldsValues['k2itemid'] = array('txt' => $item->id);
+                $fieldsValues['k2itemtitle'] = array('txt' => $item->title);
+                $fieldsValues['k2categoryid'] = array('txt' => $item->category->id);
+                $fieldsValues['k2categorytitle'] = array('txt' => $item->category->name);
+                $fieldsValues['itemid'] = array('txt' => JRequest::getInt('Itemid'));
+
+                $PRE = 'K2FIELDS_FABRIK_MAP_';
+
+                $query = 'UPDATE #__fabrik_elements SET eval = 1, ' . $db->quoteName('default') . ' = '.$db->quote("return JRequest::getVar('".$PRE."%id%');").' WHERE id = %id%';
+
+                $queries = array();
+
+                foreach ($elementsK2fields as $el) {
+                        $fieldId = $el[0];
+                        $elementId = (int) $el[1];
+
+                        if (!$elementId) continue;
+
+                        $value = $fieldsValues[$fieldId];
+                        $value = (array) JprovenUtility::getColumn($value, array('txt', 'value'));
+                        $value = implode(', ', $value);
+
+                        JRequest::setVar($PRE . $elementId, $value);
+
+                        // $queries[] = str_replace('%id%', $elementId, $query);
+                        $_query = str_replace('%id%', $elementId, $query);
+                        $db->setQuery($_query);
+                        $db->query();
+                }
+
+                foreach ($elementsK2 as $el) {
+                        $part = $el[0];
+                        $elementId = $el[1];
+
+                        switch ($part) {
+                                case 'k2itemid':
+                                        $value = $item->id;
+                                        break;
+                                case 'k2itemtitle':
+                                        $value = $item->title;
+                                        break;
+                                case 'k2categoryid':
+                                        $value = $item->category->id;
+                                        break;
+                                case 'k2categorytitle':
+                                        $value = $item->category->name;
+                                        break;
+                                case 'itemid':
+                                        $value = JRequest::getInt('Itemid');
+                                        break;
+                                default:
+                                        continue;
+                                        break;
+                        }
+
+                        JRequest::setVar($PRE . $elementId, $value);
+
+                        // $queries[] = str_replace('%id%', $elementId, $query);
+
+                        $_query = str_replace('%id%', $elementId, $query);
+                        $db->setQuery($_query);
+                        $db->query();
+                }
+
+                // TODO: use the single query option instead of firing too many db updates
+
+                // $queries = implode(';'."\n", $queries).';';
+                // $db->setQuery($queries);
+                // $res = $db->query();
+
+                $layout = self::value($field, 'fabrik_layout', 'default');
+                $ajax = self::value($field, 'fabrik_ajax', true);
+
+                // Adapted from fabriks form module mod_fabrik_form
+
+                $app = JFactory::getApplication();
+
+                // Ensure the package is set to fabrik
+                $prevUserState = $app->getUserState('com_fabrik.package');
+                $app->setUserState('com_fabrik.package', 'fabrik');
+
+                jimport('joomla.filesystem.file');
+
+                // Load front end language file as well
+                $lang = JFactory::getLanguage();
+                $lang->load('com_fabrik', JPATH_BASE . '/components/com_fabrik');
+
+                if (!defined('COM_FABRIK_FRONTEND'))
+                {
+                        JError::raiseError(400, JText::_('COM_FABRIK_SYSTEM_PLUGIN_NOT_ACTIVE'));
+                }
+
+                FabrikHelperHTML::framework();
+                require_once COM_FABRIK_FRONTEND . '/controllers/form.php';
+
+                // $$$rob looks like including the view does something to the layout variable
+                $origLayout = JRequest::getVar('layout');
+                require_once COM_FABRIK_FRONTEND . '/views/form/view.html.php';
+                require_once COM_FABRIK_FRONTEND . '/views/package/view.html.php';
+                require_once COM_FABRIK_FRONTEND . '/views/list/view.html.php';
+
+                JRequest::setVar('layout', $origLayout);
+
+                JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_fabrik/tables');
+                JModel::addIncludePath(COM_FABRIK_FRONTEND . '/models', 'FabrikFEModel');
+
+                $origView = JRequest::getVar('view');
+
+                JRequest::setVar('view', 'form');
+                $controller = new FabrikControllerForm;
+
+                /* $$$rob for table views in category blog layouts when no layout specified in {} the blog layout
+                 * was being used to render the table - which was not found which gave a 500 error
+                */
+                JRequest::setVar('layout', $layout);
+
+                // Display the view
+                $controller->isMambot = true;
+                $origFormid = JRequest::getInt('formid');
+                $origAjax = JRequest::getVar('ajax');
+
+                JRequest::setVar('formid', $form);
+                JRequest::setVar('ajax', $ajax);
+
+                ob_start();
+                $controller->display();
+                $ui = ob_get_clean();
+
+                // Reset the layout and view etc for when the component needs them
+                JRequest::setVar('formid', $origFormid);
+                JRequest::setVar('ajax', $origAjax);
+                JRequest::setVar('layout', $origLayout);
+                JRequest::setVar('view', $origView);
+
+                // Set the package back to what it was before rendering the module
+                $app->setUserState('com_fabrik.package', $prevUserState);
+
+                return $ui;
         }
 
         public function renderForm($item, $values, $field, $helper, $rule = null) {
@@ -4700,6 +4898,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                                 }
                         } else if ($key == 'levels') {
                                 $val = explode(self::VALUE_SEPARATOR, $val);
+                        } else if ($key == 'fabrik_elements_k2' || $key == 'fabrik_elements_k2fields') {
+                                $val = explode(self::VALUE_SEPARATOR, $val);
+                                foreach ($val as &$v) {
+                                        $v = explode(self::VALUE_COMP_SEPARATOR, $v);
+                                }
                         } else if (in_array($key, array('deps', 'interval'))) {
                                 $val = json_decode($val);
                         } else if ($key == 'access') {
@@ -4749,8 +4952,11 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
 
                                 foreach ($sopts as &$sopt) {
                                         foreach ($overs as $over) {
-                                                if (isset($options[$over]))
+                                                if (isset($options[$over])) {
                                                         $sopt[$over] = $options[$over];
+                                                } else if (isset($sopt[$over])) {
+                                                        unset($sopt[$over]);
+                                                }
                                         }
                                 }
                         }
@@ -4876,6 +5082,7 @@ var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po
                         if (in_array($ui, array('slider', 'rangeslider'))) {
                                 $adaptMinMax = self::isTrue($options, 'adaptminmax');
                                 $id = self::value($options, 'id');
+                                $minMax = null;
 
                                 if (!isset($options['min']) || $adaptMinMax) {
                                         $minMax = self::getMinMax($options);

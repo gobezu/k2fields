@@ -2,6 +2,8 @@
 $Copyrightcss$
 */
 
+.chosen-option-text { display:inline-block; width:115px; }
+
 .icon-32-cancel { background-image: url(../../../administrator/templates/khepri/images/toolbar/icon-32-cancel.png); }
 .icon-32-save { background-image: url(../../../administrator/templates/khepri/images/toolbar/icon-32-save.png); }
 div.toolbar { float: right; text-align: right; padding: 0; }

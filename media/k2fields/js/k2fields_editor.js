@@ -499,6 +499,7 @@ var k2fieldseditor = new Class({
                                         {'label':'internet'},
                                         {'value':'email','text':'email'},
                                         {'value':'form','text':'form'},
+                                        {'value':'embeddedform','text':'embedded form'},
                                         {'value':'url','text':'url'},
                                         {'label':'social'},
                                         {'value':'facebook','text':'facebook'},
@@ -531,7 +532,7 @@ var k2fieldseditor = new Class({
                                         'title':['id:1301', 'id:1302', 'id:1303'],
                                         'rate':['id:1301'],
                                         'complex':['id:1051', 'id:1052'],
-                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:13990', 'id:1389', 'id:1390', 'id:1391', 'id:13991', 'id:13992', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:2001'],
+                                        'map':['id:11', 'id:1351', 'id:1352', 'id:1353', 'id:1354', 'id:1355', 'id:1356', 'id:1357', 'id:1358', 'id:1359', 'id:1360', 'id:1361', 'id:1362', 'id:1363', 'id:1364', 'id:1365', 'id:1366', 'id:1367', 'id:1368', 'id:1369', 'id:1370', 'id:1371', 'id:1372', 'id:1373', 'id:1374', 'id:1375', 'id:1376', 'id:1377', 'id:1378', 'id:1379', 'id:1380', 'id:1381', 'id:1382', 'id:1383', 'id:1384', 'id:1385', 'id:1386', 'id:1387', 'id:1388', 'id:13990', 'id:1389', 'id:1390', 'id:1391', 'id:13991', 'id:13992', 'id:1392', 'id:1393', 'id:1394', 'id:1395', 'id:1397', 'id:1398', 'id:1399', 'id:101399'],
                                         'alias':['id:1451', 'id:1452'],
                                         'range':['id:3', 'id:1501', 'id:15011', 'id:1502', 'id:15021', 'id:1503', 'id:15031', 'id:1504', 'id:1505'],
                                         'facebook':['id:1601', 'id:1602', 'id:1603', 'id:1604', 'id:1605', 'id:1606', 'id:1607', 'id:1608'],
@@ -542,6 +543,7 @@ var k2fieldseditor = new Class({
                                         'readability':['id:1851', 'id:1852', 'id:1853', 'id:1854', 'id:1855', 'id:1856', 'id:1857'],
                                         'flattr':['id:1901', 'id:1902', 'id:1903', 'id:1904', 'id:1905', 'id:1906'],
                                         'form':['id:1951', 'id:1952', 'id:1953', 'id:1954', 'id:1956', 'id:1957', 'id:1958'],
+                                        'embeddedform':['id:2001', 'id:2002', 'id:2003', 'id:2004', 'id:2005'],
                                         'title':['id:11']
                                 },
                                 'required':'1',
@@ -1451,7 +1453,12 @@ var k2fieldseditor = new Class({
                                 optName:'overrideSubfieldsProps',
                                 valid:'int',
                                 ui:'checkbox',
-                                values:['view', 'folded'],
+                                values:[
+                                        {value:'view',text:'View'},
+                                        {value:'folded',text:'Folded'},
+                                        {value:'showlabel',text:'Show label'},
+                                        {value:'itemlistshowlabel',text:'Show label (itemlist)'}
+                                ],
                                 sorted:true,
                                 'section':'Type specific'
                         },
@@ -2662,7 +2669,15 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific',
                                 'default':1
                         },
-
+                        '101399':{
+                                'name':'Show map as (TBI)',
+                                'optName':'showmapas',
+                                'valid':'text',
+                                'values':['link', 'staticmap', 'map', 'label'],
+                                'ui':'radio',
+                                'tip':'When in itemlist view and field is available in itemlist mode and map layout is not set how should we render map',
+                                'section':'Type specific'
+                        },
                         '1401':{
                                 'name':'Source',
                                 'optName':'source',
@@ -3136,13 +3151,65 @@ var k2fieldseditor = new Class({
                                 'section':'Type specific'
                         },
                         '2001':{
-                                'name':'Show map as (TBI)',
-                                'optName':'showmapas',
-                                'valid':'text',
-                                'values':['link', 'staticmap', 'map', 'label'],
-                                'ui':'radio',
-                                'tip':'When in itemlist view and field is available in itemlist mode and map layout is not set how should we render map',
+                                'name':'E-mail address',
+                                'optName':'email',
+                                'valid':'email',
+                                'section':'Type specific',
+                                'size':50
+                        },
+                        '2002':{
+                                'name':'Form',
+                                'optName':'fabrik_form',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':this.options.options['fabrik_k2']['forms'],
                                 'section':'Type specific'
+                        },
+                        '2003':{
+                                'name':'Layout',
+                                'optName':'fabrik_layout',
+                                'valid':'integer',
+                                'ui':'select',
+                                'values':this.options.options['fabrik_k2']['layouts'],
+                                'section':'Type specific',
+                                'default':'default'
+                        },
+                        '2004':{
+                                'name':'K2 item parts',
+                                'optName':'fabrik_elements_k2',
+                                'valid':'complex',
+                                'list':'normal',
+                                'subfields':[
+                                        {'name':'Type','valid':'text','ui':'select','values':[
+                                                {'value':'k2itemid', 'text':'K2 item id'},
+                                                {'value':'k2itemtitle', 'text':'K2 item title'},
+                                                {'value':'itemid', 'text':'Menu item id'},
+                                                {'value':'k2categoryid', 'text':'K2 category id'},
+                                                {'value':'k2categorytitle', 'text':'K2 category title'}
+                                        ]},
+                                        {'name':'Element','valid':'integer','ui':'select','values':this.options.options['fabrik_k2']['elements'], 'sorted':1}
+                                ],
+                                'section':'Type specific',
+                                'tip':'Set of fabrik elements that will be assigned the various values of the K2 item'
+                        },
+                        '2005':{
+                                'name':'K2 fields',
+                                'optName':'fabrik_elements_k2fields',
+                                'valid':'complex',
+                                'list':'normal',
+                                'subfields':[
+                                        {'name':'Field','valid':'integer','ui':'select','values':this.options.options['fields']},
+                                        {'name':'Element','valid':'integer','ui':'select','values':this.options.options['fabrik_k2']['elements'], 'sorted':1}
+                                ],
+                                'section':'Type specific',
+                                'tip':'Set of fabrik elements that will be assigned the various values of the K2 item'
+                        },
+                        '2006':{
+                                'name':'Use Ajax',
+                                'optName':'fabrik_ajax',
+                                'valid':'verifybox',
+                                'section':'Type specific',
+                                'default':1
                         }
              };
 

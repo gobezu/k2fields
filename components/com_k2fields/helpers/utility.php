@@ -1263,35 +1263,36 @@ group by vvv.itemid
                 // check first item specific file if in item view
                 $file = null;
 
-                if (!empty($id)) $file = self::_css($dirs, 'i'.$id);
+                if (!empty($id)) $file = self::incl($dirs, 'k2', 'css', 'i'.$id, true);
 
                 if (!$file && !empty($cid))
-                        $file = self::_css($dirs, $cid);
+                        $file = self::incl($dirs, 'k2', 'css', $cid, true);
 
                 if (!$file)
-                        $file = self::_css($dirs);
-
-                if ($file) {
-                        $document = JFactory::getDocument();
-                        $file = str_replace(JPATH_SITE.DS, '', $file);
-                        $file = JPath::clean($file, '/');
-                        $file = JURI::root().$file;
-                        $document->addStylesheet($file);
-                }
+                        $file = self::incl($dirs, 'k2', 'css', '', true);
 
                 if (!empty($id)) $processed['id'][] = $id;
                 if (!empty($cid)) $processed['cid'][] = $cid;
         }
 
-        protected static function _css($dirs, $parts = '') {
+        public static function incl($dirs, $fileBase, $fileExt, $parts = array(), $isInclude = false) {
                 jimport('joomla.filesystem.path');
 
                 $parts = (array) $parts;
+                $file = '';
 
                 foreach ($parts as $part) {
-                        if ($file = JPath::find($dirs, 'k2'.$part.'.css')) {
-                                return $file;
+                        if ($file = JPath::find($dirs, $fileBase.$part.'.'.$fileExt)) {
+                                break;
                         }
+                }
+
+                if ($file) {
+                        if ($isInclude) {
+                                self::loc(false, true, $file, true, $fileExt);
+                        }
+
+                        return $file;
                 }
 
                 return false;
@@ -1920,7 +1921,7 @@ group by vvv.itemid
                 $item = empty($item) ? null : $item;
                 $rules = self::parsePluginValues($text, $plgName, array('item', 'fields'), array($item));
 
-                if (empty($rules)) return false;
+                if (empty($rules)) return $content;
 
                 if ($provided && empty($item)) {
                         $item = key($rules);
@@ -2193,18 +2194,25 @@ group by vvv.itemid
          * customized version of JArrayHelper with ability to get column
          * of array with arbitrary key sets
          */
-        public static function getColumn($array, $index, $unique = false, $criterias = array(), $maintainIndex = false) {
+        public static function getColumn($array, $indexes, $unique = false, $criterias = array(), $maintainIndex = false) {
                 $result = array();
 
                 $array = self::getRow($array, $criterias);
 
                 if (is_array($array)) {
+                        $indexes = (array) $indexes;
+
                         foreach ($array as $arrInd => $item) {
-                                $passed = true;
-                                if (is_array($item) && isset($item[$index])) {
-                                        $result[$maintainIndex ? $arrInd : count($result)] = $item[$index];
-                                } elseif (is_object($item) && isset($item->$index)) {
-                                        $result[$maintainIndex ? $arrInd : count($result)] = $item->$index;
+                                $assigned = false;
+                                foreach ($indexes as $index) {
+                                        if (is_array($item) && isset($item[$index])) {
+                                                $result[$maintainIndex ? $arrInd : count($result)] = $item[$index];
+                                                $assigned = true;
+                                        } elseif (is_object($item) && isset($item->$index)) {
+                                                $result[$maintainIndex ? $arrInd : count($result)] = $item->$index;
+                                                $assigned = true;
+                                        }
+                                        if ($assigned) break;
                                 }
                         }
                 }

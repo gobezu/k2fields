@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_list_values` (
         PRIMARY KEY (`id`),
         INDEX `idx_left_right` (`lft`, `rgt`),
         INDEX `idx_list_list` (`list`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8; 
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_values` (
         `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_values` (
         `listindex` TINYINT(4) NOT NULL DEFAULT 0,
         `partindex` TINYINT(4) NOT NULL DEFAULT 0,
         `index` TINYINT(4) NOT NULL DEFAULT 0,
+        `subfieldid` INT(11) NULL DEFAULT NULL,
         `value` TEXT NOT NULL,
         `lat` FLOAT(10,6) NULL DEFAULT NULL,
         `lng` FLOAT(10,6) NULL DEFAULT NULL,
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_values` (
         INDEX `idx_values_itemid` (`itemid`),
         INDEX `idx_values_fieldid` (`fieldid`),
         FULLTEXT INDEX `idx_values_ft` (`value`, `txt`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;                               
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__k2_extra_fields_definition` (
         `id` SMALLINT(6) NOT NULL AUTO_INCREMENT,

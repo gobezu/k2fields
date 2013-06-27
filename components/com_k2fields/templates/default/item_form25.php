@@ -18,6 +18,14 @@ defined('_JEXEC') or die('Restricted access');
 
 $app = JFactory::getApplication();
 JprovenUtility::load('k2fieldsform.css', 'css');
+// $template = JApplication::getInstance('site')->getTemplate();
+// $theme = JFactory::getApplication()->input->get('theme', 'default', 'word');
+// $dirs = array(
+//     JPATH_SITE.'/templates/'.$template.'/html/com_k2fields/templates/'.$theme.'/',
+//     JPATH_SITE.'/templates/'.$template.'/css/'
+// );
+
+// JprovenUtility::incl($dirs, 'k2fieldsform', 'css', '', true);
 
 // honoring preselected catid
 $catId = $app->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');

@@ -291,6 +291,7 @@ class plgk2k2fields extends K2Plugin {
                 }
 
                 $item->text = $plg;
+
                 $item = JprovenUtility::replacePluginValues($item, 'k2f', false, array('parsedInModule'=>$params->get('parsedInModule')));
 
                 // TODO: TOO obtrusive
@@ -602,9 +603,9 @@ class plgk2k2fields extends K2Plugin {
 
                         $theme = 'square';
                         $color = 'red';
-                        JprovenUtility::loc(true, true, 'lib/icheck/skins/all.css', true, 'css');
+                        // JprovenUtility::loc(true, true, 'lib/icheck/skins/all.css', true, 'css');
                         K2HelperHTML::loadjQuery();
-                        JprovenUtility::loc(true, true, 'lib/icheck/jquery.icheck.js', true);
+                        // JprovenUtility::loc(true, true, 'lib/icheck/jquery.icheck.js', true);
 
                         // Loading order here is important as there is dependency
                         if ($tab == 'editfields' || $tab == 'extra-fields') {

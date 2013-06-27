@@ -702,11 +702,11 @@ var k2fields_type_basic = {
                                 }
                                 var template = document.id(this).get('data-template');
                                 template = template.
-                                        replace(/%img%/g, escape(img)).
+                                        replace(/%img%/g, '<span class="chosen-option-img">'+escape(img)+'</span>').
                                         replace(/%textc%/g, escape(textc)).
                                         replace(/%valuec%/g, escape(valuec)).
-                                        replace(/%text%/g, escape(text)).
-                                        replace(/%value%/g, escape(value))
+                                        replace(/%text%/g, '<span class="chosen-option-text">'+escape(text)+'</span>').
+                                        replace(/%value%/g, '<span class="chosen-option-value">'+escape(value)+'</span>')
                                         ;
                                 template = unescape(template);
                                 return [template].join('');
@@ -726,11 +726,11 @@ var k2fields_type_basic = {
                                 }
                                 var template = document.id(this).get('data-templateSelected');
                                 template = template.
-                                        replace(/%img%/g, escape(img)).
+                                        replace(/%img%/g, '<span class="chosen-option-img">'+escape(img)+'</span>').
                                         replace(/%textc%/g, escape(textc)).
                                         replace(/%valuec%/g, escape(valuec)).
-                                        replace(/%text%/g, escape(text)).
-                                        replace(/%value%/g, escape(value))
+                                        replace(/%text%/g, '<span class="chosen-option-text">'+escape(text)+'</span>').
+                                        replace(/%value%/g, '<span class="chosen-option-value">'+escape(value)+'</span>')
                                         ;
                                 template = unescape(template);
                                 return [template].join('');

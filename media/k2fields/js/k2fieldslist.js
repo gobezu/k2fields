@@ -167,10 +167,10 @@ var k2fields_type_list = {
                                                                 c = this._listFindNode(tree, c[0]['parent_id']);
                                                         }
                                                 }
-                                                c = this._listFindRoot(tree);
-                                                r.push(c);
+                                                var cc = this._listFindRoot(tree);
+                                                r.push(cc);
                                                 r = r.flatten();
-                                                v[0] = c[0]['value'];
+                                                v[0] = c['value'];
                                         } else {
                                                 r = this._listFindSyblings(tree, c);
                                         }
